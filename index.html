@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, maximum-scale=1" />
+  <meta name="theme-color" content="#10121b" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <meta name="apple-mobile-web-app-title" content="Texas Method" />
+  <title>Texas Method Trainer</title>
+  <link rel="manifest" href="manifest.json" />
+  <link rel="apple-touch-icon" href="icons/icon-192.png" />
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <div id="app">
+    <header class="topbar">
+      <div class="brand">
+        <span class="logo" aria-hidden="true">▦</span>
+        <div>
+          <h1 id="screenTitle">Today</h1>
+          <p id="screenSub" class="sub"></p>
+        </div>
+      </div>
+      <button id="rfresh" class="ghost-btn" title="Jump to current day">⟳</button>
+    </header>
+
+    <main id="view"><!-- screens render here --></main>
+
+    <nav class="tabbar" role="tablist">
+      <button class="tab active" data-tab="today"><span>🏋️</span>Today</button>
+      <button class="tab" data-tab="program"><span>📅</span>Program</button>
+      <button class="tab" data-tab="stats"><span>📈</span>Stats</button>
+      <button class="tab" data-tab="setup"><span>⚙️</span>Setup</button>
+    </nav>
+  </div>
+
+  <!-- Rest timer floating widget -->
+  <div id="restTimer" class="rest-timer hidden">
+    <button id="restMinus">−15</button>
+    <div id="restDisplay">2:00</div>
+    <button id="restPlus">+15</button>
+    <button id="restStop" class="rest-stop">✕</button>
+  </div>
+
+  <script src="app.js"></script>
+</body>
+</html>
