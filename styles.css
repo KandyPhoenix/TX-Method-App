@@ -91,18 +91,41 @@ h2.section { font-size: 13px; text-transform: uppercase; letter-spacing: 1.2px; 
   padding: 12px 16px; border-bottom: 1px solid var(--line);
 }
 .set-row:last-child { border-bottom: none; }
-.set-row .lbl { width: 78px; font-size: 13px; color: var(--muted); }
+.set-row .lbl { width: 90px; font-size: 13px; color: var(--muted); flex: 0 0 auto; }
 .set-row .wt { font-size: 19px; font-weight: 700; flex: 1; }
 .set-row .wt small { font-size: 12px; color: var(--muted); font-weight: 500; }
-.set-row .reps { font-size: 14px; color: var(--muted); width: 54px; text-align: right; }
+.set-row .reps { font-size: 14px; color: var(--muted); width: 54px; text-align: right; flex: 0 0 auto; }
 .check {
   width: 30px; height: 30px; border-radius: 9px; border: 2px solid var(--line);
   background: transparent; display: grid; place-items: center; cursor: pointer; flex: 0 0 auto;
   color: transparent; font-size: 16px; transition: .12s;
 }
 .check.on { background: var(--green); border-color: var(--green); color: #07271b; }
-.set-row.work { background: rgba(255,122,24,.06); }
-.set-row.work .wt { color: var(--accent2); }
+
+/* warm-up stripe — amber 🔥 */
+.set-row.warmup {
+  background: rgba(217,119,6,.07);
+  border-left: 3px solid #d97706;
+}
+.set-row.warmup .lbl { color: #d97706; }
+
+/* work-set stripe — bold orange 💪 */
+.set-row.workset {
+  background: rgba(255,122,24,.11);
+  border-left: 3px solid var(--accent);
+}
+.set-row.workset .lbl { color: var(--accent2); }
+.set-row.workset .wt  { color: var(--accent2); }
+
+/* "Sets" divider between warm-ups and work sets */
+.sets-divider {
+  font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 1.1px;
+  color: var(--muted); padding: 6px 16px 5px;
+  background: var(--bg2); border-top: 1px solid var(--line); border-bottom: 1px solid var(--line);
+}
+
+/* plate math line under weight */
+.plate-math { font-size: 11px; color: var(--muted); font-weight: 500; margin-top: 2px; }
 
 /* work-set logging */
 .log-row {
@@ -224,6 +247,14 @@ table.prog td.s { text-align: right; color: var(--muted); width: 60px; }
 #restDisplay { font-size: 20px; font-weight: 800; min-width: 64px; text-align: center; font-variant-numeric: tabular-nums; }
 .rest-timer .rest-stop { background: rgba(248,113,113,.15); color: var(--red); }
 .rest-timer.warn #restDisplay { color: var(--accent2); }
+
+/* plate chips */
+.plate-chips { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 6px; }
+.plate-chip {
+  padding: 8px 14px; border-radius: 999px; font-size: 13px; font-weight: 700;
+  background: var(--panel2); border: 1px solid var(--line); color: var(--muted); cursor: pointer;
+}
+.plate-chip.on { background: var(--accent); color: #1a1205; border-color: var(--accent); }
 
 .empty { text-align: center; color: var(--muted); padding: 40px 20px; }
 .empty .big { font-size: 40px; margin-bottom: 10px; }
