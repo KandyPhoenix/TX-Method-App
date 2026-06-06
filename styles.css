@@ -124,12 +124,12 @@ h2.section { font-size: 13px; text-transform: uppercase; letter-spacing: 1.2px; 
   box-shadow: 0 0 10px var(--lime-glow);
 }
 
-/* warm-up rows — subtle lime-dim bg + darker stripe */
-.set-row.warmup { background: rgba(170,255,0,.04); border-left: 4px solid #66aa00; }
+/* warm-up rows — stripe only, no bg tint */
+.set-row.warmup { background: transparent; border-left: 4px solid #66aa00; }
 .set-row.warmup .lbl { color: #88dd00; font-weight: 700; }
 
-/* work-set rows — brighter lime bg tint + full lime stripe */
-.set-row.workset { background: rgba(170,255,0,.07); border-left: 4px solid var(--lime); }
+/* work-set rows — stripe only, no bg tint */
+.set-row.workset { background: transparent; border-left: 4px solid var(--lime); }
 .set-row.workset .lbl { color: var(--lime); font-weight: 700; }
 .set-row.workset .wt  { color: #ffffff; }
 
