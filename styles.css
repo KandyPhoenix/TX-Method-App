@@ -92,8 +92,20 @@ h2.section { font-size: 13px; text-transform: uppercase; letter-spacing: 1.2px; 
   transition: opacity .25s ease;
 }
 .set-row:last-child { border-bottom: none; }
-.set-row.done { opacity: .32; }
-.set-row.done .check { opacity: 1; }
+.set-row.done { position: relative; }
+.set-row.done .lbl,
+.set-row.done .wt,
+.set-row.done .reps,
+.set-row.done .plate-math { opacity: .18; transition: opacity .25s; }
+.set-row.done::after {
+  content: '';
+  position: absolute;
+  left: 16px; right: 52px; top: 50%;
+  height: 2.5px;
+  background: var(--red);
+  border-radius: 2px;
+  opacity: .75;
+}
 .set-row .lbl { width: 90px; font-size: 13px; color: var(--muted); flex: 0 0 auto; }
 .set-row .wt { font-size: 19px; font-weight: 700; flex: 1; }
 .set-row .wt small { font-size: 12px; color: var(--muted); font-weight: 500; }
