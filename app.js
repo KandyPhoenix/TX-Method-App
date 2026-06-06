@@ -317,7 +317,7 @@ function liftCard(lf, logKey, log) {
       const id  = `${lf.key}_w_${i}`;
       const on  = log.checks && log.checks[id] ? 'on' : '';
       const rep = lf.targetReps ? `${lf.targetReps} reps` : 'AMRAP';
-      rows += `<div class="set-row workset">
+      rows += `<div class="set-row workset ${on ? 'done' : ''}">
         <div class="lbl">💪 Set ${i + 1} of ${lf.sets.length}</div>
         <div class="wt">Bodyweight</div>
         <div class="reps">${rep}</div>
@@ -335,7 +335,7 @@ function liftCard(lf, logKey, log) {
     const id    = `${lf.key}_wu_${i}`;
     const on    = log.checks && log.checks[id] ? 'on' : '';
     const math  = plateMath(wu.weight, b, plts);
-    warmupRows += `<div class="set-row warmup">
+    warmupRows += `<div class="set-row warmup ${on ? 'done' : ''}">
       <div class="lbl">🔥 ${wu.label}</div>
       <div class="wt">${fmt(wu.weight)} <small>${unit()}</small>
         <div class="plate-math">${math}</div></div>
@@ -349,7 +349,7 @@ function liftCard(lf, logKey, log) {
     const id   = `${lf.key}_w_${i}`;
     const on   = log.checks && log.checks[id] ? 'on' : '';
     const math = plateMath(st.weight, b, plts);
-    setRows += `<div class="set-row workset">
+    setRows += `<div class="set-row workset ${on ? 'done' : ''}">
       <div class="lbl">💪 Set ${i + 1} of ${lf.sets.length}</div>
       <div class="wt">${fmt(st.weight)} <small>${unit()}</small>
         <div class="plate-math">${math}</div></div>
@@ -392,6 +392,7 @@ function wireToday(logKey) {
       const id = btn.dataset.check;
       log.checks[id] = !log.checks[id];
       btn.classList.toggle('on', log.checks[id]);
+      btn.closest('.set-row').classList.toggle('done', log.checks[id]);
       save();
       if (log.checks[id]) startRest(120);
     };

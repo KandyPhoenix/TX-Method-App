@@ -89,8 +89,11 @@ h2.section { font-size: 13px; text-transform: uppercase; letter-spacing: 1.2px; 
 .set-row {
   display: flex; align-items: center; gap: 12px;
   padding: 12px 16px; border-bottom: 1px solid var(--line);
+  transition: opacity .25s ease;
 }
 .set-row:last-child { border-bottom: none; }
+.set-row.done { opacity: .32; }
+.set-row.done .check { opacity: 1; }
 .set-row .lbl { width: 90px; font-size: 13px; color: var(--muted); flex: 0 0 auto; }
 .set-row .wt { font-size: 19px; font-weight: 700; flex: 1; }
 .set-row .wt small { font-size: 12px; color: var(--muted); font-weight: 500; }
