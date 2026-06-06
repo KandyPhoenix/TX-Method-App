@@ -264,20 +264,53 @@ table.prog td.s { text-align: right; color: var(--muted); width: 60px; }
 .tab span { font-size: 21px; }
 .tab.active { color: var(--lime); }
 
-/* ---------- Rest timer ---------- */
-.rest-timer {
-  position: fixed; bottom: calc(78px + var(--safe-bottom)); left: 50%; transform: translateX(-50%);
-  z-index: 40; display: flex; align-items: center; gap: 10px;
-  background: var(--panel2); border: 1px solid var(--border); border-radius: 999px;
-  padding: 8px 10px; box-shadow: 0 8px 24px rgba(0,0,0,.6);
+/* ---------- Rest timer bar ---------- */
+.rest-bar {
+  position: fixed;
+  bottom: calc(64px + var(--safe-bottom));   /* sits just above tab bar */
+  left: 0; right: 0; z-index: 40;
+  background: #111111;
+  border-top: 1px solid var(--border);
+  border-bottom: 1px solid var(--border);
 }
-.rest-timer button {
-  border: 1px solid var(--border); background: var(--panel); color: #fff; border-radius: 999px;
-  padding: 8px 12px; font-weight: 700; cursor: pointer; font-size: 13px;
+.rest-bar.hidden { display: none; }
+
+/* draining progress bar — full width, sits at very top of the bar */
+.rest-bar-track {
+  height: 4px; background: var(--bg2); width: 100%;
 }
-#restDisplay { font-size: 20px; font-weight: 800; min-width: 64px; text-align: center; font-variant-numeric: tabular-nums; color: #fff; }
-.rest-timer .rest-stop { background: #1a0000; color: var(--red); border-color: rgba(255,51,51,.5); }
-.rest-timer.warn #restDisplay { color: var(--lime); }
+.rest-bar-fill {
+  height: 100%; background: var(--lime);
+  width: 100%; transition: width .9s linear;
+  box-shadow: 0 0 8px var(--lime-glow);
+}
+
+/* row with controls */
+.rest-bar-row {
+  display: flex; align-items: center;
+  padding: 10px 16px; gap: 12px;
+}
+.rest-center {
+  flex: 1; display: flex; flex-direction: column; align-items: center;
+}
+.rest-label {
+  font-size: 10px; font-weight: 800; letter-spacing: 2px;
+  color: var(--lime); text-transform: uppercase; line-height: 1;
+}
+#restDisplay {
+  font-size: 32px; font-weight: 900; font-variant-numeric: tabular-nums;
+  color: #ffffff; line-height: 1.1; letter-spacing: -1px;
+}
+.rest-ctrl {
+  background: var(--panel2); color: var(--muted); border: 1px solid var(--border);
+  border-radius: 10px; padding: 8px 14px; font-size: 13px; font-weight: 700; cursor: pointer;
+}
+.rest-stop {
+  background: #1a0000; color: var(--red); border: 1px solid rgba(255,51,51,.4);
+  border-radius: 10px; padding: 8px 12px; font-size: 13px; font-weight: 700; cursor: pointer;
+}
+.rest-bar.warn #restDisplay { color: var(--lime); }
+.rest-bar.warn .rest-bar-fill { background: var(--red); box-shadow: 0 0 8px rgba(255,51,51,.5); }
 
 /* ---------- Plate chips ---------- */
 .plate-chips { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 6px; }

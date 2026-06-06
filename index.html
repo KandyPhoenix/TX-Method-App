@@ -20,7 +20,7 @@
         <div>
           <h1 id="screenTitle">Today</h1>
           <p id="screenSub" class="sub"></p>
-          <span class="version-badge">v17 · Jun 6</span>
+          <span class="version-badge">v18 · Jun 6</span>
         </div>
       </div>
       <button id="rfresh" class="ghost-btn" title="Jump to current day">⟳</button>
@@ -36,12 +36,18 @@
     </nav>
   </div>
 
-  <!-- Rest timer floating widget -->
-  <div id="restTimer" class="rest-timer hidden">
-    <button id="restMinus">−15</button>
-    <div id="restDisplay">2:00</div>
-    <button id="restPlus">+15</button>
-    <button id="restStop" class="rest-stop">✕</button>
+  <!-- Rest timer bar (sits above tab bar) -->
+  <div id="restTimer" class="rest-bar hidden">
+    <div class="rest-bar-track"><div id="restFill" class="rest-bar-fill"></div></div>
+    <div class="rest-bar-row">
+      <button id="restMinus" class="rest-ctrl">−15</button>
+      <div class="rest-center">
+        <span class="rest-label">REST</span>
+        <div id="restDisplay">2:00</div>
+      </div>
+      <button id="restPlus" class="rest-ctrl">+15</button>
+      <button id="restStop" class="rest-stop">✕</button>
+    </div>
   </div>
 
   <script src="app.js"></script>

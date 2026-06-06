@@ -742,23 +742,43 @@ function wireSetup() {
 /* =====================================================================
    REST TIMER
    ===================================================================== */
-let restInt = null, restLeft = 0;
+let restInt = null, restLeft = 0, restTotal = 0;
 const restEl   = document.getElementById('restTimer');
 const restDisp = document.getElementById('restDisplay');
+const restFill = document.getElementById('restFill');
 const fmtClock = s => `${Math.floor(s/60)}:${String(s%60).padStart(2,'0')}`;
 
 function startRest(sec) {
-  restLeft = sec; restEl.classList.remove('hidden','warn'); restDisp.textContent = fmtClock(restLeft);
+  restLeft = sec; restTotal = sec;
+  restEl.classList.remove('hidden','warn');
+  restDisp.textContent = fmtClock(restLeft);
+  restFill.style.transition = 'none';
+  restFill.style.width = '100%';
   clearInterval(restInt);
+  // let the 100% paint before starting drain animation
+  requestAnimationFrame(() => requestAnimationFrame(() => {
+    restFill.style.transition = `width ${restTotal}s linear`;
+    restFill.style.width = '0%';
+  }));
   restInt = setInterval(() => {
-    restLeft--; restDisp.textContent = fmtClock(Math.max(0, restLeft));
+    restLeft--;
+    restDisp.textContent = fmtClock(Math.max(0, restLeft));
     if (restLeft <= 10) restEl.classList.add('warn');
     if (restLeft <= 0)  { clearInterval(restInt); buzz(); setTimeout(() => restEl.classList.add('hidden'), 1500); }
   }, 1000);
 }
 function buzz() { if (navigator.vibrate) navigator.vibrate([200,80,200]); }
-document.getElementById('restPlus').onclick  = () => { restLeft += 15; restDisp.textContent = fmtClock(restLeft); };
-document.getElementById('restMinus').onclick = () => { restLeft = Math.max(0,restLeft-15); restDisp.textContent = fmtClock(restLeft); };
+function syncFill() {
+  const pct = restTotal > 0 ? (restLeft / restTotal) * 100 : 0;
+  restFill.style.transition = 'none';
+  restFill.style.width = pct + '%';
+  requestAnimationFrame(() => requestAnimationFrame(() => {
+    restFill.style.transition = `width ${restLeft}s linear`;
+    restFill.style.width = '0%';
+  }));
+}
+document.getElementById('restPlus').onclick  = () => { restLeft += 15; restTotal = Math.max(restTotal, restLeft); restDisp.textContent = fmtClock(restLeft); syncFill(); };
+document.getElementById('restMinus').onclick = () => { restLeft = Math.max(0,restLeft-15); restDisp.textContent = fmtClock(restLeft); syncFill(); };
 document.getElementById('restStop').onclick  = () => { clearInterval(restInt); restEl.classList.add('hidden'); };
 
 /* =====================================================================
