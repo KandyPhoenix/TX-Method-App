@@ -77,7 +77,7 @@ h2.section { font-size: 13px; text-transform: uppercase; letter-spacing: 1.2px; 
 .lift-head .name { font-weight: 700; font-size: 17px; }
 .lift-head .scheme { font-size: 12.5px; color: var(--muted); }
 .badge {
-  font-size: 11px; font-weight: 700; padding: 3px 9px; border-radius: 999px;
+  font-size: 13px; font-weight: 700; padding: 5px 12px; border-radius: 999px;
   text-transform: uppercase; letter-spacing: .6px;
 }
 .badge.vol { background: rgba(96,165,250,.15); color: var(--blue); }
