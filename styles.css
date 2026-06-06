@@ -1,13 +1,13 @@
 :root {
-  --bg: #10121b;
-  --bg2: #171a26;
-  --panel: #1d2130;
-  --panel2: #242a3d;
-  --line: #2c3346;
-  --text: #eef1f8;
-  --muted: #9aa3bd;
-  --accent: #ff7a18;
-  --accent2: #ffa85a;
+  --bg: #09130c;
+  --bg2: #0d1c10;
+  --panel: #122016;
+  --panel2: #172a1b;
+  --line: #1e3824;
+  --text: #e8f5ec;
+  --muted: #6b9d79;
+  --accent: #10b981;
+  --accent2: #34d399;
   --green: #34d399;
   --red: #f87171;
   --blue: #60a5fa;
@@ -40,8 +40,8 @@ body {
 .brand { display: flex; align-items: center; gap: 12px; }
 .logo {
   font-size: 22px; width: 42px; height: 42px; display: grid; place-items: center;
-  background: linear-gradient(135deg, var(--accent), #d8590a);
-  border-radius: 12px; color: #1a1205; box-shadow: 0 6px 16px rgba(255,122,24,.25);
+  background: linear-gradient(135deg, var(--accent), #047857);
+  border-radius: 12px; color: #051a0d; box-shadow: 0 6px 16px rgba(16,185,129,.28);
 }
 .topbar h1 { font-size: 22px; margin: 0; letter-spacing: -.3px; }
 .sub { margin: 0; font-size: 12.5px; color: var(--muted); }
@@ -124,9 +124,9 @@ h2.section { font-size: 13px; text-transform: uppercase; letter-spacing: 1.2px; 
 }
 .set-row.warmup .lbl { color: #d97706; }
 
-/* work-set stripe — bold orange 💪 */
+/* work-set stripe — emerald 💪 */
 .set-row.workset {
-  background: rgba(255,122,24,.11);
+  background: rgba(16,185,129,.10);
   border-left: 3px solid var(--accent);
 }
 .set-row.workset .lbl { color: var(--accent2); }
@@ -161,7 +161,7 @@ h2.section { font-size: 13px; text-transform: uppercase; letter-spacing: 1.2px; 
   display: block; width: 100%; padding: 15px; border-radius: 14px; border: none;
   font-size: 16px; font-weight: 700; cursor: pointer; margin-top: 6px;
 }
-.btn.primary { background: linear-gradient(135deg, var(--accent), #e0640c); color: #1a1205; }
+.btn.primary { background: linear-gradient(135deg, var(--accent), #047857); color: #051a0d; }
 .btn.secondary { background: var(--panel2); color: var(--text); border: 1px solid var(--line); }
 .btn.danger { background: rgba(248,113,113,.12); color: var(--red); border: 1px solid rgba(248,113,113,.3); }
 .btn:active { transform: scale(.985); }
@@ -236,7 +236,7 @@ table.prog td.s { text-align: right; color: var(--muted); width: 60px; }
   position: fixed; bottom: 0; left: 0; right: 0; z-index: 30;
   display: flex; justify-content: space-around;
   padding: 8px 8px calc(8px + var(--safe-bottom));
-  background: rgba(18,20,30,.92); backdrop-filter: blur(14px);
+  background: rgba(9,19,12,.94); backdrop-filter: blur(14px);
   border-top: 1px solid var(--line);
 }
 .tab {
