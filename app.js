@@ -539,7 +539,7 @@ function lineChart(canvas, series, labels) {
   if (min === max) { min -= 1; max += 1; }
   const py = v => pad.t + (H - pad.t - pad.b) * (1 - (v - min) / (max - min));
   const px = i => pad.l + (W - pad.l - pad.r) * (i / (labels.length - 1));
-  ctx.strokeStyle = 'rgba(255,77,0,.15)'; ctx.fillStyle = '#9a95a8'; ctx.font = '10px -apple-system,sans-serif'; ctx.lineWidth = 1;
+  ctx.strokeStyle = 'rgba(255,77,0,.2)'; ctx.fillStyle = '#aaaaaa'; ctx.font = '10px -apple-system,sans-serif'; ctx.lineWidth = 1;
   for (let g = 0; g <= 4; g++) {
     const v = min + (max - min) * g / 4, y = py(v);
     ctx.beginPath(); ctx.moveTo(pad.l, y); ctx.lineTo(W - pad.r, y); ctx.globalAlpha = .5; ctx.stroke(); ctx.globalAlpha = 1;
@@ -554,7 +554,7 @@ function lineChart(canvas, series, labels) {
   let lx = pad.l; ctx.font = '11px -apple-system,sans-serif';
   series.forEach(s => {
     ctx.fillStyle = s.color; ctx.fillRect(lx, 2, 10, 4);
-    ctx.fillStyle = '#9a95a8'; ctx.fillText(s.name, lx + 14, 8);
+    ctx.fillStyle = '#aaaaaa'; ctx.fillText(s.name, lx + 14, 8);
     lx += ctx.measureText(s.name).width + 34;
   });
 }
@@ -773,7 +773,7 @@ function toast(msg) {
   if (!t) {
     t = document.createElement('div'); t.id = 'toast'; document.body.appendChild(t);
     Object.assign(t.style, { position:'fixed', bottom:'92px', left:'50%', transform:'translateX(-50%)',
-      background:'#1e1e1e', color:'#f0ece6', padding:'12px 18px', borderRadius:'12px', zIndex:60,
+      background:'#202020', color:'#ffffff', padding:'12px 18px', borderRadius:'12px', zIndex:60,
       border:'1px solid rgba(255,77,0,.25)', fontWeight:'700', boxShadow:'0 10px 30px rgba(0,0,0,.6)', transition:'opacity .3s' });
   }
   t.textContent = msg; t.style.opacity = '1';
