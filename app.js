@@ -518,7 +518,7 @@ function drawProjectionCharts() {
   lineChart(document.getElementById('ch1'),
     ['squat','bench','deadlift','press'].map((k,i) => ({
       name: LIFT_META[k].name,
-      color: ['#60a5fa','#ff7a18','#f87171','#34d399'][i],
+      color: ['#ff4d00','#ff8c00','#ffb800','#ff6a1a'][i],
       data: PROGRAM.map(w => oneRM(w.intensity[k], 5))
     })), labels);
   lineChart(document.getElementById('ch2'),
@@ -773,7 +773,7 @@ function toast(msg) {
   if (!t) {
     t = document.createElement('div'); t.id = 'toast'; document.body.appendChild(t);
     Object.assign(t.style, { position:'fixed', bottom:'92px', left:'50%', transform:'translateX(-50%)',
-      background:'#1a1a2e', color:'#f0ece6', padding:'12px 18px', borderRadius:'12px', zIndex:60,
+      background:'#1e1e1e', color:'#f0ece6', padding:'12px 18px', borderRadius:'12px', zIndex:60,
       border:'1px solid rgba(255,77,0,.25)', fontWeight:'700', boxShadow:'0 10px 30px rgba(0,0,0,.6)', transition:'opacity .3s' });
   }
   t.textContent = msg; t.style.opacity = '1';
