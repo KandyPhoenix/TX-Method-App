@@ -1,16 +1,16 @@
 :root {
-  --bg: #07070d;
-  --bg2: #0e0e18;
-  --panel: #131320;
-  --panel2: #1a1a2e;
-  --line: #252538;
-  --text: #f0ece6;
-  --muted: #9a95a8;
-  --accent: #ff4d00;
-  --accent2: #ff8c00;
+  --bg: #0c0a14;
+  --bg2: #12101e;
+  --panel: #181428;
+  --panel2: #1f1934;
+  --line: #2a2240;
+  --text: #f0eeff;
+  --muted: #8b80aa;
+  --accent: #a855f7;
+  --accent2: #2dd4d0;
   --green: #34d399;
   --red: #f87171;
-  --blue: #60a5fa;
+  --blue: #2dd4d0;
   --radius: 16px;
   --safe-top: env(safe-area-inset-top, 0px);
   --safe-bottom: env(safe-area-inset-bottom, 0px);
@@ -40,8 +40,8 @@ body {
 .brand { display: flex; align-items: center; gap: 12px; }
 .logo {
   font-size: 22px; width: 42px; height: 42px; display: grid; place-items: center;
-  background: linear-gradient(135deg, #ff4d00, #ffb800);
-  border-radius: 12px; color: #1a0800; box-shadow: 0 6px 16px rgba(255,77,0,.3);
+  background: linear-gradient(135deg, #a855f7, #2dd4d0);
+  border-radius: 12px; color: #0a0520; box-shadow: 0 6px 16px rgba(168,85,247,.35);
 }
 .topbar h1 { font-size: 22px; margin: 0; letter-spacing: -.3px; }
 .sub { margin: 0; font-size: 12.5px; color: var(--muted); }
@@ -124,9 +124,9 @@ h2.section { font-size: 13px; text-transform: uppercase; letter-spacing: 1.2px; 
 }
 .set-row.warmup .lbl { color: #d97706; }
 
-/* work-set stripe — fire 💪 */
+/* work-set stripe — purple 💪 */
 .set-row.workset {
-  background: rgba(255,77,0,.08);
+  background: rgba(168,85,247,.09);
   border-left: 3px solid var(--accent);
 }
 .set-row.workset .lbl { color: var(--accent2); }
@@ -161,7 +161,7 @@ h2.section { font-size: 13px; text-transform: uppercase; letter-spacing: 1.2px; 
   display: block; width: 100%; padding: 15px; border-radius: 14px; border: none;
   font-size: 16px; font-weight: 700; cursor: pointer; margin-top: 6px;
 }
-.btn.primary { background: linear-gradient(135deg, #ff4d00, #ffb800); color: #1a0800; }
+.btn.primary { background: linear-gradient(135deg, #a855f7, #2dd4d0); color: #0a0520; }
 .btn.secondary { background: var(--panel2); color: var(--text); border: 1px solid var(--line); }
 .btn.danger { background: rgba(248,113,113,.12); color: var(--red); border: 1px solid rgba(248,113,113,.3); }
 .btn:active { transform: scale(.985); }
@@ -236,7 +236,7 @@ table.prog td.s { text-align: right; color: var(--muted); width: 60px; }
   position: fixed; bottom: 0; left: 0; right: 0; z-index: 30;
   display: flex; justify-content: space-around;
   padding: 8px 8px calc(8px + var(--safe-bottom));
-  background: rgba(7,7,13,.95); backdrop-filter: blur(14px);
+  background: rgba(12,10,20,.95); backdrop-filter: blur(14px);
   border-top: 1px solid var(--line);
 }
 .tab {
