@@ -1076,7 +1076,10 @@ function openProfileSheet() {
   const rows = p.list.map(prof => `
     <div class="prof-row ${prof.id === p.active ? 'active' : ''}" data-id="${prof.id}">
       <div class="prof-avatar">${initials(prof.name)}</div>
-      <div class="prof-name">${prof.name}</div>
+      <div class="prof-info">
+        <div class="prof-name">${prof.name}</div>
+        <button class="prof-rename-btn" data-rid="${prof.id}" data-rname="${prof.name}">rename</button>
+      </div>
       ${p.list.length > 1 && prof.id !== p.active
         ? `<button class="prof-del" data-del="${prof.id}">✕</button>` : ''}
       ${prof.id === p.active ? '<span class="prof-check">✓</span>' : ''}
@@ -1107,6 +1110,13 @@ function openProfileSheet() {
   });
   sheet.querySelectorAll('.prof-del').forEach(btn => {
     btn.onclick = e => { e.stopPropagation(); deleteProfile(btn.dataset.del); openProfileSheet(); };
+  });
+  sheet.querySelectorAll('.prof-rename-btn').forEach(btn => {
+    btn.onclick = e => {
+      e.stopPropagation();
+      const nm = prompt('Rename profile:', btn.dataset.rname);
+      if (nm && nm.trim()) { renameProfile(btn.dataset.rid, nm.trim()); openProfileSheet(); }
+    };
   });
   document.getElementById('addProfBtn').onclick = () => {
     const nm = document.getElementById('newProfName').value.trim();

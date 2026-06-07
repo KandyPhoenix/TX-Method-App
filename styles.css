@@ -372,7 +372,13 @@ table.prog td.s { text-align: right; color: var(--muted); width: 60px; }
   flex: 0 0 auto;
 }
 .prof-row.active .prof-avatar { background: var(--lime); color: #000; border-color: var(--lime); }
-.prof-name { font-size: 16px; font-weight: 700; color: #fff; flex: 1; }
+.prof-info { display: flex; flex-direction: column; gap: 2px; flex: 1; }
+.prof-name { font-size: 16px; font-weight: 700; color: #fff; }
+.prof-rename-btn {
+  background: none; border: none; color: var(--dim); font-size: 11px;
+  cursor: pointer; padding: 0; text-align: left; width: fit-content;
+}
+.prof-rename-btn:hover { color: var(--lime); }
 .prof-check { color: var(--lime); font-weight: 900; font-size: 18px; }
 .prof-del {
   background: transparent; border: none; color: var(--dim);
