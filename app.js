@@ -79,7 +79,7 @@ function migrate(st) {
 function save() { localStorage.setItem(LS_KEY, JSON.stringify(S)); }
 
 /* confirm-tap state (persists across renders) */
-const confirmState = { wipe: false, reset: false };
+const confirmState = { wipe: false, reset: false, factory: false };
 
 /* =====================================================================
    MATH
@@ -654,6 +654,23 @@ function renderSetup() {
       <div class="spacer"></div>
       <button class="btn danger" id="wipe">Erase all logged data</button>
     </div>
+
+    <h2 class="section">Backup &amp; Restore</h2>
+    <div class="card">
+      <p class="tiny muted" style="margin:0 0 12px">Export saves everything — settings, logs, body weight, cursor position. Import restores it completely.</p>
+      <div class="row2">
+        <button class="btn primary" id="exportBtn">⬇ Export backup</button>
+        <button class="btn secondary" id="importBtn">⬆ Import backup</button>
+      </div>
+      <input type="file" id="importFile" accept=".json" style="display:none">
+    </div>
+
+    <h2 class="section">Factory Reset</h2>
+    <div class="card">
+      <p class="tiny muted" style="margin:0 0 12px">Wipes everything — all logs, settings, and body weight data. App returns to defaults. Export a backup first.</p>
+      <button class="btn danger" id="factoryReset">⚠ Factory reset — erase everything</button>
+    </div>
+
     <div class="center tiny muted" style="margin:18px 0 6px">Texas Method Trainer · works offline · add to Home Screen</div>
   </div>`;
 
@@ -735,6 +752,57 @@ function wireSetup() {
     } else {
       confirmState.wipe = false;
       S.logs = {}; S.bodyLog = []; S.cursor = { week: 0, day: 0 }; save(); rebuild(); toast('All logs cleared 🗑'); render();
+    }
+  };
+
+  /* ---- Export backup ---- */
+  document.getElementById('exportBtn').onclick = () => {
+    const data = JSON.stringify(S, null, 2);
+    const blob = new Blob([data], { type: 'application/json' });
+    const url  = URL.createObjectURL(blob);
+    const a    = document.createElement('a');
+    const date = new Date().toISOString().slice(0,10);
+    a.href = url; a.download = `tx-method-backup-${date}.json`;
+    a.click(); URL.revokeObjectURL(url);
+    toast('Backup saved ⬇');
+  };
+
+  /* ---- Import backup ---- */
+  document.getElementById('importBtn').onclick = () => {
+    document.getElementById('importFile').click();
+  };
+  document.getElementById('importFile').onchange = function () {
+    const file = this.files[0]; if (!file) return;
+    const reader = new FileReader();
+    reader.onload = e => {
+      try {
+        const parsed = JSON.parse(e.target.result);
+        if (!parsed.settings || !parsed.lifts) throw new Error('Invalid backup file');
+        Object.assign(S, parsed);
+        save(); rebuild(); toast('Backup restored ⬆'); render();
+      } catch(err) {
+        toast('Import failed — invalid file');
+      }
+    };
+    reader.readAsText(file);
+    this.value = ''; // reset so same file can be re-imported
+  };
+
+  /* ---- Factory reset ---- */
+  document.getElementById('factoryReset').onclick = function () {
+    if (!confirmState.factory) {
+      confirmState.factory = true;
+      this.textContent = '⚠ Tap again — this cannot be undone';
+      const btn = this;
+      setTimeout(() => {
+        confirmState.factory = false;
+        if (document.getElementById('factoryReset')) btn.textContent = '⚠ Factory reset — erase everything';
+      }, 3000);
+    } else {
+      confirmState.factory = false;
+      localStorage.removeItem(LS_KEY);
+      toast('App reset — reloading…');
+      setTimeout(() => location.reload(), 1000);
     }
   };
 }
