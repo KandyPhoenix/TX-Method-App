@@ -330,8 +330,10 @@ table.prog td.s { text-align: right; color: var(--muted); width: 60px; }
 
 /* ---------- Profile avatar button ---------- */
 .profile-avatar-btn {
-  font-size: 13px; font-weight: 800; color: var(--lime);
+  font-size: 13px; font-weight: 700; color: var(--lime);
   border-color: var(--lime) !important;
+  max-width: 96px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+  padding-left: 10px; padding-right: 10px;
 }
 
 /* ---------- Profile sheet ---------- */

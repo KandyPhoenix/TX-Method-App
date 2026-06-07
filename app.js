@@ -133,7 +133,7 @@ function renameProfile(id, name) {
 
 function updateProfileBtn() {
   const btn = document.getElementById('profileBtn');
-  if (btn) btn.textContent = initials(activeProfile().name);
+  if (btn) btn.textContent = activeProfile().name || 'Me';
 }
 
 function initials(name) {
