@@ -1144,4 +1144,8 @@ updateProfileBtn();
 render();
 if ('serviceWorker' in navigator) {
   window.addEventListener('load', () => navigator.serviceWorker.register('sw.js').catch(() => {}));
+  // Auto-reload when a new service worker activates (picks up new version immediately)
+  navigator.serviceWorker.addEventListener('message', e => {
+    if (e.data && e.data.type === 'SW_UPDATED') location.reload();
+  });
 }
