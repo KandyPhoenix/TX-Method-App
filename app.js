@@ -472,6 +472,35 @@ function isDayDone(week, day) {
 /* =====================================================================
    STATS
    ===================================================================== */
+const STAT_INFO = {
+  pl:      { title: 'Powerlifting Total', body: 'Your squat + bench press + deadlift added together. This is the number used in powerlifting competitions. It\'s the single best snapshot of your overall strength — watch it climb each week.' },
+  wilks:   { title: 'Wilks Score', body: 'A bodyweight-adjusted strength score that lets you compare fairly across different body sizes. Under 200 is beginner, 300 is intermediate, 400+ is advanced, 500+ is elite. It uses a formula developed by Robert Wilks for powerlifting meets.' },
+  squat1rm:{ title: 'Estimated Squat 1RM', body: 'Your projected one-rep max on the squat, estimated from your training weights using the Brzycki formula: weight × 36 ÷ (37 − reps). It\'s an estimate — actual maxes can vary ±5–10%.' },
+  dl1rm:   { title: 'Estimated Deadlift 1RM', body: 'Your projected one-rep max on the deadlift, same Brzycki formula. Deadlift is typically your strongest lift and grows fastest on Texas Method.' },
+  orm:     { title: 'Estimated 1RM by Lift', body: 'Projected one-rep maxes for all your lifts using your most recent training weights. The bar length shows relative strength — your longest bar is your strongest lift. Updates each week as you advance.' },
+  ch1:     { title: '1RM Over Program', body: 'How your estimated one-rep maxes are growing week by week as you work through the 24-week Texas Method. Each line is a different lift. An upward slope means you\'re getting stronger — that\'s the whole point.' },
+  ch2:     { title: 'Powerlifting Total Trend', body: 'Your combined squat + bench + deadlift total plotted across completed weeks. This is the clearest picture of your overall strength progress. A steady climb here means the program is working.' },
+  swr:     { title: 'Strength-to-Weight Ratio', body: 'Each lift divided by your bodyweight. A ratio of 1.0× means you lift your own bodyweight. For women, a 1.0× squat is solid, 1.5× is strong, 2.0× is elite. For men: 1.5× solid, 2.0× strong, 2.5× elite.' },
+};
+
+function showInfo(id) {
+  const info = STAT_INFO[id]; if (!info) return;
+  let pop = document.getElementById('infoPop');
+  if (!pop) {
+    pop = document.createElement('div'); pop.id = 'infoPop'; pop.className = 'info-pop';
+    document.body.appendChild(pop);
+    document.body.addEventListener('click', e => {
+      if (!e.target.closest('.info-btn') && !e.target.closest('.info-pop')) {
+        pop.classList.remove('visible');
+      }
+    }, true);
+  }
+  pop.innerHTML = `<div class="info-pop-title">${info.title}</div><div class="info-pop-body">${info.body}</div>`;
+  pop.classList.toggle('visible');
+}
+
+function ib(id) { return `<button class="info-btn" onclick="showInfo('${id}')">ⓘ</button>`; }
+
 function renderStats() {
   titleEl.textContent = 'Stats';
   subEl.textContent   = 'Projections · Wilks · Graphs';
@@ -519,19 +548,19 @@ function renderStats() {
 
   view.innerHTML = `<div class="screen">
     <div class="tiles">
-      <div class="tile"><div class="k">Powerlifting Total</div><div class="v">${fmt(plNow)} <small>${u}</small></div></div>
-      <div class="tile"><div class="k">Wilks Score</div><div class="v">${wNow ? wNow.toFixed(1) : '—'}</div></div>
-      <div class="tile"><div class="k">Best Squat 1RM</div><div class="v">${fmt(cur.squat)} <small>${u}</small></div></div>
-      <div class="tile"><div class="k">Best Deadlift 1RM</div><div class="v">${fmt(cur.deadlift)} <small>${u}</small></div></div>
+      <div class="tile"><div class="k">Powerlifting Total ${ib('pl')}</div><div class="v">${fmt(plNow)} <small>${u}</small></div></div>
+      <div class="tile"><div class="k">Wilks Score ${ib('wilks')}</div><div class="v">${wNow ? wNow.toFixed(1) : '—'}</div></div>
+      <div class="tile"><div class="k">Best Squat 1RM ${ib('squat1rm')}</div><div class="v">${fmt(cur.squat)} <small>${u}</small></div></div>
+      <div class="tile"><div class="k">Best Deadlift 1RM ${ib('dl1rm')}</div><div class="v">${fmt(cur.deadlift)} <small>${u}</small></div></div>
     </div>
-    <h2 class="section">Estimated 1RM — Week ${doneWeeks}</h2>
+    <h2 class="section">Estimated 1RM — Week ${doneWeeks} ${ib('orm')}</h2>
     <div class="card">${bars}</div>
-    <h2 class="section">1RM over program</h2>
+    <h2 class="section">1RM over program ${ib('ch1')}</h2>
     <div class="card"><canvas id="ch1" class="chart"></canvas>
       <div class="tiny muted center" style="margin-top:8px">Squat · Bench · Deadlift · Press — ${doneWeeks} of 24 weeks</div></div>
-    <h2 class="section">Powerlifting total trend</h2>
+    <h2 class="section">Powerlifting total trend ${ib('ch2')}</h2>
     <div class="card"><canvas id="ch2" class="chart"></canvas></div>
-    <h2 class="section">Strength-to-weight ratio</h2>
+    <h2 class="section">Strength-to-weight ratio ${ib('swr')}</h2>
     <div class="card">${ratios}</div>
   </div>`;
   drawProjectionCharts();
