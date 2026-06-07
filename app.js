@@ -475,20 +475,43 @@ function isDayDone(week, day) {
 function renderStats() {
   titleEl.textContent = 'Stats';
   subEl.textContent   = 'Projections · Wilks · Graphs';
-  const u = unit(), L = S.settings.lifts;
-  const cur = {};
-  ['squat','bench','deadlift','press','clean'].forEach(k => cur[k] = oneRM(L[k].weight, L[k].reps));
 
-  const plNow = L.squat.weight + L.bench.weight + L.deadlift.weight;
+  const doneWeeks = S.cursor.week;
+
+  // Nothing done yet — full empty state
+  if (doneWeeks === 0) {
+    view.innerHTML = `<div class="screen">
+      <div class="empty" style="padding:60px 20px">
+        <div class="big">📊</div>
+        <div style="font-size:17px;font-weight:700;margin-bottom:8px">No data yet</div>
+        <div class="muted tiny">Complete your first workout and stats will start tracking here — 1RM estimates, Powerlifting total, Wilks score, strength-to-weight ratios, and charts that grow week by week.</div>
+      </div>
+    </div>`;
+    return;
+  }
+
+  // Data exists — build from completed weeks only
+  const u = unit(), L = S.settings.lifts;
+  const completedProgram = PROGRAM.slice(0, doneWeeks);
+
+  // Best 1RM from last completed week's programmed weights
+  const lastWeek = completedProgram[completedProgram.length - 1];
+  const cur = {};
+  ['squat','bench','deadlift','press','clean'].forEach(k => {
+    const w = lastWeek.intensity[k] || L[k].weight;
+    cur[k] = oneRM(w, 5);
+  });
+
+  const plNow = (lastWeek.intensity.squat || 0) + (lastWeek.intensity.bench || 0) + (lastWeek.intensity.deadlift || 0);
   const wNow  = wilks(plNow, S.settings.bodyweight, S.settings.sex, S.settings.units);
   const maxv  = Math.max(...Object.values(cur));
 
   let bars = '', ratios = '';
   [['squat','Squat'],['bench','Bench'],['deadlift','Deadlift'],['press','Press'],['clean','Power Clean']].forEach(([k,nm]) => {
     const v = cur[k];
-    bars   += `<div class="bar-line"><div class="top"><span>${nm}</span><b>${fmt(v)} ${u}</b></div>
+    bars += `<div class="bar-line"><div class="top"><span>${nm}</span><b>${fmt(v)} ${u}</b></div>
       <div class="track"><div class="fill" style="width:${(v/maxv*100).toFixed(0)}%"></div></div></div>`;
-    const r = cur[k] / S.settings.bodyweight;
+    const r = v / S.settings.bodyweight;
     ratios += `<div class="bar-line"><div class="top"><span>${LIFT_META[k].name}</span><b>${r.toFixed(2)}×</b></div>
       <div class="track"><div class="fill" style="width:${Math.min(100,r/3*100).toFixed(0)}%"></div></div></div>`;
   });
@@ -500,11 +523,11 @@ function renderStats() {
       <div class="tile"><div class="k">Best Squat 1RM</div><div class="v">${fmt(cur.squat)} <small>${u}</small></div></div>
       <div class="tile"><div class="k">Best Deadlift 1RM</div><div class="v">${fmt(cur.deadlift)} <small>${u}</small></div></div>
     </div>
-    <h2 class="section">Estimated 1RM</h2>
+    <h2 class="section">Estimated 1RM — Week ${doneWeeks}</h2>
     <div class="card">${bars}</div>
-    <h2 class="section">1RM projection over program</h2>
+    <h2 class="section">1RM over program</h2>
     <div class="card"><canvas id="ch1" class="chart"></canvas>
-      <div class="tiny muted center" style="margin-top:8px">Squat · Bench · Deadlift · Press across 24 weeks</div></div>
+      <div class="tiny muted center" style="margin-top:8px">Squat · Bench · Deadlift · Press — ${doneWeeks} of 24 weeks</div></div>
     <h2 class="section">Powerlifting total trend</h2>
     <div class="card"><canvas id="ch2" class="chart"></canvas></div>
     <h2 class="section">Strength-to-weight ratio</h2>
@@ -514,40 +537,20 @@ function renderStats() {
 }
 
 function drawProjectionCharts() {
-  // Only show data for weeks already completed (cursor.week = current week index)
-  const doneWeeks = S.cursor.week; // weeks 0..(doneWeeks-1) are completed
+  const doneWeeks = S.cursor.week;
+  if (doneWeeks === 0) return; // handled by renderStats empty state
 
-  const ch1 = document.getElementById('ch1');
-  const ch2 = document.getElementById('ch2');
-
-  if (doneWeeks === 0) {
-    // No workouts done yet — show placeholder message, hide canvases
-    [ch1, ch2].forEach(c => { if (c) { c.style.display = 'none'; } });
-    ['ch1msg','ch2msg'].forEach(id => {
-      const existing = document.getElementById(id);
-      if (!existing) {
-        const msg = document.createElement('div');
-        msg.id = id;
-        msg.className = 'empty';
-        msg.innerHTML = '<div class="big">📊</div><div class="muted tiny">No data yet — complete your first workout to start tracking</div>';
-        const canvas = document.getElementById(id === 'ch1msg' ? 'ch1' : 'ch2');
-        if (canvas) canvas.parentNode.insertBefore(msg, canvas);
-      }
-    });
-    return;
-  }
-
-  // Slice program to only completed weeks
   const completedProgram = PROGRAM.slice(0, doneWeeks);
   const labels = completedProgram.map(w => w.label + '.' + w.subweek);
 
-  lineChart(ch1,
+  lineChart(document.getElementById('ch1'),
     ['squat','bench','deadlift','press'].map((k,i) => ({
       name: LIFT_META[k].name,
       color: ['#aaff00','#77cc00','#448800','#ccff44'][i],
       data: completedProgram.map(w => oneRM(w.intensity[k], 5))
     })), labels);
-  lineChart(ch2,
+
+  lineChart(document.getElementById('ch2'),
     [{ name:'PL Total', color:'#aaff00',
        data: completedProgram.map(w => w.intensity.squat + w.intensity.bench + w.intensity.deadlift) }],
     labels);
