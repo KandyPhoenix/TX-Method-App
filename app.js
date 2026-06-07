@@ -53,18 +53,107 @@ const DEFAULTS = {
 };
 
 /* =====================================================================
+   PROFILES  (multi-user)
+   ===================================================================== */
+const PROF_REG_KEY = 'tm_profiles';
+
+function loadProfiles() {
+  try { return JSON.parse(localStorage.getItem(PROF_REG_KEY)) || null; } catch { return null; }
+}
+function saveProfiles(p) { localStorage.setItem(PROF_REG_KEY, JSON.stringify(p)); }
+
+function initProfiles() {
+  let p = loadProfiles();
+  if (!p) {
+    const id = 'p' + Date.now();
+    p = { active: id, list: [{ id, name: 'Me' }] };
+    // migrate any existing v1 data into the default profile
+    const old = localStorage.getItem('tm_state_v1');
+    if (old) localStorage.setItem('tm_state_' + id, old);
+    saveProfiles(p);
+  }
+  return p;
+}
+
+function activeStateKey() {
+  const p = loadProfiles();
+  return p ? 'tm_state_' + p.active : 'tm_state_v1';
+}
+
+function activeProfile() {
+  const p = loadProfiles();
+  if (!p) return { id: 'default', name: 'Me' };
+  return p.list.find(x => x.id === p.active) || p.list[0];
+}
+
+function switchProfile(id) {
+  save(); // save current user's state first
+  const p = loadProfiles();
+  p.active = id;
+  saveProfiles(p);
+  S = loadState();
+  rebuild();
+  render();
+  updateProfileBtn();
+  toast('Switched to ' + (p.list.find(x => x.id === id) || {}).name);
+}
+
+function createProfile(name) {
+  const id = 'p' + Date.now();
+  const p  = loadProfiles();
+  p.list.push({ id, name: name.trim() || 'Lifter' });
+  p.active = id;
+  saveProfiles(p);
+  S = loadState(); // fresh state for new user
+  rebuild();
+  render();
+  updateProfileBtn();
+  toast('Profile created: ' + name);
+}
+
+function deleteProfile(id) {
+  const p = loadProfiles();
+  if (p.list.length <= 1) { toast('Cannot delete last profile'); return; }
+  localStorage.removeItem('tm_state_' + id);
+  p.list = p.list.filter(x => x.id !== id);
+  if (p.active === id) p.active = p.list[0].id;
+  saveProfiles(p);
+  S = loadState();
+  rebuild();
+  render();
+  updateProfileBtn();
+  toast('Profile deleted');
+}
+
+function renameProfile(id, name) {
+  const p = loadProfiles();
+  const prof = p.list.find(x => x.id === id);
+  if (prof) { prof.name = name.trim() || prof.name; saveProfiles(p); updateProfileBtn(); }
+}
+
+function updateProfileBtn() {
+  const btn = document.getElementById('profileBtn');
+  if (btn) btn.textContent = initials(activeProfile().name);
+}
+
+function initials(name) {
+  return name.trim().split(/\s+/).map(w => w[0]).join('').toUpperCase().slice(0,2) || '?';
+}
+
+/* =====================================================================
    STATE
    ===================================================================== */
-const LS_KEY = 'tm_state_v1';
-let S = load();
+initProfiles();
 
-function load() {
+function loadState() {
   try {
-    const raw = localStorage.getItem(LS_KEY);
+    const raw = localStorage.getItem(activeStateKey());
     if (raw) return migrate(JSON.parse(raw));
   } catch (e) { /* ignore */ }
   return { settings: structuredClone(DEFAULTS), cursor: { week: 0, day: 0 }, logs: {}, bodyLog: [] };
 }
+let S = loadState();
+
 function migrate(st) {
   st.settings = Object.assign(structuredClone(DEFAULTS), st.settings || {});
   st.settings.lifts = Object.assign(structuredClone(DEFAULTS.lifts), st.settings.lifts || {});
@@ -76,7 +165,7 @@ function migrate(st) {
   st.bodyLog = st.bodyLog || [];
   return st;
 }
-function save() { localStorage.setItem(LS_KEY, JSON.stringify(S)); }
+function save() { localStorage.setItem(activeStateKey(), JSON.stringify(S)); }
 
 /* confirm-tap state (persists across renders) */
 const confirmState = { wipe: false, reset: false, factory: false };
@@ -971,6 +1060,73 @@ function toast(msg) {
 
 document.querySelectorAll('.tab').forEach(t => t.onclick = () => { TAB = t.dataset.tab; window.scrollTo(0,0); render(); });
 document.getElementById('rfresh').onclick = () => { TAB = 'today'; render(); toast('Today'); };
+
+/* ---- Profile switcher sheet ---- */
+function openProfileSheet() {
+  let sheet = document.getElementById('profileSheet');
+  if (!sheet) {
+    sheet = document.createElement('div');
+    sheet.id = 'profileSheet';
+    sheet.className = 'profile-sheet';
+    document.body.appendChild(sheet);
+    // close on backdrop tap
+    sheet.addEventListener('click', e => { if (e.target === sheet) closeProfileSheet(); });
+  }
+  const p    = loadProfiles();
+  const rows = p.list.map(prof => `
+    <div class="prof-row ${prof.id === p.active ? 'active' : ''}" data-id="${prof.id}">
+      <div class="prof-avatar">${initials(prof.name)}</div>
+      <div class="prof-name">${prof.name}</div>
+      ${p.list.length > 1 && prof.id !== p.active
+        ? `<button class="prof-del" data-del="${prof.id}">✕</button>` : ''}
+      ${prof.id === p.active ? '<span class="prof-check">✓</span>' : ''}
+    </div>`).join('');
+
+  sheet.innerHTML = `
+    <div class="profile-panel">
+      <div class="profile-panel-head">
+        <span style="font-weight:800;font-size:16px">Profiles</span>
+        <button class="prof-close" onclick="closeProfileSheet()">✕</button>
+      </div>
+      ${rows}
+      <div class="prof-add-row">
+        <input id="newProfName" class="prof-input" placeholder="New profile name…" maxlength="20">
+        <button class="btn primary btn-sm" id="addProfBtn">Add</button>
+      </div>
+    </div>`;
+
+  sheet.classList.add('open');
+
+  sheet.querySelectorAll('.prof-row').forEach(row => {
+    row.onclick = e => {
+      if (e.target.closest('.prof-del')) return;
+      switchProfile(row.dataset.id);
+      closeProfileSheet();
+      if (TAB === 'setup') render();
+    };
+  });
+  sheet.querySelectorAll('.prof-del').forEach(btn => {
+    btn.onclick = e => { e.stopPropagation(); deleteProfile(btn.dataset.del); openProfileSheet(); };
+  });
+  document.getElementById('addProfBtn').onclick = () => {
+    const nm = document.getElementById('newProfName').value.trim();
+    if (!nm) return;
+    createProfile(nm);
+    closeProfileSheet();
+    if (TAB === 'setup') render();
+  };
+  document.getElementById('newProfName').onkeydown = e => {
+    if (e.key === 'Enter') document.getElementById('addProfBtn').click();
+  };
+}
+
+function closeProfileSheet() {
+  const sheet = document.getElementById('profileSheet');
+  if (sheet) sheet.classList.remove('open');
+}
+
+document.getElementById('profileBtn').onclick = openProfileSheet;
+updateProfileBtn();
 
 /* init */
 render();
