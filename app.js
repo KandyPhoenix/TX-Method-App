@@ -477,9 +477,10 @@ function renderStats() {
   subEl.textContent   = 'Projections · Wilks · Graphs';
 
   const doneWeeks = S.cursor.week;
+  const hasLogs   = Object.keys(S.logs).length > 0;
 
   // Nothing done yet — full empty state
-  if (doneWeeks === 0) {
+  if (doneWeeks === 0 || !hasLogs) {
     view.innerHTML = `<div class="screen">
       <div class="empty" style="padding:60px 20px">
         <div class="big">📊</div>
@@ -538,7 +539,7 @@ function renderStats() {
 
 function drawProjectionCharts() {
   const doneWeeks = S.cursor.week;
-  if (doneWeeks === 0) return; // handled by renderStats empty state
+  if (doneWeeks === 0 || Object.keys(S.logs).length === 0) return;
 
   const completedProgram = PROGRAM.slice(0, doneWeeks);
   const labels = completedProgram.map(w => w.label + '.' + w.subweek);
