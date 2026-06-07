@@ -507,59 +507,69 @@ function renderStats() {
 
   const doneWeeks = S.cursor.week;
   const hasLogs   = Object.keys(S.logs).length > 0;
+  const hasData   = doneWeeks > 0 && hasLogs;
 
-  // Nothing done yet — full empty state
-  if (doneWeeks === 0 || !hasLogs) {
-    view.innerHTML = `<div class="screen">
-      <div class="empty" style="padding:60px 20px">
-        <div class="big">📊</div>
-        <div style="font-size:17px;font-weight:700;margin-bottom:8px">No data yet</div>
-        <div class="muted tiny">Complete your first workout and stats will start tracking here — 1RM estimates, Powerlifting total, Wilks score, strength-to-weight ratios, and charts that grow week by week.</div>
-      </div>
-    </div>`;
-    return;
+  const u = unit(), L = S.settings.lifts;
+
+  // Tiles: real values when data exists, dash otherwise
+  let plNow = '—', wNow = '—', squat1rm = '—', dl1rm = '—';
+  let bars = '', ratios = '';
+
+  if (hasData) {
+    const completedProgram = PROGRAM.slice(0, doneWeeks);
+    const lastWeek = completedProgram[completedProgram.length - 1];
+    const cur = {};
+    ['squat','bench','deadlift','press','clean'].forEach(k => {
+      cur[k] = oneRM(lastWeek.intensity[k] || L[k].weight, 5);
+    });
+    const plVal = (lastWeek.intensity.squat||0) + (lastWeek.intensity.bench||0) + (lastWeek.intensity.deadlift||0);
+    const wVal  = wilks(plVal, S.settings.bodyweight, S.settings.sex, S.settings.units);
+    plNow    = `${fmt(plVal)} <small>${u}</small>`;
+    wNow     = wVal ? wVal.toFixed(1) : '—';
+    squat1rm = `${fmt(cur.squat)} <small>${u}</small>`;
+    dl1rm    = `${fmt(cur.deadlift)} <small>${u}</small>`;
+    const maxv = Math.max(...Object.values(cur));
+    [['squat','Squat'],['bench','Bench'],['deadlift','Deadlift'],['press','Press'],['clean','Power Clean']].forEach(([k,nm]) => {
+      const v = cur[k];
+      bars += `<div class="bar-line"><div class="top"><span>${nm}</span><b>${fmt(v)} ${u}</b></div>
+        <div class="track"><div class="fill" style="width:${(v/maxv*100).toFixed(0)}%"></div></div></div>`;
+      const r = v / S.settings.bodyweight;
+      ratios += `<div class="bar-line"><div class="top"><span>${LIFT_META[k].name}</span><b>${r.toFixed(2)}×</b></div>
+        <div class="track"><div class="fill" style="width:${Math.min(100,r/3*100).toFixed(0)}%"></div></div></div>`;
+    });
+  } else {
+    // Placeholder rows — show lift names but no values yet
+    [['squat','Squat'],['bench','Bench'],['deadlift','Deadlift'],['press','Press'],['clean','Power Clean']].forEach(([k,nm]) => {
+      bars   += `<div class="bar-line"><div class="top"><span>${nm}</span><b class="dim">—</b></div>
+        <div class="track"><div class="fill" style="width:0%"></div></div></div>`;
+      ratios += `<div class="bar-line"><div class="top"><span>${LIFT_META[k].name}</span><b class="dim">—</b></div>
+        <div class="track"><div class="fill" style="width:0%"></div></div></div>`;
+    });
   }
 
-  // Data exists — build from completed weeks only
-  const u = unit(), L = S.settings.lifts;
-  const completedProgram = PROGRAM.slice(0, doneWeeks);
-
-  // Best 1RM from last completed week's programmed weights
-  const lastWeek = completedProgram[completedProgram.length - 1];
-  const cur = {};
-  ['squat','bench','deadlift','press','clean'].forEach(k => {
-    const w = lastWeek.intensity[k] || L[k].weight;
-    cur[k] = oneRM(w, 5);
-  });
-
-  const plNow = (lastWeek.intensity.squat || 0) + (lastWeek.intensity.bench || 0) + (lastWeek.intensity.deadlift || 0);
-  const wNow  = wilks(plNow, S.settings.bodyweight, S.settings.sex, S.settings.units);
-  const maxv  = Math.max(...Object.values(cur));
-
-  let bars = '', ratios = '';
-  [['squat','Squat'],['bench','Bench'],['deadlift','Deadlift'],['press','Press'],['clean','Power Clean']].forEach(([k,nm]) => {
-    const v = cur[k];
-    bars += `<div class="bar-line"><div class="top"><span>${nm}</span><b>${fmt(v)} ${u}</b></div>
-      <div class="track"><div class="fill" style="width:${(v/maxv*100).toFixed(0)}%"></div></div></div>`;
-    const r = v / S.settings.bodyweight;
-    ratios += `<div class="bar-line"><div class="top"><span>${LIFT_META[k].name}</span><b>${r.toFixed(2)}×</b></div>
-      <div class="track"><div class="fill" style="width:${Math.min(100,r/3*100).toFixed(0)}%"></div></div></div>`;
-  });
+  const weekLabel = hasData ? ` — Week ${doneWeeks}` : '';
+  const noDataNote = !hasData ? `<div class="tiny muted center" style="margin-top:6px">Complete your first workout to see data</div>` : '';
 
   view.innerHTML = `<div class="screen">
     <div class="tiles">
-      <div class="tile"><div class="k">Powerlifting Total ${ib('pl')}</div><div class="v">${fmt(plNow)} <small>${u}</small></div></div>
-      <div class="tile"><div class="k">Wilks Score ${ib('wilks')}</div><div class="v">${wNow ? wNow.toFixed(1) : '—'}</div></div>
-      <div class="tile"><div class="k">Best Squat 1RM ${ib('squat1rm')}</div><div class="v">${fmt(cur.squat)} <small>${u}</small></div></div>
-      <div class="tile"><div class="k">Best Deadlift 1RM ${ib('dl1rm')}</div><div class="v">${fmt(cur.deadlift)} <small>${u}</small></div></div>
+      <div class="tile"><div class="k">Powerlifting Total ${ib('pl')}</div><div class="v">${plNow}</div></div>
+      <div class="tile"><div class="k">Wilks Score ${ib('wilks')}</div><div class="v">${wNow}</div></div>
+      <div class="tile"><div class="k">Best Squat 1RM ${ib('squat1rm')}</div><div class="v">${squat1rm}</div></div>
+      <div class="tile"><div class="k">Best Deadlift 1RM ${ib('dl1rm')}</div><div class="v">${dl1rm}</div></div>
     </div>
-    <h2 class="section">Estimated 1RM — Week ${doneWeeks} ${ib('orm')}</h2>
+    <h2 class="section">Estimated 1RM${weekLabel} ${ib('orm')}</h2>
     <div class="card">${bars}</div>
     <h2 class="section">1RM over program ${ib('ch1')}</h2>
-    <div class="card"><canvas id="ch1" class="chart"></canvas>
-      <div class="tiny muted center" style="margin-top:8px">Squat · Bench · Deadlift · Press — ${doneWeeks} of 24 weeks</div></div>
+    <div class="card">
+      <canvas id="ch1" class="chart"></canvas>
+      ${noDataNote}
+      <div class="tiny muted center" style="margin-top:4px">Squat · Bench · Deadlift · Press${hasData ? ` — ${doneWeeks} of 24 weeks` : ' — 24 weeks'}</div>
+    </div>
     <h2 class="section">Powerlifting total trend ${ib('ch2')}</h2>
-    <div class="card"><canvas id="ch2" class="chart"></canvas></div>
+    <div class="card">
+      <canvas id="ch2" class="chart"></canvas>
+      ${noDataNote}
+    </div>
     <h2 class="section">Strength-to-weight ratio ${ib('swr')}</h2>
     <div class="card">${ratios}</div>
   </div>`;
@@ -568,7 +578,14 @@ function renderStats() {
 
 function drawProjectionCharts() {
   const doneWeeks = S.cursor.week;
-  if (doneWeeks === 0 || Object.keys(S.logs).length === 0) return;
+  const hasLogs   = Object.keys(S.logs).length > 0;
+
+  if (!doneWeeks || !hasLogs) {
+    // Draw empty grid frames so user can see chart areas
+    emptyChart(document.getElementById('ch1'), ['Squat','Bench','Deadlift','Press']);
+    emptyChart(document.getElementById('ch2'), ['PL Total']);
+    return;
+  }
 
   const completedProgram = PROGRAM.slice(0, doneWeeks);
   const labels = completedProgram.map(w => w.label + '.' + w.subweek);
@@ -584,6 +601,31 @@ function drawProjectionCharts() {
     [{ name:'PL Total', color:'#aaff00',
        data: completedProgram.map(w => w.intensity.squat + w.intensity.bench + w.intensity.deadlift) }],
     labels);
+}
+
+function emptyChart(canvas, seriesNames) {
+  if (!canvas) return;
+  const dpr = window.devicePixelRatio || 1, W = canvas.clientWidth, H = 200;
+  canvas.width = W * dpr; canvas.height = H * dpr;
+  const ctx = canvas.getContext('2d'); ctx.scale(dpr, dpr);
+  ctx.clearRect(0, 0, W, H);
+  const pad = { l:38, r:10, t:12, b:22 };
+  // Draw faint grid lines
+  ctx.strokeStyle = 'rgba(255,255,255,.06)'; ctx.lineWidth = 1;
+  for (let g = 0; g <= 4; g++) {
+    const y = pad.t + (H - pad.t - pad.b) * (g / 4);
+    ctx.beginPath(); ctx.moveTo(pad.l, y); ctx.lineTo(W - pad.r, y); ctx.stroke();
+  }
+  // Legend placeholders
+  const colors = ['#aaff00','#77cc00','#448800','#ccff44'];
+  ctx.font = '10px -apple-system,sans-serif'; ctx.fillStyle = '#555555';
+  seriesNames.forEach((nm, i) => {
+    const lx = pad.l + i * 70;
+    ctx.fillStyle = colors[i] || '#555555';
+    ctx.fillRect(lx, 2, 10, 4);
+    ctx.fillStyle = '#555555';
+    ctx.fillText(nm, lx + 14, 8);
+  });
 }
 
 function lineChart(canvas, series, labels) {
