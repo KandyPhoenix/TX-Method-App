@@ -514,16 +514,42 @@ function renderStats() {
 }
 
 function drawProjectionCharts() {
-  const labels = PROGRAM.map(w => w.label + '.' + w.subweek);
-  lineChart(document.getElementById('ch1'),
+  // Only show data for weeks already completed (cursor.week = current week index)
+  const doneWeeks = S.cursor.week; // weeks 0..(doneWeeks-1) are completed
+
+  const ch1 = document.getElementById('ch1');
+  const ch2 = document.getElementById('ch2');
+
+  if (doneWeeks === 0) {
+    // No workouts done yet — show placeholder message, hide canvases
+    [ch1, ch2].forEach(c => { if (c) { c.style.display = 'none'; } });
+    ['ch1msg','ch2msg'].forEach(id => {
+      const existing = document.getElementById(id);
+      if (!existing) {
+        const msg = document.createElement('div');
+        msg.id = id;
+        msg.className = 'empty';
+        msg.innerHTML = '<div class="big">📊</div><div class="muted tiny">No data yet — complete your first workout to start tracking</div>';
+        const canvas = document.getElementById(id === 'ch1msg' ? 'ch1' : 'ch2');
+        if (canvas) canvas.parentNode.insertBefore(msg, canvas);
+      }
+    });
+    return;
+  }
+
+  // Slice program to only completed weeks
+  const completedProgram = PROGRAM.slice(0, doneWeeks);
+  const labels = completedProgram.map(w => w.label + '.' + w.subweek);
+
+  lineChart(ch1,
     ['squat','bench','deadlift','press'].map((k,i) => ({
       name: LIFT_META[k].name,
-      color: ['#ff4d00','#ff8c00','#ffb800','#ff6a1a'][i],
-      data: PROGRAM.map(w => oneRM(w.intensity[k], 5))
+      color: ['#aaff00','#77cc00','#448800','#ccff44'][i],
+      data: completedProgram.map(w => oneRM(w.intensity[k], 5))
     })), labels);
-  lineChart(document.getElementById('ch2'),
-    [{ name:'PL Total', color:'#ffa85a',
-       data: PROGRAM.map(w => w.intensity.squat + w.intensity.bench + w.intensity.deadlift) }],
+  lineChart(ch2,
+    [{ name:'PL Total', color:'#aaff00',
+       data: completedProgram.map(w => w.intensity.squat + w.intensity.bench + w.intensity.deadlift) }],
     labels);
 }
 
@@ -539,7 +565,7 @@ function lineChart(canvas, series, labels) {
   if (min === max) { min -= 1; max += 1; }
   const py = v => pad.t + (H - pad.t - pad.b) * (1 - (v - min) / (max - min));
   const px = i => pad.l + (W - pad.l - pad.r) * (i / (labels.length - 1));
-  ctx.strokeStyle = 'rgba(255,77,0,.2)'; ctx.fillStyle = '#aaaaaa'; ctx.font = '10px -apple-system,sans-serif'; ctx.lineWidth = 1;
+  ctx.strokeStyle = 'rgba(170,255,0,.15)'; ctx.fillStyle = '#aaaaaa'; ctx.font = '10px -apple-system,sans-serif'; ctx.lineWidth = 1;
   for (let g = 0; g <= 4; g++) {
     const v = min + (max - min) * g / 4, y = py(v);
     ctx.beginPath(); ctx.moveTo(pad.l, y); ctx.lineTo(W - pad.r, y); ctx.globalAlpha = .5; ctx.stroke(); ctx.globalAlpha = 1;
