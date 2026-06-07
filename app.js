@@ -990,7 +990,9 @@ function wireSetup() {
       }, 3000);
     } else {
       confirmState.factory = false;
-      localStorage.removeItem(LS_KEY);
+      // Wipe active profile's data AND the profile registry — full factory reset
+      localStorage.removeItem(activeStateKey());
+      localStorage.removeItem('tm_profiles');
       toast('App reset — reloading…');
       setTimeout(() => location.reload(), 1000);
     }
