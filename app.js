@@ -1444,6 +1444,7 @@ function restStep()    { return (S.settings && S.settings.restStep) || 15; }
 function startRest(sec) {
   if (sec == null) sec = restDefault();
   restLeft = sec; restTotal = sec;
+  ensureAudio(); // unlock sound on this tap so the end-ding can play (mobile)
   // reflect the configured adjust step on the +/- buttons
   const step = restStep();
   const pm = document.getElementById('restMinus'), pp = document.getElementById('restPlus');
@@ -1463,10 +1464,38 @@ function startRest(sec) {
     restLeft--;
     restDisp.textContent = fmtClock(Math.max(0, restLeft));
     if (restLeft <= 10) restEl.classList.add('warn');
-    if (restLeft <= 0)  { clearInterval(restInt); buzz(); setTimeout(() => restEl.classList.add('hidden'), 1500); }
+    if (restLeft <= 0)  { clearInterval(restInt); ding(); buzz(); setTimeout(() => restEl.classList.add('hidden'), 1800); }
   }, 1000);
 }
-function buzz() { if (navigator.vibrate) navigator.vibrate([200,80,200]); }
+function buzz() { if (navigator.vibrate) navigator.vibrate([300, 120, 300, 120, 300]); }
+
+/* loud end-of-rest ding via Web Audio (no sound file needed) */
+let audioCtx = null;
+function ensureAudio() {
+  try {
+    if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+    if (audioCtx.state === 'suspended') audioCtx.resume();
+  } catch { /* audio not available */ }
+}
+function ding() {
+  ensureAudio();
+  if (!audioCtx) return;
+  const now = audioCtx.currentTime;
+  // bright, attention-grabbing triple beep
+  const notes = [988, 1319, 988, 1319];   // B5 / E6 alternating
+  notes.forEach((f, i) => {
+    const t   = now + i * 0.20;
+    const osc = audioCtx.createOscillator();
+    const g   = audioCtx.createGain();
+    osc.type = 'square';                    // loud/cutting
+    osc.frequency.value = f;
+    g.gain.setValueAtTime(0.0001, t);
+    g.gain.exponentialRampToValueAtTime(1.0, t + 0.01);   // loud attack
+    g.gain.exponentialRampToValueAtTime(0.0001, t + 0.18);
+    osc.connect(g).connect(audioCtx.destination);
+    osc.start(t); osc.stop(t + 0.20);
+  });
+}
 function syncFill() {
   const pct = restTotal > 0 ? (restLeft / restTotal) * 100 : 0;
   restFill.style.transition = 'none';
