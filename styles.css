@@ -447,6 +447,15 @@ table.prog td.s { text-align: right; color: var(--muted); width: 60px; }
   display: flex; align-items: center; gap: 4px; margin-bottom: 3px;
 }
 .prep-ex { font-size: 16.5px; line-height: 1.45; color: var(--muted); white-space: nowrap; }
+
+/* guided-hold Start button on plank rows */
+.mini-start {
+  flex: 0 0 auto; background: var(--lime-dim); color: var(--lime);
+  border: 1px solid rgba(170,255,0,.35); border-radius: 10px;
+  padding: 8px 12px; font-size: 14px; font-weight: 800; cursor: pointer; white-space: nowrap;
+}
+.mini-start:active { transform: scale(.94); }
+.set-row.done .mini-start { opacity: .2; }
 .prep-rest {
   font-size: 15px; font-weight: 800; color: var(--muted);
   letter-spacing: 1px; margin-top: 16px; text-align: center;

@@ -671,7 +671,7 @@ function prepExerciseCard(ex, log) {
       rows += `<div class="set-row workset ${on ? 'done' : ''}">
         <div class="lbl">${ex.icon} Set ${i + 1} of ${ex.sets}</div>
         <div class="wt">${ex.sec}<small> sec</small></div>
-        <div class="reps">hold</div>
+        <button class="mini-start" data-hold="${ex.sec}" data-holdname="${ex.name}" data-holdcheck="${id}">▶ Start</button>
         <button class="check ${on}" data-pcheck="${id}">✓</button></div>`;
     }
     return `<div class="card lift">
@@ -707,6 +707,18 @@ function wirePrepToday() {
       btn.closest('.set-row').classList.toggle('done', log.checks[id]);
       save();
       if (log.checks[id]) startRest();
+    };
+  });
+
+  /* guided hold timer (planks): 3-2-1 get-ready → hold → ding → auto-check */
+  view.querySelectorAll('[data-hold]').forEach(btn => {
+    btn.onclick = () => {
+      const secs = +btn.dataset.hold, checkId = btn.dataset.holdcheck;
+      startGuidedHold(secs, (btn.dataset.holdname || 'HOLD').toUpperCase(), () => {
+        log.checks[checkId] = true; save();
+        const chk = view.querySelector(`[data-pcheck="${checkId}"]`);
+        if (chk) { chk.classList.add('on'); chk.closest('.set-row').classList.add('done'); }
+      });
     };
   });
 
@@ -1496,6 +1508,62 @@ function ding() {
     osc.start(t); osc.stop(t + 0.20);
   });
 }
+/* short soft beep used for the get-ready count-in and final seconds */
+function tick(freq) {
+  ensureAudio();
+  if (!audioCtx) return;
+  const t = audioCtx.currentTime;
+  const o = audioCtx.createOscillator(), g = audioCtx.createGain();
+  o.type = 'sine'; o.frequency.value = freq || 880;
+  g.gain.setValueAtTime(0.0001, t);
+  g.gain.exponentialRampToValueAtTime(0.5, t + 0.01);
+  g.gain.exponentialRampToValueAtTime(0.0001, t + 0.12);
+  o.connect(g).connect(audioCtx.destination);
+  o.start(t); o.stop(t + 0.13);
+}
+
+/* guided hold: 3-2-1 get ready → count down `seconds` → ding → onDone */
+let guidedInt = null;
+function stopGuided() { clearInterval(guidedInt); guidedInt = null; }
+function startGuidedHold(seconds, label, onDone) {
+  ensureAudio();
+  clearInterval(restInt); stopGuided();
+  const labelEl = document.getElementById('restLabel');
+  restEl.classList.remove('hidden', 'warn');
+  let ready = 3;
+  if (labelEl) labelEl.textContent = 'GET READY';
+  restDisp.textContent = ready;
+  restFill.style.transition = 'none'; restFill.style.width = '100%';
+  tick(660);
+  guidedInt = setInterval(() => {
+    ready--;
+    if (ready > 0) { restDisp.textContent = ready; tick(660); }
+    else { stopGuided(); beginHold(); }
+  }, 1000);
+
+  function beginHold() {
+    if (labelEl) labelEl.textContent = label || 'HOLD';
+    let left = seconds, total = seconds;
+    restDisp.textContent = fmtClock(left);
+    restFill.style.transition = 'none'; restFill.style.width = '100%';
+    requestAnimationFrame(() => requestAnimationFrame(() => {
+      restFill.style.transition = `width ${total}s linear`;
+      restFill.style.width = '0%';
+    }));
+    tick(990);  // go!
+    guidedInt = setInterval(() => {
+      left--;
+      restDisp.textContent = fmtClock(Math.max(0, left));
+      if (left <= 5) restEl.classList.add('warn');
+      if (left <= 3 && left > 0) tick(880);
+      if (left <= 0) {
+        stopGuided(); ding(); buzz();
+        if (typeof onDone === 'function') onDone();
+        setTimeout(() => { restEl.classList.add('hidden'); const l = document.getElementById('restLabel'); if (l) l.textContent = 'REST'; }, 1800);
+      }
+    }, 1000);
+  }
+}
 function syncFill() {
   const pct = restTotal > 0 ? (restLeft / restTotal) * 100 : 0;
   restFill.style.transition = 'none';
@@ -1507,9 +1575,10 @@ function syncFill() {
 }
 document.getElementById('restPlus').onclick  = () => { restLeft += restStep(); restTotal = Math.max(restTotal, restLeft); restDisp.textContent = fmtClock(restLeft); syncFill(); };
 document.getElementById('restMinus').onclick = () => { restLeft = Math.max(0,restLeft-restStep()); restDisp.textContent = fmtClock(restLeft); syncFill(); };
-document.getElementById('restStop').onclick  = () => { clearInterval(restInt); restEl.classList.add('hidden'); };
+function dismissTimer() { clearInterval(restInt); stopGuided(); restEl.classList.add('hidden'); const l = document.getElementById('restLabel'); if (l) l.textContent = 'REST'; }
+document.getElementById('restStop').onclick  = dismissTimer;
 /* tap the dimmed backdrop (outside the card) to dismiss */
-restEl.onclick = e => { if (e.target === restEl) { clearInterval(restInt); restEl.classList.add('hidden'); } };
+restEl.onclick = e => { if (e.target === restEl) dismissTimer(); };
 
 /* =====================================================================
    HELPERS
