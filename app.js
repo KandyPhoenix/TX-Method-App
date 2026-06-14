@@ -1137,9 +1137,9 @@ function renderSetup() {
 
     <h2 class="section">Backup &amp; Restore</h2>
     <div class="card">
-      <p class="tiny muted" style="margin:0 0 12px">Export saves everything — settings, logs, body weight, cursor position. Import restores it completely.</p>
+      <p class="tiny muted" style="margin:0 0 12px">Export saves <b>all profiles</b> — every lifter's settings, logs, body weight, cursor and prep progress — in one file. Import restores the whole set onto another device.</p>
       <div class="row2">
-        <button class="btn primary" id="exportBtn">⬇ Export backup</button>
+        <button class="btn primary" id="exportBtn">⬇ Export all profiles</button>
         <button class="btn secondary" id="importBtn">⬆ Import backup</button>
       </div>
       <input type="file" id="importFile" accept=".json" style="display:none">
@@ -1241,19 +1241,27 @@ function wireSetup() {
     }
   };
 
-  /* ---- Export backup ---- */
+  /* ---- Export backup (all profiles) ---- */
   document.getElementById('exportBtn').onclick = () => {
-    const data = JSON.stringify(S, null, 2);
+    save(); // flush the active profile's in-memory state to storage first
+    const profiles = loadProfiles() || { active: 'default', list: [{ id: 'default', name: 'Me' }] };
+    const states = {};
+    profiles.list.forEach(p => {
+      const raw = localStorage.getItem('tm_state_' + p.id);
+      if (raw) { try { states[p.id] = JSON.parse(raw); } catch { /* skip */ } }
+    });
+    const bundle = { type: 'tm_full_backup', version: 1, exportedAt: new Date().toISOString(), profiles, states };
+    const data = JSON.stringify(bundle, null, 2);
     const blob = new Blob([data], { type: 'application/json' });
     const url  = URL.createObjectURL(blob);
     const a    = document.createElement('a');
     const date = new Date().toISOString().slice(0,10);
     a.href = url; a.download = `tx-method-backup-${date}.json`;
     a.click(); URL.revokeObjectURL(url);
-    toast('Backup saved ⬇');
+    toast(`Backup saved — ${profiles.list.length} profile${profiles.list.length === 1 ? '' : 's'} ⬇`);
   };
 
-  /* ---- Import backup ---- */
+  /* ---- Import backup (full bundle OR legacy single-profile) ---- */
   document.getElementById('importBtn').onclick = () => {
     document.getElementById('importFile').click();
   };
@@ -1263,9 +1271,22 @@ function wireSetup() {
     reader.onload = e => {
       try {
         const parsed = JSON.parse(e.target.result);
-        if (!parsed.settings || !parsed.lifts) throw new Error('Invalid backup file');
-        Object.assign(S, parsed);
-        save(); rebuild(); toast('Backup restored ⬆'); render();
+        if (parsed && parsed.type === 'tm_full_backup' && parsed.profiles && parsed.states) {
+          /* full device restore — replaces all profiles */
+          saveProfiles(parsed.profiles);
+          Object.entries(parsed.states).forEach(([id, st]) => {
+            localStorage.setItem('tm_state_' + id, JSON.stringify(st));
+          });
+          S = loadState(); rebuild(); updateProfileBtn(); render();
+          toast(`Restored ${parsed.profiles.list.length} profile${parsed.profiles.list.length === 1 ? '' : 's'} ⬆`);
+        } else if (parsed && parsed.settings) {
+          /* legacy single-profile backup — merge into the active profile */
+          Object.assign(S, parsed);
+          save(); rebuild(); updateProfileBtn(); render();
+          toast('Backup restored ⬆');
+        } else {
+          throw new Error('Invalid backup file');
+        }
       } catch(err) {
         toast('Import failed — invalid file');
       }
