@@ -40,6 +40,8 @@ const DEFAULTS = {
   plates: [45, 35, 25, 10, 5, 2.5],
   mode: 'limit',
   ohpDecrement: 0.95,
+  restSec: 120,
+  restStep: 15,
   lifts: {
     squat:    { weight: 125, reps: 5 },
     bench:    { weight: 85,  reps: 5 },
@@ -102,6 +104,22 @@ const PREP30 = [
   prepDay(30, 60, 30, 30, 25, 60)  // 30
 ];
 const PREP_TOTAL = PREP30.length;
+/* full-plan totals (denominator for the "reps banked" bars) */
+const PREP_EX_KEYS = [
+  { key: 'pushups',   name: 'Push-ups',   icon: '💪' },
+  { key: 'squats',    name: 'Squats',     icon: '🏋️' },
+  { key: 'burpees',   name: 'Burpees',    icon: '🔥' },
+  { key: 'legraises', name: 'Leg Raises', icon: '🦵' },
+  { key: 'crunches',  name: 'Crunches',   icon: '🔄' }
+];
+const PREP_FULL = (() => {
+  const t = { pushups: 0, squats: 0, burpees: 0, legraises: 0, crunches: 0, plankSec: 0 };
+  PREP30.forEach(d => {
+    if (d.rest) return;
+    d.exercises.forEach(ex => { if (ex.sets) t.plankSec += ex.sets * ex.sec; else t[ex.key] += ex.reps; });
+  });
+  return t;
+})();
 
 /* =====================================================================
    PROFILES  (multi-user)
@@ -215,6 +233,8 @@ function migrate(st) {
   st.cursor  = st.cursor  || { week: 0, day: 0 };
   st.logs    = st.logs    || {};
   st.bodyLog = st.bodyLog || [];
+  if (st.settings.restSec  == null) st.settings.restSec  = 120;
+  if (st.settings.restStep == null) st.settings.restStep = 15;
   /* existing profiles default to Texas (don't disrupt anyone mid-cycle) */
   st.program = st.program || 'texas';
   st.prep    = st.prep    || { day: 1, log: {} };
@@ -447,7 +467,7 @@ function renderToday() {
 
   html += `<button class="btn primary" id="completeBtn">✓ Complete workout</button>
     <div class="spacer"></div>
-    <button class="btn secondary" id="timerBtn">⏱ Start rest timer (2:00)</button>
+    <button class="btn secondary" id="timerBtn">⏱ Start rest timer (${fmtClock(restDefault())})</button>
   </div>`;
   view.innerHTML = html;
   wireToday(logKey);
@@ -541,7 +561,7 @@ function wireToday(logKey) {
       btn.classList.toggle('on', log.checks[id]);
       btn.closest('.set-row').classList.toggle('done', log.checks[id]);
       save();
-      if (log.checks[id]) startRest(120);
+      if (log.checks[id]) startRest();
     };
   });
   view.querySelectorAll('[data-rep]').forEach(btn => {
@@ -563,7 +583,7 @@ function wireToday(logKey) {
     });
     save(); rebuild(); toast('Workout logged 💪'); moveCursor(1);
   };
-  document.getElementById('timerBtn').onclick = () => startRest(120);
+  document.getElementById('timerBtn').onclick = () => startRest();
 }
 
 function moveCursor(dir) {
@@ -630,7 +650,7 @@ function renderPrepToday() {
     const last = dayNum >= PREP_TOTAL;
     html += `<button class="btn primary" id="prepComplete">${last ? '🎉 Finish prep → Start Texas Method' : '✓ Complete day'}</button>
       <div class="spacer"></div>
-      <button class="btn secondary" id="prepTimer">⏱ Start rest timer (1:00)</button>`;
+      <button class="btn secondary" id="prepTimer">⏱ Start rest timer (${fmtClock(restDefault())})</button>`;
   }
 
   html += `</div>`;
@@ -683,7 +703,7 @@ function wirePrepToday() {
       btn.classList.toggle('on', log.checks[id]);
       btn.closest('.set-row').classList.toggle('done', log.checks[id]);
       save();
-      if (log.checks[id]) startRest(60);
+      if (log.checks[id]) startRest();
     };
   });
 
@@ -693,7 +713,7 @@ function wirePrepToday() {
   if (next) next.onclick = () => movePrepCursor(1);
 
   const timer = document.getElementById('prepTimer');
-  if (timer) timer.onclick = () => startRest(60);
+  if (timer) timer.onclick = () => startRest();
 
   document.getElementById('prepComplete').onclick = () => {
     const d = PREP30[dayNum - 1];
@@ -909,6 +929,20 @@ function renderStats() {
   drawProjectionCharts();
 }
 
+/* current & best run of completed workout-days (rest days don't break it) */
+function prepStreaks() {
+  const seq = [];
+  for (let n = 1; n <= PREP_TOTAL; n++) {
+    if (PREP30[n - 1].rest) continue;
+    seq.push(prepDayDone(n));
+  }
+  let best = 0, run = 0, lastDone = -1;
+  seq.forEach((d, i) => { if (d) { run++; best = Math.max(best, run); lastDone = i; } else run = 0; });
+  let current = 0;
+  for (let i = lastDone; i >= 0 && seq[i]; i--) current++;
+  return { current, best };
+}
+
 function renderPrepStats() {
   titleEl.textContent = 'Stats';
   subEl.textContent   = '30-Day Prep · progress';
@@ -916,31 +950,45 @@ function renderPrepStats() {
   const workoutDays = PREP_TOTAL - 4; // 4 rest days
   const done = prepDaysComplete();
   const pct  = Math.round(done / workoutDays * 100);
+  const { current, best } = prepStreaks();
 
-  // total reps logged across completed days (rough effort tally)
-  let totalReps = 0, totalPlankSec = 0;
+  // cumulative tally across completed days
+  const tally = { pushups: 0, squats: 0, burpees: 0, legraises: 0, crunches: 0, plankSec: 0 };
   for (let n = 1; n <= PREP_TOTAL; n++) {
     if (!prepDayDone(n)) continue;
-    const d = PREP30[n - 1];
-    d.exercises.forEach(ex => {
-      if (ex.sets) totalPlankSec += ex.sets * ex.sec;
-      else totalReps += ex.reps;
+    PREP30[n - 1].exercises.forEach(ex => {
+      if (ex.sets) tally.plankSec += ex.sets * ex.sec; else tally[ex.key] += ex.reps;
     });
   }
+  const totalReps = tally.pushups + tally.squats + tally.burpees + tally.legraises + tally.crunches;
 
-  view.innerHTML = `<div class="screen">
+  // per-exercise "banked" bars — fill grows toward the full-plan total
+  const banked = PREP_EX_KEYS.map(e => {
+    const v = tally[e.key], full = PREP_FULL[e.key] || 1;
+    const w = Math.min(100, Math.round(v / full * 100));
+    return `<div class="bar-line"><div class="top"><span>${e.icon} ${e.name}</span><b>${v} <span class="muted" style="font-weight:600">/ ${full}</span></b></div>
+      <div class="track"><div class="fill" style="width:${w}%"></div></div></div>`;
+  }).join('');
+
+  view.innerHTML = `<div class="screen prep-stats">
     <div class="tiles">
       <div class="tile"><div class="k">Days complete</div><div class="v">${done} <small>/ ${workoutDays}</small></div></div>
-      <div class="tile"><div class="k">Progress</div><div class="v">${pct}<small>%</small></div></div>
-      <div class="tile"><div class="k">Reps logged</div><div class="v">${totalReps}</div></div>
-      <div class="tile"><div class="k">Plank time</div><div class="v">${Math.round(totalPlankSec/60)}<small> min</small></div></div>
+      <div class="tile"><div class="k">🔥 Streak</div><div class="v">${current} <small>day${current===1?'':'s'}</small></div><div class="tile-sub">best ${best}</div></div>
+      <div class="tile"><div class="k">Total reps banked</div><div class="v">${totalReps.toLocaleString()}</div></div>
+      <div class="tile"><div class="k">Plank time</div><div class="v">${Math.round(tally.plankSec/60)}<small> min</small></div></div>
     </div>
+
+    <h2 class="section">Reps banked — watch it climb</h2>
+    <div class="card">${banked}
+      <div class="tiny muted center" style="margin-top:8px">Totals across every workout you've completed. Bars fill toward the full 30-day total.</div>
+    </div>
+
     <h2 class="section">Completion</h2>
     <div class="card">
-      <div class="bar-line"><div class="top"><span>30-Day Prep</span><b>${done} / ${workoutDays}</b></div>
+      <div class="bar-line"><div class="top"><span>30-Day Prep</span><b>${done} / ${workoutDays} <span class="muted" style="font-weight:600">· ${pct}%</span></b></div>
         <div class="track"><div class="fill" style="width:${pct}%"></div></div></div>
       <div class="tiny muted center" style="margin-top:8px">
-        ${done >= workoutDays ? 'All done — finish Day 30 to start Texas Method 🏋️' : 'Keep going — switch to Texas Method after Day 30.'}
+        ${done >= workoutDays ? 'All done — finish Day 30 to start Texas Method 🏋️' : `${workoutDays - done} workout${workoutDays-done===1?'':'s'} to go — then on to Texas Method.`}
       </div>
     </div>
   </div>`;
@@ -1128,6 +1176,22 @@ function renderSetup() {
         <input type="number" inputmode="decimal" id="ohp" value="${Math.round(s.ohpDecrement*100)}" /></div>
     </div>
 
+    <h2 class="section">Rest timer</h2>
+    <div class="card">
+      <div class="field"><label>Default length</label>
+        <div class="seg" id="segRest">
+          ${[30,60,90,120,180].map(v => `<button data-rest="${v}" class="${s.restSec===v?'on':''}">${fmtClock(v)}</button>`).join('')}
+        </div>
+      </div>
+      <div class="inline2b" style="margin-top:4px">
+        <div class="field" style="margin:0"><label>Custom (seconds)</label>
+          <input type="number" inputmode="numeric" id="restCustom" value="${s.restSec}" /></div>
+        <div class="field" style="margin:0"><label>Adjust step (± sec)</label>
+          <input type="number" inputmode="numeric" id="restStepInp" value="${s.restStep}" /></div>
+      </div>
+      <div class="hint">Used by the auto-start after each set and the “Start rest timer” button. The ± buttons on the timer bar nudge by your step.</div>
+    </div>
+
     <h2 class="section">Data</h2>
     <div class="card">
       <button class="btn secondary" id="resetCursor">↺ Jump to Week 1, Monday</button>
@@ -1195,6 +1259,17 @@ function wireSetup() {
   });
 
   view.querySelectorAll('#segSex button').forEach(b => b.onclick = () => { s.sex = b.dataset.x; save(); render(); });
+
+  /* rest timer */
+  view.querySelectorAll('#segRest button').forEach(b => b.onclick = () => {
+    s.restSec = +b.dataset.rest; save(); render();
+  });
+  document.getElementById('restCustom').onchange = e => {
+    s.restSec = Math.max(5, Math.min(900, +e.target.value || 120)); save(); render();
+  };
+  document.getElementById('restStepInp').onchange = e => {
+    s.restStep = Math.max(1, Math.min(120, +e.target.value || 15)); save();
+  };
   view.querySelectorAll('#segMode button').forEach(b => b.onclick = () => { s.mode = b.dataset.m; save(); render(); });
 
   document.getElementById('bw').onchange  = e => { s.bodyweight = +e.target.value || 0; save(); };
@@ -1325,8 +1400,17 @@ const restDisp = document.getElementById('restDisplay');
 const restFill = document.getElementById('restFill');
 const fmtClock = s => `${Math.floor(s/60)}:${String(s%60).padStart(2,'0')}`;
 
+function restDefault() { return (S.settings && S.settings.restSec) || 120; }
+function restStep()    { return (S.settings && S.settings.restStep) || 15; }
+
 function startRest(sec) {
+  if (sec == null) sec = restDefault();
   restLeft = sec; restTotal = sec;
+  // reflect the configured adjust step on the +/- buttons
+  const step = restStep();
+  const pm = document.getElementById('restMinus'), pp = document.getElementById('restPlus');
+  if (pm) pm.textContent = '−' + step;
+  if (pp) pp.textContent = '+' + step;
   restEl.classList.remove('hidden','warn');
   restDisp.textContent = fmtClock(restLeft);
   restFill.style.transition = 'none';
@@ -1354,8 +1438,8 @@ function syncFill() {
     restFill.style.width = '0%';
   }));
 }
-document.getElementById('restPlus').onclick  = () => { restLeft += 15; restTotal = Math.max(restTotal, restLeft); restDisp.textContent = fmtClock(restLeft); syncFill(); };
-document.getElementById('restMinus').onclick = () => { restLeft = Math.max(0,restLeft-15); restDisp.textContent = fmtClock(restLeft); syncFill(); };
+document.getElementById('restPlus').onclick  = () => { restLeft += restStep(); restTotal = Math.max(restTotal, restLeft); restDisp.textContent = fmtClock(restLeft); syncFill(); };
+document.getElementById('restMinus').onclick = () => { restLeft = Math.max(0,restLeft-restStep()); restDisp.textContent = fmtClock(restLeft); syncFill(); };
 document.getElementById('restStop').onclick  = () => { clearInterval(restInt); restEl.classList.add('hidden'); };
 
 /* =====================================================================
