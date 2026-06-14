@@ -220,7 +220,7 @@ input:focus, select:focus { outline: 2px solid var(--lime); border-color: var(--
 /* ---------- Program ---------- */
 .cycle-pill {
   display: inline-flex; align-items: center; gap: 6px; padding: 7px 12px; border-radius: 999px;
-  background: var(--panel); border: 1px solid var(--border); font-size: 15px; font-weight: 700;
+  background: var(--panel); border: 1px solid var(--border); font-size: 17px; font-weight: 700;
   margin: 0 6px 8px 0; cursor: pointer; white-space: nowrap; color: #fff;
 }
 .cycle-pill.on {
@@ -235,7 +235,7 @@ input:focus, select:focus { outline: 2px solid var(--lime); border-color: var(--
 .dot.mon { background: var(--lime); box-shadow: 0 0 6px var(--lime-glow); }
 .dot.wed { background: #77cc00; }
 .dot.fri { background: #448800; }
-table.prog { width: 100%; border-collapse: collapse; font-size: 16px; }
+table.prog { width: 100%; border-collapse: collapse; font-size: 18px; }
 table.prog td { padding: 9px 6px; border-bottom: 1px solid var(--border); }
 table.prog td.nm { color: var(--muted); }
 table.prog td.w { text-align: right; font-weight: 700; color: var(--lime); }
@@ -441,18 +441,18 @@ table.prog td.s { text-align: right; color: var(--muted); width: 60px; }
 }
 .prep-cell:active { transform: scale(.97); }
 .prep-num {
-  font-weight: 800; font-size: 15px; color: #fff;
+  font-weight: 800; font-size: 17px; color: #fff;
   display: flex; align-items: center; gap: 4px; margin-bottom: 3px;
 }
-.prep-ex { font-size: 10.5px; line-height: 1.45; color: var(--muted); white-space: nowrap; }
+.prep-ex { font-size: 12.5px; line-height: 1.45; color: var(--muted); white-space: nowrap; }
 .prep-rest {
-  font-size: 13px; font-weight: 800; color: var(--muted);
+  font-size: 15px; font-weight: 800; color: var(--muted);
   letter-spacing: 1px; margin-top: 16px; text-align: center;
 }
 .prep-cell.rest { background: var(--bg2); }
 .prep-cell.done { border-color: rgba(170,255,0,.5); }
 .prep-cell.done .prep-num { color: var(--lime); }
-.prep-tick { color: var(--lime); font-size: 13px; }
+.prep-tick { color: var(--lime); font-size: 15px; }
 .prep-cell.cur {
   border-color: var(--lime);
   box-shadow: 0 0 0 1px var(--lime), 0 4px 16px var(--lime-glow);
