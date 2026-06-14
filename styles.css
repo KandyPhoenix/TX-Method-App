@@ -426,3 +426,34 @@ table.prog td.s { text-align: right; color: var(--muted); width: 60px; }
 .info-pop-body {
   font-size: 13px; color: var(--muted); line-height: 1.55;
 }
+
+/* ---- 30-Day Prep calendar ---- */
+.prep-grid {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 6px;
+  margin-top: 4px;
+}
+.prep-cell {
+  background: var(--panel); border: 1px solid var(--border);
+  border-radius: 10px; padding: 7px 6px; min-height: 78px;
+  cursor: pointer; overflow: hidden;
+}
+.prep-cell:active { transform: scale(.97); }
+.prep-num {
+  font-weight: 800; font-size: 13px; color: #fff;
+  display: flex; align-items: center; gap: 4px; margin-bottom: 3px;
+}
+.prep-ex { font-size: 8.5px; line-height: 1.45; color: var(--muted); white-space: nowrap; }
+.prep-rest {
+  font-size: 11px; font-weight: 800; color: var(--muted);
+  letter-spacing: 1px; margin-top: 16px; text-align: center;
+}
+.prep-cell.rest { background: var(--bg2); }
+.prep-cell.done { border-color: rgba(170,255,0,.5); }
+.prep-cell.done .prep-num { color: var(--lime); }
+.prep-tick { color: var(--lime); font-size: 11px; }
+.prep-cell.cur {
+  border-color: var(--lime);
+  box-shadow: 0 0 0 1px var(--lime), 0 4px 16px var(--lime-glow);
+}
