@@ -265,53 +265,55 @@ table.prog td.s { text-align: right; color: var(--muted); width: 60px; }
 .tab span { font-size: 23px; }
 .tab.active { color: var(--lime); }
 
-/* ---------- Rest timer bar ---------- */
-.rest-bar {
-  position: fixed;
-  bottom: calc(64px + var(--safe-bottom));   /* sits just above tab bar */
-  left: 0; right: 0; z-index: 40;
-  background: #111111;
-  border-top: 1px solid var(--border);
-  border-bottom: 1px solid var(--border);
+/* ---------- Rest timer — centered card overlay ---------- */
+.rest-overlay {
+  position: fixed; inset: 0; z-index: 80;
+  display: flex; align-items: center; justify-content: center;
+  background: rgba(0,0,0,.66); backdrop-filter: blur(3px);
+  padding: 24px;
 }
-.rest-bar.hidden { display: none; }
-
-/* draining progress bar — full width, sits at very top of the bar */
+.rest-overlay.hidden { display: none; }
+.rest-card {
+  width: 100%; max-width: 360px;
+  background: var(--panel); border: 1px solid var(--border);
+  border-radius: 26px; padding: 30px 26px 26px;
+  box-shadow: 0 24px 70px rgba(0,0,0,.7), 0 0 0 1px rgba(170,255,0,.15);
+  text-align: center; animation: restPop .22s cubic-bezier(.2,.8,.2,1.2);
+}
+@keyframes restPop { from { opacity: 0; transform: scale(.9); } to { opacity: 1; transform: none; } }
+.rest-label {
+  font-size: 15px; font-weight: 800; letter-spacing: 4px;
+  color: var(--lime); text-transform: uppercase; line-height: 1;
+}
+.rest-time {
+  font-size: 92px; font-weight: 900; font-variant-numeric: tabular-nums;
+  color: #ffffff; line-height: 1; letter-spacing: -3px; margin: 14px 0 20px;
+}
 .rest-bar-track {
-  height: 4px; background: var(--bg2); width: 100%;
+  height: 10px; background: var(--bg2); width: 100%; border-radius: 999px; overflow: hidden;
 }
 .rest-bar-fill {
   height: 100%; background: var(--lime);
-  width: 100%; transition: width .9s linear;
-  box-shadow: 0 0 8px var(--lime-glow);
+  width: 100%; transition: width .9s linear; border-radius: 999px;
+  box-shadow: 0 0 10px var(--lime-glow);
 }
-
-/* row with controls */
-.rest-bar-row {
-  display: flex; align-items: center;
-  padding: 10px 16px; gap: 12px;
-}
-.rest-center {
-  flex: 1; display: flex; flex-direction: column; align-items: center;
-}
-.rest-label {
-  font-size: 12px; font-weight: 800; letter-spacing: 2px;
-  color: var(--lime); text-transform: uppercase; line-height: 1;
-}
-#restDisplay {
-  font-size: 34px; font-weight: 900; font-variant-numeric: tabular-nums;
-  color: #ffffff; line-height: 1.1; letter-spacing: -1px;
+.rest-card-controls {
+  display: flex; align-items: center; justify-content: center; gap: 12px; margin-top: 22px;
 }
 .rest-ctrl {
-  background: var(--panel2); color: var(--muted); border: 1px solid var(--border);
-  border-radius: 10px; padding: 8px 14px; font-size: 15px; font-weight: 700; cursor: pointer;
+  background: var(--panel2); color: #fff; border: 1px solid var(--border);
+  border-radius: 14px; padding: 14px 18px; font-size: 18px; font-weight: 800; cursor: pointer;
+  min-width: 74px;
 }
+.rest-ctrl:active { transform: scale(.94); }
 .rest-stop {
-  background: #1a0000; color: var(--red); border: 1px solid rgba(255,51,51,.4);
-  border-radius: 10px; padding: 8px 12px; font-size: 15px; font-weight: 700; cursor: pointer;
+  flex: 1; background: var(--lime); color: #000; border: none;
+  border-radius: 14px; padding: 14px 12px; font-size: 18px; font-weight: 800; cursor: pointer;
+  box-shadow: 0 4px 18px var(--lime-glow);
 }
-.rest-bar.warn #restDisplay { color: var(--lime); }
-.rest-bar.warn .rest-bar-fill { background: var(--red); box-shadow: 0 0 8px rgba(255,51,51,.5); }
+.rest-stop:active { transform: scale(.97); }
+.rest-overlay.warn .rest-time { color: var(--red); }
+.rest-overlay.warn .rest-bar-fill { background: var(--red); box-shadow: 0 0 10px rgba(255,51,51,.5); }
 
 /* ---------- Plate chips ---------- */
 .plate-chips { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 6px; }
@@ -444,7 +446,7 @@ table.prog td.s { text-align: right; color: var(--muted); width: 60px; }
   font-weight: 800; font-size: 17px; color: #fff;
   display: flex; align-items: center; gap: 4px; margin-bottom: 3px;
 }
-.prep-ex { font-size: 12.5px; line-height: 1.45; color: var(--muted); white-space: nowrap; }
+.prep-ex { font-size: 14.5px; line-height: 1.45; color: var(--muted); white-space: nowrap; }
 .prep-rest {
   font-size: 15px; font-weight: 800; color: var(--muted);
   letter-spacing: 1px; margin-top: 16px; text-align: center;

@@ -242,7 +242,10 @@ function migrate(st) {
   if (!st.prep.log) st.prep.log = {};
   return st;
 }
-function save() { localStorage.setItem(activeStateKey(), JSON.stringify(S)); }
+function save() {
+  localStorage.setItem(activeStateKey(), JSON.stringify(S));
+  if (typeof cloudOnLocalChange === 'function') cloudOnLocalChange();
+}
 
 /* confirm-tap state (persists across renders) */
 const confirmState = { wipe: false, reset: false, factory: false };
@@ -1085,6 +1088,7 @@ function renderSetup() {
   titleEl.textContent = 'Setup';
   subEl.textContent   = 'Your numbers — saved automatically';
   const s = S.settings;
+  const cloud = loadCloud();
   const stdPlates = s.units === 'lb' ? STD_PLATES_LB : STD_PLATES_KG;
 
   const plateChips = stdPlates.map(p =>
@@ -1192,6 +1196,23 @@ function renderSetup() {
       <div class="hint">Used by the auto-start after each set and the “Start rest timer” button. The ± buttons on the timer bar nudge by your step.</div>
     </div>
 
+    <h2 class="section">☁️ Cloud sync — cross-device</h2>
+    <div class="card">
+      <div class="field"><label>Sync</label>
+        <div class="seg" id="segCloud">
+          <button data-cloud="on"  class="${cloud.enabled?'on':''}">On</button>
+          <button data-cloud="off" class="${cloud.enabled?'':'on'}">Off</button>
+        </div>
+      </div>
+      <div class="field"><label>Sync code — use the SAME word on every device</label>
+        <input type="text" id="cloudCode" value="${cloud.code||''}" placeholder="e.g. kandy-fit-2026" /></div>
+      <div class="field"><label>Firebase config — paste your firebaseConfig here</label>
+        <textarea id="cloudConfig" rows="6" placeholder='{ "apiKey": "…", "authDomain": "…", "projectId": "…", "appId": "…" }' style="width:100%;font-family:monospace;font-size:13px;padding:12px;border-radius:12px;border:1px solid var(--border);background:var(--bg2);color:#fff;">${cloud.configRaw ? cloud.configRaw.replace(/</g,'&lt;') : ''}</textarea></div>
+      <button class="btn primary" id="cloudConnect">Connect &amp; sync now</button>
+      <div class="tiny muted" id="cloudStatus" style="margin-top:10px;min-height:18px">${cloud.enabled ? 'Sync on — reconnecting…' : 'Off'}</div>
+      <div class="hint">Same sync code + config on your phone and PC = every change syncs automatically across all profiles. Get the config free at console.firebase.google.com (Firestore + Anonymous auth). The config is safe to store here.</div>
+    </div>
+
     <h2 class="section">Data</h2>
     <div class="card">
       <button class="btn secondary" id="resetCursor">↺ Jump to Week 1, Monday</button>
@@ -1269,6 +1290,36 @@ function wireSetup() {
   };
   document.getElementById('restStepInp').onchange = e => {
     s.restStep = Math.max(1, Math.min(120, +e.target.value || 15)); save();
+  };
+
+  /* cloud sync */
+  view.querySelectorAll('#segCloud button').forEach(b => b.onclick = () => {
+    const c = loadCloud(); c.enabled = b.dataset.cloud === 'on'; saveCloud(c);
+    if (!c.enabled) { cloudDisconnect(); cloudStatus('Off'); }
+    view.querySelectorAll('#segCloud button').forEach(x => x.classList.toggle('on',
+      (x.dataset.cloud === 'on') === c.enabled));
+  });
+  const cloudCodeEl = document.getElementById('cloudCode');
+  if (cloudCodeEl) cloudCodeEl.onchange = e => { const c = loadCloud(); c.code = e.target.value.trim(); saveCloud(c); };
+  const cloudCfgEl = document.getElementById('cloudConfig');
+  if (cloudCfgEl) cloudCfgEl.onchange = e => {
+    const raw = e.target.value;
+    const parsed = parseFirebaseConfig(raw);
+    const c = loadCloud(); c.configRaw = raw; c.config = parsed; saveCloud(c);
+    cloudStatus(parsed ? 'Config looks valid ✓ — tap Connect' : 'Config not valid JSON — check the paste');
+  };
+  const cloudConnectBtn = document.getElementById('cloudConnect');
+  if (cloudConnectBtn) cloudConnectBtn.onclick = () => {
+    const c = loadCloud();
+    // capture latest field values before connecting
+    if (cloudCfgEl) { c.configRaw = cloudCfgEl.value; c.config = parseFirebaseConfig(cloudCfgEl.value); }
+    if (cloudCodeEl) c.code = cloudCodeEl.value.trim();
+    c.enabled = true;
+    saveCloud(c);
+    view.querySelectorAll('#segCloud button').forEach(x => x.classList.toggle('on', x.dataset.cloud === 'on'));
+    if (!c.config) { cloudStatus('Paste a valid Firebase config first'); return; }
+    if (!c.code)   { cloudStatus('Enter a sync code first'); return; }
+    cloudConnect();
   };
   view.querySelectorAll('#segMode button').forEach(b => b.onclick = () => { s.mode = b.dataset.m; save(); render(); });
 
@@ -1441,6 +1492,8 @@ function syncFill() {
 document.getElementById('restPlus').onclick  = () => { restLeft += restStep(); restTotal = Math.max(restTotal, restLeft); restDisp.textContent = fmtClock(restLeft); syncFill(); };
 document.getElementById('restMinus').onclick = () => { restLeft = Math.max(0,restLeft-restStep()); restDisp.textContent = fmtClock(restLeft); syncFill(); };
 document.getElementById('restStop').onclick  = () => { clearInterval(restInt); restEl.classList.add('hidden'); };
+/* tap the dimmed backdrop (outside the card) to dismiss */
+restEl.onclick = e => { if (e.target === restEl) { clearInterval(restInt); restEl.classList.add('hidden'); } };
 
 /* =====================================================================
    HELPERS
@@ -1541,8 +1594,127 @@ function closeProfileSheet() {
 document.getElementById('profileBtn').onclick = openProfileSheet;
 updateProfileBtn();
 
+/* =====================================================================
+   CLOUD SYNC  (Firebase Firestore — cross-device, all profiles)
+   ===================================================================== */
+const CLOUD_KEY = 'tm_cloud';
+function loadCloud() { try { return JSON.parse(localStorage.getItem(CLOUD_KEY)) || {}; } catch { return {}; } }
+function saveCloud(c) { localStorage.setItem(CLOUD_KEY, JSON.stringify(c)); }
+
+/* bundle = every profile + its state (same shape as the export file) */
+function buildBundle() {
+  const profiles = loadProfiles() || { active: 'default', list: [{ id: 'default', name: 'Me' }] };
+  const states = {};
+  profiles.list.forEach(p => {
+    const raw = localStorage.getItem('tm_state_' + p.id);
+    if (raw) { try { states[p.id] = JSON.parse(raw); } catch { /* skip */ } }
+  });
+  return { type: 'tm_full_backup', version: 1, profiles, states };
+}
+function applyBundle(bundle) {
+  if (!bundle || !bundle.profiles || !bundle.states) return false;
+  saveProfiles(bundle.profiles);
+  Object.entries(bundle.states).forEach(([id, st]) => localStorage.setItem('tm_state_' + id, JSON.stringify(st)));
+  S = loadState(); rebuild(); updateProfileBtn(); render();
+  return true;
+}
+
+/* tolerant parse of a pasted firebaseConfig (JSON or JS object literal) */
+function parseFirebaseConfig(text) {
+  if (!text) return null;
+  const a = text.indexOf('{'), b = text.lastIndexOf('}');
+  if (a < 0 || b < 0) return null;
+  let t = text.slice(a, b + 1);
+  try { return JSON.parse(t); } catch { /* try lenient */ }
+  try {
+    const j = t.replace(/([{,]\s*)([A-Za-z0-9_]+)\s*:/g, '$1"$2":').replace(/'/g, '"').replace(/,\s*}/g, '}');
+    return JSON.parse(j);
+  } catch { return null; }
+}
+
+let fb = null;                                   // { ref, setDoc, getDoc, unsub }
+let cloudWriterId = 'w' + Math.random().toString(36).slice(2);
+let cloudApplying = false, cloudPushT = null, cloudLastApplied = 0;
+
+function cloudStatus(msg) {
+  const el = document.getElementById('cloudStatus');
+  if (el) el.textContent = msg;
+}
+
+async function cloudConnect() {
+  const c = loadCloud();
+  if (!c.enabled || !c.config || !c.code) { return; }
+  if (fb && fb.unsub) { try { fb.unsub(); } catch {} fb = null; }
+  cloudStatus('Connecting…');
+  try {
+    const [appMod, fsMod, authMod] = await Promise.all([
+      import('https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js'),
+      import('https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js'),
+      import('https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js')
+    ]);
+    const app  = appMod.initializeApp(c.config);
+    const auth = authMod.getAuth(app);
+    await authMod.signInAnonymously(auth);
+    const db  = fsMod.getFirestore(app);
+    const ref = fsMod.doc(db, 'txmethod', String(c.code).trim());
+    fb = { ref, setDoc: fsMod.setDoc, getDoc: fsMod.getDoc, unsub: null };
+
+    // initial pull: cloud is the shared source of truth on connect
+    const snap = await fsMod.getDoc(ref);
+    if (snap.exists() && snap.data() && snap.data().bundle) {
+      cloudApplying = true; applyBundle(snap.data().bundle); cloudApplying = false;
+      cloudLastApplied = snap.data().updatedAt || Date.now();
+      cloudStatus('Connected ✓ · pulled latest');
+    } else {
+      await cloudPush(true);
+      cloudStatus('Connected ✓ · uploaded your data');
+    }
+
+    // realtime: apply any change made on another device
+    fb.unsub = fsMod.onSnapshot(ref, s => {
+      if (!s.exists()) return;
+      const d = s.data(); if (!d || !d.bundle) return;
+      if (d.writerId === cloudWriterId) return;                 // ignore our own echo
+      if ((d.updatedAt || 0) <= cloudLastApplied) return;       // already have it
+      cloudApplying = true; applyBundle(d.bundle); cloudApplying = false;
+      cloudLastApplied = d.updatedAt || Date.now();
+      toast('Synced from another device ⬇');
+    });
+  } catch (err) {
+    fb = null;
+    cloudStatus('Error: ' + (err && err.message ? err.message : err));
+  }
+}
+
+async function cloudPush(immediate) {
+  if (!fb || cloudApplying) return;
+  clearTimeout(cloudPushT);
+  const doit = async () => {
+    if (!fb) return;
+    try {
+      const updatedAt = Date.now();
+      await fb.setDoc(fb.ref, { updatedAt, writerId: cloudWriterId, bundle: buildBundle() });
+      cloudLastApplied = updatedAt;
+      cloudStatus('Synced ✓ ' + new Date(updatedAt).toLocaleTimeString());
+    } catch (err) {
+      cloudStatus('Push error: ' + (err && err.message ? err.message : err));
+    }
+  };
+  immediate ? doit() : (cloudPushT = setTimeout(doit, 1500));
+}
+
+/* called from save() — debounced upload of local changes */
+function cloudOnLocalChange() { if (fb && !cloudApplying) cloudPush(false); }
+
+function cloudDisconnect() {
+  if (fb && fb.unsub) { try { fb.unsub(); } catch {} }
+  fb = null;
+}
+
 /* init */
 render();
+/* auto-connect cloud sync if previously enabled */
+if (loadCloud().enabled) { setTimeout(cloudConnect, 0); }
 if ('serviceWorker' in navigator) {
   window.addEventListener('load', () => navigator.serviceWorker.register('sw.js').catch(() => {}));
   // Auto-reload when a new service worker activates (picks up new version immediately)
