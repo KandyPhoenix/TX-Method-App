@@ -1214,13 +1214,11 @@ function renderSetup() {
           <button data-cloud="off" class="${cloud.enabled?'':'on'}">Off</button>
         </div>
       </div>
-      <div class="field"><label>Sync code — use the SAME word on every device</label>
+      <div class="field"><label>Sync code — use the SAME secret word on every device</label>
         <input type="text" id="cloudCode" value="${cloud.code||''}" placeholder="e.g. kandy-fit-2026" /></div>
-      <div class="field"><label>Firebase config — paste your firebaseConfig here</label>
-        <textarea id="cloudConfig" rows="6" placeholder='{ "apiKey": "…", "authDomain": "…", "projectId": "…", "appId": "…" }' style="width:100%;font-family:monospace;font-size:13px;padding:12px;border-radius:12px;border:1px solid var(--border);background:var(--bg2);color:#fff;">${cloud.configRaw ? cloud.configRaw.replace(/</g,'&lt;') : ''}</textarea></div>
       <button class="btn primary" id="cloudConnect">Connect &amp; sync now</button>
       <div class="tiny muted" id="cloudStatus" style="margin-top:10px;min-height:18px">${cloud.enabled ? 'Sync on — reconnecting…' : 'Off'}</div>
-      <div class="hint">Same sync code + config on your phone and PC = every change syncs automatically across all profiles. Get the config free at console.firebase.google.com (Firestore + Anonymous auth). The config is safe to store here.</div>
+      <div class="hint">Already connected to the cloud — just flip On, pick a sync code, and tap Connect. Use the SAME sync code on every device and all profiles sync automatically. Keep the sync code private — it's what protects your data.</div>
     </div>
 
     <h2 class="section">Data</h2>
@@ -1339,9 +1337,8 @@ function wireSetup() {
     c.enabled = true;
     saveCloud(c);
     view.querySelectorAll('#segCloud button').forEach(x => x.classList.toggle('on', x.dataset.cloud === 'on'));
-    if (!c.config) { cloudStatus('Paste a valid Firebase config first'); return; }
-    if (!c.code)   { cloudStatus('Enter a sync code first'); return; }
-    cloudConnect();
+    if (!c.code) { cloudStatus('Enter a sync code first'); return; }
+    cloudConnect(); // uses built-in FIREBASE_CONFIG when none pasted
   };
   view.querySelectorAll('#segMode button').forEach(b => b.onclick = () => { s.mode = b.dataset.m; save(); render(); });
 
@@ -1619,6 +1616,19 @@ updateProfileBtn();
 /* =====================================================================
    CLOUD SYNC  (Firebase Firestore — cross-device, all profiles)
    ===================================================================== */
+/* Built-in Firebase project config (tx-method) so users don't have to
+   paste it — they only choose a private sync code. The web apiKey is
+   public by design; data is protected by Firestore rules + the secret
+   sync code used as the document id. */
+const FIREBASE_CONFIG = {
+  apiKey: "AIzaSyBZfOyX_vgMi56WZtOG4stYO1FzBXJbOfQ",
+  authDomain: "tx-method.firebaseapp.com",
+  projectId: "tx-method",
+  storageBucket: "tx-method.firebasestorage.app",
+  messagingSenderId: "1065291574937",
+  appId: "1:1065291574937:web:ab70fe4d16a8a57a91d208"
+};
+
 const CLOUD_KEY = 'tm_cloud';
 function loadCloud() { try { return JSON.parse(localStorage.getItem(CLOUD_KEY)) || {}; } catch { return {}; } }
 function saveCloud(c) { localStorage.setItem(CLOUD_KEY, JSON.stringify(c)); }
@@ -1665,7 +1675,8 @@ function cloudStatus(msg) {
 
 async function cloudConnect() {
   const c = loadCloud();
-  if (!c.enabled || !c.config || !c.code) { return; }
+  const cfg = c.config || FIREBASE_CONFIG;
+  if (!c.enabled || !c.code) { return; }
   if (fb && fb.unsub) { try { fb.unsub(); } catch {} fb = null; }
   cloudStatus('Connecting…');
   try {
@@ -1674,7 +1685,7 @@ async function cloudConnect() {
       import('https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js'),
       import('https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js')
     ]);
-    const app  = appMod.initializeApp(c.config);
+    const app  = appMod.initializeApp(cfg);
     const auth = authMod.getAuth(app);
     await authMod.signInAnonymously(auth);
     const db  = fsMod.getFirestore(app);
