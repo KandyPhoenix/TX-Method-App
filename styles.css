@@ -59,7 +59,7 @@ body {
 .ghost-btn:active { transform: scale(.94); }
 
 /* ---------- Main / screens ---------- */
-main { flex: 1; padding: 4px 12px 110px; max-width: 1200px; width: 100%; margin: 0 auto; zoom: var(--content-zoom, 1.28); }
+main { flex: 1; padding: 4px 20px 110px; max-width: 1200px; width: 100%; margin: 0 auto; zoom: var(--content-zoom, 1.28); }
 .screen { animation: fade .25s ease; }
 @keyframes fade { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: none; } }
 
@@ -446,7 +446,7 @@ table.prog td.s { text-align: right; color: var(--muted); width: 60px; }
   font-weight: 800; font-size: 17px; color: #fff;
   display: flex; align-items: center; gap: 4px; margin-bottom: 3px;
 }
-.prep-ex { font-size: 14.5px; line-height: 1.45; color: var(--muted); white-space: nowrap; }
+.prep-ex { font-size: 16.5px; line-height: 1.45; color: var(--muted); white-space: nowrap; }
 .prep-rest {
   font-size: 15px; font-weight: 800; color: var(--muted);
   letter-spacing: 1px; margin-top: 16px; text-align: center;
