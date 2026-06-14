@@ -53,6 +53,57 @@ const DEFAULTS = {
 };
 
 /* =====================================================================
+   30-DAY PREP PLAN  (bodyweight ramp-up before Texas Method)
+   ===================================================================== */
+const PREP_REST = { rest: true };
+/* one day's exercises: push-ups, plank (3 timed sets), leg raises,
+   crunches, burpees, squats. plank value = seconds per set. */
+function prepDay(pu, plankSec, lr, cr, bp, sq) {
+  return { exercises: [
+    { key: 'pushups',   name: 'Push-ups',   icon: '💪', reps: pu },
+    { key: 'plank',     name: 'Plank',      icon: '🧘', sets: 3, sec: plankSec },
+    { key: 'legraises', name: 'Leg Raises', icon: '🦵', reps: lr },
+    { key: 'crunches',  name: 'Crunches',   icon: '🔄', reps: cr },
+    { key: 'burpees',   name: 'Burpees',    icon: '🔥', reps: bp },
+    { key: 'squats',    name: 'Squats',     icon: '🏋️', reps: sq }
+  ]};
+}
+/* days 1-30 transcribed from the printed plan (rest: 6, 13, 20, 27) */
+const PREP30 = [
+  prepDay(10, 30, 10, 10, 10, 50), // 1
+  prepDay(12, 30, 12, 12, 12, 55), // 2
+  prepDay(12, 30, 12, 12, 12, 55), // 3
+  prepDay(15, 30, 15, 15, 15, 55), // 4
+  prepDay(15, 30, 15, 15, 15, 55), // 5
+  PREP_REST,                       // 6
+  prepDay(15, 30, 15, 15, 15, 55), // 7
+  prepDay(17, 30, 17, 17, 17, 55), // 8
+  prepDay(20, 30, 20, 20, 20, 55), // 9
+  prepDay(20, 30, 20, 20, 20, 55), // 10
+  prepDay(22, 40, 22, 22, 20, 55), // 11
+  prepDay(22, 40, 22, 22, 20, 55), // 12
+  PREP_REST,                       // 13
+  prepDay(22, 40, 22, 22, 20, 55), // 14
+  prepDay(22, 40, 22, 22, 20, 55), // 15
+  prepDay(25, 40, 25, 25, 20, 55), // 16
+  prepDay(25, 40, 25, 25, 20, 55), // 17
+  prepDay(25, 40, 25, 25, 20, 55), // 18
+  prepDay(25, 40, 25, 25, 20, 55), // 19
+  PREP_REST,                       // 20
+  prepDay(25, 40, 25, 25, 20, 55), // 21
+  prepDay(25, 40, 25, 25, 20, 55), // 22
+  prepDay(27, 40, 27, 27, 20, 60), // 23
+  prepDay(27, 40, 27, 27, 20, 60), // 24
+  prepDay(29, 40, 25, 29, 20, 60), // 25
+  prepDay(29, 40, 29, 29, 20, 60), // 26
+  PREP_REST,                       // 27
+  prepDay(29, 40, 29, 29, 20, 60), // 28
+  prepDay(30, 60, 30, 30, 25, 60), // 29
+  prepDay(30, 60, 30, 30, 25, 60)  // 30
+];
+const PREP_TOTAL = PREP30.length;
+
+/* =====================================================================
    PROFILES  (multi-user)
    ===================================================================== */
 const PROF_REG_KEY = 'tm_profiles';
@@ -150,7 +201,8 @@ function loadState() {
     const raw = localStorage.getItem(activeStateKey());
     if (raw) return migrate(JSON.parse(raw));
   } catch (e) { /* ignore */ }
-  return { settings: structuredClone(DEFAULTS), cursor: { week: 0, day: 0 }, logs: {}, bodyLog: [] };
+  return { settings: structuredClone(DEFAULTS), cursor: { week: 0, day: 0 }, logs: {}, bodyLog: [],
+           program: 'prep30', prep: { day: 1, log: {} } };
 }
 let S = loadState();
 
@@ -163,6 +215,11 @@ function migrate(st) {
   st.cursor  = st.cursor  || { week: 0, day: 0 };
   st.logs    = st.logs    || {};
   st.bodyLog = st.bodyLog || [];
+  /* existing profiles default to Texas (don't disrupt anyone mid-cycle) */
+  st.program = st.program || 'texas';
+  st.prep    = st.prep    || { day: 1, log: {} };
+  if (st.prep.day == null) st.prep.day = 1;
+  if (!st.prep.log) st.prep.log = {};
   return st;
 }
 function save() { localStorage.setItem(activeStateKey(), JSON.stringify(S)); }
@@ -355,8 +412,9 @@ function rebuild() { PROGRAM = generateProgram(); }
 function render() {
   rebuild();
   document.querySelectorAll('.tab').forEach(t => t.classList.toggle('active', t.dataset.tab === TAB));
-  if (TAB === 'today')   renderToday();
-  if (TAB === 'program') renderProgram();
+  const prep = S.program === 'prep30';
+  if (TAB === 'today')   prep ? renderPrepToday()   : renderToday();
+  if (TAB === 'program') prep ? renderPrepProgram() : renderProgram();
   if (TAB === 'stats')   renderStats();
   if (TAB === 'setup')   renderSetup();
 }
@@ -517,6 +575,191 @@ function moveCursor(dir) {
 }
 
 /* =====================================================================
+   30-DAY PREP — TODAY
+   ===================================================================== */
+/* check-row ids for a prep day: one per reps-exercise, one per plank set */
+function prepCheckIds(dayObj) {
+  const ids = [];
+  dayObj.exercises.forEach(ex => {
+    if (ex.sets) for (let i = 0; i < ex.sets; i++) ids.push(`${ex.key}_${i}`);
+    else ids.push(ex.key);
+  });
+  return ids;
+}
+function prepDayDone(dayNum) {
+  const d = PREP30[dayNum - 1];
+  if (!d || d.rest) return false;
+  const log = S.prep.log[dayNum];
+  if (log && log.done) return true;
+  if (!log || !log.checks) return false;
+  return prepCheckIds(d).every(id => log.checks[id]);
+}
+function prepDaysComplete() {
+  let n = 0;
+  for (let i = 1; i <= PREP_TOTAL; i++) if (!PREP30[i - 1].rest && prepDayDone(i)) n++;
+  return n;
+}
+
+function renderPrepToday() {
+  const dayNum = S.prep.day;
+  const d = PREP30[dayNum - 1];
+  titleEl.textContent = 'Today';
+  subEl.textContent   = `30-Day Prep · Day ${dayNum} of ${PREP_TOTAL}`;
+
+  let html = `<div class="screen">
+    <div class="card" style="display:flex;align-items:center;justify-content:space-between;">
+      <button class="btn small secondary" id="prepPrev" ${dayNum <= 1 ? 'disabled' : ''}>‹ Prev</button>
+      <div class="center">
+        <div style="font-weight:800;font-size:17px;">Day ${dayNum}</div>
+        <div class="tiny muted">${prepDaysComplete()} of ${PREP_TOTAL - 4} workouts done</div>
+      </div>
+      <button class="btn small secondary" id="prepNext" ${dayNum >= PREP_TOTAL ? 'disabled' : ''}>Next ›</button>
+    </div>`;
+
+  if (d.rest) {
+    html += `<div class="card lift" style="text-align:center;padding:34px 16px;">
+      <div style="font-size:40px;">😴</div>
+      <div class="name" style="font-size:20px;margin-top:6px;">Rest Day</div>
+      <div class="tiny muted" style="margin-top:6px;">Recover today — back at it tomorrow.</div>
+    </div>
+    <button class="btn primary" id="prepComplete">Next day ›</button>`;
+  } else {
+    const log = S.prep.log[dayNum] || { checks: {} };
+    for (const ex of d.exercises) html += prepExerciseCard(ex, log);
+
+    const last = dayNum >= PREP_TOTAL;
+    html += `<button class="btn primary" id="prepComplete">${last ? '🎉 Finish prep → Start Texas Method' : '✓ Complete day'}</button>
+      <div class="spacer"></div>
+      <button class="btn secondary" id="prepTimer">⏱ Start rest timer (1:00)</button>`;
+  }
+
+  html += `</div>`;
+  view.innerHTML = html;
+  wirePrepToday();
+}
+
+function prepExerciseCard(ex, log) {
+  let rows = '';
+  if (ex.sets) {
+    /* plank — timed sets */
+    for (let i = 0; i < ex.sets; i++) {
+      const id = `${ex.key}_${i}`;
+      const on = log.checks && log.checks[id] ? 'on' : '';
+      rows += `<div class="set-row workset ${on ? 'done' : ''}">
+        <div class="lbl">${ex.icon} Set ${i + 1} of ${ex.sets}</div>
+        <div class="wt">${ex.sec}<small> sec</small></div>
+        <div class="reps">hold</div>
+        <button class="check ${on}" data-pcheck="${id}">✓</button></div>`;
+    }
+    return `<div class="card lift">
+      <div class="lift-head"><div><div class="name">${ex.name}</div>
+      <div class="scheme">${ex.sets}×${ex.sec} sec</div></div>
+      <span class="badge vol">Hold</span></div>${rows}</div>`;
+  }
+  /* reps exercise — single set */
+  const id = ex.key;
+  const on = log.checks && log.checks[id] ? 'on' : '';
+  rows = `<div class="set-row workset ${on ? 'done' : ''}">
+    <div class="lbl">${ex.icon} Target</div>
+    <div class="wt">${ex.reps}<small> reps</small></div>
+    <div class="reps"></div>
+    <button class="check ${on}" data-pcheck="${id}">✓</button></div>`;
+  return `<div class="card lift">
+    <div class="lift-head"><div><div class="name">${ex.name}</div>
+    <div class="scheme">${ex.reps} reps</div></div>
+    <span class="badge vol">Reps</span></div>${rows}</div>`;
+}
+
+function wirePrepToday() {
+  const dayNum = S.prep.day;
+  if (!S.prep.log[dayNum]) S.prep.log[dayNum] = { checks: {} };
+  const log = S.prep.log[dayNum];
+  if (!log.checks) log.checks = {};
+
+  view.querySelectorAll('[data-pcheck]').forEach(btn => {
+    btn.onclick = () => {
+      const id = btn.dataset.pcheck;
+      log.checks[id] = !log.checks[id];
+      btn.classList.toggle('on', log.checks[id]);
+      btn.closest('.set-row').classList.toggle('done', log.checks[id]);
+      save();
+      if (log.checks[id]) startRest(60);
+    };
+  });
+
+  const prev = document.getElementById('prepPrev');
+  const next = document.getElementById('prepNext');
+  if (prev) prev.onclick = () => movePrepCursor(-1);
+  if (next) next.onclick = () => movePrepCursor(1);
+
+  const timer = document.getElementById('prepTimer');
+  if (timer) timer.onclick = () => startRest(60);
+
+  document.getElementById('prepComplete').onclick = () => {
+    const d = PREP30[dayNum - 1];
+    if (!d.rest) log.done = true;
+    save();
+    if (dayNum >= PREP_TOTAL) { finishPrep(); return; }
+    toast(d.rest ? 'Rested 😴' : 'Day logged 💪');
+    movePrepCursor(1);
+  };
+}
+
+function movePrepCursor(dir) {
+  S.prep.day = Math.min(PREP_TOTAL, Math.max(1, S.prep.day + dir));
+  save(); render();
+}
+
+/* prep complete → hand off to Texas Method, Cycle 1a */
+function finishPrep() {
+  S.program = 'texas';
+  S.cursor = { week: 0, day: 0 };
+  save(); rebuild();
+  TAB = 'today';
+  render();
+  toast('Prep complete! Welcome to Texas Method 🏋️');
+}
+
+/* =====================================================================
+   30-DAY PREP — PROGRAM (calendar)
+   ===================================================================== */
+function renderPrepProgram() {
+  titleEl.textContent = 'Program';
+  subEl.textContent   = `30-Day Prep · ${prepDaysComplete()} of ${PREP_TOTAL - 4} done`;
+
+  let cells = '';
+  for (let n = 1; n <= PREP_TOTAL; n++) {
+    const d = PREP30[n - 1];
+    const cur  = n === S.prep.day ? 'cur' : '';
+    const rest = d.rest ? 'rest' : '';
+    const done = prepDayDone(n) ? 'done' : '';
+    let inner;
+    if (d.rest) {
+      inner = `<div class="prep-rest">REST</div>`;
+    } else {
+      inner = d.exercises.map(ex =>
+        `<div class="prep-ex">${ex.sets ? `Plank ${ex.sec}s×${ex.sets}` : `${ex.name} ${ex.reps}`}</div>`
+      ).join('');
+    }
+    cells += `<div class="prep-cell ${cur} ${rest} ${done}" data-prepday="${n}">
+      <div class="prep-num">${n}${done ? ' <span class="prep-tick">✓</span>' : ''}</div>
+      ${inner}</div>`;
+  }
+
+  view.innerHTML = `<div class="screen">
+    <div class="card" style="padding:14px 16px;">
+      <div style="font-weight:800;font-size:16px;">30-Day Bodyweight Prep</div>
+      <div class="tiny muted" style="margin-top:4px;">Tap any day to jump to it. Finish Day 30 to unlock Texas Method.</div>
+    </div>
+    <div class="prep-grid">${cells}</div>
+  </div>`;
+
+  view.querySelectorAll('[data-prepday]').forEach(c => c.onclick = () => {
+    S.prep.day = +c.dataset.prepday; save(); TAB = 'today'; render();
+  });
+}
+
+/* =====================================================================
    PROGRAM
    ===================================================================== */
 function renderProgram() {
@@ -591,6 +834,7 @@ function showInfo(id) {
 function ib(id) { return `<button class="info-btn" onclick="showInfo('${id}')">ⓘ</button>`; }
 
 function renderStats() {
+  if (S.program === 'prep30') { renderPrepStats(); return; }
   titleEl.textContent = 'Stats';
   subEl.textContent   = 'Projections · Wilks · Graphs';
 
@@ -663,6 +907,43 @@ function renderStats() {
     <div class="card">${ratios}</div>
   </div>`;
   drawProjectionCharts();
+}
+
+function renderPrepStats() {
+  titleEl.textContent = 'Stats';
+  subEl.textContent   = '30-Day Prep · progress';
+
+  const workoutDays = PREP_TOTAL - 4; // 4 rest days
+  const done = prepDaysComplete();
+  const pct  = Math.round(done / workoutDays * 100);
+
+  // total reps logged across completed days (rough effort tally)
+  let totalReps = 0, totalPlankSec = 0;
+  for (let n = 1; n <= PREP_TOTAL; n++) {
+    if (!prepDayDone(n)) continue;
+    const d = PREP30[n - 1];
+    d.exercises.forEach(ex => {
+      if (ex.sets) totalPlankSec += ex.sets * ex.sec;
+      else totalReps += ex.reps;
+    });
+  }
+
+  view.innerHTML = `<div class="screen">
+    <div class="tiles">
+      <div class="tile"><div class="k">Days complete</div><div class="v">${done} <small>/ ${workoutDays}</small></div></div>
+      <div class="tile"><div class="k">Progress</div><div class="v">${pct}<small>%</small></div></div>
+      <div class="tile"><div class="k">Reps logged</div><div class="v">${totalReps}</div></div>
+      <div class="tile"><div class="k">Plank time</div><div class="v">${Math.round(totalPlankSec/60)}<small> min</small></div></div>
+    </div>
+    <h2 class="section">Completion</h2>
+    <div class="card">
+      <div class="bar-line"><div class="top"><span>30-Day Prep</span><b>${done} / ${workoutDays}</b></div>
+        <div class="track"><div class="fill" style="width:${pct}%"></div></div></div>
+      <div class="tiny muted center" style="margin-top:8px">
+        ${done >= workoutDays ? 'All done — finish Day 30 to start Texas Method 🏋️' : 'Keep going — switch to Texas Method after Day 30.'}
+      </div>
+    </div>
+  </div>`;
 }
 
 function drawProjectionCharts() {
@@ -778,6 +1059,15 @@ function renderSetup() {
 
   view.innerHTML = `<div class="screen">
 
+    <h2 class="section">Active program</h2>
+    <div class="card">
+      <div class="seg" id="segProgram" style="flex-direction:column;gap:8px">
+        <button data-prog="prep30" class="${S.program==='prep30'?'on':''}">🗓️ 30-Day Prep · bodyweight ramp-up</button>
+        <button data-prog="texas"  class="${S.program==='texas'?'on':''}">🏋️ Texas Method · barbell program</button>
+      </div>
+      <div class="hint">Run the 30-day bodyweight plan first; finishing Day 30 starts Texas Method at Cycle 1a. You can switch any time.</div>
+    </div>
+
     <h2 class="section">Your bar & plates</h2>
     <div class="card">
       <div class="field">
@@ -869,6 +1159,12 @@ function renderSetup() {
 
 function wireSetup() {
   const s = S.settings;
+
+  /* program selector */
+  view.querySelectorAll('#segProgram button').forEach(b => b.onclick = () => {
+    S.program = b.dataset.prog; save(); render();
+    toast(S.program === 'prep30' ? '30-Day Prep active 🗓️' : 'Texas Method active 🏋️');
+  });
 
   /* bar weight */
   document.getElementById('barWt').onchange = e => {
