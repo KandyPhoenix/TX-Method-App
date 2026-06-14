@@ -1206,19 +1206,11 @@ function renderSetup() {
       <div class="hint">Used by the auto-start after each set and the “Start rest timer” button. The ± buttons on the timer bar nudge by your step.</div>
     </div>
 
-    <h2 class="section">☁️ Cloud sync — cross-device</h2>
+    <h2 class="section">☁️ Cloud sync — Google</h2>
     <div class="card">
-      <div class="field"><label>Sync</label>
-        <div class="seg" id="segCloud">
-          <button data-cloud="on"  class="${cloud.enabled?'on':''}">On</button>
-          <button data-cloud="off" class="${cloud.enabled?'':'on'}">Off</button>
-        </div>
-      </div>
-      <div class="field"><label>Sync code — use the SAME secret word on every device</label>
-        <input type="text" id="cloudCode" value="${cloud.code||''}" placeholder="e.g. kandy-fit-2026" /></div>
-      <button class="btn primary" id="cloudConnect">Connect &amp; sync now</button>
-      <div class="tiny muted" id="cloudStatus" style="margin-top:10px;min-height:18px">${cloud.enabled ? 'Sync on — reconnecting…' : 'Off'}</div>
-      <div class="hint">Already connected to the cloud — just flip On, pick a sync code, and tap Connect. Use the SAME sync code on every device and all profiles sync automatically. Keep the sync code private — it's what protects your data.</div>
+      <div id="cloudAuth"></div>
+      <div class="tiny muted" id="cloudStatus" style="margin-top:10px;min-height:18px"></div>
+      <div class="hint">Sign in with Google to sync your profiles across your own devices. Each Google account is private — other people sign in with their own account on their own device and only see their own data.</div>
     </div>
 
     <h2 class="section">Data</h2>
@@ -1312,34 +1304,10 @@ function wireSetup() {
   if (zMinus) zMinus.onclick = () => setZoom(-0.08);
   if (zPlus)  zPlus.onclick  = () => setZoom(0.08);
 
-  /* cloud sync */
-  view.querySelectorAll('#segCloud button').forEach(b => b.onclick = () => {
-    const c = loadCloud(); c.enabled = b.dataset.cloud === 'on'; saveCloud(c);
-    if (!c.enabled) { cloudDisconnect(); cloudStatus('Off'); }
-    view.querySelectorAll('#segCloud button').forEach(x => x.classList.toggle('on',
-      (x.dataset.cloud === 'on') === c.enabled));
-  });
-  const cloudCodeEl = document.getElementById('cloudCode');
-  if (cloudCodeEl) cloudCodeEl.onchange = e => { const c = loadCloud(); c.code = e.target.value.trim(); saveCloud(c); };
-  const cloudCfgEl = document.getElementById('cloudConfig');
-  if (cloudCfgEl) cloudCfgEl.onchange = e => {
-    const raw = e.target.value;
-    const parsed = parseFirebaseConfig(raw);
-    const c = loadCloud(); c.configRaw = raw; c.config = parsed; saveCloud(c);
-    cloudStatus(parsed ? 'Config looks valid ✓ — tap Connect' : 'Config not valid JSON — check the paste');
-  };
-  const cloudConnectBtn = document.getElementById('cloudConnect');
-  if (cloudConnectBtn) cloudConnectBtn.onclick = () => {
-    const c = loadCloud();
-    // capture latest field values before connecting
-    if (cloudCfgEl) { c.configRaw = cloudCfgEl.value; c.config = parseFirebaseConfig(cloudCfgEl.value); }
-    if (cloudCodeEl) c.code = cloudCodeEl.value.trim();
-    c.enabled = true;
-    saveCloud(c);
-    view.querySelectorAll('#segCloud button').forEach(x => x.classList.toggle('on', x.dataset.cloud === 'on'));
-    if (!c.code) { cloudStatus('Enter a sync code first'); return; }
-    cloudConnect(); // uses built-in FIREBASE_CONFIG when none pasted
-  };
+  /* cloud sync (Google sign-in) */
+  renderCloudAuth();
+  if (cloudUser) cloudStatus('Synced ✓ as ' + (cloudUser.email || 'you'));
+  else if (loadCloud().enabled && !fbAuth) cloudInit();   // resume listener if needed
   view.querySelectorAll('#segMode button').forEach(b => b.onclick = () => { s.mode = b.dataset.m; save(); render(); });
 
   document.getElementById('bw').onchange  = e => { s.bodyweight = +e.target.value || 0; save(); };
@@ -1651,20 +1619,10 @@ function applyBundle(bundle) {
   return true;
 }
 
-/* tolerant parse of a pasted firebaseConfig (JSON or JS object literal) */
-function parseFirebaseConfig(text) {
-  if (!text) return null;
-  const a = text.indexOf('{'), b = text.lastIndexOf('}');
-  if (a < 0 || b < 0) return null;
-  let t = text.slice(a, b + 1);
-  try { return JSON.parse(t); } catch { /* try lenient */ }
-  try {
-    const j = t.replace(/([{,]\s*)([A-Za-z0-9_]+)\s*:/g, '$1"$2":').replace(/'/g, '"').replace(/,\s*}/g, '}');
-    return JSON.parse(j);
-  } catch { return null; }
-}
-
-let fb = null;                                   // { ref, setDoc, getDoc, unsub }
+let fb = null;                 // { ref, setDoc, unsub }
+let cloudSDK = null;           // loaded firebase modules
+let fbApp = null, fbAuth = null, fbDb = null;
+let cloudUser = null;
 let cloudWriterId = 'w' + Math.random().toString(36).slice(2);
 let cloudApplying = false, cloudPushT = null, cloudLastApplied = 0;
 
@@ -1673,51 +1631,115 @@ function cloudStatus(msg) {
   if (el) el.textContent = msg;
 }
 
-async function cloudConnect() {
-  const c = loadCloud();
-  const cfg = c.config || FIREBASE_CONFIG;
-  if (!c.enabled || !c.code) { return; }
-  if (fb && fb.unsub) { try { fb.unsub(); } catch {} fb = null; }
-  cloudStatus('Connecting…');
-  try {
-    const [appMod, fsMod, authMod] = await Promise.all([
-      import('https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js'),
-      import('https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js'),
-      import('https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js')
-    ]);
-    const app  = appMod.initializeApp(cfg);
-    const auth = authMod.getAuth(app);
-    await authMod.signInAnonymously(auth);
-    const db  = fsMod.getFirestore(app);
-    const ref = fsMod.doc(db, 'txmethod', String(c.code).trim());
-    fb = { ref, setDoc: fsMod.setDoc, getDoc: fsMod.getDoc, unsub: null };
+/* renders the Sign-in / Signed-in UI inside #cloudAuth (Setup tab) */
+function renderCloudAuth() {
+  const el = document.getElementById('cloudAuth');
+  if (!el) return;
+  if (cloudUser) {
+    el.innerHTML = `<div class="field"><label>Signed in as</label>
+      <div style="font-weight:800;font-size:17px;word-break:break-all">${cloudUser.email || cloudUser.displayName || 'You'}</div></div>
+      <button class="btn secondary" id="cloudSignOut">Sign out</button>`;
+    const b = document.getElementById('cloudSignOut'); if (b) b.onclick = cloudSignOut;
+  } else {
+    el.innerHTML = `<button class="btn primary" id="cloudSignIn">🔓 Sign in with Google</button>`;
+    const b = document.getElementById('cloudSignIn'); if (b) b.onclick = cloudSignIn;
+  }
+}
 
-    // initial pull: cloud is the shared source of truth on connect
+async function cloudLoadSDK() {
+  if (cloudSDK) return cloudSDK;
+  const [appMod, fsMod, authMod] = await Promise.all([
+    import('https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js'),
+    import('https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js'),
+    import('https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js')
+  ]);
+  cloudSDK = { appMod, fsMod, authMod };
+  return cloudSDK;
+}
+
+/* load the SDK and start listening for auth state (resumes prior sign-in) */
+async function cloudInit() {
+  try {
+    const { appMod, fsMod, authMod } = await cloudLoadSDK();
+    if (!fbApp) fbApp = appMod.initializeApp(FIREBASE_CONFIG);
+    fbAuth = authMod.getAuth(fbApp);
+    fbDb   = fsMod.getFirestore(fbApp);
+    authMod.onAuthStateChanged(fbAuth, user => {
+      cloudUser = user || null;
+      if (user) { const c = loadCloud(); c.enabled = true; saveCloud(c); cloudStartSync(user); }
+      else { cloudStopSync(); }
+      renderCloudAuth();
+    });
+    return true;
+  } catch (err) {
+    cloudStatus('Error loading sync: ' + (err && err.message ? err.message : err));
+    return false;
+  }
+}
+
+async function cloudSignIn() {
+  cloudStatus('Opening Google sign-in…');
+  const c = loadCloud(); c.enabled = true; saveCloud(c);   // so a redirect-return resumes
+  if (!fbAuth) { const ok = await cloudInit(); if (!ok) return; }
+  try {
+    const { authMod } = await cloudLoadSDK();
+    await authMod.signInWithPopup(fbAuth, new authMod.GoogleAuthProvider());
+    // onAuthStateChanged takes over
+  } catch (err) {
+    const code = (err && (err.code || err.message)) || String(err);
+    if (String(code).includes('popup')) {            // popup blocked → redirect flow
+      try {
+        const { authMod } = await cloudLoadSDK();
+        await authMod.signInWithRedirect(fbAuth, new authMod.GoogleAuthProvider());
+        return;
+      } catch (e2) { cloudStatus('Sign-in failed: ' + (e2.code || e2.message || e2)); return; }
+    }
+    cloudStatus('Sign-in failed: ' + code);
+  }
+}
+
+async function cloudSignOut() {
+  const c = loadCloud(); c.enabled = false; saveCloud(c);
+  cloudStopSync();
+  try {
+    if (fbAuth) { const { authMod } = await cloudLoadSDK(); await authMod.signOut(fbAuth); }
+  } catch { /* ignore */ }
+  cloudUser = null; cloudStatus('Signed out'); renderCloudAuth();
+}
+
+/* sync this account's data with users/{uid} */
+async function cloudStartSync(user) {
+  try {
+    const { fsMod } = await cloudLoadSDK();
+    if (fb && fb.unsub) { try { fb.unsub(); } catch {} }
+    const ref = fsMod.doc(fbDb, 'users', user.uid);
+    fb = { ref, setDoc: fsMod.setDoc, unsub: null };
+    const who = user.email || user.displayName || 'you';
+    cloudStatus('Syncing as ' + who + '…');
     const snap = await fsMod.getDoc(ref);
     if (snap.exists() && snap.data() && snap.data().bundle) {
       cloudApplying = true; applyBundle(snap.data().bundle); cloudApplying = false;
       cloudLastApplied = snap.data().updatedAt || Date.now();
-      cloudStatus('Connected ✓ · pulled latest');
+      cloudStatus('Synced ✓ as ' + who);
     } else {
       await cloudPush(true);
-      cloudStatus('Connected ✓ · uploaded your data');
+      cloudStatus('Synced ✓ as ' + who + ' — uploaded your data');
     }
-
-    // realtime: apply any change made on another device
     fb.unsub = fsMod.onSnapshot(ref, s => {
       if (!s.exists()) return;
       const d = s.data(); if (!d || !d.bundle) return;
-      if (d.writerId === cloudWriterId) return;                 // ignore our own echo
-      if ((d.updatedAt || 0) <= cloudLastApplied) return;       // already have it
+      if (d.writerId === cloudWriterId) return;
+      if ((d.updatedAt || 0) <= cloudLastApplied) return;
       cloudApplying = true; applyBundle(d.bundle); cloudApplying = false;
       cloudLastApplied = d.updatedAt || Date.now();
       toast('Synced from another device ⬇');
     });
   } catch (err) {
-    fb = null;
-    cloudStatus('Error: ' + (err && err.message ? err.message : err));
+    cloudStatus('Sync error: ' + (err && err.message ? err.message : err));
   }
 }
+
+function cloudStopSync() { if (fb && fb.unsub) { try { fb.unsub(); } catch {} } fb = null; }
 
 async function cloudPush(immediate) {
   if (!fb || cloudApplying) return;
@@ -1739,11 +1761,6 @@ async function cloudPush(immediate) {
 /* called from save() — debounced upload of local changes */
 function cloudOnLocalChange() { if (fb && !cloudApplying) cloudPush(false); }
 
-function cloudDisconnect() {
-  if (fb && fb.unsub) { try { fb.unsub(); } catch {} }
-  fb = null;
-}
-
 /* =====================================================================
    PAGE ZOOM  (persisted text-size control)
    ===================================================================== */
@@ -1756,8 +1773,8 @@ applyZoom(loadZoom());
 
 /* init */
 render();
-/* auto-connect cloud sync if previously enabled */
-if (loadCloud().enabled) { setTimeout(cloudConnect, 0); }
+/* auto-resume cloud sync if previously signed in */
+if (loadCloud().enabled) { setTimeout(cloudInit, 0); }
 if ('serviceWorker' in navigator) {
   window.addEventListener('load', () => navigator.serviceWorker.register('sw.js').catch(() => {}));
   // Auto-reload when a new service worker activates (picks up new version immediately)
