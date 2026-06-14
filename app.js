@@ -1120,6 +1120,16 @@ function renderSetup() {
       <div class="hint">Run the 30-day bodyweight plan first; finishing Day 30 starts Texas Method at Cycle 1a. You can switch any time.</div>
     </div>
 
+    <h2 class="section">Display — text size</h2>
+    <div class="card">
+      <div class="stepper" style="justify-content:center;gap:18px">
+        <button id="zoomMinus">−</button>
+        <div class="val" id="zoomVal">${Math.round(loadZoom()*100)}%</div>
+        <button id="zoomPlus">+</button>
+      </div>
+      <div class="hint">Make everything bigger or smaller. (You can also pinch-to-zoom in a browser tab; some installed/home-screen apps lock pinch, so use this slider there.)</div>
+    </div>
+
     <h2 class="section">Your bar & plates</h2>
     <div class="card">
       <div class="field">
@@ -1291,6 +1301,18 @@ function wireSetup() {
   document.getElementById('restStepInp').onchange = e => {
     s.restStep = Math.max(1, Math.min(120, +e.target.value || 15)); save();
   };
+
+  /* page zoom / text size */
+  const setZoom = d => {
+    let z = Math.round((loadZoom() + d) * 100) / 100;
+    z = Math.max(0.9, Math.min(2.0, z));
+    localStorage.setItem('tm_zoom', z);
+    applyZoom(z);
+    const v = document.getElementById('zoomVal'); if (v) v.textContent = Math.round(z * 100) + '%';
+  };
+  const zMinus = document.getElementById('zoomMinus'), zPlus = document.getElementById('zoomPlus');
+  if (zMinus) zMinus.onclick = () => setZoom(-0.08);
+  if (zPlus)  zPlus.onclick  = () => setZoom(0.08);
 
   /* cloud sync */
   view.querySelectorAll('#segCloud button').forEach(b => b.onclick = () => {
@@ -1710,6 +1732,16 @@ function cloudDisconnect() {
   if (fb && fb.unsub) { try { fb.unsub(); } catch {} }
   fb = null;
 }
+
+/* =====================================================================
+   PAGE ZOOM  (persisted text-size control)
+   ===================================================================== */
+function loadZoom() {
+  const z = parseFloat(localStorage.getItem('tm_zoom'));
+  return (z && z >= 0.8 && z <= 2.2) ? z : 1.28;
+}
+function applyZoom(z) { document.documentElement.style.setProperty('--content-zoom', z); }
+applyZoom(loadZoom());
 
 /* init */
 render();
