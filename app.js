@@ -457,7 +457,7 @@ function renderToday() {
     <div class="card" style="display:flex;align-items:center;justify-content:space-between;">
       <button class="btn small secondary" id="prevDay">‹ Prev</button>
       <div class="center">
-        <div style="font-weight:800;font-size:17px;">${DAY_NAMES[day].split(' · ')[0]}</div>
+        <div style="font-weight:800;font-size:19px;">${DAY_NAMES[day].split(' · ')[0]}</div>
         <div class="tiny muted">${DAY_NAMES[day].split(' · ')[1]} day</div>
       </div>
       <button class="btn small secondary" id="nextDay">Next ›</button>
@@ -630,7 +630,7 @@ function renderPrepToday() {
     <div class="card" style="display:flex;align-items:center;justify-content:space-between;">
       <button class="btn small secondary" id="prepPrev" ${dayNum <= 1 ? 'disabled' : ''}>‹ Prev</button>
       <div class="center">
-        <div style="font-weight:800;font-size:17px;">Day ${dayNum}</div>
+        <div style="font-weight:800;font-size:19px;">Day ${dayNum}</div>
         <div class="tiny muted">${prepDaysComplete()} of ${PREP_TOTAL - 4} workouts done</div>
       </div>
       <button class="btn small secondary" id="prepNext" ${dayNum >= PREP_TOTAL ? 'disabled' : ''}>Next ›</button>
@@ -638,8 +638,8 @@ function renderPrepToday() {
 
   if (d.rest) {
     html += `<div class="card lift" style="text-align:center;padding:34px 16px;">
-      <div style="font-size:40px;">😴</div>
-      <div class="name" style="font-size:20px;margin-top:6px;">Rest Day</div>
+      <div style="font-size:42px;">😴</div>
+      <div class="name" style="font-size:22px;margin-top:6px;">Rest Day</div>
       <div class="tiny muted" style="margin-top:6px;">Recover today — back at it tomorrow.</div>
     </div>
     <button class="btn primary" id="prepComplete">Next day ›</button>`;
@@ -768,7 +768,7 @@ function renderPrepProgram() {
 
   view.innerHTML = `<div class="screen">
     <div class="card" style="padding:14px 16px;">
-      <div style="font-weight:800;font-size:16px;">30-Day Bodyweight Prep</div>
+      <div style="font-weight:800;font-size:18px;">30-Day Bodyweight Prep</div>
       <div class="tiny muted" style="margin-top:4px;">Tap any day to jump to it. Finish Day 30 to unlock Texas Method.</div>
     </div>
     <div class="prep-grid">${cells}</div>
@@ -1491,7 +1491,7 @@ function openProfileSheet() {
   sheet.innerHTML = `
     <div class="profile-panel">
       <div class="profile-panel-head">
-        <span style="font-weight:800;font-size:16px">Profiles</span>
+        <span style="font-weight:800;font-size:18px">Profiles</span>
         <button class="prof-close" onclick="closeProfileSheet()">✕</button>
       </div>
       ${rows}
