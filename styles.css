@@ -95,6 +95,7 @@ h2.section { font-size: 15px; text-transform: uppercase; letter-spacing: 1.2px; 
   background: transparent;
 }
 .set-end { display: flex; align-items: center; gap: 10px; min-width: 0; }
+.set-end .check { margin-left: auto; }
 .set-row:last-child { border-bottom: none; }
 
 /* checked-off */
@@ -110,10 +111,10 @@ h2.section { font-size: 15px; text-transform: uppercase; letter-spacing: 1.2px; 
   height: 3px; background: var(--red); border-radius: 2px;
 }
 
-.set-row .lbl  { font-size: 16px; color: var(--muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-.set-row .wt   { font-size: 19px; font-weight: 700; color: #fff; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; min-width: 0; }
-.set-row .wt small { font-size: 12px; color: var(--muted); font-weight: 500; }
-.set-row .reps { font-size: 15px; color: var(--muted); white-space: nowrap; }
+.set-row .lbl  { font-size: 19px; font-weight: 700; color: var(--muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.set-row .wt   { font-size: 28px; font-weight: 800; color: #fff; min-width: 0; }
+.set-row .wt small { font-size: 16px; color: var(--muted); font-weight: 500; }
+.set-row .reps { font-size: 19px; color: var(--muted); white-space: nowrap; }
 .set-row .mini-start { justify-self: start; }
 
 .check {
@@ -142,8 +143,17 @@ h2.section { font-size: 15px; text-transform: uppercase; letter-spacing: 1.2px; 
   background: var(--bg2); border-top: 1px solid var(--border); border-bottom: 1px solid var(--border);
 }
 
-/* plate math — inline, on the same line as the weight */
-.plate-math { font-size: 12px; color: var(--dim); font-weight: 500; margin-left: 5px; }
+/* plate math — its own line under the weight */
+.plate-math { display: block; font-size: 15px; color: var(--dim); font-weight: 500; margin-top: 3px; white-space: normal; }
+
+/* slightly smaller on narrow phones so the 3 columns don't clip the labels */
+@media (max-width: 500px) {
+  .set-row .lbl  { font-size: 15px; }
+  .set-row .wt   { font-size: 23px; }
+  .set-row .wt small { font-size: 13px; }
+  .set-row .reps { font-size: 15px; }
+  .plate-math    { font-size: 13px; }
+}
 
 /* rep logger */
 .log-row {

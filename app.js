@@ -506,8 +506,8 @@ function liftCard(lf, logKey, log) {
     const on    = log.checks && log.checks[id] ? 'on' : '';
     const math  = plateMath(wu.weight, b, plts);
     warmupRows += `<div class="set-row warmup ${on ? 'done' : ''}">
-      <div class="lbl">${wu.label}</div>
-      <div class="wt">${fmt(wu.weight)} <small>${unit()}</small><span class="plate-math">${math.replace(/ \+ /g,'+').replace(/ \/ side/,'/s')}</span></div>
+      <div class="lbl">🔥 ${wu.label}</div>
+      <div class="wt">${fmt(wu.weight)} <small>${unit()}</small><div class="plate-math">${math}</div></div>
       <div class="set-end"><div class="reps">${wu.sets > 1 ? wu.sets + '×' : ''}${wu.reps}</div>
       <button class="check ${on}" data-check="${id}">✓</button></div></div>`;
   });
@@ -519,8 +519,8 @@ function liftCard(lf, logKey, log) {
     const on   = log.checks && log.checks[id] ? 'on' : '';
     const math = plateMath(st.weight, b, plts);
     setRows += `<div class="set-row workset ${on ? 'done' : ''}">
-      <div class="lbl">Set ${i + 1}/${lf.sets.length}</div>
-      <div class="wt">${fmt(st.weight)} <small>${unit()}</small><span class="plate-math">${math.replace(/ \+ /g,'+').replace(/ \/ side/,'/s')}</span></div>
+      <div class="lbl">💪 Set ${i + 1} of ${lf.sets.length}</div>
+      <div class="wt">${fmt(st.weight)} <small>${unit()}</small><div class="plate-math">${math}</div></div>
       <div class="set-end"><div class="reps">${st.reps} reps</div>
       <button class="check ${on}" data-check="${id}">✓</button></div></div>`;
   });
