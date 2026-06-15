@@ -221,7 +221,7 @@ function loadState() {
     if (raw) return migrate(JSON.parse(raw));
   } catch (e) { /* ignore */ }
   return { settings: structuredClone(DEFAULTS), cursor: { week: 0, day: 0 }, logs: {}, bodyLog: [],
-           program: 'prep30', prep: { day: 1, log: {} }, achievements: [], prs: {}, sessions: 0 };
+           program: 'prep30', prep: { day: 1, log: {} }, achievements: [], prs: {}, sessions: 0, history: [] };
 }
 let S = loadState();
 
@@ -245,6 +245,7 @@ function migrate(st) {
   if (!st.achievements) st.achievements = [];
   if (!st.prs) st.prs = {};
   if (st.sessions == null) st.sessions = 0;
+  if (!st.history) st.history = [];
   return st;
 }
 function save() {
@@ -815,6 +816,7 @@ function movePrepCursor(dir) {
 
 /* prep complete → hand off to Texas Method, Cycle 1a */
 function finishPrep() {
+  logTrainingDay();
   checkAchievements({});
   S.program = 'texas';
   S.cursor = { week: 0, day: 0 };
@@ -1011,9 +1013,12 @@ function renderStats() {
     <h2 class="section">Strength-to-weight ratio ${ib('swr')}</h2>
     <div class="card">${ratios}</div>
     ${prCardHTML()}
+    ${calendarHTML()}
     ${achievementsCardHTML()}
+    <button class="btn secondary" id="shareBtn">📤 Share my progress</button>
   </div>`;
   drawProjectionCharts();
+  const sb = document.getElementById('shareBtn'); if (sb) sb.onclick = shareCard;
 }
 
 /* ---- Achievements + PR cards (shared by both stats screens) ---- */
@@ -1098,8 +1103,11 @@ function renderPrepStats() {
         ${done >= workoutDays ? 'All done — finish Day 30 to start Texas Method 🏋️' : `${workoutDays - done} workout${workoutDays-done===1?'':'s'} to go — then on to Texas Method.`}
       </div>
     </div>
+    ${calendarHTML()}
     ${achievementsCardHTML()}
+    <button class="btn secondary" id="shareBtn">📤 Share my progress</button>
   </div>`;
+  const sb = document.getElementById('shareBtn'); if (sb) sb.onclick = shareCard;
 }
 
 function drawProjectionCharts() {
@@ -2101,11 +2109,105 @@ function checkPRs(week, log) {
 
 /* central celebration after finishing a workout */
 function celebrateWorkout(prMsgs) {
+  logTrainingDay();
   confetti(); buzz();
   const pr = prMsgs && prMsgs.length;
   toast(pr ? prMsgs[0] : 'Workout logged 💪');
   if (pr && prMsgs.length > 1) setTimeout(() => toast(prMsgs[1]), 1800);
   checkAchievements({ prHit: !!pr });
+}
+
+/* =====================================================================
+   TRAINING CALENDAR + SHAREABLE CARD
+   ===================================================================== */
+function todayStr(d) {
+  d = d || new Date();
+  return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0');
+}
+function logTrainingDay() {
+  const t = todayStr();
+  if (!S.history) S.history = [];
+  if (!S.history.includes(t)) { S.history.push(t); save(); }
+}
+function calendarHTML() {
+  const set = new Set(S.history || []);
+  const today = new Date(); today.setHours(0, 0, 0, 0);
+  const end = new Date(today); end.setDate(end.getDate() + (6 - end.getDay())); // this week's Saturday
+  const total = 98; // 14 weeks
+  let cells = '';
+  for (let i = total - 1; i >= 0; i--) {
+    const d = new Date(end); d.setDate(end.getDate() - i);
+    const key = todayStr(d), future = d > today, on = set.has(key);
+    cells += `<div class="cal-cell ${on ? 'on' : ''} ${future ? 'future' : ''}" title="${key}"></div>`;
+  }
+  const n = (S.history || []).length;
+  return `<h2 class="section">Training calendar</h2><div class="card">
+    <div class="cal-grid">${cells}</div>
+    <div class="tiny muted center" style="margin-top:10px">${n} training day${n === 1 ? '' : 's'} logged · last 14 weeks</div></div>`;
+}
+
+async function shareCard() {
+  const W = 1080, H = 1080, c = document.createElement('canvas');
+  c.width = W; c.height = H; const x = c.getContext('2d');
+  x.fillStyle = '#0a0a0a'; x.fillRect(0, 0, W, H);
+  x.fillStyle = '#aaff00'; x.fillRect(0, 0, W, 14);
+  const cx = W / 2;
+  x.textAlign = 'center';
+  x.fillStyle = '#aaff00'; x.font = '700 40px -apple-system,Segoe UI,Roboto,sans-serif';
+  x.fillText('TX METHOD TRAINER', cx, 120);
+  x.fillStyle = '#ffffff'; x.font = '900 96px -apple-system,Segoe UI,Roboto,sans-serif';
+  x.fillText(activeProfile().name || 'Me', cx, 240);
+  x.fillStyle = '#999999'; x.font = '600 44px -apple-system,Segoe UI,Roboto,sans-serif';
+
+  let big = [], line = '';
+  if (S.program === 'prep30') {
+    x.fillText('30-Day Bodyweight Prep', cx, 310);
+    let reps = 0; for (let nn = 1; nn <= PREP_TOTAL; nn++) { if (!prepDayDone(nn)) continue; PREP30[nn-1].exercises.forEach(e => { if (!e.sets) reps += e.reps; }); }
+    big = [[prepDaysComplete() + '/' + (PREP_TOTAL - 4), 'WORKOUTS'], [prepStreaks().current, 'DAY STREAK'], [reps, 'REPS']];
+    line = (S.history || []).length + ' total training days';
+  } else {
+    x.fillText('Texas Method', cx, 310);
+    const best = Object.entries(S.prs || {}).sort((a, b) => b[1].e1rm - a[1].e1rm)[0];
+    big = [[S.sessions || 0, 'WORKOUTS'], [S.achievements.length, 'BADGES'], [(S.history || []).length, 'DAYS']];
+    line = best ? `Top PR — ${(LIFT_META[best[0]] || {}).name}: ${fmt(best[1].weight)} ${unit()} × ${best[1].reps}` : 'Get after it 💪';
+  }
+  const tileW = 300, gap = 30, startX = cx - (tileW * 1.5 + gap);
+  big.forEach((t, i) => {
+    const bx = startX + i * (tileW + gap);
+    x.fillStyle = '#1a1a1a'; roundRect(x, bx, 420, tileW, 240, 24); x.fill();
+    x.fillStyle = '#aaff00'; x.font = '900 92px -apple-system,Segoe UI,Roboto,sans-serif';
+    x.fillText(String(t[0]), bx + tileW / 2, 540);
+    x.fillStyle = '#bcbcbc'; x.font = '700 30px -apple-system,Segoe UI,Roboto,sans-serif';
+    x.fillText(t[1], bx + tileW / 2, 600);
+  });
+  x.fillStyle = '#ffffff'; x.font = '700 46px -apple-system,Segoe UI,Roboto,sans-serif';
+  wrapText(x, line, cx, 760, W - 140, 56);
+  x.fillStyle = '#555555'; x.font = '500 34px -apple-system,Segoe UI,Roboto,sans-serif';
+  x.fillText(new Date().toLocaleDateString(), cx, 1000);
+
+  c.toBlob(async blob => {
+    const file = new File([blob], 'tx-progress.png', { type: 'image/png' });
+    try {
+      if (navigator.canShare && navigator.canShare({ files: [file] })) {
+        await navigator.share({ files: [file], title: 'My TX Method progress' });
+        return;
+      }
+    } catch { /* fall through to download */ }
+    const url = URL.createObjectURL(blob); const a = document.createElement('a');
+    a.href = url; a.download = 'tx-progress.png'; a.click(); URL.revokeObjectURL(url);
+    toast('Progress image saved 📤');
+  }, 'image/png');
+}
+function roundRect(x, px, py, w, h, r) {
+  x.beginPath(); x.moveTo(px + r, py); x.arcTo(px + w, py, px + w, py + h, r);
+  x.arcTo(px + w, py + h, px, py + h, r); x.arcTo(px, py + h, px, py, r); x.arcTo(px, py, px + w, py, r); x.closePath();
+}
+function wrapText(x, text, cx, y, maxW, lh) {
+  const words = String(text).split(' '); let line = '';
+  const lines = [];
+  words.forEach(w => { const test = line ? line + ' ' + w : w; if (x.measureText(test).width > maxW && line) { lines.push(line); line = w; } else line = test; });
+  if (line) lines.push(line);
+  lines.forEach((ln, i) => x.fillText(ln, cx, y + i * lh));
 }
 
 /* =====================================================================
