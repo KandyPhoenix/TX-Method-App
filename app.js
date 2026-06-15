@@ -468,11 +468,13 @@ function renderToday() {
         <div class="tiny muted">${DAY_NAMES[day].split(' · ')[1]} day</div>
       </div>
       <button class="btn small secondary" id="nextDay">Next ›</button>
-    </div>`;
+    </div>
+    <button class="btn primary" id="startSession">▶ Start Guided Workout</button>
+    <div class="spacer"></div>`;
 
   for (const lf of w.days[day]) html += liftCard(lf, logKey, log);
 
-  html += `<button class="btn primary" id="completeBtn">✓ Complete workout</button>
+  html += `<button class="btn secondary" id="completeBtn">✓ Mark workout complete</button>
     <div class="spacer"></div>
     <button class="btn secondary" id="timerBtn">⏱ Start rest timer (${fmtClock(restDefault())})</button>
   </div>`;
@@ -593,6 +595,8 @@ function wireToday(logKey) {
     moveCursor(1);
   };
   document.getElementById('timerBtn').onclick = () => startRest();
+  const ss = document.getElementById('startSession');
+  if (ss) ss.onclick = () => startSession();
 }
 
 function moveCursor(dir) {
@@ -654,10 +658,11 @@ function renderPrepToday() {
     <button class="btn primary" id="prepComplete">Next day ›</button>`;
   } else {
     const log = S.prep.log[dayNum] || { checks: {} };
+    html += `<button class="btn primary" id="startSession">▶ Start Guided Workout</button><div class="spacer"></div>`;
     for (const ex of d.exercises) html += prepExerciseCard(ex, log);
 
     const last = dayNum >= PREP_TOTAL;
-    html += `<button class="btn primary" id="prepComplete">${last ? '🎉 Finish prep → Start Texas Method' : '✓ Complete day'}</button>
+    html += `<button class="btn ${last ? 'primary' : 'secondary'}" id="prepComplete">${last ? '🎉 Finish prep → Start Texas Method' : '✓ Mark day complete'}</button>
       <div class="spacer"></div>
       <button class="btn secondary" id="prepTimer">⏱ Start rest timer (${fmtClock(restDefault())})</button>`;
   }
@@ -733,6 +738,8 @@ function wirePrepToday() {
 
   const timer = document.getElementById('prepTimer');
   if (timer) timer.onclick = () => startRest();
+  const ss = document.getElementById('startSession');
+  if (ss) ss.onclick = () => startSession();
 
   document.getElementById('prepComplete').onclick = () => {
     const d = PREP30[dayNum - 1];
@@ -2020,6 +2027,188 @@ function celebrateWorkout(prMsgs) {
   toast(pr ? prMsgs[0] : 'Workout logged 💪');
   if (pr && prMsgs.length > 1) setTimeout(() => toast(prMsgs[1]), 1800);
   checkAchievements({ prHit: !!pr });
+}
+
+/* =====================================================================
+   GUIDED FULL-SESSION  (walk through every set, hands-free)
+   ===================================================================== */
+let sess = null, sessInt = null;
+
+/* flatten today's work into ordered steps */
+function buildSteps() {
+  const steps = [];
+  if (S.program === 'prep30') {
+    const d = PREP30[S.prep.day - 1];
+    if (!d || d.rest) return steps;
+    d.exercises.forEach(ex => {
+      if (ex.sets) {
+        for (let i = 0; i < ex.sets; i++)
+          steps.push({ name: ex.name, label: `Set ${i + 1} of ${ex.sets}`, kind: 'hold', seconds: ex.sec, checkId: `${ex.key}_${i}`, store: 'prep' });
+      } else {
+        steps.push({ name: ex.name, label: 'Target', kind: 'reps', bw: true, reps: ex.reps, checkId: ex.key, store: 'prep' });
+      }
+    });
+  } else {
+    const w = PROGRAM[S.cursor.week], lifts = w.days[S.cursor.day], b = bar(), plts = getPlates();
+    lifts.forEach(lf => {
+      if (lf.work === 0 && lf.type === 'acc') {
+        lf.sets.forEach((st, i) => steps.push({ name: lf.name, label: `Set ${i + 1} of ${lf.sets.length}`, kind: 'reps', bw: true, reps: lf.targetReps || 0, amrap: !lf.targetReps, checkId: `${lf.key}_w_${i}`, store: 'tex' }));
+      } else {
+        lf.warmups.forEach((wu, i) => steps.push({ name: lf.name, label: 'Warm-up', kind: 'reps', weight: wu.weight, reps: wu.reps, math: plateMath(wu.weight, b, plts), checkId: `${lf.key}_wu_${i}`, store: 'tex' }));
+        lf.sets.forEach((st, i) => steps.push({ name: lf.name, label: `Set ${i + 1} of ${lf.sets.length}`, kind: 'reps', weight: st.weight, reps: st.reps, math: plateMath(st.weight, b, plts), checkId: `${lf.key}_w_${i}`, store: 'tex' }));
+      }
+    });
+  }
+  return steps;
+}
+
+function sessMarkDone(step) {
+  if (step.store === 'prep') {
+    const day = S.prep.day;
+    if (!S.prep.log[day]) S.prep.log[day] = { checks: {} };
+    if (!S.prep.log[day].checks) S.prep.log[day].checks = {};
+    S.prep.log[day].checks[step.checkId] = true;
+  } else {
+    const lk = `${S.cursor.week}-${S.cursor.day}`;
+    if (!S.logs[lk]) S.logs[lk] = { checks: {}, reps: {} };
+    S.logs[lk].checks[step.checkId] = true;
+  }
+  save();
+}
+
+function startSession() {
+  const steps = buildSteps();
+  if (!steps.length) { toast('Nothing to do today 😴'); return; }
+  ensureAudio();
+  sess = { steps, i: 0, phase: 'ready' };
+  renderSession();
+}
+
+function closeSession() {
+  clearInterval(sessInt); sessInt = null; sess = null;
+  const el = document.getElementById('sessionOverlay');
+  if (el) el.classList.remove('open');
+  render();
+}
+
+function setSessDisplay(label, time) {
+  const l = document.getElementById('sessLabel'), t = document.getElementById('sessTime');
+  if (l && label != null) l.textContent = label;
+  if (t && time != null) t.textContent = time;
+}
+
+function renderSession() {
+  let el = document.getElementById('sessionOverlay');
+  if (!el) { el = document.createElement('div'); el.id = 'sessionOverlay'; el.className = 'sess-overlay'; document.body.appendChild(el); }
+  const n = sess.steps.length, step = sess.steps[sess.i];
+  const pct = Math.round((sess.i) / n * 100);
+  let body = '';
+  if (sess.phase === 'ready') {
+    const target = step.kind === 'hold' ? `${step.seconds}s hold`
+      : step.bw ? (step.amrap ? 'AMRAP' : `${step.reps} reps`)
+      : `${fmt(step.weight)} ${unit()} × ${step.reps}`;
+    const sub = step.math ? `<div class="sess-sub">${step.math}</div>` : '';
+    const btn = step.kind === 'hold'
+      ? `<button class="btn primary" id="sessAct">▶ Start hold · ${step.seconds}s</button>`
+      : `<button class="btn primary" id="sessAct">✓ Done</button>`;
+    body = `<div class="sess-ex">${step.name}</div>
+      <div class="sess-label" id="sessLabel">${step.label}</div>
+      <div class="sess-target">${target}</div>${sub}${btn}`;
+  } else if (sess.phase === 'resting') {
+    body = `<div class="sess-label" id="sessLabel">REST</div>
+      <div class="sess-time" id="sessTime">${fmtClock(sess.timeLeft)}</div>
+      <button class="btn primary" id="sessSkip">Skip rest ›</button>`;
+  } else if (sess.phase === 'holding') {
+    body = `<div class="sess-label" id="sessLabel">${sess.holdLabel}</div>
+      <div class="sess-time" id="sessTime">${sess.disp}</div>`;
+  }
+  el.innerHTML = `<div class="sess-card">
+    <div class="sess-top"><span class="sess-prog">Set ${Math.min(sess.i + 1, n)} of ${n}</span>
+      <button class="sess-x" id="sessExit">✕</button></div>
+    <div class="sess-track"><div class="sess-fill" style="width:${pct}%"></div></div>
+    ${body}
+    <div class="sess-navrow">${sess.i > 0 ? '<button class="sess-prev" id="sessPrev">‹ Prev</button>' : ''}</div>
+  </div>`;
+  el.classList.add('open');
+
+  document.getElementById('sessExit').onclick = closeSession;
+  const prev = document.getElementById('sessPrev');
+  if (prev) prev.onclick = () => { clearInterval(sessInt); sess.i = Math.max(0, sess.i - 1); sess.phase = 'ready'; renderSession(); };
+  const act = document.getElementById('sessAct');
+  if (act) act.onclick = () => {
+    const s = sess.steps[sess.i];
+    if (s.kind === 'hold') startSessHold(s);
+    else { sessMarkDone(s); afterStep(); }
+  };
+  const skip = document.getElementById('sessSkip');
+  if (skip) skip.onclick = () => { clearInterval(sessInt); nextStep(); };
+}
+
+function afterStep() {
+  if (sess.i >= sess.steps.length - 1) { finishSession(); return; }
+  startSessRest();
+}
+function nextStep() {
+  sess.i++;
+  if (sess.i >= sess.steps.length) { finishSession(); return; }
+  sess.phase = 'ready'; renderSession();
+}
+
+function startSessRest() {
+  sess.phase = 'resting'; sess.timeLeft = restDefault();
+  clearInterval(sessInt); renderSession();
+  sessInt = setInterval(() => {
+    sess.timeLeft--;
+    if (sess.timeLeft <= 0) { clearInterval(sessInt); ding(); buzz(); nextStep(); }
+    else setSessDisplay(null, fmtClock(sess.timeLeft));
+  }, 1000);
+}
+
+function startSessHold(step) {
+  sess.phase = 'holding'; clearInterval(sessInt); ensureAudio();
+  let ready = 3; sess.holdLabel = 'GET READY'; sess.disp = String(ready);
+  renderSession(); tick(660);
+  sessInt = setInterval(() => {
+    ready--;
+    if (ready > 0) { sess.disp = String(ready); setSessDisplay('GET READY', sess.disp); tick(660); }
+    else { clearInterval(sessInt); holdRun(); }
+  }, 1000);
+  function holdRun() {
+    let left = step.seconds;
+    sess.holdLabel = step.name.toUpperCase(); sess.disp = fmtClock(left);
+    setSessDisplay(sess.holdLabel, sess.disp); tick(990);
+    sessInt = setInterval(() => {
+      left--;
+      sess.disp = fmtClock(Math.max(0, left)); setSessDisplay(null, sess.disp);
+      if (left <= 3 && left > 0) tick(880);
+      if (left <= 0) { clearInterval(sessInt); ding(); buzz(); sessMarkDone(step); afterStep(); }
+    }, 1000);
+  }
+}
+
+function finishSession() {
+  clearInterval(sessInt); sessInt = null;
+  const el = document.getElementById('sessionOverlay'); if (el) el.classList.remove('open');
+  sess = null;
+  if (S.program === 'prep30') {
+    const dayNum = S.prep.day, d = PREP30[dayNum - 1];
+    if (!d.rest) {
+      if (!S.prep.log[dayNum]) S.prep.log[dayNum] = { checks: {} };
+      S.prep.log[dayNum].done = true; S.sessions = (S.sessions || 0) + 1;
+    }
+    save();
+    if (dayNum >= PREP_TOTAL) { finishPrep(); return; }
+    celebrateWorkout([]); movePrepCursor(1);
+  } else {
+    const w = PROGRAM[S.cursor.week], lk = `${S.cursor.week}-${S.cursor.day}`;
+    const log = S.logs[lk] || (S.logs[lk] = { checks: {}, reps: {} });
+    if (!log.reps) log.reps = {};
+    w.days[S.cursor.day].forEach(lf => { if (lf.logReps && log.reps[lf.key] == null) log.reps[lf.key] = lf.targetReps; });
+    const prMsgs = checkPRs(w, log);
+    S.sessions = (S.sessions || 0) + 1;
+    save(); rebuild();
+    celebrateWorkout(prMsgs); moveCursor(1);
+  }
 }
 
 /* init */

@@ -508,6 +508,31 @@ table.prog td.s { text-align: right; color: var(--muted); width: 60px; }
 .ach-emoji { font-size: 28px; line-height: 1.1; }
 .ach-name { font-size: 12px; color: #cfcfcf; margin-top: 5px; font-weight: 700; }
 
+/* guided full-session overlay */
+.sess-overlay {
+  position: fixed; inset: 0; z-index: 90; display: none;
+  align-items: center; justify-content: center; padding: 22px;
+  background: rgba(0,0,0,.82); backdrop-filter: blur(4px);
+}
+.sess-overlay.open { display: flex; }
+.sess-card {
+  width: 100%; max-width: 440px; background: var(--panel);
+  border: 1px solid var(--border); border-radius: 24px; padding: 22px 22px 26px;
+  box-shadow: 0 24px 70px rgba(0,0,0,.7); text-align: center;
+}
+.sess-top { display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px; }
+.sess-prog { font-size: 14px; font-weight: 700; color: var(--muted); letter-spacing: .5px; }
+.sess-x { background: var(--panel2); color: #fff; border: 1px solid var(--border); width: 36px; height: 36px; border-radius: 10px; font-size: 16px; cursor: pointer; }
+.sess-track { height: 8px; background: var(--bg2); border-radius: 999px; overflow: hidden; margin-bottom: 22px; }
+.sess-fill { height: 100%; background: var(--lime); box-shadow: 0 0 8px var(--lime-glow); transition: width .3s ease; }
+.sess-ex { font-size: 30px; font-weight: 900; color: #fff; letter-spacing: -.5px; }
+.sess-label { font-size: 15px; font-weight: 800; letter-spacing: 3px; text-transform: uppercase; color: var(--lime); margin-top: 6px; }
+.sess-target { font-size: 40px; font-weight: 900; color: #fff; margin: 14px 0 4px; letter-spacing: -1px; }
+.sess-sub { font-size: 16px; color: var(--muted); margin-bottom: 8px; }
+.sess-time { font-size: 88px; font-weight: 900; font-variant-numeric: tabular-nums; color: #fff; line-height: 1; letter-spacing: -3px; margin: 16px 0 22px; }
+.sess-navrow { margin-top: 14px; min-height: 20px; }
+.sess-prev { background: none; border: none; color: var(--muted); font-size: 15px; font-weight: 700; cursor: pointer; }
+
 /* personal records */
 .pr-row { display: flex; align-items: center; justify-content: space-between; gap: 8px;
   padding: 10px 2px; border-bottom: 1px solid var(--border); }
