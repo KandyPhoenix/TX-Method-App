@@ -198,9 +198,9 @@ h2.section { font-size: 15px; text-transform: uppercase; letter-spacing: 1.2px; 
   background: var(--panel); border: 1px solid var(--border); border-radius: 14px; padding: 14px;
   box-shadow: 0 2px 8px rgba(0,0,0,.4);
 }
-.tile .k { font-size: 14px; color: var(--dim); text-transform: uppercase; letter-spacing: .6px; }
+.tile .k { font-size: 14px; color: #bcbcbc; text-transform: uppercase; letter-spacing: .6px; }
 .tile .v { font-size: 28px; font-weight: 800; margin-top: 4px; letter-spacing: -.5px; color: #fff; }
-.tile .v small { font-size: 15px; color: var(--muted); font-weight: 600; }
+.tile .v small { font-size: 15px; color: #c8c8c8; font-weight: 600; }
 .tile.wide { grid-column: 1 / -1; }
 
 .bar-line { margin: 10px 0; }
