@@ -114,7 +114,7 @@ h2.section { font-size: 15px; text-transform: uppercase; letter-spacing: 1.2px; 
 .set-row .lbl  { font-size: 19px; font-weight: 700; color: var(--muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .set-row .wt   { font-size: 26px; font-weight: 800; color: #fff; min-width: 0; }
 .set-row .wt small { font-size: 16px; color: var(--muted); font-weight: 500; }
-.set-row .reps { font-size: 19px; color: var(--muted); white-space: nowrap; }
+.set-row .reps { font-size: 19px; color: #fff; font-weight: 700; white-space: nowrap; }
 .set-row .mini-start { justify-self: start; }
 
 .check {
