@@ -220,7 +220,7 @@ function loadState() {
     if (raw) return migrate(JSON.parse(raw));
   } catch (e) { /* ignore */ }
   return { settings: structuredClone(DEFAULTS), cursor: { week: 0, day: 0 }, logs: {}, bodyLog: [],
-           program: 'prep30', prep: { day: 1, log: {} } };
+           program: 'prep30', prep: { day: 1, log: {} }, achievements: [], prs: {}, sessions: 0 };
 }
 let S = loadState();
 
@@ -240,6 +240,9 @@ function migrate(st) {
   st.prep    = st.prep    || { day: 1, log: {} };
   if (st.prep.day == null) st.prep.day = 1;
   if (!st.prep.log) st.prep.log = {};
+  if (!st.achievements) st.achievements = [];
+  if (!st.prs) st.prs = {};
+  if (st.sessions == null) st.sessions = 0;
   return st;
 }
 function save() {
@@ -440,6 +443,7 @@ function render() {
   if (TAB === 'program') prep ? renderPrepProgram() : renderProgram();
   if (TAB === 'stats')   renderStats();
   if (TAB === 'setup')   renderSetup();
+  if (typeof updateWakeLock === 'function') updateWakeLock();
 }
 
 /* =====================================================================
@@ -582,7 +586,11 @@ function wireToday(logKey) {
     w.days[S.cursor.day].forEach(lf => {
       if (lf.logReps && log.reps[lf.key] == null) log.reps[lf.key] = lf.targetReps;
     });
-    save(); rebuild(); toast('Workout logged 💪'); moveCursor(1);
+    const prMsgs = checkPRs(w, log);
+    S.sessions = (S.sessions || 0) + 1;
+    save(); rebuild();
+    celebrateWorkout(prMsgs);
+    moveCursor(1);
   };
   document.getElementById('timerBtn').onclick = () => startRest();
 }
@@ -728,10 +736,11 @@ function wirePrepToday() {
 
   document.getElementById('prepComplete').onclick = () => {
     const d = PREP30[dayNum - 1];
-    if (!d.rest) log.done = true;
+    if (!d.rest) { log.done = true; S.sessions = (S.sessions || 0) + 1; }
     save();
     if (dayNum >= PREP_TOTAL) { finishPrep(); return; }
-    toast(d.rest ? 'Rested 😴' : 'Day logged 💪');
+    if (d.rest) { toast('Rested 😴'); }
+    else { celebrateWorkout([]); }
     movePrepCursor(1);
   };
 }
@@ -743,11 +752,13 @@ function movePrepCursor(dir) {
 
 /* prep complete → hand off to Texas Method, Cycle 1a */
 function finishPrep() {
+  checkAchievements({});
   S.program = 'texas';
   S.cursor = { week: 0, day: 0 };
   save(); rebuild();
   TAB = 'today';
   render();
+  confetti();
   toast('Prep complete! Welcome to Texas Method 🏋️');
 }
 
@@ -936,8 +947,30 @@ function renderStats() {
     </div>
     <h2 class="section">Strength-to-weight ratio ${ib('swr')}</h2>
     <div class="card">${ratios}</div>
+    ${prCardHTML()}
+    ${achievementsCardHTML()}
   </div>`;
   drawProjectionCharts();
+}
+
+/* ---- Achievements + PR cards (shared by both stats screens) ---- */
+function achievementsCardHTML() {
+  const items = ACHIEVEMENTS.map(a => {
+    const on = S.achievements.includes(a.id);
+    return `<div class="ach ${on ? 'on' : ''}"><div class="ach-emoji">${a.emoji}</div><div class="ach-name">${a.name}</div></div>`;
+  }).join('');
+  const got = S.achievements.length, tot = ACHIEVEMENTS.length;
+  return `<h2 class="section">Achievements — ${got}/${tot}</h2><div class="card"><div class="ach-grid">${items}</div></div>`;
+}
+function prCardHTML() {
+  const keys = Object.keys(S.prs || {});
+  if (!keys.length) return '';
+  const order = ['squat','bench','press','deadlift','clean'];
+  const rows = keys.sort((a,b)=>order.indexOf(a)-order.indexOf(b)).map(k => {
+    const p = S.prs[k]; const nm = (LIFT_META[k] || {}).name || k;
+    return `<div class="pr-row"><span class="pr-nm">${nm}</span><b>${fmt(p.weight)} ${unit()} × ${p.reps}</b><span class="pr-1rm">~${fmt(Math.round(p.e1rm))} 1RM</span></div>`;
+  }).join('');
+  return `<h2 class="section">🏆 Personal Records</h2><div class="card">${rows}</div>`;
 }
 
 /* current & best run of completed workout-days (rest days don't break it) */
@@ -1002,6 +1035,7 @@ function renderPrepStats() {
         ${done >= workoutDays ? 'All done — finish Day 30 to start Texas Method 🏋️' : `${workoutDays - done} workout${workoutDays-done===1?'':'s'} to go — then on to Texas Method.`}
       </div>
     </div>
+    ${achievementsCardHTML()}
   </div>`;
 }
 
@@ -1864,6 +1898,129 @@ function loadZoom() {
 }
 function applyZoom(z) { document.documentElement.style.setProperty('--content-zoom', z); }
 applyZoom(loadZoom());
+
+/* =====================================================================
+   WAKE LOCK  (keep the screen awake while working out)
+   ===================================================================== */
+let wakeLock = null;
+async function requestWakeLock() {
+  try {
+    if ('wakeLock' in navigator && !wakeLock) {
+      wakeLock = await navigator.wakeLock.request('screen');
+      wakeLock.addEventListener('release', () => { wakeLock = null; });
+    }
+  } catch { /* unsupported / denied */ }
+}
+function releaseWakeLock() { try { if (wakeLock) { wakeLock.release(); wakeLock = null; } } catch {} }
+function updateWakeLock() { if (TAB === 'today') requestWakeLock(); else releaseWakeLock(); }
+document.addEventListener('visibilitychange', () => {
+  if (document.visibilityState === 'visible' && TAB === 'today') requestWakeLock();
+});
+
+/* =====================================================================
+   CONFETTI  (celebration burst — no library)
+   ===================================================================== */
+function confetti() {
+  const cv = document.createElement('canvas');
+  Object.assign(cv.style, { position: 'fixed', inset: '0', width: '100%', height: '100%',
+    pointerEvents: 'none', zIndex: 200 });
+  document.body.appendChild(cv);
+  const dpr = window.devicePixelRatio || 1, W = innerWidth, H = innerHeight;
+  cv.width = W * dpr; cv.height = H * dpr;
+  const ctx = cv.getContext('2d'); ctx.scale(dpr, dpr);
+  const colors = ['#aaff00', '#ffffff', '#77cc00', '#ffd400', '#ff5e5e'];
+  const N = 140, parts = [];
+  for (let i = 0; i < N; i++) parts.push({
+    x: W / 2 + (Math.random() - .5) * 80, y: H / 3 + (Math.random() - .5) * 40,
+    vx: (Math.random() - .5) * 14, vy: Math.random() * -15 - 4,
+    s: 5 + Math.random() * 6, c: colors[i % colors.length],
+    rot: Math.random() * 6.28, vr: (Math.random() - .5) * .4
+  });
+  let t = 0;
+  (function frame() {
+    t++; ctx.clearRect(0, 0, W, H);
+    parts.forEach(p => {
+      p.vy += 0.45; p.x += p.vx; p.y += p.vy; p.rot += p.vr;
+      ctx.save(); ctx.translate(p.x, p.y); ctx.rotate(p.rot);
+      ctx.fillStyle = p.c; ctx.fillRect(-p.s / 2, -p.s / 2, p.s, p.s * 0.6); ctx.restore();
+    });
+    if (t < 130) requestAnimationFrame(frame); else cv.remove();
+  })();
+}
+
+/* =====================================================================
+   ACHIEVEMENTS + PERSONAL RECORDS
+   ===================================================================== */
+const ACHIEVEMENTS = [
+  { id: 'first',      emoji: '🎉', name: 'First Workout',        test: s => s.workouts >= 1 },
+  { id: 'w5',         emoji: '💪', name: '5 Workouts',           test: s => s.workouts >= 5 },
+  { id: 'w10',        emoji: '🔥', name: '10 Workouts',          test: s => s.workouts >= 10 },
+  { id: 'w25',        emoji: '🏆', name: '25 Workouts',          test: s => s.workouts >= 25 },
+  { id: 'w50',        emoji: '👑', name: '50 Workouts',          test: s => s.workouts >= 50 },
+  { id: 'streak3',    emoji: '⚡', name: '3-Day Prep Streak',    test: s => s.streak >= 3 },
+  { id: 'streak7',    emoji: '🌟', name: '7-Day Prep Streak',    test: s => s.streak >= 7 },
+  { id: 'prep_half',  emoji: '🗓️', name: 'Prep Halfway',         test: s => s.prepDays >= 13 },
+  { id: 'prep_done',  emoji: '🎖️', name: '30-Day Prep Complete', test: s => s.prepDays >= 26 },
+  { id: 'pr',         emoji: '📈', name: 'New Personal Record',  test: s => s.prHit }
+];
+
+function achievementStats(opts) {
+  return {
+    workouts: S.sessions || 0,
+    prepDays: prepDaysComplete(),
+    streak:   prepStreaks().current,
+    prHit:    !!(opts && opts.prHit)
+  };
+}
+function checkAchievements(opts) {
+  const stats = achievementStats(opts);
+  const unlocked = [];
+  ACHIEVEMENTS.forEach(a => {
+    if (!S.achievements.includes(a.id) && a.test(stats)) {
+      S.achievements.push(a.id); unlocked.push(a);
+    }
+  });
+  if (unlocked.length) {
+    save();
+    let i = 0;
+    const showNext = () => {
+      if (i >= unlocked.length) return;
+      const a = unlocked[i++];
+      toast(`${a.emoji} Achievement: ${a.name}`);
+      setTimeout(showNext, 1800);
+    };
+    setTimeout(showNext, 1600); // after the main "workout logged" toast
+  }
+  return unlocked;
+}
+
+/* check the day's intensity lifts for new estimated-1RM personal records */
+function checkPRs(week, log) {
+  const msgs = [];
+  if (!week || !week.days) return msgs;
+  const lifts = week.days[S.cursor.day] || [];
+  lifts.forEach(lf => {
+    if (!lf.logReps) return;
+    const reps = (log.reps && log.reps[lf.key] != null) ? log.reps[lf.key] : lf.targetReps;
+    if (!reps || reps < 1) return;
+    const e1rm = oneRM(lf.work, reps);
+    const prev = S.prs[lf.key];
+    if (!prev || e1rm > prev.e1rm + 0.01) {
+      S.prs[lf.key] = { weight: lf.work, reps, e1rm, date: Date.now() };
+      msgs.push(`📈 New ${lf.name} PR: ${fmt(lf.work)} ${unit()} × ${reps}`);
+    }
+  });
+  return msgs;
+}
+
+/* central celebration after finishing a workout */
+function celebrateWorkout(prMsgs) {
+  confetti(); buzz();
+  const pr = prMsgs && prMsgs.length;
+  toast(pr ? prMsgs[0] : 'Workout logged 💪');
+  if (pr && prMsgs.length > 1) setTimeout(() => toast(prMsgs[1]), 1800);
+  checkAchievements({ prHit: !!pr });
+}
 
 /* init */
 render();
