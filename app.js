@@ -634,7 +634,7 @@ function renderPrepToday() {
       <button class="btn small secondary" id="prepPrev" ${dayNum <= 1 ? 'disabled' : ''}>‹ Prev</button>
       <div class="center">
         <div style="font-weight:800;font-size:19px;">Day ${dayNum}</div>
-        <div class="tiny muted">${prepDaysComplete()} of ${PREP_TOTAL - 4} workouts done</div>
+        <div class="tiny muted" style="white-space:nowrap;">${prepDaysComplete()} / ${PREP_TOTAL - 4} done</div>
       </div>
       <button class="btn small secondary" id="prepNext" ${dayNum >= PREP_TOTAL ? 'disabled' : ''}>Next ›</button>
     </div>`;
@@ -670,8 +670,7 @@ function prepExerciseCard(ex, log) {
       const on = log.checks && log.checks[id] ? 'on' : '';
       rows += `<div class="set-row workset ${on ? 'done' : ''}">
         <div class="lbl">${ex.icon} Set ${i + 1} of ${ex.sets}</div>
-        <div class="wt">${ex.sec}<small> sec</small></div>
-        <button class="mini-start" data-hold="${ex.sec}" data-holdname="${ex.name}" data-holdcheck="${id}">▶ Start</button>
+        <button class="mini-start" data-hold="${ex.sec}" data-holdname="${ex.name}" data-holdcheck="${id}">▶ Start · ${ex.sec}s</button>
         <button class="check ${on}" data-pcheck="${id}">✓</button></div>`;
     }
     return `<div class="card lift">
