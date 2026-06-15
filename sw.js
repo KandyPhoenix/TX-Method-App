@@ -1,4 +1,4 @@
-const CACHE = 'tx-method-v44';
+const CACHE = 'tx-method-v46';
 const ASSETS = ['./', 'index.html', 'app.js', 'styles.css', 'manifest.json', 'icons/icon-192.png', 'icons/icon-512.png'];
 
 self.addEventListener('install', e => {

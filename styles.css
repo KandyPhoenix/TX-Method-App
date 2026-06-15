@@ -90,10 +90,11 @@ h2.section { font-size: 15px; text-transform: uppercase; letter-spacing: 1.2px; 
 
 /* ---------- Set rows ---------- */
 .set-row {
-  display: flex; align-items: center; gap: 8px; flex-wrap: nowrap;
-  padding: 12px 14px; border-bottom: 1px solid var(--border);
+  display: grid; grid-template-columns: 1fr 1fr 1fr; align-items: center; gap: 8px;
+  padding: 12px 12px; border-bottom: 1px solid var(--border);
   background: transparent;
 }
+.set-end { display: flex; align-items: center; gap: 10px; min-width: 0; }
 .set-row:last-child { border-bottom: none; }
 
 /* checked-off */
@@ -109,10 +110,11 @@ h2.section { font-size: 15px; text-transform: uppercase; letter-spacing: 1.2px; 
   height: 3px; background: var(--red); border-radius: 2px;
 }
 
-.set-row .lbl  { width: auto; font-size: 15px; color: var(--muted); flex: 0 0 auto; white-space: nowrap; }
-.set-row .wt   { font-size: 21px; font-weight: 700; flex: 1 1 auto; color: #fff; white-space: nowrap; }
-.set-row .wt small { font-size: 14px; color: var(--muted); font-weight: 500; white-space: nowrap; }
-.set-row .reps { font-size: 16px; color: var(--muted); flex: 0 0 auto; text-align: right; white-space: nowrap; }
+.set-row .lbl  { font-size: 16px; color: var(--muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.set-row .wt   { font-size: 19px; font-weight: 700; color: #fff; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; min-width: 0; }
+.set-row .wt small { font-size: 12px; color: var(--muted); font-weight: 500; }
+.set-row .reps { font-size: 15px; color: var(--muted); white-space: nowrap; }
+.set-row .mini-start { justify-self: start; }
 
 .check {
   width: 30px; height: 30px; border-radius: 9px; border: 2px solid var(--border);
@@ -140,8 +142,8 @@ h2.section { font-size: 15px; text-transform: uppercase; letter-spacing: 1.2px; 
   background: var(--bg2); border-top: 1px solid var(--border); border-bottom: 1px solid var(--border);
 }
 
-/* plate math */
-.plate-math { font-size: 13px; color: var(--dim); font-weight: 500; margin-top: 2px; }
+/* plate math — inline, on the same line as the weight */
+.plate-math { font-size: 12px; color: var(--dim); font-weight: 500; margin-left: 5px; }
 
 /* rep logger */
 .log-row {
