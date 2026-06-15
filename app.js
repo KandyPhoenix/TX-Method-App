@@ -42,6 +42,7 @@ const DEFAULTS = {
   ohpDecrement: 0.95,
   restSec: 120,
   restStep: 15,
+  voice: true,
   lifts: {
     squat:    { weight: 125, reps: 5 },
     bench:    { weight: 85,  reps: 5 },
@@ -235,6 +236,7 @@ function migrate(st) {
   st.bodyLog = st.bodyLog || [];
   if (st.settings.restSec  == null) st.settings.restSec  = 120;
   if (st.settings.restStep == null) st.settings.restStep = 15;
+  if (st.settings.voice    == null) st.settings.voice    = true;
   /* existing profiles default to Texas (don't disrupt anyone mid-cycle) */
   st.program = st.program || 'texas';
   st.prep    = st.prep    || { day: 1, log: {} };
@@ -278,6 +280,26 @@ function wilks(totalUnits, bwUnits, sex, units) {
    ===================================================================== */
 function bar()      { return S.settings.barWeight != null ? S.settings.barWeight : (S.settings.units === 'lb' ? 45 : 20); }
 function getPlates(){ return (S.settings.plates && S.settings.plates.length) ? S.settings.plates : (S.settings.units === 'lb' ? STD_PLATES_LB : STD_PLATES_KG); }
+
+/* plate visualizer — list of plates to load on ONE side, biggest first */
+const PLATE_COLORS = { 45:'#2f6fed', 35:'#e0b400', 25:'#1faa4b', 20:'#2f6fed', 15:'#e0b400', 10:'#dddddd', 5:'#e23b3b', 2.5:'#9aa0a6', 1.25:'#9aa0a6' };
+function platesPerSide(weight) {
+  const b = bar(), plts = getPlates().filter(p => p > 0).sort((a, b) => b - a);
+  let side = (weight - b) / 2; const out = [];
+  if (side <= 0) return out;
+  for (const p of plts) { let n = Math.floor(side / p + 1e-9); while (n-- > 0) { out.push(p); side = Math.round((side - p) * 1000) / 1000; } }
+  return out;
+}
+function plateStripHTML(weight) {
+  const ps = platesPerSide(weight);
+  if (!ps.length) return '<span class="plate-none">Bar only</span>';
+  const chips = ps.map(p => {
+    const c = PLATE_COLORS[p] || '#888';
+    const dark = (p === 10);
+    return `<span class="plate" style="background:${c};color:${dark ? '#111' : '#fff'}">${fmt(p)}</span>`;
+  }).join('');
+  return `<span class="plates">${chips}<span class="plate-side">/ side</span></span>`;
+}
 
 /* snap target to the nearest loadable weight (greedy floor per side) */
 function snapWeight(target, barW, plts) {
@@ -513,7 +535,7 @@ function liftCard(lf, logKey, log) {
     const math  = plateMath(wu.weight, b, plts);
     warmupRows += `<div class="set-row warmup ${on ? 'done' : ''}">
       <div class="lbl">🔥 ${wu.label}</div>
-      <div class="wt">${fmt(wu.weight)} <small>${unit()}</small><div class="plate-math">${math}</div></div>
+      <div class="wt">${fmt(wu.weight)} <small>${unit()}</small><div class="plate-math">${plateStripHTML(wu.weight)}</div></div>
       <div class="set-end"><div class="reps">${wu.sets > 1 ? wu.sets + '×' + wu.reps : wu.reps + ' reps'}</div>
       <button class="check ${on}" data-check="${id}">✓</button></div></div>`;
   });
@@ -526,7 +548,7 @@ function liftCard(lf, logKey, log) {
     const math = plateMath(st.weight, b, plts);
     setRows += `<div class="set-row workset ${on ? 'done' : ''}">
       <div class="lbl">💪 Set ${i + 1} of ${lf.sets.length}</div>
-      <div class="wt">${fmt(st.weight)} <small>${unit()}</small><div class="plate-math">${math}</div></div>
+      <div class="wt">${fmt(st.weight)} <small>${unit()}</small><div class="plate-math">${plateStripHTML(st.weight)}</div></div>
       <div class="set-end"><div class="reps">${st.reps} reps</div>
       <button class="check ${on}" data-check="${id}">✓</button></div></div>`;
   });
@@ -1286,7 +1308,13 @@ function renderSetup() {
         <div class="field" style="margin:0"><label>Adjust step (± sec)</label>
           <input type="number" inputmode="numeric" id="restStepInp" value="${s.restStep}" /></div>
       </div>
-      <div class="hint">Used by the auto-start after each set and the “Start rest timer” button. The ± buttons on the timer bar nudge by your step.</div>
+      <div class="field" style="margin-top:14px"><label>Voice coaching</label>
+        <div class="seg" id="segVoice">
+          <button data-voice="on"  class="${s.voice ? 'on' : ''}">On</button>
+          <button data-voice="off" class="${s.voice ? '' : 'on'}">Off</button>
+        </div>
+      </div>
+      <div class="hint">Used by the auto-start after each set and the “Start rest timer” button. The ± buttons on the timer bar nudge by your step. Voice coaching speaks the count-in and cues during a guided workout.</div>
     </div>
 
     <h2 class="section">☁️ Cloud sync — Google</h2>
@@ -1374,6 +1402,11 @@ function wireSetup() {
   document.getElementById('restStepInp').onchange = e => {
     s.restStep = Math.max(1, Math.min(120, +e.target.value || 15)); save();
   };
+  view.querySelectorAll('#segVoice button').forEach(b => b.onclick = () => {
+    s.voice = b.dataset.voice === 'on'; save();
+    view.querySelectorAll('#segVoice button').forEach(x => x.classList.toggle('on', (x.dataset.voice === 'on') === s.voice));
+    if (s.voice) say('Voice coaching on');
+  });
 
   /* page zoom / text size */
   const setZoom = d => {
@@ -1547,7 +1580,7 @@ function startRest(sec) {
     restLeft--;
     restDisp.textContent = fmtClock(Math.max(0, restLeft));
     if (restLeft <= 10) restEl.classList.add('warn');
-    if (restLeft <= 0)  { clearInterval(restInt); ding(); buzz(); setTimeout(() => restEl.classList.add('hidden'), 1800); }
+    if (restLeft <= 0)  { clearInterval(restInt); ding(); buzz(); say("Time's up"); setTimeout(() => restEl.classList.add('hidden'), 1800); }
   }, 1000);
 }
 function buzz() { if (navigator.vibrate) navigator.vibrate([300, 120, 300, 120, 300]); }
@@ -1579,6 +1612,18 @@ function ding() {
     osc.start(t); osc.stop(t + 0.20);
   });
 }
+/* spoken voice cues (Web Speech) — gated by the Voice setting */
+function say(text) {
+  try {
+    if (!S.settings.voice) return;
+    if (!('speechSynthesis' in window)) return;
+    speechSynthesis.cancel();
+    const u = new SpeechSynthesisUtterance(text);
+    u.rate = 1.05; u.pitch = 1; u.volume = 1;
+    speechSynthesis.speak(u);
+  } catch { /* unsupported */ }
+}
+
 /* short soft beep used for the get-ready count-in and final seconds */
 function tick(freq) {
   ensureAudio();
@@ -2140,13 +2185,15 @@ function renderSession() {
     const target = step.kind === 'hold' ? `${step.seconds}s hold`
       : step.bw ? (step.amrap ? 'AMRAP' : `${step.reps} reps`)
       : `${fmt(step.weight)} ${unit()} × ${step.reps}`;
-    const sub = step.math ? `<div class="sess-sub">${step.math}</div>` : '';
+    const sub = (step.weight != null && step.kind === 'reps')
+      ? `<div class="sess-plates">${plateStripHTML(step.weight)}</div>` : '';
     const btn = step.kind === 'hold'
       ? `<button class="btn primary" id="sessAct">▶ Start hold · ${step.seconds}s</button>`
       : `<button class="btn primary" id="sessAct">✓ Done</button>`;
     body = `<div class="sess-ex">${step.name}</div>
       <div class="sess-label" id="sessLabel">${step.label}</div>
       <div class="sess-target">${target}</div>${sub}${btn}`;
+    if (sess._spoke !== sess.i) { sess._spoke = sess.i; sayStep(step); }
   } else if (sess.phase === 'resting') {
     body = `<div class="sess-label" id="sessLabel">REST</div>
       <div class="sess-time" id="sessTime">${fmtClock(sess.timeLeft)}</div>
@@ -2189,7 +2236,7 @@ function nextStep() {
 
 function startSessRest() {
   sess.phase = 'resting'; sess.timeLeft = restDefault();
-  clearInterval(sessInt); renderSession();
+  clearInterval(sessInt); renderSession(); say('Rest');
   sessInt = setInterval(() => {
     sess.timeLeft--;
     if (sess.timeLeft <= 0) { clearInterval(sessInt); ding(); buzz(); nextStep(); }
@@ -2200,29 +2247,38 @@ function startSessRest() {
 function startSessHold(step) {
   sess.phase = 'holding'; clearInterval(sessInt); ensureAudio();
   let ready = 3; sess.holdLabel = 'GET READY'; sess.disp = String(ready);
-  renderSession(); tick(660);
+  renderSession(); tick(660); say('Get ready');
   sessInt = setInterval(() => {
     ready--;
-    if (ready > 0) { sess.disp = String(ready); setSessDisplay('GET READY', sess.disp); tick(660); }
+    if (ready > 0) { sess.disp = String(ready); setSessDisplay('GET READY', sess.disp); tick(660); say(String(ready)); }
     else { clearInterval(sessInt); holdRun(); }
   }, 1000);
   function holdRun() {
     let left = step.seconds;
     sess.holdLabel = step.name.toUpperCase(); sess.disp = fmtClock(left);
-    setSessDisplay(sess.holdLabel, sess.disp); tick(990);
+    setSessDisplay(sess.holdLabel, sess.disp); tick(990); say('Go');
     sessInt = setInterval(() => {
       left--;
       sess.disp = fmtClock(Math.max(0, left)); setSessDisplay(null, sess.disp);
       if (left <= 3 && left > 0) tick(880);
-      if (left <= 0) { clearInterval(sessInt); ding(); buzz(); sessMarkDone(step); afterStep(); }
+      if (left <= 0) { clearInterval(sessInt); ding(); buzz(); say('Done'); sessMarkDone(step); afterStep(); }
     }, 1000);
   }
+}
+
+/* spoken announcement of the upcoming step */
+function unitWord() { return unit() === 'lb' ? 'pounds' : 'kilos'; }
+function sayStep(step) {
+  if (step.kind === 'hold') { say(`${step.name}. Hold for ${step.seconds} seconds.`); return; }
+  if (step.bw) { say(`${step.name}. ${step.amrap ? 'As many as you can.' : step.reps + ' reps.'}`); return; }
+  say(`${step.name}. ${fmt(step.weight)} ${unitWord()}, ${step.reps} reps.`);
 }
 
 function finishSession() {
   clearInterval(sessInt); sessInt = null;
   const el = document.getElementById('sessionOverlay'); if (el) el.classList.remove('open');
   sess = null;
+  say('Workout complete. Great work!');
   if (S.program === 'prep30') {
     const dayNum = S.prep.day, d = PREP30[dayNum - 1];
     if (!d.rest) {
