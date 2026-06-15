@@ -452,7 +452,7 @@ table.prog td.s { text-align: right; color: var(--muted); width: 60px; }
 
 /* guided-hold Start button on plank rows */
 .mini-start {
-  flex: 0 0 auto; background: var(--lime-dim); color: var(--lime);
+  flex: 0 0 auto; margin-left: auto; background: var(--lime-dim); color: var(--lime);
   border: 1px solid rgba(170,255,0,.35); border-radius: 10px;
   padding: 8px 12px; font-size: 14px; font-weight: 800; cursor: pointer; white-space: nowrap;
 }
