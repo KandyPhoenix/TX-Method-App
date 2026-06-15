@@ -1019,6 +1019,7 @@ function renderStats() {
   </div>`;
   drawProjectionCharts();
   const sb = document.getElementById('shareBtn'); if (sb) sb.onclick = shareCard;
+  wireCalendar();
 }
 
 /* ---- Achievements + PR cards (shared by both stats screens) ---- */
@@ -1108,6 +1109,7 @@ function renderPrepStats() {
     <button class="btn secondary" id="shareBtn">📤 Share my progress</button>
   </div>`;
   const sb = document.getElementById('shareBtn'); if (sb) sb.onclick = shareCard;
+  wireCalendar();
 }
 
 function drawProjectionCharts() {
@@ -2129,23 +2131,60 @@ function logTrainingDay() {
   if (!S.history) S.history = [];
   if (!S.history.includes(t)) { S.history.push(t); save(); }
 }
+let calView = null;
+/* re-render when the calendar month arrows are tapped */
+function wireCalendar() {
+  view.querySelectorAll('[data-cal]').forEach(btn => btn.onclick = () => {
+    const now = new Date();
+    if (!calView) calView = { y: now.getFullYear(), m: now.getMonth() };
+    calView.m += (+btn.dataset.cal);
+    if (calView.m < 0) { calView.m = 11; calView.y--; }
+    if (calView.m > 11) { calView.m = 0; calView.y++; }
+    render();
+  });
+}
+/* one-time: seed the calendar with the current streak so prior days show */
+function backfillHistory() {
+  if (S.historyBackfilled) return;
+  S.historyBackfilled = true;
+  if (!S.history) S.history = [];
+  let streak = 0;
+  try { streak = prepStreaks().current; } catch {}
+  if (!streak && (S.sessions || 0) > 0) streak = 1;
+  const today = new Date();
+  for (let i = 0; i < streak; i++) {
+    const d = new Date(today); d.setDate(today.getDate() - i);
+    const k = todayStr(d);
+    if (!S.history.includes(k)) S.history.push(k);
+  }
+  save();
+}
 function calendarHTML() {
   const set = new Set(S.history || []);
-  const today = new Date(); today.setHours(0, 0, 0, 0);
-  const end = new Date(today); end.setDate(end.getDate() + (6 - end.getDay())); // this week's Saturday
-  const total = 98; // 14 weeks
+  const now = new Date(); now.setHours(0, 0, 0, 0);
+  if (!calView) calView = { y: now.getFullYear(), m: now.getMonth() };
+  const { y, m } = calView;
+  const first = new Date(y, m, 1);
+  const startDow = first.getDay();
+  const days = new Date(y, m + 1, 0).getDate();
+  const monthName = first.toLocaleString(undefined, { month: 'long', year: 'numeric' });
+  const dow = ['S', 'M', 'T', 'W', 'T', 'F', 'S'].map(x => `<div class="mcal-dow">${x}</div>`).join('');
   let cells = '';
-  for (let i = total - 1; i >= 0; i--) {
-    const d = new Date(end); d.setDate(end.getDate() - i);
-    const key = todayStr(d), future = d > today, on = set.has(key);
-    cells += `<div class="cal-cell ${on ? 'on' : ''} ${future ? 'future' : ''}" title="${key}"></div>`;
+  for (let i = 0; i < startDow; i++) cells += '<div class="mcal-cell empty"></div>';
+  for (let d = 1; d <= days; d++) {
+    const key = `${y}-${String(m + 1).padStart(2, '0')}-${String(d).padStart(2, '0')}`;
+    const on = set.has(key);
+    const isToday = (y === now.getFullYear() && m === now.getMonth() && d === now.getDate());
+    cells += `<div class="mcal-cell ${on ? 'on' : ''} ${isToday ? 'today' : ''}">${d}</div>`;
   }
   const n = (S.history || []).length;
-  const note = n
-    ? `${n} training day${n === 1 ? '' : 's'} logged · last 14 weeks`
-    : 'Your training days light up here — finish a workout to start the grid.';
+  const note = n ? `${n} training day${n === 1 ? '' : 's'} logged · green = trained`
+                 : 'Finish a workout to mark today green.';
   return `<h2 class="section">Training calendar</h2><div class="card">
-    <div class="cal-grid">${cells}</div>
+    <div class="mcal-head"><button class="mcal-nav" data-cal="-1">‹</button>
+      <div class="mcal-title">${monthName}</div>
+      <button class="mcal-nav" data-cal="1">›</button></div>
+    <div class="mcal-grid">${dow}${cells}</div>
     <div class="tiny muted center" style="margin-top:10px">${note}</div></div>`;
 }
 
@@ -2406,6 +2445,7 @@ function finishSession() {
 }
 
 /* init */
+backfillHistory();
 render();
 /* auto-resume cloud sync if previously signed in */
 if (loadCloud().enabled) { setTimeout(cloudInit, 0); }
