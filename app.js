@@ -488,7 +488,7 @@ function liftCard(lf, logKey, log) {
       const on  = log.checks && log.checks[id] ? 'on' : '';
       const rep = lf.targetReps ? `${lf.targetReps} reps` : 'AMRAP';
       rows += `<div class="set-row workset ${on ? 'done' : ''}">
-        <div class="lbl">💪 Set ${i + 1} of ${lf.sets.length}</div>
+        <div class="lbl">Set ${i + 1}/${lf.sets.length}</div>
         <div class="wt">Bodyweight</div>
         <div class="set-end"><div class="reps">${rep}</div>
         <button class="check ${on}" data-check="${id}">✓</button></div></div>`;
@@ -667,7 +667,7 @@ function prepExerciseCard(ex, log) {
       const id = `${ex.key}_${i}`;
       const on = log.checks && log.checks[id] ? 'on' : '';
       rows += `<div class="set-row workset ${on ? 'done' : ''}">
-        <div class="lbl">${ex.icon} Set ${i + 1} of ${ex.sets}</div>
+        <div class="lbl">Set ${i + 1}/${ex.sets}</div>
         <button class="mini-start" data-hold="${ex.sec}" data-holdname="${ex.name}" data-holdcheck="${id}">▶ Start · ${ex.sec}s</button>
         <div class="set-end"><button class="check ${on}" data-pcheck="${id}">✓</button></div></div>`;
     }
@@ -680,7 +680,7 @@ function prepExerciseCard(ex, log) {
   const id = ex.key;
   const on = log.checks && log.checks[id] ? 'on' : '';
   rows = `<div class="set-row workset ${on ? 'done' : ''}">
-    <div class="lbl">${ex.icon} Target</div>
+    <div class="lbl">Target</div>
     <div class="wt">${ex.reps}<small> reps</small></div>
     <div class="set-end"><button class="check ${on}" data-pcheck="${id}">✓</button></div></div>`;
   return `<div class="card lift">
