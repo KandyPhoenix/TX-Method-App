@@ -513,10 +513,10 @@ table.prog td.s { text-align: right; color: var(--muted); width: 60px; }
 .inline2b { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
 
 /* training calendar heatmap */
-.cal-grid { display: grid; grid-template-rows: repeat(7, 1fr); grid-auto-flow: column; grid-auto-columns: 1fr; gap: 3px; }
-.cal-cell { aspect-ratio: 1; background: var(--bg2); border-radius: 3px; }
-.cal-cell.on { background: var(--lime); box-shadow: 0 0 6px var(--lime-glow); }
-.cal-cell.future { opacity: .2; }
+.cal-grid { display: grid; grid-template-rows: repeat(7, 1fr); grid-auto-flow: column; grid-auto-columns: 1fr; gap: 4px; }
+.cal-cell { aspect-ratio: 1; background: #242424; border: 1px solid #303030; border-radius: 4px; }
+.cal-cell.on { background: var(--lime); border-color: var(--lime); box-shadow: 0 0 6px var(--lime-glow); }
+.cal-cell.future { opacity: .35; }
 
 /* achievements grid */
 .ach-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }

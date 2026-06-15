@@ -63,7 +63,7 @@ const PREP_REST = { rest: true };
    crunches, burpees, squats. plank value = seconds per set. */
 function prepDay(pu, plankSec, lr, cr, bp, sq) {
   return { exercises: [
-    { key: 'pushups',   name: 'Push-ups',   icon: '💪', reps: pu },
+    { key: 'pushups',   name: 'Pushups',    icon: '💪', reps: pu },
     { key: 'plank',     name: 'Plank',      icon: '🧘', sets: 3, sec: plankSec },
     { key: 'legraises', name: 'Leg Raises', icon: '🦵', reps: lr },
     { key: 'crunches',  name: 'Crunches',   icon: '🔄', reps: cr },
@@ -107,7 +107,7 @@ const PREP30 = [
 const PREP_TOTAL = PREP30.length;
 /* full-plan totals (denominator for the "reps banked" bars) */
 const PREP_EX_KEYS = [
-  { key: 'pushups',   name: 'Push-ups',   icon: '💪' },
+  { key: 'pushups',   name: 'Pushups',    icon: '💪' },
   { key: 'squats',    name: 'Squats',     icon: '🏋️' },
   { key: 'burpees',   name: 'Burpees',    icon: '🔥' },
   { key: 'legraises', name: 'Leg Raises', icon: '🦵' },
@@ -2141,9 +2141,12 @@ function calendarHTML() {
     cells += `<div class="cal-cell ${on ? 'on' : ''} ${future ? 'future' : ''}" title="${key}"></div>`;
   }
   const n = (S.history || []).length;
+  const note = n
+    ? `${n} training day${n === 1 ? '' : 's'} logged · last 14 weeks`
+    : 'Your training days light up here — finish a workout to start the grid.';
   return `<h2 class="section">Training calendar</h2><div class="card">
     <div class="cal-grid">${cells}</div>
-    <div class="tiny muted center" style="margin-top:10px">${n} training day${n === 1 ? '' : 's'} logged · last 14 weeks</div></div>`;
+    <div class="tiny muted center" style="margin-top:10px">${note}</div></div>`;
 }
 
 async function shareCard() {
