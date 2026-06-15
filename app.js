@@ -508,7 +508,7 @@ function liftCard(lf, logKey, log) {
     warmupRows += `<div class="set-row warmup ${on ? 'done' : ''}">
       <div class="lbl">🔥 ${wu.label}</div>
       <div class="wt">${fmt(wu.weight)} <small>${unit()}</small><div class="plate-math">${math}</div></div>
-      <div class="set-end"><div class="reps">${wu.sets > 1 ? wu.sets + '×' : ''}${wu.reps}</div>
+      <div class="set-end"><div class="reps">${wu.sets > 1 ? wu.sets + '×' + wu.reps : wu.reps + ' reps'}</div>
       <button class="check ${on}" data-check="${id}">✓</button></div></div>`;
   });
 
