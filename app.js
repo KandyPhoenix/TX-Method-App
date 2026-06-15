@@ -659,7 +659,11 @@ function renderPrepToday() {
   } else {
     const log = S.prep.log[dayNum] || { checks: {} };
     html += `<button class="btn primary" id="startSession">▶ Start Guided Workout</button><div class="spacer"></div>`;
-    for (const ex of d.exercises) html += prepExerciseCard(ex, log);
+    for (const item of prepDayItems(d)) {
+      html += item.type === 'reps'
+        ? prepExerciseCard(item.ex, log)
+        : plankSetCard(item.ex, item.setIndex, item.total, log);
+    }
 
     const last = dayNum >= PREP_TOTAL;
     html += `<button class="btn ${last ? 'primary' : 'secondary'}" id="prepComplete">${last ? '🎉 Finish prep → Start Texas Method' : '✓ Mark day complete'}</button>
@@ -700,6 +704,36 @@ function prepExerciseCard(ex, log) {
     <div class="lift-head"><div><div class="name">${ex.name}</div>
     <div class="scheme">${ex.reps} reps</div></div>
     <span class="badge vol">Reps</span></div>${rows}</div>`;
+}
+
+/* ordered items for a prep day with plank sets spread between the other
+   exercises instead of grouped together */
+function prepDayItems(d) {
+  const plank  = d.exercises.find(e => e.sets);
+  const others = d.exercises.filter(e => !e.sets);
+  const items = [];
+  let pi = 0;
+  others.forEach(ex => {
+    items.push({ type: 'reps', ex });
+    if (plank && pi < plank.sets) { items.push({ type: 'plank', ex: plank, setIndex: pi, total: plank.sets }); pi++; }
+  });
+  while (plank && pi < plank.sets) { items.push({ type: 'plank', ex: plank, setIndex: pi, total: plank.sets }); pi++; }
+  return items;
+}
+
+/* a single plank set as its own card */
+function plankSetCard(ex, i, total, log) {
+  const id = `${ex.key}_${i}`;
+  const on = log.checks && log.checks[id] ? 'on' : '';
+  return `<div class="card lift">
+    <div class="lift-head"><div><div class="name">${ex.name}</div>
+    <div class="scheme">Set ${i + 1} of ${total} · ${ex.sec} sec hold</div></div>
+    <span class="badge vol">Hold</span></div>
+    <div class="set-row workset ${on ? 'done' : ''}">
+      <div class="lbl">🧘 Hold</div>
+      <button class="mini-start" data-hold="${ex.sec}" data-holdname="${ex.name}" data-holdcheck="${id}">▶ Start · ${ex.sec}s</button>
+      <div class="set-end"><button class="check ${on}" data-pcheck="${id}">✓</button></div>
+    </div></div>`;
 }
 
 function wirePrepToday() {
@@ -2040,12 +2074,11 @@ function buildSteps() {
   if (S.program === 'prep30') {
     const d = PREP30[S.prep.day - 1];
     if (!d || d.rest) return steps;
-    d.exercises.forEach(ex => {
-      if (ex.sets) {
-        for (let i = 0; i < ex.sets; i++)
-          steps.push({ name: ex.name, label: `Set ${i + 1} of ${ex.sets}`, kind: 'hold', seconds: ex.sec, checkId: `${ex.key}_${i}`, store: 'prep' });
+    prepDayItems(d).forEach(item => {
+      if (item.type === 'reps') {
+        steps.push({ name: item.ex.name, label: 'Target', kind: 'reps', bw: true, reps: item.ex.reps, checkId: item.ex.key, store: 'prep' });
       } else {
-        steps.push({ name: ex.name, label: 'Target', kind: 'reps', bw: true, reps: ex.reps, checkId: ex.key, store: 'prep' });
+        steps.push({ name: item.ex.name, label: `Set ${item.setIndex + 1} of ${item.total}`, kind: 'hold', seconds: item.ex.sec, checkId: `${item.ex.key}_${item.setIndex}`, store: 'prep' });
       }
     });
   } else {
