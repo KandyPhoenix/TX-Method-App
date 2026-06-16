@@ -2057,19 +2057,37 @@ const ACHIEVEMENTS = [
   { id: 'streak7',    emoji: '🌟', name: '7-Day Prep Streak',    test: s => s.streak >= 7 },
   { id: 'prep_half',  emoji: '🗓️', name: 'Prep Halfway',         test: s => s.prepDays >= 13 },
   { id: 'prep_done',  emoji: '🎖️', name: '30-Day Prep Complete', test: s => s.prepDays >= 26 },
-  { id: 'pr',         emoji: '📈', name: 'New Personal Record',  test: s => s.prHit }
+  { id: 'pr',         emoji: '📈', name: 'New Personal Record',  test: s => s.prCount >= 1 }
 ];
 
-function achievementStats(opts) {
+/* actual completed workouts = prep days done + Texas days done (no double-counting) */
+function workoutCount() {
+  let n = prepDaysComplete();
+  Object.keys(S.logs || {}).forEach(k => {
+    const l = S.logs[k];
+    if (l && l.checks && Object.values(l.checks).filter(Boolean).length >= 3) n++;
+  });
+  return n;
+}
+function achievementStats() {
+  const st = prepStreaks();
   return {
-    workouts: S.sessions || 0,
+    workouts: workoutCount(),
     prepDays: prepDaysComplete(),
-    streak:   prepStreaks().current,
-    prHit:    !!(opts && opts.prHit)
+    streak:   st.best,            // best streak (monotonic) drives streak badges
+    prCount:  Object.keys(S.prs || {}).length
   };
 }
-function checkAchievements(opts) {
-  const stats = achievementStats(opts);
+/* recompute the full earned set from current data (self-corrects stale badges) */
+function syncAchievements() {
+  const stats = achievementStats();
+  const earned = ACHIEVEMENTS.filter(a => a.test(stats)).map(a => a.id);
+  const changed = earned.length !== S.achievements.length || earned.some(id => !S.achievements.includes(id));
+  S.achievements = earned;
+  if (changed) save();
+}
+function checkAchievements() {
+  const stats = achievementStats();
   const unlocked = [];
   ACHIEVEMENTS.forEach(a => {
     if (!S.achievements.includes(a.id) && a.test(stats)) {
@@ -2142,6 +2160,13 @@ function wireCalendar() {
     if (calView.m > 11) { calView.m = 0; calView.y++; }
     render();
   });
+  view.querySelectorAll('[data-cal-day]').forEach(c => c.onclick = () => {
+    const k = c.dataset.calDay;
+    if (!S.history) S.history = [];
+    const i = S.history.indexOf(k);
+    if (i >= 0) S.history.splice(i, 1); else S.history.push(k);
+    save(); render();
+  });
 }
 /* one-time: seed the calendar with the current streak so prior days show */
 function backfillHistory() {
@@ -2174,12 +2199,14 @@ function calendarHTML() {
   for (let d = 1; d <= days; d++) {
     const key = `${y}-${String(m + 1).padStart(2, '0')}-${String(d).padStart(2, '0')}`;
     const on = set.has(key);
+    const cellDate = new Date(y, m, d);
+    const future = cellDate > now;
     const isToday = (y === now.getFullYear() && m === now.getMonth() && d === now.getDate());
-    cells += `<div class="mcal-cell ${on ? 'on' : ''} ${isToday ? 'today' : ''}">${d}</div>`;
+    cells += `<div class="mcal-cell ${on ? 'on' : ''} ${isToday ? 'today' : ''} ${future ? 'future' : ''}"${future ? '' : ` data-cal-day="${key}"`}>${d}</div>`;
   }
   const n = (S.history || []).length;
-  const note = n ? `${n} training day${n === 1 ? '' : 's'} logged · green = trained`
-                 : 'Finish a workout to mark today green.';
+  const note = n ? `${n} training day${n === 1 ? '' : 's'} logged · tap a day to add/remove`
+                 : 'Tap a day to log a workout · green = trained';
   return `<h2 class="section">Training calendar</h2><div class="card">
     <div class="mcal-head"><button class="mcal-nav" data-cal="-1">‹</button>
       <div class="mcal-title">${monthName}</div>
@@ -2210,7 +2237,7 @@ async function shareCard() {
   } else {
     x.fillText('Texas Method', cx, 310);
     const best = Object.entries(S.prs || {}).sort((a, b) => b[1].e1rm - a[1].e1rm)[0];
-    big = [[S.sessions || 0, 'WORKOUTS'], [S.achievements.length, 'BADGES'], [(S.history || []).length, 'DAYS']];
+    big = [[workoutCount(), 'WORKOUTS'], [S.achievements.length, 'BADGES'], [(S.history || []).length, 'DAYS']];
     line = best ? `Top PR — ${(LIFT_META[best[0]] || {}).name}: ${fmt(best[1].weight)} ${unit()} × ${best[1].reps}` : 'Get after it 💪';
   }
   const tileW = 300, gap = 30, startX = cx - (tileW * 1.5 + gap);
@@ -2446,6 +2473,7 @@ function finishSession() {
 
 /* init */
 backfillHistory();
+syncAchievements();
 render();
 /* auto-resume cloud sync if previously signed in */
 if (loadCloud().enabled) { setTimeout(cloudInit, 0); }
