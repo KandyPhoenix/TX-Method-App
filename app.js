@@ -2060,14 +2060,9 @@ const ACHIEVEMENTS = [
   { id: 'pr',         emoji: '📈', name: 'New Personal Record',  test: s => s.prCount >= 1 }
 ];
 
-/* actual completed workouts = prep days done + Texas days done (no double-counting) */
+/* actual completed workouts = distinct training days logged on the calendar */
 function workoutCount() {
-  let n = prepDaysComplete();
-  Object.keys(S.logs || {}).forEach(k => {
-    const l = S.logs[k];
-    if (l && l.checks && Object.values(l.checks).filter(Boolean).length >= 3) n++;
-  });
-  return n;
+  return (S.history || []).length;
 }
 function achievementStats() {
   const st = prepStreaks();
