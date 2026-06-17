@@ -138,11 +138,12 @@ function mobDay(w) {
     mobReps('anklerock',    'Knee-to-Wall Ankle Rocks','🦶', 8 + 2 * w, true),
     mobReps('shouldercars', 'Shoulder CARs',          '💪', 4 + w,     true),
     mobReps('wallangel',    'Wall Angels',            '💪', 8 + 2 * w, false),
-    mobHold('couch',        'Couch Stretch',          '🧘', 30 + 10 * w, true)
+    mobReps('atgsplit',     'ATG Split Squat',        '🦵', 6 + 2 * w, true)
   ]};
 }
+/* 4 weeks, 6 days on + 1 rest (days 7/14/21/28), active full-range moves */
 const MOBILITY = [];
-for (let d = 0; d < 28; d++) MOBILITY.push(mobDay(Math.floor(d / 7)));
+for (let d = 1; d <= 28; d++) MOBILITY.push(d % 7 === 0 ? PREP_REST : mobDay(Math.floor((d - 1) / 7)));
 
 /* =====================================================================
    DAY-PROGRAM HELPERS  (shared by 30-Day Prep + Mobility)
@@ -1031,7 +1032,7 @@ const FORM_TIPS = {
   anklerock: { title: 'Knee-to-Wall Ankle Rocks', body: 'Face a wall, foot a few inches back, heel down. Drive your knee forward over your toes to touch the wall without your heel lifting, then back. Move your foot farther as you improve. Great for ankle/Achilles mobility. Each side.' },
   shouldercars: { title: 'Shoulder CARs', body: 'Stand tall, brace your core. Slowly draw the biggest circle you can with one straight arm — up the front, overhead, around the back, and down — keeping tension the whole way. Keep your ribs down. Reverse direction, then the other arm.' },
   wallangel: { title: 'Wall Angels', body: 'Back against a wall, arms in a goalpost with the backs of your hands/elbows touching the wall. Slide your arms overhead and back down while keeping everything in contact with the wall. Opens tight shoulders and upper back.' },
-  couch:     { title: 'Couch Stretch', body: 'Kneel with one shin up against a wall/couch (toes up, knee in the corner), other foot planted in front. Tuck your pelvis and rise tall to stretch the front of the hip and thigh. Ease in gently. Hold each side.' }
+  atgsplit:  { title: 'ATG Split Squat', body: 'From a long split stance, lower your back knee toward the floor while letting your front knee travel forward over — and past — your toes, keeping the heel down. Sink as deep as you can control, then drive back up. Active, loaded full-range work that builds bulletproof knees and opens the hips. Do the reps each side.' }
 };
 function showFormTip(key) {
   const info = FORM_TIPS[key]; if (!info) return;
