@@ -439,20 +439,21 @@ table.prog td.s { text-align: right; color: var(--muted); width: 60px; }
 .info-btn:active { transform: scale(.9); }
 
 .info-pop {
-  position: fixed; bottom: calc(74px + var(--safe-bottom) + 10px);
-  left: 16px; right: 16px; z-index: 130;
+  position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%);
+  width: calc(100% - 48px); max-width: 380px; max-height: 76vh; overflow: auto;
+  z-index: 130;
   background: var(--panel2); border: 1px solid var(--lime);
-  border-radius: 14px; padding: 16px 18px;
-  box-shadow: 0 8px 32px rgba(0,0,0,.7), 0 0 0 1px rgba(170,255,0,.1);
+  border-radius: 18px; padding: 22px 22px 24px;
+  box-shadow: 0 20px 60px rgba(0,0,0,.7), 0 0 0 100vmax rgba(0,0,0,.6);
   display: none;
 }
-.info-pop.visible { display: block; animation: fade .18s ease; }
+.info-pop.visible { display: block; animation: restPop .2s cubic-bezier(.2,.8,.2,1.2); }
 .info-pop-title {
-  font-size: 16px; font-weight: 800; color: var(--lime);
-  margin-bottom: 8px; letter-spacing: .2px;
+  font-size: 19px; font-weight: 800; color: var(--lime);
+  margin-bottom: 10px; letter-spacing: .2px;
 }
 .info-pop-body {
-  font-size: 15px; color: #cfcfcf; line-height: 1.55;
+  font-size: 16px; color: #d6d6d6; line-height: 1.6;
 }
 
 /* ---- 30-Day Prep calendar ---- */
