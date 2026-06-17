@@ -523,7 +523,7 @@ function liftCard(lf, logKey, log) {
         <button class="check ${on}" data-check="${id}">✓</button></div></div>`;
     }
     return `<div class="card lift">
-      <div class="lift-head"><div><div class="name">${lf.name}</div>
+      <div class="lift-head"><div><div class="name">${lf.name} ${formBtn(lf.key)}</div>
       <div class="scheme">${lf.targetReps ? lf.schemeLabel : lf.sets.length + ' sets to failure'}</div></div>
       <span class="badge ${lf.type}">${lf.badge}</span></div>${rows}</div>`;
   }
@@ -574,7 +574,7 @@ function liftCard(lf, logKey, log) {
     : '';
 
   return `<div class="card lift">
-    <div class="lift-head"><div><div class="name">${lf.name}</div>
+    <div class="lift-head"><div><div class="name">${lf.name} ${formBtn(lf.key)}</div>
     <div class="scheme">${lf.schemeLabel} · top ${fmt(lf.work)} ${unit()}</div></div>
     <span class="badge ${lf.type}">${lf.badge}</span></div>
     ${warmupRows}${setsHeader}${setRows}${logger}</div>`;
@@ -712,7 +712,7 @@ function prepExerciseCard(ex, log) {
         <div class="set-end"><button class="check ${on}" data-pcheck="${id}">✓</button></div></div>`;
     }
     return `<div class="card lift">
-      <div class="lift-head"><div><div class="name">${ex.name}</div>
+      <div class="lift-head"><div><div class="name">${ex.name} ${formBtn(ex.key)}</div>
       <div class="scheme">${ex.sets}×${ex.sec} sec</div></div>
       <span class="badge vol">Hold</span></div>${rows}</div>`;
   }
@@ -724,7 +724,7 @@ function prepExerciseCard(ex, log) {
     <div class="wt">${ex.reps}<small> reps</small></div>
     <div class="set-end"><button class="check ${on}" data-pcheck="${id}">✓</button></div></div>`;
   return `<div class="card lift">
-    <div class="lift-head"><div><div class="name">${ex.name}</div>
+    <div class="lift-head"><div><div class="name">${ex.name} ${formBtn(ex.key)}</div>
     <div class="scheme">${ex.reps} reps</div></div>
     <span class="badge vol">Reps</span></div>${rows}</div>`;
 }
@@ -749,7 +749,7 @@ function plankSetCard(ex, i, total, log) {
   const id = `${ex.key}_${i}`;
   const on = log.checks && log.checks[id] ? 'on' : '';
   return `<div class="card lift">
-    <div class="lift-head"><div><div class="name">${ex.name}</div>
+    <div class="lift-head"><div><div class="name">${ex.name} ${formBtn(ex.key)}</div>
     <div class="scheme">Set ${i + 1} of ${total} · ${ex.sec} sec hold</div></div>
     <span class="badge vol">Hold</span></div>
     <div class="set-row workset ${on ? 'done' : ''}">
@@ -939,6 +939,37 @@ function showInfo(id) {
 }
 
 function ib(id) { return `<button class="info-btn" onclick="showInfo('${id}')">ⓘ</button>`; }
+
+/* ---- exercise form tips ---- */
+const FORM_TIPS = {
+  pushups:   { title: 'Pushups', body: 'Hands just wider than shoulders, body in one straight line from head to heels. Brace your core and squeeze your glutes. Lower until your chest is just above the floor with elbows about 45° from your body, then press up. Don\'t let your hips sag or pike.' },
+  plank:     { title: 'Plank', body: 'Forearms under shoulders, body in a straight line. Squeeze glutes, brace your abs, and tuck your ribs down. Keep your neck neutral and breathe steadily. Don\'t let your hips rise or drop.' },
+  legraises: { title: 'Leg Raises', body: 'Lie flat, hands tucked under your glutes for support. Keep legs straight and together, raise them toward vertical, then lower slowly. Keep your lower back pressed into the floor — don\'t let it arch.' },
+  crunches:  { title: 'Crunches', body: 'Knees bent, feet flat, hands by your ears (don\'t pull your head). Curl your shoulder blades off the floor by contracting your abs, pause, then lower with control. Short range — it\'s about the squeeze, not sitting all the way up.' },
+  burpees:   { title: 'Burpees', body: 'Squat and place hands on the floor, jump your feet back to a plank (optional push-up), jump your feet back in, then explode straight up. Land softly with bent knees and keep a steady rhythm.' },
+  squats:    { title: 'Bodyweight Squat', body: 'Feet shoulder-width, toes turned slightly out. Sit your hips back and down, knees tracking over your toes, chest tall. Go to at least parallel, then drive up through your whole foot. Keep your heels planted.' },
+  squat:     { title: 'Barbell Squat', body: 'Bar on your upper back, feet shoulder-width, toes out slightly. Big breath and brace, sit down between your hips until your hip crease is below your knee, knees out, then drive up. Keep a neutral spine and the bar over mid-foot.' },
+  bench:     { title: 'Bench Press', body: 'Pinch your shoulder blades together, slight arch, feet planted. Lower the bar to your mid/lower chest with elbows about 45–75° from your body, touch, then press up and slightly back over your shoulders. Keep your butt on the bench.' },
+  press:     { title: 'Overhead Press', body: 'Bar on your front delts, grip just outside shoulders. Squeeze glutes and abs, press the bar straight up, and move your head "through" the window at lockout. Finish with the bar over your mid-foot, biceps by your ears.' },
+  deadlift:  { title: 'Deadlift', body: 'Bar over mid-foot, hips higher than knees, flat back, grip just outside your knees. Take the slack out of the bar, then push the floor away and stand tall — bar drags up close to your legs. Lock out hips and knees together; don\'t round your back.' },
+  clean:     { title: 'Power Clean', body: 'Set up like a deadlift. Pull from the floor, then explosively extend hips/knees/ankles, shrug, and pull yourself under to catch the bar on your front delts in a quarter squat. Fast elbows, soft knees on the catch.' },
+  backext:   { title: 'Back Extension', body: 'Hips on the pad, feet anchored. Lower your torso under control, then raise until your body is in a straight line — squeeze your glutes at the top. Don\'t hyperextend or swing.' },
+  chin:      { title: 'Chin-Up', body: 'Underhand (palms-facing-you) grip, shoulder-width. From a dead hang, pull your chest toward the bar leading with your elbows, chin over the bar, then lower all the way under control. Full range each rep.' }
+};
+function showFormTip(key) {
+  const info = FORM_TIPS[key]; if (!info) return;
+  let pop = document.getElementById('infoPop');
+  if (!pop) {
+    pop = document.createElement('div'); pop.id = 'infoPop'; pop.className = 'info-pop';
+    document.body.appendChild(pop);
+    document.body.addEventListener('click', e => {
+      if (!e.target.closest('.info-btn') && !e.target.closest('.info-pop')) pop.classList.remove('visible');
+    }, true);
+  }
+  pop.innerHTML = `<div class="info-pop-title">${info.title}</div><div class="info-pop-body">${info.body}</div>`;
+  pop.classList.add('visible');
+}
+function formBtn(key) { return FORM_TIPS[key] ? `<button class="info-btn" onclick="showFormTip('${key}')">ⓘ</button>` : ''; }
 
 function renderStats() {
   if (S.program === 'prep30') { renderPrepStats(); return; }
@@ -2287,19 +2318,19 @@ function buildSteps() {
     if (!d || d.rest) return steps;
     prepDayItems(d).forEach(item => {
       if (item.type === 'reps') {
-        steps.push({ name: item.ex.name, label: 'Target', kind: 'reps', bw: true, reps: item.ex.reps, checkId: item.ex.key, store: 'prep' });
+        steps.push({ name: item.ex.name, key: item.ex.key, label: 'Target', kind: 'reps', bw: true, reps: item.ex.reps, checkId: item.ex.key, store: 'prep' });
       } else {
-        steps.push({ name: item.ex.name, label: `Set ${item.setIndex + 1} of ${item.total}`, kind: 'hold', seconds: item.ex.sec, checkId: `${item.ex.key}_${item.setIndex}`, store: 'prep' });
+        steps.push({ name: item.ex.name, key: item.ex.key, label: `Set ${item.setIndex + 1} of ${item.total}`, kind: 'hold', seconds: item.ex.sec, checkId: `${item.ex.key}_${item.setIndex}`, store: 'prep' });
       }
     });
   } else {
     const w = PROGRAM[S.cursor.week], lifts = w.days[S.cursor.day], b = bar(), plts = getPlates();
     lifts.forEach(lf => {
       if (lf.work === 0 && lf.type === 'acc') {
-        lf.sets.forEach((st, i) => steps.push({ name: lf.name, label: `Set ${i + 1} of ${lf.sets.length}`, kind: 'reps', bw: true, reps: lf.targetReps || 0, amrap: !lf.targetReps, checkId: `${lf.key}_w_${i}`, store: 'tex' }));
+        lf.sets.forEach((st, i) => steps.push({ name: lf.name, key: lf.key, label: `Set ${i + 1} of ${lf.sets.length}`, kind: 'reps', bw: true, reps: lf.targetReps || 0, amrap: !lf.targetReps, checkId: `${lf.key}_w_${i}`, store: 'tex' }));
       } else {
-        lf.warmups.forEach((wu, i) => steps.push({ name: lf.name, label: 'Warm-up', kind: 'reps', weight: wu.weight, reps: wu.reps, math: plateMath(wu.weight, b, plts), checkId: `${lf.key}_wu_${i}`, store: 'tex' }));
-        lf.sets.forEach((st, i) => steps.push({ name: lf.name, label: `Set ${i + 1} of ${lf.sets.length}`, kind: 'reps', weight: st.weight, reps: st.reps, math: plateMath(st.weight, b, plts), checkId: `${lf.key}_w_${i}`, store: 'tex' }));
+        lf.warmups.forEach((wu, i) => steps.push({ name: lf.name, key: lf.key, label: 'Warm-up', kind: 'reps', weight: wu.weight, reps: wu.reps, math: plateMath(wu.weight, b, plts), checkId: `${lf.key}_wu_${i}`, store: 'tex' }));
+        lf.sets.forEach((st, i) => steps.push({ name: lf.name, key: lf.key, label: `Set ${i + 1} of ${lf.sets.length}`, kind: 'reps', weight: st.weight, reps: st.reps, math: plateMath(st.weight, b, plts), checkId: `${lf.key}_w_${i}`, store: 'tex' }));
       }
     });
   }
@@ -2356,7 +2387,7 @@ function renderSession() {
     const btn = step.kind === 'hold'
       ? `<button class="btn primary" id="sessAct">▶ Start hold · ${step.seconds}s</button>`
       : `<button class="btn primary" id="sessAct">✓ Done</button>`;
-    body = `<div class="sess-ex">${step.name}</div>
+    body = `<div class="sess-ex">${step.name} ${formBtn(step.key)}</div>
       <div class="sess-label" id="sessLabel">${step.label}</div>
       <div class="sess-target">${target}</div>${sub}${btn}`;
     if (sess._spoke !== sess.i) { sess._spoke = sess.i; sayStep(step); }
