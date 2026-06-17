@@ -123,6 +123,59 @@ const PREP_FULL = (() => {
 })();
 
 /* =====================================================================
+   MOBILITY METHOD  (28-day daily joint mobility + strength program)
+   hips · knees · shoulders · Achilles/ankles
+   ===================================================================== */
+function mobReps(key, name, icon, reps, side) { return { key, name, icon, reps, side: !!side }; }
+function mobHold(key, name, icon, sec, side) { return { key, name, icon, sets: 1, sec, side: !!side }; }
+function mobDay(w) {
+  return { exercises: [
+    mobReps('hipcars',      'Hip CARs',               '🔄', 4 + w,     true),
+    mobReps('n9090',        '90/90 Hip Switches',     '🦵', 6 + 2 * w, false),
+    mobHold('deepsquat',    'Deep Squat Hold',        '🧘', 30 + 10 * w, false),
+    mobReps('tibraise',     'Tibialis Raises',        '🦵', 12 + 3 * w, false),
+    mobReps('calfraise',    'Eccentric Calf Raises',  '🦶', 8 + 2 * w, true),
+    mobReps('anklerock',    'Knee-to-Wall Ankle Rocks','🦶', 8 + 2 * w, true),
+    mobReps('shouldercars', 'Shoulder CARs',          '💪', 4 + w,     true),
+    mobReps('wallangel',    'Wall Angels',            '💪', 8 + 2 * w, false),
+    mobHold('couch',        'Couch Stretch',          '🧘', 30 + 10 * w, true)
+  ]};
+}
+const MOBILITY = [];
+for (let d = 0; d < 28; d++) MOBILITY.push(mobDay(Math.floor(d / 7)));
+
+/* =====================================================================
+   DAY-PROGRAM HELPERS  (shared by 30-Day Prep + Mobility)
+   ===================================================================== */
+const DAY_PROGRAMS = {
+  prep30:   { data: PREP30,   stateKey: 'prep', label: '30-Day Prep',     sub: 'bodyweight ramp-up' },
+  mobility: { data: MOBILITY, stateKey: 'mob',  label: 'Mobility Method', sub: 'daily joint mobility' }
+};
+function isDayProgram() { return !!DAY_PROGRAMS[S.program]; }
+function pcfg()   { return DAY_PROGRAMS[S.program] || DAY_PROGRAMS.prep30; }
+function pdata()  { return pcfg().data; }
+function ptotal() { return pdata().length; }
+function pstate() {
+  const k = pcfg().stateKey;
+  if (!S[k]) S[k] = { day: 1, log: {} };
+  if (!S[k].log) S[k].log = {};
+  return S[k];
+}
+function pWorkDays() { return pdata().filter(d => !d.rest).length; }
+function pLabel()    { return pcfg().label; }
+/* reps-exercise keys present in the active program (for the stats bars) */
+function pExKeys() {
+  const seen = {}, out = [];
+  pdata().forEach(d => { if (d.rest) return; d.exercises.forEach(e => { if (!e.sets && !seen[e.key]) { seen[e.key] = 1; out.push({ key: e.key, name: e.name, icon: e.icon }); } }); });
+  return out;
+}
+function pFull() {
+  const t = { plankSec: 0 };
+  pdata().forEach(d => { if (d.rest) return; d.exercises.forEach(e => { if (e.sets) t.plankSec += e.sets * e.sec; else t[e.key] = (t[e.key] || 0) + e.reps; }); });
+  return t;
+}
+
+/* =====================================================================
    PROFILES  (multi-user)
    ===================================================================== */
 const PROF_REG_KEY = 'tm_profiles';
@@ -221,7 +274,7 @@ function loadState() {
     if (raw) return migrate(JSON.parse(raw));
   } catch (e) { /* ignore */ }
   return { settings: structuredClone(DEFAULTS), cursor: { week: 0, day: 0 }, logs: {}, bodyLog: [],
-           program: 'prep30', prep: { day: 1, log: {} }, achievements: [], prs: {}, sessions: 0, history: [] };
+           program: 'prep30', prep: { day: 1, log: {} }, mob: { day: 1, log: {} }, achievements: [], prs: {}, sessions: 0, history: [] };
 }
 let S = loadState();
 
@@ -242,6 +295,9 @@ function migrate(st) {
   st.prep    = st.prep    || { day: 1, log: {} };
   if (st.prep.day == null) st.prep.day = 1;
   if (!st.prep.log) st.prep.log = {};
+  st.mob     = st.mob     || { day: 1, log: {} };
+  if (st.mob.day == null) st.mob.day = 1;
+  if (!st.mob.log) st.mob.log = {};
   if (!st.achievements) st.achievements = [];
   if (!st.prs) st.prs = {};
   if (st.sessions == null) st.sessions = 0;
@@ -461,7 +517,7 @@ function rebuild() { PROGRAM = generateProgram(); }
 function render() {
   rebuild();
   document.querySelectorAll('.tab').forEach(t => t.classList.toggle('active', t.dataset.tab === TAB));
-  const prep = S.program === 'prep30';
+  const prep = isDayProgram();
   if (TAB === 'today')   prep ? renderPrepToday()   : renderToday();
   if (TAB === 'program') prep ? renderPrepProgram() : renderProgram();
   if (TAB === 'stats')   renderStats();
@@ -643,33 +699,33 @@ function prepCheckIds(dayObj) {
   return ids;
 }
 function prepDayDone(dayNum) {
-  const d = PREP30[dayNum - 1];
+  const d = pdata()[dayNum - 1];
   if (!d || d.rest) return false;
-  const log = S.prep.log[dayNum];
+  const log = pstate().log[dayNum];
   if (log && log.done) return true;
   if (!log || !log.checks) return false;
   return prepCheckIds(d).every(id => log.checks[id]);
 }
 function prepDaysComplete() {
   let n = 0;
-  for (let i = 1; i <= PREP_TOTAL; i++) if (!PREP30[i - 1].rest && prepDayDone(i)) n++;
+  for (let i = 1; i <= ptotal(); i++) if (!pdata()[i - 1].rest && prepDayDone(i)) n++;
   return n;
 }
 
 function renderPrepToday() {
-  const dayNum = S.prep.day;
-  const d = PREP30[dayNum - 1];
+  const dayNum = pstate().day;
+  const d = pdata()[dayNum - 1];
   titleEl.textContent = 'Today';
-  subEl.textContent   = `30-Day Prep · Day ${dayNum} of ${PREP_TOTAL}`;
+  subEl.textContent   = `${pLabel()} · Day ${dayNum} of ${ptotal()}`;
 
   let html = `<div class="screen">
     <div class="card" style="display:flex;align-items:center;justify-content:space-between;">
       <button class="btn small secondary" id="prepPrev" ${dayNum <= 1 ? 'disabled' : ''}>‹ Prev</button>
       <div class="center">
         <div style="font-weight:800;font-size:19px;">Day ${dayNum}</div>
-        <div class="tiny muted" style="white-space:nowrap;">${prepDaysComplete()} / ${PREP_TOTAL - 4} done</div>
+        <div class="tiny muted" style="white-space:nowrap;">${prepDaysComplete()} / ${pWorkDays()} done</div>
       </div>
-      <button class="btn small secondary" id="prepNext" ${dayNum >= PREP_TOTAL ? 'disabled' : ''}>Next ›</button>
+      <button class="btn small secondary" id="prepNext" ${dayNum >= ptotal() ? 'disabled' : ''}>Next ›</button>
     </div>`;
 
   if (d.rest) {
@@ -680,7 +736,7 @@ function renderPrepToday() {
     </div>
     <button class="btn primary" id="prepComplete">Next day ›</button>`;
   } else {
-    const log = S.prep.log[dayNum] || { checks: {} };
+    const log = pstate().log[dayNum] || { checks: {} };
     html += `<button class="btn primary" id="startSession">▶ Start Guided Workout</button><div class="spacer"></div>`;
     for (const item of prepDayItems(d)) {
       html += item.type === 'reps'
@@ -688,8 +744,9 @@ function renderPrepToday() {
         : plankSetCard(item.ex, item.setIndex, item.total, log);
     }
 
-    const last = dayNum >= PREP_TOTAL;
-    html += `<button class="btn ${last ? 'primary' : 'secondary'}" id="prepComplete">${last ? '🎉 Finish prep → Start Texas Method' : '✓ Mark day complete'}</button>
+    const last = dayNum >= ptotal();
+    const lastLabel = S.program === 'prep30' ? '🎉 Finish prep → Start Texas Method' : '🎉 Finish program!';
+    html += `<button class="btn ${last ? 'primary' : 'secondary'}" id="prepComplete">${last ? lastLabel : '✓ Mark day complete'}</button>
       <div class="spacer"></div>
       <button class="btn secondary" id="prepTimer">⏱ Start rest timer (${fmtClock(restDefault())})</button>`;
   }
@@ -721,26 +778,28 @@ function prepExerciseCard(ex, log) {
   const on = log.checks && log.checks[id] ? 'on' : '';
   rows = `<div class="set-row workset ${on ? 'done' : ''}">
     <div class="lbl">Target</div>
-    <div class="wt">${ex.reps}<small> reps</small></div>
+    <div class="wt">${ex.reps}<small> reps${ex.side ? '/side' : ''}</small></div>
     <div class="set-end"><button class="check ${on}" data-pcheck="${id}">✓</button></div></div>`;
   return `<div class="card lift">
     <div class="lift-head"><div><div class="name">${ex.name} ${formBtn(ex.key)}</div>
-    <div class="scheme">${ex.reps} reps</div></div>
+    <div class="scheme">${ex.reps} reps${ex.side ? ' each side' : ''}</div></div>
     <span class="badge vol">Reps</span></div>${rows}</div>`;
 }
 
-/* ordered items for a prep day with plank sets spread between the other
-   exercises instead of grouped together */
+/* ordered items for a day; a multi-set hold (prep's plank) is spread
+   between the other exercises. Single holds stay in place. */
+function exItem(ex) { return ex.sets ? { type: 'plank', ex, setIndex: 0, total: ex.sets } : { type: 'reps', ex }; }
 function prepDayItems(d) {
-  const plank  = d.exercises.find(e => e.sets);
-  const others = d.exercises.filter(e => !e.sets);
+  const spread = d.exercises.find(e => e.sets && e.sets > 1);
+  if (!spread) return d.exercises.map(exItem);
+  const others = d.exercises.filter(e => e !== spread);
   const items = [];
   let pi = 0;
   others.forEach(ex => {
-    items.push({ type: 'reps', ex });
-    if (plank && pi < plank.sets) { items.push({ type: 'plank', ex: plank, setIndex: pi, total: plank.sets }); pi++; }
+    items.push(exItem(ex));
+    if (pi < spread.sets) { items.push({ type: 'plank', ex: spread, setIndex: pi, total: spread.sets }); pi++; }
   });
-  while (plank && pi < plank.sets) { items.push({ type: 'plank', ex: plank, setIndex: pi, total: plank.sets }); pi++; }
+  while (pi < spread.sets) { items.push({ type: 'plank', ex: spread, setIndex: pi, total: spread.sets }); pi++; }
   return items;
 }
 
@@ -750,19 +809,19 @@ function plankSetCard(ex, i, total, log) {
   const on = log.checks && log.checks[id] ? 'on' : '';
   return `<div class="card lift">
     <div class="lift-head"><div><div class="name">${ex.name} ${formBtn(ex.key)}</div>
-    <div class="scheme">Set ${i + 1} of ${total} · ${ex.sec} sec hold</div></div>
+    <div class="scheme">${total > 1 ? `Set ${i + 1} of ${total} · ` : ''}${ex.sec} sec hold${ex.side ? ' · each side' : ''}</div></div>
     <span class="badge vol">Hold</span></div>
     <div class="set-row workset ${on ? 'done' : ''}">
-      <div class="lbl">🧘 Hold</div>
+      <div class="lbl">🧘 ${ex.side ? 'Each side' : 'Hold'}</div>
       <button class="mini-start" data-hold="${ex.sec}" data-holdname="${ex.name}" data-holdcheck="${id}">▶ Start · ${ex.sec}s</button>
       <div class="set-end"><button class="check ${on}" data-pcheck="${id}">✓</button></div>
     </div></div>`;
 }
 
 function wirePrepToday() {
-  const dayNum = S.prep.day;
-  if (!S.prep.log[dayNum]) S.prep.log[dayNum] = { checks: {} };
-  const log = S.prep.log[dayNum];
+  const dayNum = pstate().day;
+  if (!pstate().log[dayNum]) pstate().log[dayNum] = { checks: {} };
+  const log = pstate().log[dayNum];
   if (!log.checks) log.checks = {};
 
   view.querySelectorAll('[data-pcheck]').forEach(btn => {
@@ -799,10 +858,10 @@ function wirePrepToday() {
   if (ss) ss.onclick = () => startSession();
 
   document.getElementById('prepComplete').onclick = () => {
-    const d = PREP30[dayNum - 1];
+    const d = pdata()[dayNum - 1];
     if (!d.rest) { log.done = true; S.sessions = (S.sessions || 0) + 1; }
     save();
-    if (dayNum >= PREP_TOTAL) { finishPrep(); return; }
+    if (dayNum >= ptotal()) { finishPrep(); return; }
     if (d.rest) { toast('Rested 😴'); }
     else { celebrateWorkout([]); }
     movePrepCursor(1);
@@ -810,7 +869,7 @@ function wirePrepToday() {
 }
 
 function movePrepCursor(dir) {
-  S.prep.day = Math.min(PREP_TOTAL, Math.max(1, S.prep.day + dir));
+  pstate().day = Math.min(ptotal(), Math.max(1, pstate().day + dir));
   save(); render();
 }
 
@@ -818,13 +877,22 @@ function movePrepCursor(dir) {
 function finishPrep() {
   logTrainingDay();
   checkAchievements({});
-  S.program = 'texas';
-  S.cursor = { week: 0, day: 0 };
-  save(); rebuild();
-  TAB = 'today';
-  render();
-  confetti();
-  toast('Prep complete! Welcome to Texas Method 🏋️');
+  if (S.program === 'prep30') {
+    S.program = 'texas';
+    S.cursor = { week: 0, day: 0 };
+    save(); rebuild();
+    TAB = 'today';
+    render();
+    confetti();
+    toast('Prep complete! Welcome to Texas Method 🏋️');
+  } else {
+    // mobility (or any other day-program): celebrate, loop back to day 1
+    pstate().day = 1;
+    save();
+    render();
+    confetti();
+    toast(`${pLabel()} complete — amazing work! 🎉`);
+  }
 }
 
 /* =====================================================================
@@ -832,12 +900,12 @@ function finishPrep() {
    ===================================================================== */
 function renderPrepProgram() {
   titleEl.textContent = 'Program';
-  subEl.textContent   = `30-Day Prep · ${prepDaysComplete()} of ${PREP_TOTAL - 4} done`;
+  subEl.textContent   = `${pLabel()} · ${prepDaysComplete()} of ${pWorkDays()} done`;
 
   let cells = '';
-  for (let n = 1; n <= PREP_TOTAL; n++) {
-    const d = PREP30[n - 1];
-    const cur  = n === S.prep.day ? 'cur' : '';
+  for (let n = 1; n <= ptotal(); n++) {
+    const d = pdata()[n - 1];
+    const cur  = n === pstate().day ? 'cur' : '';
     const rest = d.rest ? 'rest' : '';
     const done = prepDayDone(n) ? 'done' : '';
     let inner;
@@ -845,7 +913,7 @@ function renderPrepProgram() {
       inner = `<div class="prep-rest">REST</div>`;
     } else {
       inner = d.exercises.map(ex =>
-        `<div class="prep-ex">${ex.sets ? `Plank ${ex.sec}s×${ex.sets}` : `${ex.name} ${ex.reps}`}</div>`
+        `<div class="prep-ex">${ex.sets ? `${ex.name} ${ex.sec}s` : `${ex.name} ${ex.reps}`}</div>`
       ).join('');
     }
     cells += `<div class="prep-cell ${cur} ${rest} ${done}" data-prepday="${n}">
@@ -855,14 +923,14 @@ function renderPrepProgram() {
 
   view.innerHTML = `<div class="screen">
     <div class="card" style="padding:14px 16px;">
-      <div style="font-weight:800;font-size:18px;">30-Day Bodyweight Prep</div>
-      <div class="tiny muted" style="margin-top:4px;">Tap any day to jump to it. Finish Day 30 to unlock Texas Method.</div>
+      <div style="font-weight:800;font-size:18px;">${pLabel()}</div>
+      <div class="tiny muted" style="margin-top:4px;">Tap any day to jump to it.${S.program === 'prep30' ? ' Finish Day 30 to unlock Texas Method.' : ''}</div>
     </div>
     <div class="prep-grid">${cells}</div>
   </div>`;
 
   view.querySelectorAll('[data-prepday]').forEach(c => c.onclick = () => {
-    S.prep.day = +c.dataset.prepday; save(); TAB = 'today'; render();
+    pstate().day = +c.dataset.prepday; save(); TAB = 'today'; render();
   });
 }
 
@@ -954,7 +1022,16 @@ const FORM_TIPS = {
   deadlift:  { title: 'Deadlift', body: 'Bar over mid-foot, hips higher than knees, flat back, grip just outside your knees. Take the slack out of the bar, then push the floor away and stand tall — bar drags up close to your legs. Lock out hips and knees together; don\'t round your back.' },
   clean:     { title: 'Power Clean', body: 'Set up like a deadlift. Pull from the floor, then explosively extend hips/knees/ankles, shrug, and pull yourself under to catch the bar on your front delts in a quarter squat. Fast elbows, soft knees on the catch.' },
   backext:   { title: 'Back Extension', body: 'Hips on the pad, feet anchored. Lower your torso under control, then raise until your body is in a straight line — squeeze your glutes at the top. Don\'t hyperextend or swing.' },
-  chin:      { title: 'Chin-Up', body: 'Underhand (palms-facing-you) grip, shoulder-width. From a dead hang, pull your chest toward the bar leading with your elbows, chin over the bar, then lower all the way under control. Full range each rep.' }
+  chin:      { title: 'Chin-Up', body: 'Underhand (palms-facing-you) grip, shoulder-width. From a dead hang, pull your chest toward the bar leading with your elbows, chin over the bar, then lower all the way under control. Full range each rep.' },
+  hipcars:   { title: 'Hip CARs', body: 'Stand tall (hold something for balance). Lift one knee up, rotate it out to the side, then sweep it behind you and back down — drawing the biggest slow circle you can with your knee. Keep your torso still and core braced. Do the reps one direction, then reverse. Both legs.' },
+  n9090:     { title: '90/90 Hip Switches', body: 'Sit with one leg bent in front (shin across you) and the other bent out to the side, both knees ~90°. Keeping your chest tall, rotate your knees across the floor to switch to the mirror position. Controlled, no hands if you can. That\'s one rep.' },
+  deepsquat: { title: 'Deep Squat Hold', body: 'Sink into the bottom of a squat, heels down, chest up, and gently push your knees out with your elbows. Relax into it and breathe. Hold a doorframe for balance if needed. Builds hip, knee and ankle mobility.' },
+  tibraise:  { title: 'Tibialis Raises', body: 'Stand with your back against a wall, feet a step out. Keeping legs straight, pull your toes up toward your shins as high as possible, then lower slowly. Strengthens the front-shin muscle — huge for knee health and ankle control.' },
+  calfraise: { title: 'Eccentric Calf Raises', body: 'On a step (or floor), rise onto the balls of both feet, shift to one foot, then lower that heel down slowly (3–4 seconds) below the step for a stretch. Builds strong, resilient Achilles tendons. Do the reps each side.' },
+  anklerock: { title: 'Knee-to-Wall Ankle Rocks', body: 'Face a wall, foot a few inches back, heel down. Drive your knee forward over your toes to touch the wall without your heel lifting, then back. Move your foot farther as you improve. Great for ankle/Achilles mobility. Each side.' },
+  shouldercars: { title: 'Shoulder CARs', body: 'Stand tall, brace your core. Slowly draw the biggest circle you can with one straight arm — up the front, overhead, around the back, and down — keeping tension the whole way. Keep your ribs down. Reverse direction, then the other arm.' },
+  wallangel: { title: 'Wall Angels', body: 'Back against a wall, arms in a goalpost with the backs of your hands/elbows touching the wall. Slide your arms overhead and back down while keeping everything in contact with the wall. Opens tight shoulders and upper back.' },
+  couch:     { title: 'Couch Stretch', body: 'Kneel with one shin up against a wall/couch (toes up, knee in the corner), other foot planted in front. Tuck your pelvis and rise tall to stretch the front of the hip and thigh. Ease in gently. Hold each side.' }
 };
 function showFormTip(key) {
   const info = FORM_TIPS[key]; if (!info) return;
@@ -972,7 +1049,7 @@ function showFormTip(key) {
 function formBtn(key) { return FORM_TIPS[key] ? `<button class="info-btn" onclick="showFormTip('${key}')">ⓘ</button>` : ''; }
 
 function renderStats() {
-  if (S.program === 'prep30') { renderPrepStats(); return; }
+  if (isDayProgram()) { renderPrepStats(); return; }
   titleEl.textContent = 'Stats';
   subEl.textContent   = 'Projections · Wilks · Graphs';
 
@@ -1076,8 +1153,8 @@ function prCardHTML() {
 /* current & best run of completed workout-days (rest days don't break it) */
 function prepStreaks() {
   const seq = [];
-  for (let n = 1; n <= PREP_TOTAL; n++) {
-    if (PREP30[n - 1].rest) continue;
+  for (let n = 1; n <= ptotal(); n++) {
+    if (pdata()[n - 1].rest) continue;
     seq.push(prepDayDone(n));
   }
   let best = 0, run = 0, lastDone = -1;
@@ -1089,28 +1166,30 @@ function prepStreaks() {
 
 function renderPrepStats() {
   titleEl.textContent = 'Stats';
-  subEl.textContent   = '30-Day Prep · progress';
+  subEl.textContent   = `${pLabel()} · progress`;
 
-  const workoutDays = PREP_TOTAL - 4; // 4 rest days
+  const workoutDays = pWorkDays();
   const done = prepDaysComplete();
   const pct  = Math.round(done / workoutDays * 100);
   const { current, best } = prepStreaks();
+  const exKeys = pExKeys(), full = pFull();
 
   // cumulative tally across completed days
-  const tally = { pushups: 0, squats: 0, burpees: 0, legraises: 0, crunches: 0, plankSec: 0 };
-  for (let n = 1; n <= PREP_TOTAL; n++) {
+  const tally = { plankSec: 0 };
+  for (let n = 1; n <= ptotal(); n++) {
     if (!prepDayDone(n)) continue;
-    PREP30[n - 1].exercises.forEach(ex => {
-      if (ex.sets) tally.plankSec += ex.sets * ex.sec; else tally[ex.key] += ex.reps;
+    pdata()[n - 1].exercises.forEach(ex => {
+      if (ex.sets) tally.plankSec += ex.sets * ex.sec; else tally[ex.key] = (tally[ex.key] || 0) + ex.reps;
     });
   }
-  const totalReps = tally.pushups + tally.squats + tally.burpees + tally.legraises + tally.crunches;
+  let totalReps = 0; exKeys.forEach(e => totalReps += (tally[e.key] || 0));
+  const holdLabel = S.program === 'prep30' ? 'Plank time' : 'Hold time';
 
   // per-exercise "banked" bars — fill grows toward the full-plan total
-  const banked = PREP_EX_KEYS.map(e => {
-    const v = tally[e.key], full = PREP_FULL[e.key] || 1;
-    const w = Math.min(100, Math.round(v / full * 100));
-    return `<div class="bar-line"><div class="top"><span>${e.icon} ${e.name}</span><b>${v} <span class="muted" style="font-weight:600">/ ${full}</span></b></div>
+  const banked = exKeys.map(e => {
+    const v = tally[e.key] || 0, fl = full[e.key] || 1;
+    const w = Math.min(100, Math.round(v / fl * 100));
+    return `<div class="bar-line"><div class="top"><span>${e.icon} ${e.name}</span><b>${v} <span class="muted" style="font-weight:600">/ ${fl}</span></b></div>
       <div class="track"><div class="fill" style="width:${w}%"></div></div></div>`;
   }).join('');
 
@@ -1119,20 +1198,22 @@ function renderPrepStats() {
       <div class="tile"><div class="k">Days complete</div><div class="v">${done} <small>/ ${workoutDays}</small></div></div>
       <div class="tile"><div class="k">🔥 Streak</div><div class="v">${current} <small>day${current===1?'':'s'}</small></div><div class="tile-sub">best ${best}</div></div>
       <div class="tile"><div class="k">Total reps banked</div><div class="v">${totalReps.toLocaleString()}</div></div>
-      <div class="tile"><div class="k">Plank time</div><div class="v">${Math.round(tally.plankSec/60)}<small> min</small></div></div>
+      <div class="tile"><div class="k">${holdLabel}</div><div class="v">${Math.round(tally.plankSec/60)}<small> min</small></div></div>
     </div>
 
-    <h2 class="section">Reps banked — watch it climb</h2>
+    <h2 class="section">${S.program === 'prep30' ? 'Reps banked — watch it climb' : 'Total movement — watch it climb'}</h2>
     <div class="card">${banked}
-      <div class="tiny muted center" style="margin-top:8px">Totals across every workout you've completed. Bars fill toward the full 30-day total.</div>
+      <div class="tiny muted center" style="margin-top:8px">Totals across every workout you've completed. Bars fill toward the full-program total.</div>
     </div>
 
     <h2 class="section">Completion</h2>
     <div class="card">
-      <div class="bar-line"><div class="top"><span>30-Day Prep</span><b>${done} / ${workoutDays} <span class="muted" style="font-weight:600">· ${pct}%</span></b></div>
+      <div class="bar-line"><div class="top"><span>${pLabel()}</span><b>${done} / ${workoutDays} <span class="muted" style="font-weight:600">· ${pct}%</span></b></div>
         <div class="track"><div class="fill" style="width:${pct}%"></div></div></div>
       <div class="tiny muted center" style="margin-top:8px">
-        ${done >= workoutDays ? 'All done — finish Day 30 to start Texas Method 🏋️' : `${workoutDays - done} workout${workoutDays-done===1?'':'s'} to go — then on to Texas Method.`}
+        ${done >= workoutDays
+          ? (S.program === 'prep30' ? 'All done — finish Day 30 to start Texas Method 🏋️' : 'All done — incredible consistency! 🎉')
+          : `${workoutDays - done} day${workoutDays-done===1?'':'s'} to go.`}
       </div>
     </div>
     ${calendarHTML()}
@@ -1260,10 +1341,11 @@ function renderSetup() {
     <h2 class="section">Active program</h2>
     <div class="card">
       <div class="seg" id="segProgram" style="flex-direction:column;gap:8px">
-        <button data-prog="prep30" class="${S.program==='prep30'?'on':''}">🗓️ 30-Day Prep · bodyweight ramp-up</button>
-        <button data-prog="texas"  class="${S.program==='texas'?'on':''}">🏋️ Texas Method · barbell program</button>
+        <button data-prog="prep30"   class="${S.program==='prep30'?'on':''}">🗓️ 30-Day Prep · bodyweight ramp-up</button>
+        <button data-prog="mobility" class="${S.program==='mobility'?'on':''}">🧘 Mobility Method · daily joint mobility</button>
+        <button data-prog="texas"    class="${S.program==='texas'?'on':''}">🏋️ Texas Method · barbell program</button>
       </div>
-      <div class="hint">Run the 30-day bodyweight plan first; finishing Day 30 starts Texas Method at Cycle 1a. You can switch any time.</div>
+      <div class="hint">30-Day Prep ramps you up (then unlocks Texas Method). Mobility Method is a daily 28-day routine for hips, knees, shoulders and ankles. Switch any time.</div>
     </div>
 
     <h2 class="section">Display — text size</h2>
@@ -1400,7 +1482,8 @@ function wireSetup() {
   /* program selector */
   view.querySelectorAll('#segProgram button').forEach(b => b.onclick = () => {
     S.program = b.dataset.prog; save(); render();
-    toast(S.program === 'prep30' ? '30-Day Prep active 🗓️' : 'Texas Method active 🏋️');
+    const names = { prep30: '30-Day Prep 🗓️', mobility: 'Mobility Method 🧘', texas: 'Texas Method 🏋️' };
+    toast((names[S.program] || S.program) + ' active');
   });
 
   /* bar weight */
@@ -2255,10 +2338,10 @@ async function shareCard() {
   x.fillStyle = '#999999'; x.font = '600 44px -apple-system,Segoe UI,Roboto,sans-serif';
 
   let big = [], line = '';
-  if (S.program === 'prep30') {
-    x.fillText('30-Day Bodyweight Prep', cx, 310);
-    let reps = 0; for (let nn = 1; nn <= PREP_TOTAL; nn++) { if (!prepDayDone(nn)) continue; PREP30[nn-1].exercises.forEach(e => { if (!e.sets) reps += e.reps; }); }
-    big = [[prepDaysComplete() + '/' + (PREP_TOTAL - 4), 'WORKOUTS'], [prepStreaks().current, 'DAY STREAK'], [reps, 'REPS']];
+  if (isDayProgram()) {
+    x.fillText(pLabel(), cx, 310);
+    let reps = 0; for (let nn = 1; nn <= ptotal(); nn++) { if (!prepDayDone(nn)) continue; pdata()[nn-1].exercises.forEach(e => { if (!e.sets) reps += e.reps; }); }
+    big = [[prepDaysComplete() + '/' + (pWorkDays()), 'WORKOUTS'], [prepStreaks().current, 'DAY STREAK'], [reps, 'REPS']];
     line = (S.history || []).length + ' total training days';
   } else {
     x.fillText('Texas Method', cx, 310);
@@ -2313,14 +2396,14 @@ let sess = null, sessInt = null;
 /* flatten today's work into ordered steps */
 function buildSteps() {
   const steps = [];
-  if (S.program === 'prep30') {
-    const d = PREP30[S.prep.day - 1];
+  if (isDayProgram()) {
+    const d = pdata()[pstate().day - 1];
     if (!d || d.rest) return steps;
     prepDayItems(d).forEach(item => {
       if (item.type === 'reps') {
-        steps.push({ name: item.ex.name, key: item.ex.key, label: 'Target', kind: 'reps', bw: true, reps: item.ex.reps, checkId: item.ex.key, store: 'prep' });
+        steps.push({ name: item.ex.name, key: item.ex.key, label: 'Target', kind: 'reps', bw: true, reps: item.ex.reps, side: item.ex.side, checkId: item.ex.key, store: 'prep' });
       } else {
-        steps.push({ name: item.ex.name, key: item.ex.key, label: `Set ${item.setIndex + 1} of ${item.total}`, kind: 'hold', seconds: item.ex.sec, checkId: `${item.ex.key}_${item.setIndex}`, store: 'prep' });
+        steps.push({ name: item.ex.name, key: item.ex.key, label: item.total > 1 ? `Set ${item.setIndex + 1} of ${item.total}` : 'Hold', kind: 'hold', seconds: item.ex.sec, side: item.ex.side, checkId: `${item.ex.key}_${item.setIndex}`, store: 'prep' });
       }
     });
   } else {
@@ -2339,10 +2422,10 @@ function buildSteps() {
 
 function sessMarkDone(step) {
   if (step.store === 'prep') {
-    const day = S.prep.day;
-    if (!S.prep.log[day]) S.prep.log[day] = { checks: {} };
-    if (!S.prep.log[day].checks) S.prep.log[day].checks = {};
-    S.prep.log[day].checks[step.checkId] = true;
+    const day = pstate().day;
+    if (!pstate().log[day]) pstate().log[day] = { checks: {} };
+    if (!pstate().log[day].checks) pstate().log[day].checks = {};
+    pstate().log[day].checks[step.checkId] = true;
   } else {
     const lk = `${S.cursor.week}-${S.cursor.day}`;
     if (!S.logs[lk]) S.logs[lk] = { checks: {}, reps: {} };
@@ -2379,8 +2462,9 @@ function renderSession() {
   const pct = Math.round((sess.i) / n * 100);
   let body = '';
   if (sess.phase === 'ready') {
-    const target = step.kind === 'hold' ? `${step.seconds}s hold`
-      : step.bw ? (step.amrap ? 'AMRAP' : `${step.reps} reps`)
+    const sideTxt = step.side ? ' / side' : '';
+    const target = step.kind === 'hold' ? `${step.seconds}s hold${sideTxt}`
+      : step.bw ? (step.amrap ? 'AMRAP' : `${step.reps} reps${sideTxt}`)
       : `${fmt(step.weight)} ${unit()} × ${step.reps}`;
     const sub = (step.weight != null && step.kind === 'reps')
       ? `<div class="sess-plates">${plateStripHTML(step.weight)}</div>` : '';
@@ -2466,8 +2550,9 @@ function startSessHold(step) {
 /* spoken announcement of the upcoming step */
 function unitWord() { return unit() === 'lb' ? 'pounds' : 'kilos'; }
 function sayStep(step) {
-  if (step.kind === 'hold') { say(`${step.name}. Hold for ${step.seconds} seconds.`); return; }
-  if (step.bw) { say(`${step.name}. ${step.amrap ? 'As many as you can.' : step.reps + ' reps.'}`); return; }
+  const side = step.side ? ' each side' : '';
+  if (step.kind === 'hold') { say(`${step.name}. Hold for ${step.seconds} seconds${side}.`); return; }
+  if (step.bw) { say(`${step.name}. ${step.amrap ? 'As many as you can.' : step.reps + ' reps' + side + '.'}`); return; }
   say(`${step.name}. ${fmt(step.weight)} ${unitWord()}, ${step.reps} reps.`);
 }
 
@@ -2476,14 +2561,14 @@ function finishSession() {
   const el = document.getElementById('sessionOverlay'); if (el) el.classList.remove('open');
   sess = null;
   say('Workout complete. Great work!');
-  if (S.program === 'prep30') {
-    const dayNum = S.prep.day, d = PREP30[dayNum - 1];
+  if (isDayProgram()) {
+    const dayNum = pstate().day, d = pdata()[dayNum - 1];
     if (!d.rest) {
-      if (!S.prep.log[dayNum]) S.prep.log[dayNum] = { checks: {} };
-      S.prep.log[dayNum].done = true; S.sessions = (S.sessions || 0) + 1;
+      if (!pstate().log[dayNum]) pstate().log[dayNum] = { checks: {} };
+      pstate().log[dayNum].done = true; S.sessions = (S.sessions || 0) + 1;
     }
     save();
-    if (dayNum >= PREP_TOTAL) { finishPrep(); return; }
+    if (dayNum >= ptotal()) { finishPrep(); return; }
     celebrateWorkout([]); movePrepCursor(1);
   } else {
     const w = PROGRAM[S.cursor.week], lk = `${S.cursor.week}-${S.cursor.day}`;
