@@ -146,11 +146,52 @@ const MOBILITY = [];
 for (let d = 1; d <= 28; d++) MOBILITY.push(d % 7 === 0 ? PREP_REST : mobDay(Math.floor((d - 1) / 7)));
 
 /* =====================================================================
+   CORE & ABS  (28-day progressive core program, 6 days on / 1 rest)
+   ===================================================================== */
+function coreDay(w) {
+  return { exercises: [
+    { key: 'crunches',  name: 'Crunches',          icon: '🔄', reps: 15 + 5 * w },
+    { key: 'bicycle',   name: 'Bicycle Crunches',  icon: '🚲', reps: 20 + 6 * w },
+    { key: 'legraises', name: 'Leg Raises',        icon: '🦵', reps: 12 + 3 * w },
+    { key: 'rtwist',    name: 'Russian Twists',    icon: '🔁', reps: 20 + 8 * w },
+    { key: 'plank',     name: 'Plank',             icon: '🧘', sets: 1, sec: 30 + 15 * w },
+    { key: 'hollow',    name: 'Hollow Body Hold',  icon: '🌙', sets: 1, sec: 20 + 10 * w }
+  ]};
+}
+const CORE = [];
+for (let d = 1; d <= 28; d++) CORE.push(d % 7 === 0 ? PREP_REST : coreDay(Math.floor((d - 1) / 7)));
+
+/* =====================================================================
+   DUMBBELL FULL-BODY  (alternating A/B sessions — do ~3x/week)
+   ===================================================================== */
+function db(key, name, icon, reps, scheme, side) { return { key, name, icon, reps, scheme, side: !!side }; }
+const DB_A = { exercises: [
+  db('gobletsquat', 'Goblet Squat',         '🏋️', 12, '3 × 12'),
+  db('dbpress',     'DB Floor Press',        '💪', 12, '3 × 12'),
+  db('dbrow',       'DB Bent-Over Row',      '🚣', 12, '3 × 12'),
+  db('dbrdl',       'DB Romanian Deadlift',  '🦵', 12, '3 × 12'),
+  db('dbohp',       'DB Shoulder Press',     '🙌', 10, '3 × 10'),
+  db('dbcurl',      'DB Biceps Curl',        '💪', 12, '3 × 12')
+]};
+const DB_B = { exercises: [
+  db('dblunge',     'DB Reverse Lunge',      '🦵', 10, '3 × 10 / side', true),
+  db('dbpushup',    'Push-up',               '💪', 12, '3 × 12'),
+  db('dbrenrow',    'DB Renegade Row',       '🚣', 8,  '3 × 8 / side', true),
+  db('dbhinge',     'DB Deadlift',           '🏋️', 12, '3 × 12'),
+  db('dblatraise',  'DB Lateral Raise',      '🙌', 12, '3 × 12'),
+  db('dbhammer',    'DB Hammer Curl',        '💪', 12, '3 × 12')
+]};
+const DUMBBELL = [];
+for (let i = 0; i < 24; i++) DUMBBELL.push(i % 2 === 0 ? DB_A : DB_B);
+
+/* =====================================================================
    DAY-PROGRAM HELPERS  (shared by 30-Day Prep + Mobility)
    ===================================================================== */
 const DAY_PROGRAMS = {
-  prep30:   { data: PREP30,   stateKey: 'prep', label: '30-Day Prep',     sub: 'bodyweight ramp-up' },
-  mobility: { data: MOBILITY, stateKey: 'mob',  label: 'Mobility Method', sub: 'daily joint mobility' }
+  prep30:   { data: PREP30,   stateKey: 'prep', label: '30-Day Prep',       sub: 'bodyweight ramp-up' },
+  mobility: { data: MOBILITY, stateKey: 'mob',  label: 'Mobility Method',   sub: 'daily joint mobility' },
+  core:     { data: CORE,     stateKey: 'core', label: 'Core & Abs',        sub: '28-day core builder' },
+  dumbbell: { data: DUMBBELL, stateKey: 'db',   label: 'Dumbbell Full-Body', sub: 'A/B strength, 3×/week' }
 };
 function isDayProgram() { return !!DAY_PROGRAMS[S.program]; }
 function pcfg()   { return DAY_PROGRAMS[S.program] || DAY_PROGRAMS.prep30; }
@@ -275,7 +316,7 @@ function loadState() {
     if (raw) return migrate(JSON.parse(raw));
   } catch (e) { /* ignore */ }
   return { settings: structuredClone(DEFAULTS), cursor: { week: 0, day: 0 }, logs: {}, bodyLog: [],
-           program: 'prep30', prep: { day: 1, log: {} }, mob: { day: 1, log: {} }, achievements: [], prs: {}, sessions: 0, history: [] };
+           program: 'prep30', prep: { day: 1, log: {} }, mob: { day: 1, log: {} }, core: { day: 1, log: {} }, db: { day: 1, log: {} }, achievements: [], prs: {}, sessions: 0, history: [] };
 }
 let S = loadState();
 
@@ -299,6 +340,7 @@ function migrate(st) {
   st.mob     = st.mob     || { day: 1, log: {} };
   if (st.mob.day == null) st.mob.day = 1;
   if (!st.mob.log) st.mob.log = {};
+  ['core', 'db'].forEach(k => { st[k] = st[k] || { day: 1, log: {} }; if (st[k].day == null) st[k].day = 1; if (!st[k].log) st[k].log = {}; });
   if (!st.achievements) st.achievements = [];
   if (!st.prs) st.prs = {};
   if (st.sessions == null) st.sessions = 0;
@@ -783,8 +825,8 @@ function prepExerciseCard(ex, log) {
     <div class="set-end"><button class="check ${on}" data-pcheck="${id}">✓</button></div></div>`;
   return `<div class="card lift">
     <div class="lift-head"><div><div class="name">${ex.name} ${formBtn(ex.key)}</div>
-    <div class="scheme">${ex.reps} reps${ex.side ? ' each side' : ''}</div></div>
-    <span class="badge vol">Reps</span></div>${rows}</div>`;
+    <div class="scheme">${ex.scheme || `${ex.reps} reps${ex.side ? ' each side' : ''}`}</div></div>
+    <span class="badge vol">${ex.scheme ? 'Sets' : 'Reps'}</span></div>${rows}</div>`;
 }
 
 /* ordered items for a day; a multi-set hold (prep's plank) is spread
@@ -1032,7 +1074,22 @@ const FORM_TIPS = {
   anklerock: { title: 'Knee-to-Wall Ankle Rocks', body: 'Face a wall, foot a few inches back, heel down. Drive your knee forward over your toes to touch the wall without your heel lifting, then back. Move your foot farther as you improve. Great for ankle/Achilles mobility. Each side.' },
   shouldercars: { title: 'Shoulder CARs', body: 'Stand tall, brace your core. Slowly draw the biggest circle you can with one straight arm — up the front, overhead, around the back, and down — keeping tension the whole way. Keep your ribs down. Reverse direction, then the other arm.' },
   wallangel: { title: 'Wall Angels', body: 'Back against a wall, arms in a goalpost with the backs of your hands/elbows touching the wall. Slide your arms overhead and back down while keeping everything in contact with the wall. Opens tight shoulders and upper back.' },
-  atgsplit:  { title: 'ATG Split Squat', body: 'From a long split stance, lower your back knee toward the floor while letting your front knee travel forward over — and past — your toes, keeping the heel down. Sink as deep as you can control, then drive back up. Active, loaded full-range work that builds bulletproof knees and opens the hips. Do the reps each side.' }
+  atgsplit:  { title: 'ATG Split Squat', body: 'From a long split stance, lower your back knee toward the floor while letting your front knee travel forward over — and past — your toes, keeping the heel down. Sink as deep as you can control, then drive back up. Active, loaded full-range work that builds bulletproof knees and opens the hips. Do the reps each side.' },
+  bicycle:   { title: 'Bicycle Crunches', body: 'On your back, hands by your ears, shoulders off the floor. Bring one knee in and rotate the opposite elbow toward it while the other leg extends. Alternate sides in a smooth pedaling motion. Twist from your torso, not your neck. Count every elbow-to-knee as a rep.' },
+  rtwist:    { title: 'Russian Twists', body: 'Sit with knees bent, heels down (or feet up for harder), lean back to ~45°. Brace your core and rotate your hands side to side, tapping near each hip. Move from the ribs, not just the arms. Each tap is a rep.' },
+  hollow:    { title: 'Hollow Body Hold', body: 'Lie on your back, press your lower back into the floor. Lift your shoulders and legs a few inches, arms reaching overhead — your body forms a shallow banana. Keep that lower back glued down the whole time. Lower the limbs higher to make it easier.' },
+  gobletsquat:{ title: 'Goblet Squat', body: 'Hold one dumbbell vertically against your chest. Feet shoulder-width, sit hips down between your knees keeping your chest tall and heels down. Drive up through your whole foot. The dumbbell at your chest helps you stay upright.' },
+  dbpress:   { title: 'DB Floor Press', body: 'Lie on the floor (or bench), dumbbells over your chest. Lower until your upper arms touch the floor (elbows ~45° from your body), pause, then press back up. The floor caps the range and protects your shoulders.' },
+  dbrow:     { title: 'DB Bent-Over Row', body: 'Hinge at the hips with a flat back, dumbbells hanging. Pull them to your waistline, driving your elbows back and squeezing your shoulder blades. Lower under control. Keep your torso still.' },
+  dbrdl:     { title: 'DB Romanian Deadlift', body: 'Soft knees, dumbbells in front of your thighs. Push your hips back and slide the weights down your legs until you feel a hamstring stretch (flat back the whole way), then drive your hips forward to stand. Hinge, don\'t squat.' },
+  dbohp:     { title: 'DB Shoulder Press', body: 'Dumbbells at shoulder height, palms forward, core braced. Press straight overhead without arching your lower back, then lower with control to your shoulders. Keep ribs down.' },
+  dbcurl:    { title: 'DB Biceps Curl', body: 'Elbows tucked at your sides, curl the dumbbells up by bending only at the elbow, squeeze, then lower slowly. No swinging — keep your upper arms still.' },
+  dblunge:   { title: 'DB Reverse Lunge', body: 'Dumbbells at your sides. Step one foot back and lower until both knees are ~90°, front heel down, torso tall. Drive through the front foot to stand. Do all reps, then switch — or alternate.' },
+  dbpushup:  { title: 'Push-up', body: 'Hands just wider than shoulders, body in one straight line. Lower until your chest is just above the floor with elbows ~45° from your body, then press up. Keep your core tight and hips level. Drop to your knees if needed.' },
+  dbrenrow:  { title: 'DB Renegade Row', body: 'Top of a push-up position gripping two dumbbells, feet wide for balance. Brace hard and row one dumbbell to your waist without letting your hips twist, lower, then the other side. Anti-rotation core plus back work.' },
+  dbhinge:   { title: 'DB Deadlift', body: 'Dumbbells on the floor beside your feet (or in front). Flat back, hinge and bend to grip them, then stand tall by driving your hips forward and pushing the floor away. Keep the weights close and your back neutral.' },
+  dblatraise:{ title: 'DB Lateral Raise', body: 'Slight bend in the elbows, raise the dumbbells out to your sides to about shoulder height — lead with your elbows, not your hands — then lower slowly. Light weight, no swinging. Hits the side delts.' },
+  dbhammer:  { title: 'DB Hammer Curl', body: 'Curl with a neutral grip (palms facing each other, like holding hammers), elbows tucked. Squeeze at the top, lower slowly. Builds the biceps and forearms.' }
 };
 function showFormTip(key) {
   const info = FORM_TIPS[key]; if (!info) return;
@@ -1344,9 +1401,11 @@ function renderSetup() {
       <div class="seg" id="segProgram" style="flex-direction:column;gap:8px">
         <button data-prog="prep30"   class="${S.program==='prep30'?'on':''}">🗓️ 30-Day Prep · bodyweight ramp-up</button>
         <button data-prog="mobility" class="${S.program==='mobility'?'on':''}">🧘 Mobility Method · daily joint mobility</button>
+        <button data-prog="core"     class="${S.program==='core'?'on':''}">🔥 Core &amp; Abs · 28-day core builder</button>
+        <button data-prog="dumbbell" class="${S.program==='dumbbell'?'on':''}">💪 Dumbbell Full-Body · A/B strength</button>
         <button data-prog="texas"    class="${S.program==='texas'?'on':''}">🏋️ Texas Method · barbell program</button>
       </div>
-      <div class="hint">30-Day Prep ramps you up (then unlocks Texas Method). Mobility Method is a daily 28-day routine for hips, knees, shoulders and ankles. Switch any time.</div>
+      <div class="hint">Pick any program. 30-Day Prep, Mobility, Core &amp; Abs and Dumbbell Full-Body are guided day-by-day; Texas Method is the barbell strength program. Switch any time.</div>
     </div>
 
     <h2 class="section">Display — text size</h2>
@@ -1483,7 +1542,7 @@ function wireSetup() {
   /* program selector */
   view.querySelectorAll('#segProgram button').forEach(b => b.onclick = () => {
     S.program = b.dataset.prog; save(); render();
-    const names = { prep30: '30-Day Prep 🗓️', mobility: 'Mobility Method 🧘', texas: 'Texas Method 🏋️' };
+    const names = { prep30: '30-Day Prep 🗓️', mobility: 'Mobility Method 🧘', core: 'Core & Abs 🔥', dumbbell: 'Dumbbell Full-Body 💪', texas: 'Texas Method 🏋️' };
     toast((names[S.program] || S.program) + ' active');
   });
 
@@ -2402,7 +2461,7 @@ function buildSteps() {
     if (!d || d.rest) return steps;
     prepDayItems(d).forEach(item => {
       if (item.type === 'reps') {
-        steps.push({ name: item.ex.name, key: item.ex.key, label: 'Target', kind: 'reps', bw: true, reps: item.ex.reps, side: item.ex.side, checkId: item.ex.key, store: 'prep' });
+        steps.push({ name: item.ex.name, key: item.ex.key, label: 'Target', kind: 'reps', bw: true, reps: item.ex.reps, side: item.ex.side, scheme: item.ex.scheme, checkId: item.ex.key, store: 'prep' });
       } else {
         steps.push({ name: item.ex.name, key: item.ex.key, label: item.total > 1 ? `Set ${item.setIndex + 1} of ${item.total}` : 'Hold', kind: 'hold', seconds: item.ex.sec, side: item.ex.side, checkId: `${item.ex.key}_${item.setIndex}`, store: 'prep' });
       }
@@ -2465,6 +2524,7 @@ function renderSession() {
   if (sess.phase === 'ready') {
     const sideTxt = step.side ? ' / side' : '';
     const target = step.kind === 'hold' ? `${step.seconds}s hold${sideTxt}`
+      : step.scheme ? step.scheme
       : step.bw ? (step.amrap ? 'AMRAP' : `${step.reps} reps${sideTxt}`)
       : `${fmt(step.weight)} ${unit()} × ${step.reps}`;
     const sub = (step.weight != null && step.kind === 'reps')
