@@ -1931,7 +1931,7 @@ function startGuidedHold(seconds, label, onDone) {
   clearInterval(restInt); stopGuided();
   const labelEl = document.getElementById('restLabel');
   restEl.classList.remove('hidden', 'warn');
-  let ready = 3;
+  let ready = 5;
   if (labelEl) labelEl.textContent = 'GET READY';
   restDisp.textContent = ready;
   restFill.style.transition = 'none'; restFill.style.width = '100%';
@@ -2689,7 +2689,7 @@ function startSessRest() {
 
 function startSessHold(step) {
   sess.phase = 'holding'; clearInterval(sessInt); ensureAudio();
-  let ready = 3; sess.holdLabel = 'GET READY'; sess.disp = String(ready);
+  let ready = 5; sess.holdLabel = 'GET READY'; sess.disp = String(ready);
   renderSession(); tick(660); say('Get ready');
   sessInt = setInterval(() => {
     ready--;
