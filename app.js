@@ -185,13 +185,58 @@ const DUMBBELL = [];
 for (let i = 0; i < 24; i++) DUMBBELL.push(i % 2 === 0 ? DB_A : DB_B);
 
 /* =====================================================================
+   PILATES MAT  (classical Joseph Pilates mat sequence — 28 days, 6/1)
+   ===================================================================== */
+function pilReps(key, name, icon, reps, side) { return { key, name, icon, reps, side: !!side }; }
+function pilHold(key, name, icon, sec) { return { key, name, icon, sets: 1, sec }; }
+function pilatesDay(w) {
+  return { exercises: [
+    pilHold('hundred',       'The Hundred',           '🌬️', 40 + 10 * w),
+    pilReps('rollup',        'Roll-Up',               '🔄', 5 + w),
+    pilReps('legcircle',     'Single Leg Circles',    '⭕', 5 + w, true),
+    pilReps('rollball',      'Rolling Like a Ball',   '⚪', 6 + w),
+    pilReps('singlestretch', 'Single Leg Stretch',    '🦵', 8 + 2 * w),
+    pilReps('doublestretch', 'Double Leg Stretch',    '🦵', 8 + 2 * w),
+    pilReps('spinestretch',  'Spine Stretch Forward', '🧘', 5 + w),
+    pilReps('saw',           'The Saw',               '↔️', 5 + w, true),
+    pilReps('swan',          'Swan',                  '🦢', 6 + w),
+    pilReps('sidekick',      'Side Kicks',            '🦵', 8 + 2 * w, true),
+    pilReps('teaser',        'Teaser',                '✨', 4 + w)
+  ]};
+}
+const PILATES = [];
+for (let d = 1; d <= 28; d++) PILATES.push(d % 7 === 0 ? PREP_REST : pilatesDay(Math.floor((d - 1) / 7)));
+
+/* =====================================================================
+   FULL-BODY HIIT  (timed circuit — 28 days, 6/1, work time climbs)
+   ===================================================================== */
+function hiitWork(key, name, icon, sec) { return { key, name, icon, sets: 1, sec }; }
+function hiitDay(w) {
+  const t = 30 + 5 * w; // 30 / 35 / 40 / 45s work
+  return { exercises: [
+    hiitWork('jacks',     'Jumping Jacks',     '⭐', t),
+    hiitWork('highknees', 'High Knees',        '🏃', t),
+    hiitWork('mtnclimb',  'Mountain Climbers', '⛰️', t),
+    hiitWork('squatjump', 'Squat Jumps',       '🦿', t),
+    hiitWork('plankjack', 'Plank Jacks',       '🧘', t),
+    hiitWork('skaters',   'Skaters',           '⛸️', t),
+    hiitWork('buttkick',  'Butt Kicks',        '🦵', t),
+    hiitWork('burpees',   'Burpees',           '🔥', t)
+  ]};
+}
+const HIIT = [];
+for (let d = 1; d <= 28; d++) HIIT.push(d % 7 === 0 ? PREP_REST : hiitDay(Math.floor((d - 1) / 7)));
+
+/* =====================================================================
    DAY-PROGRAM HELPERS  (shared by 30-Day Prep + Mobility)
    ===================================================================== */
 const DAY_PROGRAMS = {
   prep30:   { data: PREP30,   stateKey: 'prep', label: '30-Day Prep',       sub: 'bodyweight ramp-up' },
   mobility: { data: MOBILITY, stateKey: 'mob',  label: 'Mobility Method',   sub: 'daily joint mobility' },
   core:     { data: CORE,     stateKey: 'core', label: 'Core & Abs',        sub: '28-day core builder' },
-  dumbbell: { data: DUMBBELL, stateKey: 'db',   label: 'Dumbbell Full-Body', sub: 'A/B strength, 3×/week' }
+  dumbbell: { data: DUMBBELL, stateKey: 'db',   label: 'Dumbbell Full-Body', sub: 'A/B strength, 3×/week' },
+  pilates:  { data: PILATES,  stateKey: 'pil',  label: 'Pilates Mat',        sub: 'classical mat sequence' },
+  hiit:     { data: HIIT,     stateKey: 'hiit', label: 'Full-Body HIIT',     sub: 'timed circuit' }
 };
 function isDayProgram() { return !!DAY_PROGRAMS[S.program]; }
 function pcfg()   { return DAY_PROGRAMS[S.program] || DAY_PROGRAMS.prep30; }
@@ -316,7 +361,7 @@ function loadState() {
     if (raw) return migrate(JSON.parse(raw));
   } catch (e) { /* ignore */ }
   return { settings: structuredClone(DEFAULTS), cursor: { week: 0, day: 0 }, logs: {}, bodyLog: [],
-           program: 'prep30', prep: { day: 1, log: {} }, mob: { day: 1, log: {} }, core: { day: 1, log: {} }, db: { day: 1, log: {} }, achievements: [], prs: {}, sessions: 0, history: [] };
+           program: 'prep30', prep: { day: 1, log: {} }, mob: { day: 1, log: {} }, core: { day: 1, log: {} }, db: { day: 1, log: {} }, pil: { day: 1, log: {} }, hiit: { day: 1, log: {} }, achievements: [], prs: {}, sessions: 0, history: [] };
 }
 let S = loadState();
 
@@ -340,7 +385,7 @@ function migrate(st) {
   st.mob     = st.mob     || { day: 1, log: {} };
   if (st.mob.day == null) st.mob.day = 1;
   if (!st.mob.log) st.mob.log = {};
-  ['core', 'db'].forEach(k => { st[k] = st[k] || { day: 1, log: {} }; if (st[k].day == null) st[k].day = 1; if (!st[k].log) st[k].log = {}; });
+  ['core', 'db', 'pil', 'hiit'].forEach(k => { st[k] = st[k] || { day: 1, log: {} }; if (st[k].day == null) st[k].day = 1; if (!st[k].log) st[k].log = {}; });
   if (!st.achievements) st.achievements = [];
   if (!st.prs) st.prs = {};
   if (st.sessions == null) st.sessions = 0;
@@ -1089,7 +1134,25 @@ const FORM_TIPS = {
   dbrenrow:  { title: 'DB Renegade Row', body: 'Top of a push-up position gripping two dumbbells, feet wide for balance. Brace hard and row one dumbbell to your waist without letting your hips twist, lower, then the other side. Anti-rotation core plus back work.' },
   dbhinge:   { title: 'DB Deadlift', body: 'Dumbbells on the floor beside your feet (or in front). Flat back, hinge and bend to grip them, then stand tall by driving your hips forward and pushing the floor away. Keep the weights close and your back neutral.' },
   dblatraise:{ title: 'DB Lateral Raise', body: 'Slight bend in the elbows, raise the dumbbells out to your sides to about shoulder height — lead with your elbows, not your hands — then lower slowly. Light weight, no swinging. Hits the side delts.' },
-  dbhammer:  { title: 'DB Hammer Curl', body: 'Curl with a neutral grip (palms facing each other, like holding hammers), elbows tucked. Squeeze at the top, lower slowly. Builds the biceps and forearms.' }
+  dbhammer:  { title: 'DB Hammer Curl', body: 'Curl with a neutral grip (palms facing each other, like holding hammers), elbows tucked. Squeeze at the top, lower slowly. Builds the biceps and forearms.' },
+  hundred:   { title: 'The Hundred', body: 'On your back, curl your head and shoulders up, legs extended at ~45° (or knees bent/tabletop to start). Reach your arms long by your sides and pump them up and down with small vigorous beats while breathing — 5 counts in, 5 counts out. Keep your lower back pressed down and abs scooped.' },
+  rollup:    { title: 'Roll-Up', body: 'Lie flat, arms overhead. Reach forward and peel your spine off the mat one vertebra at a time, curling up and over toward your toes, then roll back down with the same control. Move slowly and articulate the spine — no momentum.' },
+  legcircle: { title: 'Single Leg Circles', body: 'On your back, one leg pointed to the ceiling, the other long on the mat. Draw controlled circles with the lifted leg, keeping your hips and torso completely still and stable. Reps one direction, then reverse. Then switch legs.' },
+  rollball:  { title: 'Rolling Like a Ball', body: 'Balance at the back of your sit bones, knees tucked, chin to chest in a tight ball. Roll back to your shoulder blades on an inhale, then roll up to balance on an exhale — without your feet touching down. Control, not speed.' },
+  singlestretch:{ title: 'Single Leg Stretch', body: 'Curl your head and shoulders up. Hug one knee to your chest while the other leg extends long at ~45°, then switch hands and legs in a smooth pull-pull rhythm. Keep your back flat and abs scooped.' },
+  doublestretch:{ title: 'Double Leg Stretch', body: 'Head and shoulders curled up, knees hugged in. Extend arms overhead and legs out long at the same time (stretch), then circle the arms around and pull the knees back in. Keep your lower back anchored throughout.' },
+  spinestretch:{ title: 'Spine Stretch Forward', body: 'Sit tall, legs extended a bit wider than your hips, arms reaching forward. Exhale and round forward over your legs, growing tall through the crown as you scoop your belly back — then restack your spine to sit tall. A C-curve, not a flat reach.' },
+  saw:       { title: 'The Saw', body: 'Sit tall, legs wide, arms out to the sides. Rotate your torso toward one foot and reach your opposite pinky past your little toe — "sawing" off the toe — then roll up and switch. Twist from the waist, hips stay planted. Each side.' },
+  swan:      { title: 'Swan', body: 'Lie face down, hands under your shoulders. Lengthen and lift your chest into a smooth back extension, keeping your glutes and legs engaged and your neck long — then lower with control. Lift from your upper back, don\'t crank your lower back.' },
+  sidekick:  { title: 'Side Kicks', body: 'Lie on your side, body in one long line, head supported. Lift the top leg to hip height and swing it forward (two small pulses) then sweep it back, keeping your torso still and core braced. Controlled — your trunk shouldn\'t rock. Each side.' },
+  teaser:    { title: 'Teaser', body: 'From lying, float your legs to ~45° and roll your upper body up, reaching your arms toward your toes so your body makes a V balanced on your sit bones. Lower with control. Start with bent knees or one leg if needed — it\'s an advanced move.' },
+  jacks:     { title: 'Jumping Jacks', body: 'Jump your feet out wide while raising your arms overhead, then jump back in. Stay light on the balls of your feet and keep a steady pace. Low-impact option: step out one foot at a time.' },
+  highknees: { title: 'High Knees', body: 'Run in place driving your knees up toward hip height, landing softly on the balls of your feet, arms pumping. Keep your chest tall and core tight. Go faster as you warm up.' },
+  mtnclimb:  { title: 'Mountain Climbers', body: 'From a strong plank (hands under shoulders), drive one knee toward your chest then quickly switch, like running horizontally. Keep your hips low and level — don\'t let your butt pike up.' },
+  squatjump: { title: 'Squat Jumps', body: 'Drop into a squat, then explode up into a jump, reaching tall. Land softly with bent knees and immediately sink into the next rep. Low-impact option: fast bodyweight squats with no jump.' },
+  plankjack: { title: 'Plank Jacks', body: 'Hold a strong plank on hands or forearms. Jump your feet out wide and back together like a horizontal jumping jack, keeping your hips level and core braced — no bouncing or sagging.' },
+  skaters:   { title: 'Skaters', body: 'Bound side to side, leaping onto one foot and sweeping the other leg behind you, like a speed skater. Land soft and bent, stay low and athletic. Low-impact: step side to side instead of jumping.' },
+  buttkick:  { title: 'Butt Kicks', body: 'Jog in place flicking your heels up toward your glutes, staying light on the balls of your feet with your chest tall and arms pumping. Quick and bouncy.' }
 };
 function showFormTip(key) {
   const info = FORM_TIPS[key]; if (!info) return;
@@ -1403,6 +1466,8 @@ function renderSetup() {
         <button data-prog="mobility" class="${S.program==='mobility'?'on':''}">🧘 Mobility Method · daily joint mobility</button>
         <button data-prog="core"     class="${S.program==='core'?'on':''}">🔥 Core &amp; Abs · 28-day core builder</button>
         <button data-prog="dumbbell" class="${S.program==='dumbbell'?'on':''}">💪 Dumbbell Full-Body · A/B strength</button>
+        <button data-prog="pilates"  class="${S.program==='pilates'?'on':''}">🤸 Pilates Mat · classical J.H. Pilates</button>
+        <button data-prog="hiit"     class="${S.program==='hiit'?'on':''}">⚡ Full-Body HIIT · timed circuit</button>
         <button data-prog="texas"    class="${S.program==='texas'?'on':''}">🏋️ Texas Method · barbell program</button>
       </div>
       <div class="hint">Pick any program. 30-Day Prep, Mobility, Core &amp; Abs and Dumbbell Full-Body are guided day-by-day; Texas Method is the barbell strength program. Switch any time.</div>
@@ -1542,7 +1607,7 @@ function wireSetup() {
   /* program selector */
   view.querySelectorAll('#segProgram button').forEach(b => b.onclick = () => {
     S.program = b.dataset.prog; save(); render();
-    const names = { prep30: '30-Day Prep 🗓️', mobility: 'Mobility Method 🧘', core: 'Core & Abs 🔥', dumbbell: 'Dumbbell Full-Body 💪', texas: 'Texas Method 🏋️' };
+    const names = { prep30: '30-Day Prep 🗓️', mobility: 'Mobility Method 🧘', core: 'Core & Abs 🔥', dumbbell: 'Dumbbell Full-Body 💪', pilates: 'Pilates Mat 🤸', hiit: 'Full-Body HIIT ⚡', texas: 'Texas Method 🏋️' };
     toast((names[S.program] || S.program) + ' active');
   });
 
