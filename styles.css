@@ -447,7 +447,11 @@ table.prog td.s { text-align: right; color: var(--muted); width: 60px; }
   box-shadow: 0 20px 60px rgba(0,0,0,.7), 0 0 0 100vmax rgba(0,0,0,.6);
   display: none;
 }
-.info-pop.visible { display: block; animation: restPop .2s cubic-bezier(.2,.8,.2,1.2); }
+.info-pop.visible { display: block; animation: popCenter .2s cubic-bezier(.2,.8,.2,1.2); }
+@keyframes popCenter {
+  from { opacity: 0; transform: translate(-50%, -50%) scale(.92); }
+  to   { opacity: 1; transform: translate(-50%, -50%) scale(1); }
+}
 .info-pop-title {
   font-size: 19px; font-weight: 800; color: var(--lime);
   margin-bottom: 10px; letter-spacing: .2px;
@@ -455,6 +459,12 @@ table.prog td.s { text-align: right; color: var(--muted); width: 60px; }
 .info-pop-body {
   font-size: 16px; color: #d6d6d6; line-height: 1.6;
 }
+.tip-demo {
+  display: inline-block; margin-top: 16px; padding: 11px 16px;
+  background: var(--lime); color: #000; font-weight: 800; font-size: 15px;
+  border-radius: 12px; text-decoration: none; box-shadow: 0 3px 14px var(--lime-glow);
+}
+.tip-demo:active { transform: scale(.96); }
 
 /* ---- 30-Day Prep calendar ---- */
 .prep-grid {

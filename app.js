@@ -228,6 +228,28 @@ const HIIT = [];
 for (let d = 1; d <= 28; d++) HIIT.push(d % 7 === 0 ? PREP_REST : hiitDay(Math.floor((d - 1) / 7)));
 
 /* =====================================================================
+   BJJ SOLO DRILLS  (real jiu-jitsu movements — 28 days, 6 on / 1 rest)
+   ===================================================================== */
+function bjjReps(key, name, icon, reps, side) { return { key, name, icon, reps, side: !!side }; }
+function bjjHold(key, name, icon, sec) { return { key, name, icon, sets: 1, sec }; }
+function bjjDay(w) {
+  return { exercises: [
+    bjjReps('shrimp',    'Hip Escape (Shrimp)', '🦐', 8 + 2 * w, true),
+    bjjReps('revshrimp', 'Reverse Shrimp',      '🔙', 8 + 2 * w, true),
+    bjjReps('bridge',    'Bridge / Upa',        '🌉', 8 + 2 * w, true),
+    bjjReps('techstand', 'Technical Stand-up',  '🧍', 6 + w, true),
+    bjjReps('granby',    'Granby Roll',         '🤸', 5 + w, true),
+    bjjReps('sprawl',    'Sprawls',             '⬇️', 10 + 3 * w),
+    bjjReps('sitout',    'Sit-outs',            '🔄', 8 + 2 * w, true),
+    bjjReps('breakfall', 'Back Breakfalls',     '🛡️', 6 + w),
+    bjjReps('hipheist',  'Hip Heist',           '🦵', 8 + 2 * w, true),
+    bjjHold('invhold',   'Inversion Hold',      '🙃', 20 + 10 * w)
+  ]};
+}
+const BJJ = [];
+for (let d = 1; d <= 28; d++) BJJ.push(d % 7 === 0 ? PREP_REST : bjjDay(Math.floor((d - 1) / 7)));
+
+/* =====================================================================
    DAY-PROGRAM HELPERS  (shared by 30-Day Prep + Mobility)
    ===================================================================== */
 const DAY_PROGRAMS = {
@@ -236,7 +258,8 @@ const DAY_PROGRAMS = {
   core:     { data: CORE,     stateKey: 'core', label: 'Core & Abs',        sub: '28-day core builder' },
   dumbbell: { data: DUMBBELL, stateKey: 'db',   label: 'Dumbbell Full-Body', sub: 'A/B strength, 3×/week' },
   pilates:  { data: PILATES,  stateKey: 'pil',  label: 'Pilates Mat',        sub: 'classical mat sequence' },
-  hiit:     { data: HIIT,     stateKey: 'hiit', label: 'Full-Body HIIT',     sub: 'timed circuit' }
+  hiit:     { data: HIIT,     stateKey: 'hiit', label: 'Full-Body HIIT',     sub: 'timed circuit' },
+  bjj:      { data: BJJ,      stateKey: 'bjj',  label: 'BJJ Solo Drills',    sub: 'jiu-jitsu movement' }
 };
 function isDayProgram() { return !!DAY_PROGRAMS[S.program]; }
 function pcfg()   { return DAY_PROGRAMS[S.program] || DAY_PROGRAMS.prep30; }
@@ -361,7 +384,7 @@ function loadState() {
     if (raw) return migrate(JSON.parse(raw));
   } catch (e) { /* ignore */ }
   return { settings: structuredClone(DEFAULTS), cursor: { week: 0, day: 0 }, logs: {}, bodyLog: [],
-           program: 'prep30', prep: { day: 1, log: {} }, mob: { day: 1, log: {} }, core: { day: 1, log: {} }, db: { day: 1, log: {} }, pil: { day: 1, log: {} }, hiit: { day: 1, log: {} }, achievements: [], prs: {}, sessions: 0, history: [] };
+           program: 'prep30', prep: { day: 1, log: {} }, mob: { day: 1, log: {} }, core: { day: 1, log: {} }, db: { day: 1, log: {} }, pil: { day: 1, log: {} }, hiit: { day: 1, log: {} }, bjj: { day: 1, log: {} }, achievements: [], prs: {}, sessions: 0, history: [] };
 }
 let S = loadState();
 
@@ -385,7 +408,7 @@ function migrate(st) {
   st.mob     = st.mob     || { day: 1, log: {} };
   if (st.mob.day == null) st.mob.day = 1;
   if (!st.mob.log) st.mob.log = {};
-  ['core', 'db', 'pil', 'hiit'].forEach(k => { st[k] = st[k] || { day: 1, log: {} }; if (st[k].day == null) st[k].day = 1; if (!st[k].log) st[k].log = {}; });
+  ['core', 'db', 'pil', 'hiit', 'bjj'].forEach(k => { st[k] = st[k] || { day: 1, log: {} }; if (st[k].day == null) st[k].day = 1; if (!st[k].log) st[k].log = {}; });
   if (!st.achievements) st.achievements = [];
   if (!st.prs) st.prs = {};
   if (st.sessions == null) st.sessions = 0;
@@ -1152,7 +1175,17 @@ const FORM_TIPS = {
   squatjump: { title: 'Squat Jumps', body: 'Drop into a squat, then explode up into a jump, reaching tall. Land softly with bent knees and immediately sink into the next rep. Low-impact option: fast bodyweight squats with no jump.' },
   plankjack: { title: 'Plank Jacks', body: 'Hold a strong plank on hands or forearms. Jump your feet out wide and back together like a horizontal jumping jack, keeping your hips level and core braced — no bouncing or sagging.' },
   skaters:   { title: 'Skaters', body: 'Bound side to side, leaping onto one foot and sweeping the other leg behind you, like a speed skater. Land soft and bent, stay low and athletic. Low-impact: step side to side instead of jumping.' },
-  buttkick:  { title: 'Butt Kicks', body: 'Jog in place flicking your heels up toward your glutes, staying light on the balls of your feet with your chest tall and arms pumping. Quick and bouncy.' }
+  buttkick:  { title: 'Butt Kicks', body: 'Jog in place flicking your heels up toward your glutes, staying light on the balls of your feet with your chest tall and arms pumping. Quick and bouncy.' },
+  shrimp:    { title: 'Hip Escape (Shrimp)', body: 'Lie on your back, feet flat. Turn onto one shoulder, post that foot, push off the floor and drive your hips back and away — sliding your butt toward where your head was. Frame your hands as if defending. Reset and go the other side. The #1 BJJ escape movement; move your hips, not just your feet.' },
+  revshrimp: { title: 'Reverse Shrimp', body: 'The shrimp in reverse — instead of pushing your hips away, pull/scoot them back toward your shoulders, sliding up the mat. Stay on your side, frame, and use your legs to move your hips. Useful for recovering position and moving up the body.' },
+  bridge:    { title: 'Bridge / Upa', body: 'On your back, feet flat and close to your butt. Plant a foot, turn your head and look over one shoulder, then drive through your heels and explosively lift your hips toward the ceiling and over that shoulder. This is the upa escape from mount — bridge high, not just up.' },
+  techstand: { title: 'Technical Stand-up', body: 'From seated, post one hand and the opposite foot behind you, lift your hips and swing the free leg through to stand — keeping a knee/forearm shield between you and an imaginary opponent the whole time. Stand up "in base," never turning your back. Each side.' },
+  granby:    { title: 'Granby Roll', body: 'A shoulder roll while inverted on your back — tuck your chin, roll over one shoulder (not your head/neck) hip-to-hip to free your hips and recover guard. Go slow and protect your neck. Drill both directions.' },
+  sprawl:    { title: 'Sprawls', body: 'From standing, drop your hips toward the floor and kick both legs back hard, landing in a low plank with hips down and chest up — the takedown defense. Then recover to your feet quickly. Hips down and heavy is the key.' },
+  sitout:    { title: 'Sit-outs', body: 'From a quadruped/sprawl base, shoot one leg through underneath you and turn to face up, posting on the opposite hand — like escaping a front headlock or turning in to face your opponent. Return and alternate. Stay low and turn your hips through.' },
+  breakfall: { title: 'Back Breakfalls', body: 'From standing or squatting, sit and roll backward onto your rounded back, slapping the mat with both arms at ~45° to disperse the impact, chin tucked to your chest. Practice landing softly and safely — the foundation for being thrown.' },
+  hipheist:  { title: 'Hip Heist', body: 'From a seated/sprawl position, post a hand and swivel your hips, switching from facing one way to the other by threading your bottom leg through — the scramble movement used to come up on top. Keep your hips off the floor and switch quickly. Each side.' },
+  invhold:   { title: 'Inversion Hold', body: 'On your back, roll your hips up and over so your weight is on your upper back/shoulders with your hips stacked above (support your back with your hands if needed). Hold and breathe — builds the spinal/hip mobility for inverting in guard. Ease into it; protect your neck.' }
 };
 function showFormTip(key) {
   const info = FORM_TIPS[key]; if (!info) return;
@@ -1164,7 +1197,9 @@ function showFormTip(key) {
       if (!e.target.closest('.info-btn') && !e.target.closest('.info-pop')) pop.classList.remove('visible');
     }, true);
   }
-  pop.innerHTML = `<div class="info-pop-title">${info.title}</div><div class="info-pop-body">${info.body}</div>`;
+  const q = encodeURIComponent(info.title + ' exercise how to');
+  pop.innerHTML = `<div class="info-pop-title">${info.title}</div><div class="info-pop-body">${info.body}</div>
+    <a class="tip-demo" href="https://www.youtube.com/results?search_query=${q}" target="_blank" rel="noopener">🎬 Watch a demo</a>`;
   pop.classList.add('visible');
 }
 function formBtn(key) { return FORM_TIPS[key] ? `<button class="info-btn" onclick="showFormTip('${key}')">ⓘ</button>` : ''; }
@@ -1468,6 +1503,7 @@ function renderSetup() {
         <button data-prog="dumbbell" class="${S.program==='dumbbell'?'on':''}">💪 Dumbbell Full-Body · A/B strength</button>
         <button data-prog="pilates"  class="${S.program==='pilates'?'on':''}">🤸 Pilates Mat · classical J.H. Pilates</button>
         <button data-prog="hiit"     class="${S.program==='hiit'?'on':''}">⚡ Full-Body HIIT · timed circuit</button>
+        <button data-prog="bjj"      class="${S.program==='bjj'?'on':''}">🥋 BJJ Solo Drills · jiu-jitsu movement</button>
         <button data-prog="texas"    class="${S.program==='texas'?'on':''}">🏋️ Texas Method · barbell program</button>
       </div>
       <div class="hint">Pick any program. 30-Day Prep, Mobility, Core &amp; Abs and Dumbbell Full-Body are guided day-by-day; Texas Method is the barbell strength program. Switch any time.</div>
@@ -1607,7 +1643,7 @@ function wireSetup() {
   /* program selector */
   view.querySelectorAll('#segProgram button').forEach(b => b.onclick = () => {
     S.program = b.dataset.prog; save(); render();
-    const names = { prep30: '30-Day Prep 🗓️', mobility: 'Mobility Method 🧘', core: 'Core & Abs 🔥', dumbbell: 'Dumbbell Full-Body 💪', pilates: 'Pilates Mat 🤸', hiit: 'Full-Body HIIT ⚡', texas: 'Texas Method 🏋️' };
+    const names = { prep30: '30-Day Prep 🗓️', mobility: 'Mobility Method 🧘', core: 'Core & Abs 🔥', dumbbell: 'Dumbbell Full-Body 💪', pilates: 'Pilates Mat 🤸', hiit: 'Full-Body HIIT ⚡', bjj: 'BJJ Solo Drills 🥋', texas: 'Texas Method 🏋️' };
     toast((names[S.program] || S.program) + ' active');
   });
 
