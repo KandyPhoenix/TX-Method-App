@@ -466,6 +466,19 @@ table.prog td.s { text-align: right; color: var(--muted); width: 60px; }
 }
 .tip-demo:active { transform: scale(.96); }
 
+/* program picker — tile grid */
+.prog-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; }
+.prog-tile {
+  background: var(--panel2); border: 1px solid var(--border); border-radius: 14px;
+  padding: 14px 8px 12px; text-align: center; cursor: pointer; color: #fff;
+}
+.prog-tile:active { transform: scale(.97); }
+.prog-tile.on { border-color: var(--lime); background: var(--lime-dim); box-shadow: 0 0 14px var(--lime-glow); }
+.prog-ico { font-size: 30px; line-height: 1; }
+.prog-name { font-weight: 800; font-size: 15px; margin-top: 7px; color: #fff; }
+.prog-tile.on .prog-name { color: var(--lime); }
+.prog-sub { font-size: 12px; color: var(--muted); margin-top: 2px; }
+
 /* ---- 30-Day Prep calendar ---- */
 .prep-grid {
   display: grid;

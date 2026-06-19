@@ -1496,17 +1496,20 @@ function renderSetup() {
 
     <h2 class="section">Active program</h2>
     <div class="card">
-      <div class="seg" id="segProgram" style="flex-direction:column;gap:8px">
-        <button data-prog="prep30"   class="${S.program==='prep30'?'on':''}">🗓️ 30-Day Prep · bodyweight ramp-up</button>
-        <button data-prog="mobility" class="${S.program==='mobility'?'on':''}">🧘 Mobility Method · daily joint mobility</button>
-        <button data-prog="core"     class="${S.program==='core'?'on':''}">🔥 Core &amp; Abs · 28-day core builder</button>
-        <button data-prog="dumbbell" class="${S.program==='dumbbell'?'on':''}">💪 Dumbbell Full-Body · A/B strength</button>
-        <button data-prog="pilates"  class="${S.program==='pilates'?'on':''}">🤸 Pilates Mat · classical J.H. Pilates</button>
-        <button data-prog="hiit"     class="${S.program==='hiit'?'on':''}">⚡ Full-Body HIIT · timed circuit</button>
-        <button data-prog="bjj"      class="${S.program==='bjj'?'on':''}">🥋 BJJ Solo Drills · jiu-jitsu movement</button>
-        <button data-prog="texas"    class="${S.program==='texas'?'on':''}">🏋️ Texas Method · barbell program</button>
+      <div class="prog-grid" id="segProgram">
+        ${[
+          ['prep30','🗓️','30-Day Prep','bodyweight ramp-up'],
+          ['mobility','🧘','Mobility','joint mobility'],
+          ['core','🔥','Core & Abs','core builder'],
+          ['dumbbell','💪','Dumbbell','A/B strength'],
+          ['pilates','🤸','Pilates Mat','classical Pilates'],
+          ['hiit','⚡','Full-Body HIIT','timed circuit'],
+          ['bjj','🥋','BJJ Drills','jiu-jitsu'],
+          ['texas','🏋️','Texas Method','barbell']
+        ].map(([k,ico,nm,sub]) => `<button class="prog-tile ${S.program===k?'on':''}" data-prog="${k}">
+          <div class="prog-ico">${ico}</div><div class="prog-name">${nm}</div><div class="prog-sub">${sub}</div></button>`).join('')}
       </div>
-      <div class="hint">Pick any program. 30-Day Prep, Mobility, Core &amp; Abs and Dumbbell Full-Body are guided day-by-day; Texas Method is the barbell strength program. Switch any time.</div>
+      <div class="hint">Tap a program to switch — your progress in each is saved separately.</div>
     </div>
 
     <h2 class="section">Display — text size</h2>
