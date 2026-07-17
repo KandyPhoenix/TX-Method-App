@@ -438,6 +438,15 @@ table.prog td.s { text-align: right; color: var(--muted); width: 60px; }
 }
 .info-btn:active { transform: scale(.9); }
 
+/* labeled "How-to" pill used on each exercise card */
+.form-btn {
+  width: auto; height: auto; border-radius: 999px;
+  gap: 4px; padding: 3px 10px; margin-left: 8px;
+  font-size: 12px; font-weight: 700; letter-spacing: .2px;
+  color: var(--lime); vertical-align: middle;
+}
+.form-btn .fb-i { font-size: 13px; line-height: 1; }
+
 .info-pop {
   position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%);
   width: calc(100% - 48px); max-width: 380px; max-height: 76vh; overflow: auto;

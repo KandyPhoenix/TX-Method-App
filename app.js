@@ -179,7 +179,8 @@ const DB_B = { exercises: [
   db('dbrenrow',    'DB Renegade Row',       '🚣', 8,  '3 × 8 / side', true),
   db('dbhinge',     'DB Deadlift',           '🏋️', 12, '3 × 12'),
   db('dblatraise',  'DB Lateral Raise',      '🙌', 12, '3 × 12'),
-  db('dbhammer',    'DB Hammer Curl',        '💪', 12, '3 × 12')
+  db('dbhammer',    'DB Hammer Curl',        '💪', 12, '3 × 12'),
+  db('dbwindmill',  'DB Windmill',           '🌀', 8,  '3 × 8 / side', true)
 ]};
 const DUMBBELL = [];
 for (let i = 0; i < 24; i++) DUMBBELL.push(i % 2 === 0 ? DB_A : DB_B);
@@ -1158,6 +1159,7 @@ const FORM_TIPS = {
   dbhinge:   { title: 'DB Deadlift', body: 'Dumbbells on the floor beside your feet (or in front). Flat back, hinge and bend to grip them, then stand tall by driving your hips forward and pushing the floor away. Keep the weights close and your back neutral.' },
   dblatraise:{ title: 'DB Lateral Raise', body: 'Slight bend in the elbows, raise the dumbbells out to your sides to about shoulder height — lead with your elbows, not your hands — then lower slowly. Light weight, no swinging. Hits the side delts.' },
   dbhammer:  { title: 'DB Hammer Curl', body: 'Curl with a neutral grip (palms facing each other, like holding hammers), elbows tucked. Squeeze at the top, lower slowly. Builds the biceps and forearms.' },
+  dbwindmill:{ title: 'DB Windmill', body: 'Press one dumbbell overhead and keep it locked out, eyes on it the whole time. Turn your feet out ~45° away from the weight. Push your hips toward the raised arm and hinge sideways, sliding your free hand down your front leg toward the floor while the top arm stays vertical. Stand back up with control. Builds shoulder stability, core and hip mobility. Do all reps, then switch sides. Start light.' },
   hundred:   { title: 'The Hundred', body: 'On your back, curl your head and shoulders up, legs extended at ~45° (or knees bent/tabletop to start). Reach your arms long by your sides and pump them up and down with small vigorous beats while breathing — 5 counts in, 5 counts out. Keep your lower back pressed down and abs scooped.' },
   rollup:    { title: 'Roll-Up', body: 'Lie flat, arms overhead. Reach forward and peel your spine off the mat one vertebra at a time, curling up and over toward your toes, then roll back down with the same control. Move slowly and articulate the spine — no momentum.' },
   legcircle: { title: 'Single Leg Circles', body: 'On your back, one leg pointed to the ceiling, the other long on the mat. Draw controlled circles with the lifted leg, keeping your hips and torso completely still and stable. Reps one direction, then reverse. Then switch legs.' },
@@ -1202,7 +1204,7 @@ function showFormTip(key) {
     <a class="tip-demo" href="https://www.youtube.com/results?search_query=${q}" target="_blank" rel="noopener">🎬 Watch a demo</a>`;
   pop.classList.add('visible');
 }
-function formBtn(key) { return FORM_TIPS[key] ? `<button class="info-btn" onclick="showFormTip('${key}')">ⓘ</button>` : ''; }
+function formBtn(key) { return FORM_TIPS[key] ? `<button class="info-btn form-btn" onclick="showFormTip('${key}')"><span class="fb-i">ⓘ</span> How-to</button>` : ''; }
 
 function renderStats() {
   if (isDayProgram()) { renderPrepStats(); return; }
