@@ -266,8 +266,8 @@ const SA2_A = { title: 'Full Body A + Zone 2', exercises: [
   sa('dbrdl',          'Romanian Deadlift',   '🦵', 10, 'Superset 1 · 4 × 8–12 · back to squats after 60–80 s'),
   sa('dbpress',        'Chest Press',         '💪', 10, 'Superset 2 · 4 × 8–12 · leave 2–3 reps in reserve'),
   sa('dbrow',          'Bent-Over Row',       '🚣', 10, 'Superset 2 · 4 × 8–12 · back to presses after 60–80 s'),
-  saTimed('carry',     "Farmer's Carry",      '🧳', 40, 3, 'Superset 3 · heavy — alternate with plank'),
-  saTimed('plank',     'Plank',               '🧘', 45, 3, 'Superset 3 · alternate with carries'),
+  saTimed('carry',     "Farmer's Hold & March", '🧳', 40, 3, 'Superset 3 · heavy — alternate with plank'),
+  saTimed('plank',     'Plank',               '🧘', 45, 3, 'Superset 3 · alternate with holds'),
   saTimed('zone2',     'Zone 2 Ride',         '🚴', 3600, 1, '60 min steady spin — you can talk in full sentences')
 ]};
 const SA2_B = { title: 'Full Body B + VO₂ Max', exercises: [
@@ -300,7 +300,7 @@ const SA4_LA = { title: 'Lower A + Zone 2', exercises: [
   sa('dbrdl',          'Romanian Deadlift',   '🦵', 10, 'Superset 1 · 3 × 8–12 · back to squats after 60–80 s'),
   sa('dblunge',        'Reverse Lunge',       '🦵', 10, 'Superset 2 · 3 × 8–12 / side', true),
   sa('dbhinge',        'Deadlift',            '🏋️', 10, 'Superset 2 · 3 × 8–12 · back to lunges after 60–80 s'),
-  saTimed('carry',     "Farmer's Carry",      '🧳', 40, 2, 'Core & carry finisher — heavy, tall posture'),
+  saTimed('carry',     "Farmer's Hold & March", '🧳', 40, 2, 'Core & carry finisher — heavy, tall posture'),
   saTimed('zone2',     'Zone 2 Ride',         '🚴', 1800, 1, '30 min steady spin — conversational pace')
 ]};
 const SA4_UB = { title: 'Upper B + VO₂ Max', exercises: [
@@ -318,7 +318,7 @@ const SA4_LB = { title: 'Lower B + Zone 2', exercises: [
   sa('dbrdl',          'Romanian Deadlift',   '🦵', 10, 'Superset 1 · 3 × 8–12 · back to lunges after 60–80 s'),
   sa('gobletsquat',    'Goblet Squat',        '🏋️', 10, 'Superset 2 · 3 × 8–12 · leave 2–3 reps in reserve'),
   sa('dbhinge',        'Deadlift',            '🏋️', 10, 'Superset 2 · 3 × 8–12 · back to squats after 60–80 s'),
-  saTimed('carry',     "Farmer's Carry",      '🧳', 40, 2, 'Core & carry finisher — heavy, tall posture'),
+  saTimed('carry',     "Farmer's Hold & March", '🧳', 40, 2, 'Core & carry finisher — heavy, tall posture'),
   saTimed('zone2',     'Zone 2 Ride',         '🚴', 1800, 1, '30 min steady spin — conversational pace')
 ]};
 const SUPERAGE4 = [];
@@ -1281,7 +1281,7 @@ const FORM_TIPS = {
   mbslam:    { title: 'Medicine Ball Slam', body: 'Reach the ball tall overhead, rising onto your toes, then slam it into the floor as hard as you can — hinge at the hips and follow through with your whole body. Pick it up (or catch the bounce), reset, repeat. No ball? Do squat jumps instead. Explosive work where you move fast is a key longevity ingredient.' },
   latpull:   { title: 'Pull-Up / Band Pulldown', body: 'Pull-up bar: from a dead hang, pull your chest toward the bar leading with your elbows, then lower all the way under control. Band pulldown: anchor a band overhead, kneel or sit tall, and pull the band to your collarbones by driving your elbows down. No bar or band? Do a single-arm dumbbell row instead. No swinging or momentum.' },
   sidelunge: { title: 'Lateral Lunge', body: 'Step wide to one side, sit your hips back and bend that knee while the other leg stays straight, chest tall and heels down. Push off to return to standing. Hold a dumbbell at your chest to load it. Side-to-side strength keeps you agile and balanced as you age.' },
-  carry:     { title: "Farmer's Carry", body: 'Grab a heavy dumbbell or kettlebell in each hand, stand tall — shoulders back, ribs down — and walk with controlled steps for the full time. Don\'t let the weights pull you into a lean. Grip, core, posture and bone loading in one move.' },
+  carry:     { title: "Farmer's Hold & March", body: 'The no-space version of the farmer\'s carry. Grab a heavy dumbbell or kettlebell in each hand and stand tall — shoulders back, ribs down. Hold for the full time, or march in place with slow, controlled knee lifts. Don\'t let the weights pull you into a lean. Same endurance under load, grip, core and posture work — zero floor space needed.' },
   sideplank: { title: 'Side Plank', body: 'Lie on your side, elbow under your shoulder, and lift your hips so your body forms one straight line from head to feet. Brace and breathe. Easier: keep your bottom knee on the floor. Do the time on each side.' },
   zone2:     { title: 'Zone 2 Ride', body: 'A steady road ride at a pace where you can still talk in full sentences but singing would be hard (roughly 60–70% of your max heart rate). Pick a flat-ish route or spin an easy gear at a comfortable cadence (~85–95 rpm); soft-pedal the downhills and ease off on climbs to stay in zone. If you\'re gasping, shift down: it should feel almost too easy. This builds the aerobic base most strongly tied to longevity.' },
   vo2max:    { title: 'VO₂ Max Bike Intervals (4×4)', body: 'After 10 minutes of easy riding to warm up: 4 minutes hard — an 8/10 effort where you can only speak a few words at a time (a steady climb or a stretch of open road works well) — then 3 minutes of very easy spinning. Repeat 4 times, staying seated and smooth rather than sprinting. Once a week is plenty; VO₂ max is one of the strongest predictors of a long healthy life.' }
