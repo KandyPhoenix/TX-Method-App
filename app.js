@@ -251,6 +251,80 @@ const BJJ = [];
 for (let d = 1; d <= 28; d++) BJJ.push(d % 7 === 0 ? PREP_REST : bjjDay(Math.floor((d - 1) / 7)));
 
 /* =====================================================================
+   SUPERAGE LONGEVITY  (2-day & 4-day superset plans + weekly cardio)
+   ~2 h/week of strength as supersets (8–12 reps, 2–3 reps in reserve,
+   60–80 s between paired moves) + ~2 h/week Zone 2 / VO2-max cardio.
+   ===================================================================== */
+function sa(key, name, icon, reps, scheme, side) { return { key, name, icon, reps, scheme, side: !!side }; }
+function saTimed(key, name, icon, sec, sets, scheme, side) { return { key, name, icon, sets: sets || 1, sec, scheme, side: !!side }; }
+
+/* --- 2-day: two big sessions (~60 min lifting + ~60 min cardio each) --- */
+const SA2_A = { title: 'Full Body A + Zone 2', exercises: [
+  saTimed('sawarm',    'Warm-Up Spin + Mobility', '🚶', 300, 1, '5 min easy spin or brisk walk + joint circles'),
+  sa('mbslam',         'Medicine Ball Slams', '💥', 8,  '3 × 8 · explosive — slam hard, reset each rep'),
+  sa('gobletsquat',    'Goblet Squat',        '🏋️', 10, 'Superset 1 · 4 × 8–12 · leave 2–3 reps in reserve'),
+  sa('dbrdl',          'Romanian Deadlift',   '🦵', 10, 'Superset 1 · 4 × 8–12 · back to squats after 60–80 s'),
+  sa('dbpress',        'Chest Press',         '💪', 10, 'Superset 2 · 4 × 8–12 · leave 2–3 reps in reserve'),
+  sa('dbrow',          'Bent-Over Row',       '🚣', 10, 'Superset 2 · 4 × 8–12 · back to presses after 60–80 s'),
+  saTimed('carry',     "Farmer's Carry",      '🧳', 40, 3, 'Superset 3 · heavy — alternate with plank'),
+  saTimed('plank',     'Plank',               '🧘', 45, 3, 'Superset 3 · alternate with carries'),
+  saTimed('zone2',     'Zone 2 Ride',         '🚴', 3600, 1, '60 min steady spin — you can talk in full sentences')
+]};
+const SA2_B = { title: 'Full Body B + VO₂ Max', exercises: [
+  saTimed('sawarm',    'Warm-Up Spin + Mobility', '🚶', 300, 1, '5 min easy spin or brisk walk + joint circles'),
+  sa('skaters',        'Skater Hops',         '⛸️', 10, '3 × 10 · explosive lateral bounds'),
+  sa('dblunge',        'Reverse Lunge',       '🦵', 10, 'Superset 1 · 4 × 8–12 / side · 2–3 in reserve', true),
+  sa('dbhinge',        'Deadlift',            '🏋️', 10, 'Superset 1 · 4 × 8–12 · back to lunges after 60–80 s'),
+  sa('pushups',        'Push-Ups',            '💪', 10, 'Superset 2 · 4 × 8–12 · leave 2–3 reps in reserve'),
+  sa('latpull',        'Pull-Up / Band Pulldown', '⬇️', 10, 'Superset 2 · 4 × 8–12 · back to push-ups after 60–80 s'),
+  saTimed('sideplank', 'Side Plank',          '📐', 30, 2, 'Core finisher', true),
+  saTimed('vo2max',    'VO₂ Max Bike Intervals', '🫀', 240, 4, '4 × 4 min hard riding (8/10) · 3 min easy spin between'),
+  saTimed('zone2',     'Zone 2 Ride',         '🚴', 1800, 1, '30 min steady spin — conversational pace')
+]};
+const SUPERAGE2 = [];
+for (let i = 0; i < 24; i++) SUPERAGE2.push(i % 2 === 0 ? SA2_A : SA2_B);
+
+/* --- 4-day: 2 upper + 2 lower (~30 min lifting + ~30 min cardio each) --- */
+const SA4_UA = { title: 'Upper A + Zone 2', exercises: [
+  sa('mbslam',         'Medicine Ball Slams', '💥', 8,  '2 × 8 · explosive warm-up'),
+  sa('dbpress',        'Chest Press',         '💪', 10, 'Superset 1 · 3 × 8–12 · leave 2–3 reps in reserve'),
+  sa('dbrow',          'Bent-Over Row',       '🚣', 10, 'Superset 1 · 3 × 8–12 · back to presses after 60–80 s'),
+  sa('pushups',        'Push-Ups',            '🙌', 10, 'Superset 2 · 3 × 8–12 · leave 2–3 reps in reserve'),
+  sa('latpull',        'Pull-Up / Band Pulldown', '⬇️', 10, 'Superset 2 · 3 × 8–12 · back to push-ups after 60–80 s'),
+  saTimed('plank',     'Plank',               '🧘', 45, 2, 'Core finisher'),
+  saTimed('zone2',     'Zone 2 Ride',         '🚴', 1800, 1, '30 min steady spin — conversational pace')
+]};
+const SA4_LA = { title: 'Lower A + Zone 2', exercises: [
+  sa('squatjump',      'Squat Jumps',         '🦿', 6,  '2 × 6 · explosive — land soft'),
+  sa('gobletsquat',    'Goblet Squat',        '🏋️', 10, 'Superset 1 · 3 × 8–12 · leave 2–3 reps in reserve'),
+  sa('dbrdl',          'Romanian Deadlift',   '🦵', 10, 'Superset 1 · 3 × 8–12 · back to squats after 60–80 s'),
+  sa('dblunge',        'Reverse Lunge',       '🦵', 10, 'Superset 2 · 3 × 8–12 / side', true),
+  sa('dbhinge',        'Deadlift',            '🏋️', 10, 'Superset 2 · 3 × 8–12 · back to lunges after 60–80 s'),
+  saTimed('carry',     "Farmer's Carry",      '🧳', 40, 2, 'Core & carry finisher — heavy, tall posture'),
+  saTimed('zone2',     'Zone 2 Ride',         '🚴', 1800, 1, '30 min steady spin — conversational pace')
+]};
+const SA4_UB = { title: 'Upper B + VO₂ Max', exercises: [
+  sa('mbslam',         'Medicine Ball Slams', '💥', 8,  '2 × 8 · explosive warm-up'),
+  sa('dbpress',        'Chest Press',         '💪', 10, 'Superset 1 · 3 × 8–12 · leave 2–3 reps in reserve'),
+  sa('chin',           'Pull-Up / Chin-Up',   '🧗', 8,  'Superset 1 · 3 sets · stop 2–3 reps shy of failure'),
+  sa('dbpushup',       'Push-Up',             '🙌', 10, 'Superset 2 · 3 × 8–12 · leave 2–3 reps in reserve'),
+  sa('dbrenrow',       'Renegade Row',        '🚣', 8,  'Superset 2 · 3 × 8 / side', true),
+  saTimed('sideplank', 'Side Plank',          '📐', 30, 2, 'Core finisher', true),
+  saTimed('vo2max',    'VO₂ Max Bike Intervals', '🫀', 240, 4, '4 × 4 min hard riding (8/10) · 3 min easy spin between')
+]};
+const SA4_LB = { title: 'Lower B + Zone 2', exercises: [
+  sa('skaters',        'Skater Hops',         '⛸️', 10, '2 × 10 · explosive lateral bounds'),
+  sa('sidelunge',      'Lateral Lunge',       '↔️', 8,  'Superset 1 · 3 × 8–10 / side', true),
+  sa('dbrdl',          'Romanian Deadlift',   '🦵', 10, 'Superset 1 · 3 × 8–12 · back to lunges after 60–80 s'),
+  sa('gobletsquat',    'Goblet Squat',        '🏋️', 10, 'Superset 2 · 3 × 8–12 · leave 2–3 reps in reserve'),
+  sa('dbhinge',        'Deadlift',            '🏋️', 10, 'Superset 2 · 3 × 8–12 · back to squats after 60–80 s'),
+  saTimed('carry',     "Farmer's Carry",      '🧳', 40, 2, 'Core & carry finisher — heavy, tall posture'),
+  saTimed('zone2',     'Zone 2 Ride',         '🚴', 1800, 1, '30 min steady spin — conversational pace')
+]};
+const SUPERAGE4 = [];
+for (let i = 0; i < 24; i++) SUPERAGE4.push([SA4_UA, SA4_LA, SA4_UB, SA4_LB][i % 4]);
+
+/* =====================================================================
    DAY-PROGRAM HELPERS  (shared by 30-Day Prep + Mobility)
    ===================================================================== */
 const DAY_PROGRAMS = {
@@ -260,7 +334,9 @@ const DAY_PROGRAMS = {
   dumbbell: { data: DUMBBELL, stateKey: 'db',   label: 'Dumbbell Full-Body', sub: 'A/B strength, 3×/week' },
   pilates:  { data: PILATES,  stateKey: 'pil',  label: 'Pilates Mat',        sub: 'classical mat sequence' },
   hiit:     { data: HIIT,     stateKey: 'hiit', label: 'Full-Body HIIT',     sub: 'timed circuit' },
-  bjj:      { data: BJJ,      stateKey: 'bjj',  label: 'BJJ Solo Drills',    sub: 'jiu-jitsu movement' }
+  bjj:      { data: BJJ,      stateKey: 'bjj',  label: 'BJJ Solo Drills',    sub: 'jiu-jitsu movement' },
+  sa2:      { data: SUPERAGE2, stateKey: 'sa2', label: 'SuperAge 2-Day',     sub: '2×/week · supersets + cardio', holdLabel: 'Timed work' },
+  sa4:      { data: SUPERAGE4, stateKey: 'sa4', label: 'SuperAge 4-Day',     sub: '4×/week · supersets + cardio', holdLabel: 'Timed work' }
 };
 function isDayProgram() { return !!DAY_PROGRAMS[S.program]; }
 function pcfg()   { return DAY_PROGRAMS[S.program] || DAY_PROGRAMS.prep30; }
@@ -385,7 +461,7 @@ function loadState() {
     if (raw) return migrate(JSON.parse(raw));
   } catch (e) { /* ignore */ }
   return { settings: structuredClone(DEFAULTS), cursor: { week: 0, day: 0 }, logs: {}, bodyLog: [],
-           program: 'prep30', prep: { day: 1, log: {} }, mob: { day: 1, log: {} }, core: { day: 1, log: {} }, db: { day: 1, log: {} }, pil: { day: 1, log: {} }, hiit: { day: 1, log: {} }, bjj: { day: 1, log: {} }, achievements: [], prs: {}, sessions: 0, history: [] };
+           program: 'prep30', prep: { day: 1, log: {} }, mob: { day: 1, log: {} }, core: { day: 1, log: {} }, db: { day: 1, log: {} }, pil: { day: 1, log: {} }, hiit: { day: 1, log: {} }, bjj: { day: 1, log: {} }, sa2: { day: 1, log: {} }, sa4: { day: 1, log: {} }, achievements: [], prs: {}, sessions: 0, history: [] };
 }
 let S = loadState();
 
@@ -409,7 +485,7 @@ function migrate(st) {
   st.mob     = st.mob     || { day: 1, log: {} };
   if (st.mob.day == null) st.mob.day = 1;
   if (!st.mob.log) st.mob.log = {};
-  ['core', 'db', 'pil', 'hiit', 'bjj'].forEach(k => { st[k] = st[k] || { day: 1, log: {} }; if (st[k].day == null) st[k].day = 1; if (!st[k].log) st[k].log = {}; });
+  ['core', 'db', 'pil', 'hiit', 'bjj', 'sa2', 'sa4'].forEach(k => { st[k] = st[k] || { day: 1, log: {} }; if (st[k].day == null) st[k].day = 1; if (!st[k].log) st[k].log = {}; });
   if (!st.achievements) st.achievements = [];
   if (!st.prs) st.prs = {};
   if (st.sessions == null) st.sessions = 0;
@@ -834,8 +910,8 @@ function renderPrepToday() {
     <div class="card" style="display:flex;align-items:center;justify-content:space-between;">
       <button class="btn small secondary" id="prepPrev" ${dayNum <= 1 ? 'disabled' : ''}>‹ Prev</button>
       <div class="center">
-        <div style="font-weight:800;font-size:19px;">Day ${dayNum}</div>
-        <div class="tiny muted" style="white-space:nowrap;">${prepDaysComplete()} / ${pWorkDays()} done</div>
+        <div style="font-weight:800;font-size:19px;">${d.title || `Day ${dayNum}`}</div>
+        <div class="tiny muted" style="white-space:nowrap;">${d.title ? `Day ${dayNum} · ` : ''}${prepDaysComplete()} / ${pWorkDays()} done</div>
       </div>
       <button class="btn small secondary" id="prepNext" ${dayNum >= ptotal() ? 'disabled' : ''}>Next ›</button>
     </div>`;
@@ -898,34 +974,47 @@ function prepExerciseCard(ex, log) {
     <span class="badge vol">${ex.scheme ? 'Sets' : 'Reps'}</span></div>${rows}</div>`;
 }
 
-/* ordered items for a day; a multi-set hold (prep's plank) is spread
-   between the other exercises. Single holds stay in place. */
-function exItem(ex) { return ex.sets ? { type: 'plank', ex, setIndex: 0, total: ex.sets } : { type: 'reps', ex }; }
+/* ordered items for a day. In the 30-Day Prep the multi-set plank is
+   spread between the other exercises; elsewhere multi-set holds simply
+   expand into one item per set, in place. */
+function exItems(ex) {
+  if (!ex.sets) return [{ type: 'reps', ex }];
+  const out = [];
+  for (let i = 0; i < ex.sets; i++) out.push({ type: 'plank', ex, setIndex: i, total: ex.sets });
+  return out;
+}
 function prepDayItems(d) {
-  const spread = d.exercises.find(e => e.sets && e.sets > 1);
-  if (!spread) return d.exercises.map(exItem);
+  const spread = S.program === 'prep30' && d.exercises.find(e => e.sets && e.sets > 1);
+  if (!spread) return d.exercises.flatMap(exItems);
   const others = d.exercises.filter(e => e !== spread);
   const items = [];
   let pi = 0;
   others.forEach(ex => {
-    items.push(exItem(ex));
+    items.push(...exItems(ex));
     if (pi < spread.sets) { items.push({ type: 'plank', ex: spread, setIndex: pi, total: spread.sets }); pi++; }
   });
   while (pi < spread.sets) { items.push({ type: 'plank', ex: spread, setIndex: pi, total: spread.sets }); pi++; }
   return items;
 }
 
+/* duration label for timed work: seconds for holds, m:ss for cardio blocks */
+function holdTxt(sec) { return sec >= 90 ? fmtClock(sec) : `${sec} sec`; }
+
 /* a single plank set as its own card */
 function plankSetCard(ex, i, total, log) {
   const id = `${ex.key}_${i}`;
   const on = log.checks && log.checks[id] ? 'on' : '';
+  const setLbl = total > 1 ? `Set ${i + 1} of ${total} · ` : '';
+  const scheme = ex.scheme
+    ? `${setLbl}${holdTxt(ex.sec)} · ${ex.scheme}`
+    : `${setLbl}${holdTxt(ex.sec)}${ex.sec >= 90 ? '' : ' hold'}${ex.side ? ' · each side' : ''}`;
   return `<div class="card lift">
     <div class="lift-head"><div><div class="name">${ex.name} ${formBtn(ex.key)}</div>
-    <div class="scheme">${total > 1 ? `Set ${i + 1} of ${total} · ` : ''}${ex.sec} sec hold${ex.side ? ' · each side' : ''}</div></div>
-    <span class="badge vol">Hold</span></div>
+    <div class="scheme">${scheme}</div></div>
+    <span class="badge vol">${ex.sec >= 90 ? 'Timed' : 'Hold'}</span></div>
     <div class="set-row workset ${on ? 'done' : ''}">
-      <div class="lbl">🧘 ${ex.side ? 'Each side' : 'Hold'}</div>
-      <button class="mini-start" data-hold="${ex.sec}" data-holdname="${ex.name}" data-holdcheck="${id}">▶ Start · ${ex.sec}s</button>
+      <div class="lbl">${ex.sec >= 90 ? '⏱' : '🧘'} ${ex.side ? 'Each side' : ex.sec >= 90 ? 'Timed' : 'Hold'}</div>
+      <button class="mini-start" data-hold="${ex.sec}" data-holdname="${ex.name}" data-holdcheck="${id}">▶ Start · ${holdTxt(ex.sec).replace(' sec', 's')}</button>
       <div class="set-end"><button class="check ${on}" data-pcheck="${id}">✓</button></div>
     </div></div>`;
 }
@@ -1025,7 +1114,7 @@ function renderPrepProgram() {
       inner = `<div class="prep-rest">REST</div>`;
     } else {
       inner = d.exercises.map(ex =>
-        `<div class="prep-ex">${ex.sets ? `${ex.name} ${ex.sec}s` : `${ex.name} ${ex.reps}`}</div>`
+        `<div class="prep-ex">${ex.sets ? `${ex.name} ${ex.sets > 1 ? ex.sets + '×' : ''}${holdTxt(ex.sec).replace(' sec', 's')}` : `${ex.name} ${ex.reps}`}</div>`
       ).join('');
     }
     cells += `<div class="prep-cell ${cur} ${rest} ${done}" data-prepday="${n}">
@@ -1187,7 +1276,15 @@ const FORM_TIPS = {
   sitout:    { title: 'Sit-outs', body: 'From a quadruped/sprawl base, shoot one leg through underneath you and turn to face up, posting on the opposite hand — like escaping a front headlock or turning in to face your opponent. Return and alternate. Stay low and turn your hips through.' },
   breakfall: { title: 'Back Breakfalls', body: 'From standing or squatting, sit and roll backward onto your rounded back, slapping the mat with both arms at ~45° to disperse the impact, chin tucked to your chest. Practice landing softly and safely — the foundation for being thrown.' },
   hipheist:  { title: 'Hip Heist', body: 'From a seated/sprawl position, post a hand and swivel your hips, switching from facing one way to the other by threading your bottom leg through — the scramble movement used to come up on top. Keep your hips off the floor and switch quickly. Each side.' },
-  invhold:   { title: 'Inversion Hold', body: 'On your back, roll your hips up and over so your weight is on your upper back/shoulders with your hips stacked above (support your back with your hands if needed). Hold and breathe — builds the spinal/hip mobility for inverting in guard. Ease into it; protect your neck.' }
+  invhold:   { title: 'Inversion Hold', body: 'On your back, roll your hips up and over so your weight is on your upper back/shoulders with your hips stacked above (support your back with your hands if needed). Hold and breathe — builds the spinal/hip mobility for inverting in guard. Ease into it; protect your neck.' },
+  sawarm:    { title: 'Warm-Up Spin + Mobility', body: '5 minutes of very easy spinning on the bike (or a brisk walk / jump rope) plus big joint circles: arm circles, hip circles, leg swings and ankle rolls. Finish lightly warm, not tired. This takes your joints through their full range before you load them.' },
+  mbslam:    { title: 'Medicine Ball Slam', body: 'Reach the ball tall overhead, rising onto your toes, then slam it into the floor as hard as you can — hinge at the hips and follow through with your whole body. Pick it up (or catch the bounce), reset, repeat. No ball? Do squat jumps instead. Explosive work where you move fast is a key longevity ingredient.' },
+  latpull:   { title: 'Pull-Up / Band Pulldown', body: 'Pull-up bar: from a dead hang, pull your chest toward the bar leading with your elbows, then lower all the way under control. Band pulldown: anchor a band overhead, kneel or sit tall, and pull the band to your collarbones by driving your elbows down. No bar or band? Do a single-arm dumbbell row instead. No swinging or momentum.' },
+  sidelunge: { title: 'Lateral Lunge', body: 'Step wide to one side, sit your hips back and bend that knee while the other leg stays straight, chest tall and heels down. Push off to return to standing. Hold a dumbbell at your chest to load it. Side-to-side strength keeps you agile and balanced as you age.' },
+  carry:     { title: "Farmer's Carry", body: 'Grab a heavy dumbbell or kettlebell in each hand, stand tall — shoulders back, ribs down — and walk with controlled steps for the full time. Don\'t let the weights pull you into a lean. Grip, core, posture and bone loading in one move.' },
+  sideplank: { title: 'Side Plank', body: 'Lie on your side, elbow under your shoulder, and lift your hips so your body forms one straight line from head to feet. Brace and breathe. Easier: keep your bottom knee on the floor. Do the time on each side.' },
+  zone2:     { title: 'Zone 2 Ride', body: 'A steady road ride at a pace where you can still talk in full sentences but singing would be hard (roughly 60–70% of your max heart rate). Pick a flat-ish route or spin an easy gear at a comfortable cadence (~85–95 rpm); soft-pedal the downhills and ease off on climbs to stay in zone. If you\'re gasping, shift down: it should feel almost too easy. This builds the aerobic base most strongly tied to longevity.' },
+  vo2max:    { title: 'VO₂ Max Bike Intervals (4×4)', body: 'After 10 minutes of easy riding to warm up: 4 minutes hard — an 8/10 effort where you can only speak a few words at a time (a steady climb or a stretch of open road works well) — then 3 minutes of very easy spinning. Repeat 4 times, staying seated and smooth rather than sprinting. Once a week is plenty; VO₂ max is one of the strongest predictors of a long healthy life.' }
 };
 function showFormTip(key) {
   const info = FORM_TIPS[key]; if (!info) return;
@@ -1341,7 +1438,7 @@ function renderPrepStats() {
     });
   }
   let totalReps = 0; exKeys.forEach(e => totalReps += (tally[e.key] || 0));
-  const holdLabel = S.program === 'prep30' ? 'Plank time' : 'Hold time';
+  const holdLabel = S.program === 'prep30' ? 'Plank time' : (pcfg().holdLabel || 'Hold time');
 
   // per-exercise "banked" bars — fill grows toward the full-plan total
   const banked = exKeys.map(e => {
@@ -1507,6 +1604,8 @@ function renderSetup() {
           ['pilates','🤸','Pilates Mat','classical Pilates'],
           ['hiit','⚡','Full-Body HIIT','timed circuit'],
           ['bjj','🥋','BJJ Drills','jiu-jitsu'],
+          ['sa2','🫀','SuperAge 2-Day','supersets + cardio'],
+          ['sa4','❤️‍🔥','SuperAge 4-Day','supersets + cardio'],
           ['texas','🏋️','Texas Method','barbell']
         ].map(([k,ico,nm,sub]) => `<button class="prog-tile ${S.program===k?'on':''}" data-prog="${k}">
           <div class="prog-ico">${ico}</div><div class="prog-name">${nm}</div><div class="prog-sub">${sub}</div></button>`).join('')}
@@ -2569,7 +2668,7 @@ function buildSteps() {
       if (item.type === 'reps') {
         steps.push({ name: item.ex.name, key: item.ex.key, label: 'Target', kind: 'reps', bw: true, reps: item.ex.reps, side: item.ex.side, scheme: item.ex.scheme, checkId: item.ex.key, store: 'prep' });
       } else {
-        steps.push({ name: item.ex.name, key: item.ex.key, label: item.total > 1 ? `Set ${item.setIndex + 1} of ${item.total}` : 'Hold', kind: 'hold', seconds: item.ex.sec, side: item.ex.side, checkId: `${item.ex.key}_${item.setIndex}`, store: 'prep' });
+        steps.push({ name: item.ex.name, key: item.ex.key, label: item.total > 1 ? `Set ${item.setIndex + 1} of ${item.total}` : (item.ex.sec >= 90 ? 'Timed' : 'Hold'), kind: 'hold', seconds: item.ex.sec, side: item.ex.side, checkId: `${item.ex.key}_${item.setIndex}`, store: 'prep' });
       }
     });
   } else {
@@ -2629,14 +2728,14 @@ function renderSession() {
   let body = '';
   if (sess.phase === 'ready') {
     const sideTxt = step.side ? ' / side' : '';
-    const target = step.kind === 'hold' ? `${step.seconds}s hold${sideTxt}`
+    const target = step.kind === 'hold' ? `${holdTxt(step.seconds)}${step.seconds >= 90 ? '' : ' hold'}${sideTxt}`
       : step.scheme ? step.scheme
       : step.bw ? (step.amrap ? 'AMRAP' : `${step.reps} reps${sideTxt}`)
       : `${fmt(step.weight)} ${unit()} × ${step.reps}`;
     const sub = (step.weight != null && step.kind === 'reps')
       ? `<div class="sess-plates">${plateStripHTML(step.weight)}</div>` : '';
     const btn = step.kind === 'hold'
-      ? `<button class="btn primary" id="sessAct">▶ Start hold · ${step.seconds}s</button>`
+      ? `<button class="btn primary" id="sessAct">▶ Start · ${holdTxt(step.seconds).replace(' sec', 's')}</button>`
       : `<button class="btn primary" id="sessAct">✓ Done</button>`;
     body = `<div class="sess-ex">${step.name} ${formBtn(step.key)}</div>
       <div class="sess-label" id="sessLabel">${step.label}</div>
@@ -2718,7 +2817,10 @@ function startSessHold(step) {
 function unitWord() { return unit() === 'lb' ? 'pounds' : 'kilos'; }
 function sayStep(step) {
   const side = step.side ? ' each side' : '';
-  if (step.kind === 'hold') { say(`${step.name}. Hold for ${step.seconds} seconds${side}.`); return; }
+  if (step.kind === 'hold') {
+    if (step.seconds >= 90) { say(`${step.name}. ${Math.round(step.seconds / 60)} minutes.`); return; }
+    say(`${step.name}. Hold for ${step.seconds} seconds${side}.`); return;
+  }
   if (step.bw) { say(`${step.name}. ${step.amrap ? 'As many as you can.' : step.reps + ' reps' + side + '.'}`); return; }
   say(`${step.name}. ${fmt(step.weight)} ${unitWord()}, ${step.reps} reps.`);
 }
