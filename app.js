@@ -263,9 +263,9 @@ const SA2_A = { title: 'Full Body A + Zone 2', exercises: [
   saTimed('sawarm',    'Warm-Up Spin + Mobility', '🚶', 300, 1, '5 min easy spin or brisk walk + joint circles'),
   sa('squatjump',      'Squat Jumps',         '🦿', 8,  '3 × 8 · explosive — jump tall, land soft'),
   sa('gobletsquat',    'Goblet Squat',        '🏋️', 10, 'Superset 1 · 4 × 8–12 · leave 2–3 reps in reserve'),
-  sa('dbrdl',          'Romanian Deadlift',   '🦵', 10, 'Superset 1 · 4 × 8–12 · back to squats after 60–80 s'),
-  sa('dbpress',        'Chest Press',         '💪', 10, 'Superset 2 · 4 × 8–12 · leave 2–3 reps in reserve'),
-  sa('dbrow',          'Bent-Over Row',       '🚣', 10, 'Superset 2 · 4 × 8–12 · back to presses after 60–80 s'),
+  sa('sardl',          'Romanian Deadlift',   '🦵', 10, 'Superset 1 · 4 × 8–12 · back to squats after 60–80 s'),
+  sa('sabench',        'Bench Press',         '💪', 10, 'Superset 2 · 4 × 8–12 · leave 2–3 reps in reserve'),
+  sa('sarow',          'Bent-Over Row',       '🚣', 10, 'Superset 2 · 4 × 8–12 · back to presses after 60–80 s'),
   saTimed('carry',     "Farmer's Hold & March", '🧳', 40, 3, 'Superset 3 · heavy — alternate with plank'),
   saTimed('plank',     'Plank',               '🧘', 45, 3, 'Superset 3 · alternate with holds'),
   saTimed('zone2',     'Zone 2 Ride',         '🚴', 3600, 1, '60 min steady spin — you can talk in full sentences')
@@ -274,7 +274,7 @@ const SA2_B = { title: 'Full Body B + VO₂ Max', exercises: [
   saTimed('sawarm',    'Warm-Up Spin + Mobility', '🚶', 300, 1, '5 min easy spin or brisk walk + joint circles'),
   sa('skaters',        'Skater Hops',         '⛸️', 10, '3 × 10 · explosive lateral bounds'),
   sa('dblunge',        'Reverse Lunge',       '🦵', 10, 'Superset 1 · 4 × 8–12 / side · 2–3 in reserve', true),
-  sa('dbhinge',        'Deadlift',            '🏋️', 10, 'Superset 1 · 4 × 8–12 · back to lunges after 60–80 s'),
+  sa('deadlift',       'Barbell Deadlift',    '🏋️', 10, 'Superset 1 · 4 × 8–12 · back to lunges after 60–80 s'),
   sa('pushups',        'Push-Ups',            '💪', 10, 'Superset 2 · 4 × 8–12 · leave 2–3 reps in reserve'),
   sa('latpull',        'Pull-Up / Band Pulldown', '⬇️', 10, 'Superset 2 · 4 × 8–12 · back to push-ups after 60–80 s'),
   saTimed('sideplank', 'Side Plank',          '📐', 30, 2, 'Core finisher', true),
@@ -286,26 +286,26 @@ for (let i = 0; i < 24; i++) SUPERAGE2.push(i % 2 === 0 ? SA2_A : SA2_B);
 
 /* --- 4-day: 2 upper + 2 lower (~30 min lifting + ~30 min cardio each) --- */
 const SA4_UA = { title: 'Upper A + Zone 2', exercises: [
-  sa('hops',           'Quick Hops / Jump Rope', '🦘', 15, '2 × 15 · explosive warm-up — small fast jumps'),
-  sa('dbpress',        'Chest Press',         '💪', 10, 'Superset 1 · 3 × 8–12 · leave 2–3 reps in reserve'),
-  sa('dbrow',          'Bent-Over Row',       '🚣', 10, 'Superset 1 · 3 × 8–12 · back to presses after 60–80 s'),
+  saTimed('hops',      'Jump Rope',           '➰', 60, 2, 'explosive warm-up — quick, light skips'),
+  sa('sabench',        'Bench Press',         '💪', 10, 'Superset 1 · 3 × 8–12 · leave 2–3 reps in reserve'),
+  sa('sarow',          'Bent-Over Row',       '🚣', 10, 'Superset 1 · 3 × 8–12 · back to presses after 60–80 s'),
   sa('pushups',        'Push-Ups',            '🙌', 10, 'Superset 2 · 3 × 8–12 · leave 2–3 reps in reserve'),
   sa('latpull',        'Pull-Up / Band Pulldown', '⬇️', 10, 'Superset 2 · 3 × 8–12 · back to push-ups after 60–80 s'),
   saTimed('plank',     'Plank',               '🧘', 45, 2, 'Core finisher'),
   saTimed('zone2',     'Zone 2 Ride',         '🚴', 1800, 1, '30 min steady spin — conversational pace')
 ]};
 const SA4_LA = { title: 'Lower A + Zone 2', exercises: [
-  sa('squatjump',      'Squat Jumps',         '🦿', 6,  '2 × 6 · explosive — land soft'),
+  sa('boxjump',        'Box Jumps',           '📦', 5,  '2 × 5 · explosive — step down between reps'),
   sa('gobletsquat',    'Goblet Squat',        '🏋️', 10, 'Superset 1 · 3 × 8–12 · leave 2–3 reps in reserve'),
-  sa('dbrdl',          'Romanian Deadlift',   '🦵', 10, 'Superset 1 · 3 × 8–12 · back to squats after 60–80 s'),
+  sa('sardl',          'Romanian Deadlift',   '🦵', 10, 'Superset 1 · 3 × 8–12 · back to squats after 60–80 s'),
   sa('dblunge',        'Reverse Lunge',       '🦵', 10, 'Superset 2 · 3 × 8–12 / side', true),
-  sa('dbhinge',        'Deadlift',            '🏋️', 10, 'Superset 2 · 3 × 8–12 · back to lunges after 60–80 s'),
+  sa('deadlift',       'Barbell Deadlift',    '🏋️', 10, 'Superset 2 · 3 × 8–12 · back to lunges after 60–80 s'),
   saTimed('carry',     "Farmer's Hold & March", '🧳', 40, 2, 'Core & carry finisher — heavy, tall posture'),
   saTimed('zone2',     'Zone 2 Ride',         '🚴', 1800, 1, '30 min steady spin — conversational pace')
 ]};
 const SA4_UB = { title: 'Upper B + VO₂ Max', exercises: [
-  sa('hops',           'Quick Hops / Jump Rope', '🦘', 15, '2 × 15 · explosive warm-up — small fast jumps'),
-  sa('dbpress',        'Chest Press',         '💪', 10, 'Superset 1 · 3 × 8–12 · leave 2–3 reps in reserve'),
+  saTimed('hops',      'Jump Rope',           '➰', 60, 2, 'explosive warm-up — quick, light skips'),
+  sa('sabench',        'Bench Press',         '💪', 10, 'Superset 1 · 3 × 8–12 · leave 2–3 reps in reserve'),
   sa('chin',           'Pull-Up / Chin-Up',   '🧗', 8,  'Superset 1 · 3 sets · stop 2–3 reps shy of failure'),
   sa('dbpushup',       'Push-Up',             '🙌', 10, 'Superset 2 · 3 × 8–12 · leave 2–3 reps in reserve'),
   sa('dbrenrow',       'Renegade Row',        '🚣', 8,  'Superset 2 · 3 × 8 / side', true),
@@ -315,9 +315,9 @@ const SA4_UB = { title: 'Upper B + VO₂ Max', exercises: [
 const SA4_LB = { title: 'Lower B + Zone 2', exercises: [
   sa('skaters',        'Skater Hops',         '⛸️', 10, '2 × 10 · explosive lateral bounds'),
   sa('sidelunge',      'Lateral Lunge',       '↔️', 8,  'Superset 1 · 3 × 8–10 / side', true),
-  sa('dbrdl',          'Romanian Deadlift',   '🦵', 10, 'Superset 1 · 3 × 8–12 · back to lunges after 60–80 s'),
+  sa('sardl',          'Romanian Deadlift',   '🦵', 10, 'Superset 1 · 3 × 8–12 · back to lunges after 60–80 s'),
   sa('gobletsquat',    'Goblet Squat',        '🏋️', 10, 'Superset 2 · 3 × 8–12 · leave 2–3 reps in reserve'),
-  sa('dbhinge',        'Deadlift',            '🏋️', 10, 'Superset 2 · 3 × 8–12 · back to squats after 60–80 s'),
+  sa('deadlift',       'Barbell Deadlift',    '🏋️', 10, 'Superset 2 · 3 × 8–12 · back to squats after 60–80 s'),
   saTimed('carry',     "Farmer's Hold & March", '🧳', 40, 2, 'Core & carry finisher — heavy, tall posture'),
   saTimed('zone2',     'Zone 2 Ride',         '🚴', 1800, 1, '30 min steady spin — conversational pace')
 ]};
@@ -1236,7 +1236,7 @@ const FORM_TIPS = {
   bicycle:   { title: 'Bicycle Crunches', body: 'On your back, hands by your ears, shoulders off the floor. Bring one knee in and rotate the opposite elbow toward it while the other leg extends. Alternate sides in a smooth pedaling motion. Twist from your torso, not your neck. Count every elbow-to-knee as a rep.' },
   rtwist:    { title: 'Russian Twists', body: 'Sit with knees bent, heels down (or feet up for harder), lean back to ~45°. Brace your core and rotate your hands side to side, tapping near each hip. Move from the ribs, not just the arms. Each tap is a rep.' },
   hollow:    { title: 'Hollow Body Hold', body: 'Lie on your back, press your lower back into the floor. Lift your shoulders and legs a few inches, arms reaching overhead — your body forms a shallow banana. Keep that lower back glued down the whole time. Lower the limbs higher to make it easier.' },
-  gobletsquat:{ title: 'Goblet Squat', body: 'Hold one dumbbell vertically against your chest. Feet shoulder-width, sit hips down between your knees keeping your chest tall and heels down. Drive up through your whole foot. The dumbbell at your chest helps you stay upright.' },
+  gobletsquat:{ title: 'Goblet Squat', body: 'Hold one dumbbell (or your kettlebell by the horns) vertically against your chest. Feet shoulder-width, sit hips down between your knees keeping your chest tall and heels down. Drive up through your whole foot. The dumbbell at your chest helps you stay upright.' },
   dbpress:   { title: 'DB Floor Press', body: 'Lie on the floor (or bench), dumbbells over your chest. Lower until your upper arms touch the floor (elbows ~45° from your body), pause, then press back up. The floor caps the range and protects your shoulders.' },
   dbrow:     { title: 'DB Bent-Over Row', body: 'Hinge at the hips with a flat back, dumbbells hanging. Pull them to your waistline, driving your elbows back and squeezing your shoulder blades. Lower under control. Keep your torso still.' },
   dbrdl:     { title: 'DB Romanian Deadlift', body: 'Soft knees, dumbbells in front of your thighs. Push your hips back and slide the weights down your legs until you feel a hamstring stretch (flat back the whole way), then drive your hips forward to stand. Hinge, don\'t squat.' },
@@ -1278,10 +1278,14 @@ const FORM_TIPS = {
   hipheist:  { title: 'Hip Heist', body: 'From a seated/sprawl position, post a hand and swivel your hips, switching from facing one way to the other by threading your bottom leg through — the scramble movement used to come up on top. Keep your hips off the floor and switch quickly. Each side.' },
   invhold:   { title: 'Inversion Hold', body: 'On your back, roll your hips up and over so your weight is on your upper back/shoulders with your hips stacked above (support your back with your hands if needed). Hold and breathe — builds the spinal/hip mobility for inverting in guard. Ease into it; protect your neck.' },
   sawarm:    { title: 'Warm-Up Spin + Mobility', body: '5 minutes of very easy spinning on the bike (or a brisk walk / jump rope) plus big joint circles: arm circles, hip circles, leg swings and ankle rolls. Finish lightly warm, not tired. This takes your joints through their full range before you load them.' },
-  hops:      { title: 'Quick Hops / Jump Rope', body: 'Small, fast two-footed hops — stay on the balls of your feet, light and springy, letting your ankles do the work. Use a jump rope if you have one; without one, just hop in place at the same rhythm. Explosive work where your body leaves the ground keeps power and bone density as you age. Low-impact option: fast heel raises.' },
+  hops:      { title: 'Jump Rope', body: 'Quick, light two-footed skips — stay on the balls of your feet, elbows in, turning the rope from the wrists. Smooth and springy beats high and hard. Explosive work where your body leaves the ground keeps power and bone density as you age. Trip a lot? Just keep going — restarts count.' },
+  sabench:   { title: 'Bench Press', body: 'On your bench with a barbell or dumbbells. Pinch your shoulder blades together, slight arch, feet planted. Lower to your mid-chest with elbows about 45\u201375\u00b0 from your body, touch, then press up over your shoulders. No spotter with a barbell? Stay 2\u20133 reps shy of failure (as programmed) or use dumbbells.' },
+  sarow:     { title: 'Bent-Over Row', body: 'Barbell or dumbbells. Hinge at the hips with a flat back, let the weight hang, then pull it to your waistline \u2014 drive your elbows back and squeeze your shoulder blades. Lower under control, torso still. No heaving.' },
+  sardl:     { title: 'Romanian Deadlift', body: 'Barbell or dumbbells in front of your thighs, soft knees. Push your hips back and slide the weight down your legs until you feel a hamstring stretch \u2014 flat back the whole way \u2014 then drive your hips forward to stand tall. Hinge, don\u2019t squat.' },
+  boxjump:   { title: 'Box Jump', body: 'Stand a short step from your box. Swing your arms, jump, and land softly on top with both feet, knees bent, standing tall to finish. Step down \u2014 don\u2019t jump down \u2014 between reps. Pick a height you can land quietly on; power comes from the jump, not the box height.' },
   latpull:   { title: 'Pull-Up / Band Pulldown', body: 'Pull-up bar: from a dead hang, pull your chest toward the bar leading with your elbows, then lower all the way under control. Band pulldown: anchor a band overhead, kneel or sit tall, and pull the band to your collarbones by driving your elbows down. No bar or band? Do a single-arm dumbbell row instead. No swinging or momentum.' },
   sidelunge: { title: 'Lateral Lunge', body: 'Step wide to one side, sit your hips back and bend that knee while the other leg stays straight, chest tall and heels down. Push off to return to standing. Hold a dumbbell at your chest to load it. Side-to-side strength keeps you agile and balanced as you age.' },
-  carry:     { title: "Farmer's Hold & March", body: 'The no-space version of the farmer\'s carry. Grab a heavy dumbbell or kettlebell in each hand and stand tall — shoulders back, ribs down. Hold for the full time, or march in place with slow, controlled knee lifts. Don\'t let the weights pull you into a lean. Same endurance under load, grip, core and posture work — zero floor space needed.' },
+  carry:     { title: "Farmer's Hold & March", body: 'The no-space version of the farmer\'s carry. Grab heavy dumbbells — or go suitcase-style with your kettlebell in one hand (switch hands halfway) — and stand tall: shoulders back, ribs down. Hold for the full time, or march in place with slow, controlled knee lifts. Don\'t let the weight pull you into a lean. Same endurance under load, grip, core and posture work — zero floor space needed.' },
   sideplank: { title: 'Side Plank', body: 'Lie on your side, elbow under your shoulder, and lift your hips so your body forms one straight line from head to feet. Brace and breathe. Easier: keep your bottom knee on the floor. Do the time on each side.' },
   zone2:     { title: 'Zone 2 Ride', body: 'A steady road ride at a pace where you can still talk in full sentences but singing would be hard (roughly 60–70% of your max heart rate). Pick a flat-ish route or spin an easy gear at a comfortable cadence (~85–95 rpm); soft-pedal the downhills and ease off on climbs to stay in zone. If you\'re gasping, shift down: it should feel almost too easy. This builds the aerobic base most strongly tied to longevity.' },
   vo2max:    { title: 'VO₂ Max Bike Intervals (4×4)', body: 'After 10 minutes of easy riding to warm up: 4 minutes hard — an 8/10 effort where you can only speak a few words at a time (a steady climb or a stretch of open road works well) — then 3 minutes of very easy spinning. Repeat 4 times, staying seated and smooth rather than sprinting. Once a week is plenty; VO₂ max is one of the strongest predictors of a long healthy life.' }
