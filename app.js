@@ -282,12 +282,8 @@ const SA_POOL = {
     { key: 'chin',    name: 'Chin-Ups',      icon: '🧗', reps: 8 }
   ],
   core: [
-    { key: 'plank',     name: 'Plank',            icon: '🧘', hold: 45 },
-    { key: 'sideplank', name: 'Side Plank',       icon: '📐', hold: 30, side: true },
-    { key: 'hollow',    name: 'Hollow Body Hold', icon: '🌙', hold: 30 },
-    { key: 'deadbug',   name: 'Dead Bug',         icon: '🐞', reps: 10, side: true },
-    { key: 'legraises', name: 'Leg Raises',       icon: '🦵', reps: 12 },
-    { key: 'rtwist',    name: 'Russian Twists',   icon: '🔁', reps: 20 }
+    { key: 'plank',     name: 'Plank',      icon: '🧘', hold: 45 },
+    { key: 'sideplank', name: 'Side Plank', icon: '📐', hold: 30, side: true }
   ],
   explosive: [
     { key: 'squatjump',    name: 'Squat Jumps',    icon: '🦿', reps: 8 },
@@ -1365,7 +1361,6 @@ const FORM_TIPS = {
   breakfall: { title: 'Back Breakfalls', body: 'From standing or squatting, sit and roll backward onto your rounded back, slapping the mat with both arms at ~45° to disperse the impact, chin tucked to your chest. Practice landing softly and safely — the foundation for being thrown.' },
   hipheist:  { title: 'Hip Heist', body: 'From a seated/sprawl position, post a hand and swivel your hips, switching from facing one way to the other by threading your bottom leg through — the scramble movement used to come up on top. Keep your hips off the floor and switch quickly. Each side.' },
   invhold:   { title: 'Inversion Hold', body: 'On your back, roll your hips up and over so your weight is on your upper back/shoulders with your hips stacked above (support your back with your hands if needed). Hold and breathe — builds the spinal/hip mobility for inverting in guard. Ease into it; protect your neck.' },
-  deadbug:   { title: 'Dead Bug', body: 'Lie on your back, arms pointing at the ceiling, knees bent 90\u00b0 over your hips. Press your lower back into the floor, then slowly lower one arm overhead and the opposite leg toward the floor, return, and switch sides. Go slow \u2014 the whole exercise is keeping your lower back glued down while your limbs move. Each arm-and-leg pair is one rep per side.' },
   wucardio:  { title: 'Jump Rope / Brisk Walk', body: '2 minutes easy — rope, brisk walking, or marching in place. Just enough to raise your heart rate and warm your muscles; this is not a workout yet.' },
   wuarm:     { title: 'Arm Circles', body: 'Stand tall, arms out to the sides. Draw big, slow circles from the shoulders — 10 forward, then 10 backward, letting them grow bigger. Loosens the shoulders before pressing and pulling.' },
   wuhip:     { title: 'Hip Circles', body: 'Hands on hips, feet shoulder-width. Circle your hips wide and slow — 10 one way, 10 the other, like stirring a big pot. Frees the hips before squats and hinges.' },
