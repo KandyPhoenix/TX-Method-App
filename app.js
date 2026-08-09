@@ -258,71 +258,103 @@ for (let d = 1; d <= 28; d++) BJJ.push(d % 7 === 0 ? PREP_REST : bjjDay(Math.flo
 function sa(key, name, icon, reps, scheme, side) { return { key, name, icon, reps, scheme, side: !!side }; }
 function saTimed(key, name, icon, sec, sets, scheme, side) { return { key, name, icon, sets: sets || 1, sec, scheme, side: !!side }; }
 
-/* --- 2-day: two big sessions (~60 min lifting + ~60 min cardio each) --- */
-const SA2_A = { title: 'Full Body A + Zone 2', exercises: [
-  saTimed('sawarm',    'Warm-Up Spin + Mobility', '🚶', 300, 1, '5 min easy spin or brisk walk + joint circles'),
-  sa('squatjump',      'Squat Jumps',         '🦿', 8,  '3 × 8 · explosive — jump tall, land soft'),
-  sa('gobletsquat',    'Goblet Squat',        '🏋️', 10, 'Superset 1 · 4 × 8–12 · leave 2–3 reps in reserve'),
-  sa('sardl',          'Romanian Deadlift',   '🦵', 10, 'Superset 1 · 4 × 8–12 · back to squats after 60–80 s'),
-  sa('sabench',        'Bench Press',         '💪', 10, 'Superset 2 · 4 × 8–12 · leave 2–3 reps in reserve'),
-  sa('sarow',          'Bent-Over Row',       '🚣', 10, 'Superset 2 · 4 × 8–12 · back to presses after 60–80 s'),
-  saTimed('carry',     "Farmer's Hold & March", '🧳', 40, 3, 'Superset 3 · heavy — alternate with plank'),
-  saTimed('plank',     'Plank',               '🧘', 45, 3, 'Superset 3 · alternate with holds'),
-  saTimed('zone2',     'Zone 2 Ride',         '🚴', 3600, 1, '60 min steady spin — you can talk in full sentences')
-]};
-const SA2_B = { title: 'Full Body B + VO₂ Max', exercises: [
-  saTimed('sawarm',    'Warm-Up Spin + Mobility', '🚶', 300, 1, '5 min easy spin or brisk walk + joint circles'),
-  sa('skaters',        'Skater Hops',         '⛸️', 10, '3 × 10 · explosive lateral bounds'),
-  sa('dblunge',        'Reverse Lunge',       '🦵', 10, 'Superset 1 · 4 × 8–12 / side · 2–3 in reserve', true),
-  sa('deadlift',       'Barbell Deadlift',    '🏋️', 10, 'Superset 1 · 4 × 8–12 · back to lunges after 60–80 s'),
-  sa('pushups',        'Push-Ups',            '💪', 10, 'Superset 2 · 4 × 8–12 · leave 2–3 reps in reserve'),
-  sa('latpull',        'Pull-Ups',            '🧗', 8,  'Superset 2 · 4 sets · stop 2–3 reps shy of failure'),
-  saTimed('sideplank', 'Side Plank',          '📐', 30, 2, 'Core finisher', true),
-  saTimed('vo2max',    'VO₂ Max Bike Intervals', '🫀', 240, 4, '4 × 4 min hard riding (8/10) · 3 min easy spin between'),
-  saTimed('zone2',     'Zone 2 Ride',         '🚴', 1800, 1, '30 min steady spin — conversational pace')
-]};
-const SUPERAGE2 = [];
-for (let i = 0; i < 24; i++) SUPERAGE2.push(i % 2 === 0 ? SA2_A : SA2_B);
+/* Pools of the article's exercise options. Every superset slot rotates
+   through its pool on a different cycle, so consecutive weeks never
+   repeat: the 2-day plan runs 12 unique weeks (its full length) and
+   the 4-day plan runs 6 unique weeks before any pattern returns. */
+const SA_POOL = {
+  squat: [
+    { key: 'gobletsquat', name: 'Goblet Squat',   icon: '🏋️', reps: 10 },
+    { key: 'dblunge',     name: 'Reverse Lunge',  icon: '🦵', reps: 10, side: true },
+    { key: 'sidelunge',   name: 'Lateral Lunge',  icon: '↔️', reps: 8,  side: true }
+  ],
+  hinge: [
+    { key: 'deadlift', name: 'Barbell Deadlift',  icon: '🏋️', reps: 10 },
+    { key: 'sardl',    name: 'Romanian Deadlift', icon: '🦵', reps: 10 }
+  ],
+  push: [
+    { key: 'sabench', name: 'Bench Press', icon: '💪', reps: 10 },
+    { key: 'pushups', name: 'Push-Ups',    icon: '🙌', reps: 10 }
+  ],
+  pull: [
+    { key: 'sarow',   name: 'Bent-Over Row', icon: '🚣', reps: 10 },
+    { key: 'latpull', name: 'Pull-Ups',      icon: '🧗', reps: 8 },
+    { key: 'chin',    name: 'Chin-Ups',      icon: '🧗', reps: 8 }
+  ],
+  core: [
+    { key: 'plank',     name: 'Plank',      icon: '🧘', hold: 45 },
+    { key: 'sideplank', name: 'Side Plank', icon: '📐', hold: 30, side: true }
+  ],
+  explosive: [
+    { key: 'squatjump',    name: 'Squat Jumps',    icon: '🦿', reps: 8 },
+    { key: 'skaters',      name: 'Skater Hops',    icon: '⛸️', reps: 10 },
+    { key: 'scissorlunge', name: 'Scissor Lunges', icon: '✂️', reps: 6, side: true },
+    { key: 'hops',         name: 'Jump Rope',      icon: '➰', hold: 60 }
+  ]
+};
+function saPick(pool, i) { const p = SA_POOL[pool]; return p[((i % p.length) + p.length) % p.length]; }
+function saMove(o, scheme, holdSets) {
+  return o.hold != null
+    ? saTimed(o.key, o.name, o.icon, o.hold, holdSets || 2, scheme, o.side)
+    : sa(o.key, o.name, o.icon, o.reps, scheme + (o.side ? ' / side' : ''), o.side);
+}
+const SA_WARM  = () => saTimed('sawarm', 'Warm-Up Spin + Mobility', '🚶', 300, 1, '5 min easy spin or brisk walk + joint circles');
+const SA_CARRY = (sets, scheme) => saTimed('carry', "Farmer's Hold & March", '🧳', 40, sets, scheme);
+const SA_Z2    = min => saTimed('zone2', 'Zone 2 Ride', '🚴', min * 60, 1, `${min} min steady spin — conversational pace`);
+const SA_VO2   = () => saTimed('vo2max', 'VO₂ Max Bike Intervals', '🫀', 240, 4, '4 × 4 min hard riding (8/10) · 3 min easy spin between');
+function saExplScheme(o, sets) { return o.hold != null ? 'explosive warm-up — quick, light skips' : `${sets} sets · explosive — full effort, land soft`; }
 
-/* --- 4-day: 2 upper + 2 lower (~30 min lifting + ~30 min cardio each) --- */
-const SA4_UA = { title: 'Upper A + Zone 2', exercises: [
-  saTimed('hops',      'Jump Rope',           '➰', 60, 2, 'explosive warm-up — quick, light skips'),
-  sa('sabench',        'Bench Press',         '💪', 10, 'Superset 1 · 3 × 8–12 · leave 2–3 reps in reserve'),
-  sa('sarow',          'Bent-Over Row',       '🚣', 10, 'Superset 1 · 3 × 8–12 · back to presses after 60–80 s'),
-  sa('pushups',        'Push-Ups',            '🙌', 10, 'Superset 2 · 3 × 8–12 · leave 2–3 reps in reserve'),
-  sa('latpull',        'Pull-Ups',            '🧗', 8,  'Superset 2 · 3 sets · stop 2–3 reps shy of failure'),
-  saTimed('plank',     'Plank',               '🧘', 45, 2, 'Core finisher'),
-  saTimed('zone2',     'Zone 2 Ride',         '🚴', 1800, 1, '30 min steady spin — conversational pace')
-]};
-const SA4_LA = { title: 'Lower A + Zone 2', exercises: [
-  sa('scissorlunge',   'Scissor Lunges',      '✂️', 6,  '2 × 6 / side · explosive lunge switches', true),
-  sa('gobletsquat',    'Goblet Squat',        '🏋️', 10, 'Superset 1 · 3 × 8–12 · leave 2–3 reps in reserve'),
-  sa('sardl',          'Romanian Deadlift',   '🦵', 10, 'Superset 1 · 3 × 8–12 · back to squats after 60–80 s'),
-  sa('dblunge',        'Reverse Lunge',       '🦵', 10, 'Superset 2 · 3 × 8–12 / side', true),
-  sa('deadlift',       'Barbell Deadlift',    '🏋️', 10, 'Superset 2 · 3 × 8–12 · back to lunges after 60–80 s'),
-  saTimed('carry',     "Farmer's Hold & March", '🧳', 40, 2, 'Core & carry finisher — heavy, tall posture'),
-  saTimed('zone2',     'Zone 2 Ride',         '🚴', 1800, 1, '30 min steady spin — conversational pace')
-]};
-const SA4_UB = { title: 'Upper B + VO₂ Max', exercises: [
-  saTimed('hops',      'Jump Rope',           '➰', 60, 2, 'explosive warm-up — quick, light skips'),
-  sa('sabench',        'Bench Press',         '💪', 10, 'Superset 1 · 3 × 8–12 · leave 2–3 reps in reserve'),
-  sa('chin',           'Pull-Up / Chin-Up',   '🧗', 8,  'Superset 1 · 3 sets · stop 2–3 reps shy of failure'),
-  sa('dbpushup',       'Push-Up',             '🙌', 10, 'Superset 2 · 3 × 8–12 · leave 2–3 reps in reserve'),
-  sa('sarow',          'Bent-Over Row',       '🚣', 10, 'Superset 2 · 3 × 8–12 · back to push-ups after 60–80 s'),
-  saTimed('sideplank', 'Side Plank',          '📐', 30, 2, 'Core finisher', true),
-  saTimed('vo2max',    'VO₂ Max Bike Intervals', '🫀', 240, 4, '4 × 4 min hard riding (8/10) · 3 min easy spin between')
-]};
-const SA4_LB = { title: 'Lower B + Zone 2', exercises: [
-  sa('skaters',        'Skater Hops',         '⛸️', 10, '2 × 10 · explosive lateral bounds'),
-  sa('sidelunge',      'Lateral Lunge',       '↔️', 8,  'Superset 1 · 3 × 8–10 / side', true),
-  sa('sardl',          'Romanian Deadlift',   '🦵', 10, 'Superset 1 · 3 × 8–12 · back to lunges after 60–80 s'),
-  sa('gobletsquat',    'Goblet Squat',        '🏋️', 10, 'Superset 2 · 3 × 8–12 · leave 2–3 reps in reserve'),
-  sa('deadlift',       'Barbell Deadlift',    '🏋️', 10, 'Superset 2 · 3 × 8–12 · back to squats after 60–80 s'),
-  saTimed('carry',     "Farmer's Hold & March", '🧳', 40, 2, 'Core & carry finisher — heavy, tall posture'),
-  saTimed('zone2',     'Zone 2 Ride',         '🚴', 1800, 1, '30 min steady spin — conversational pace')
-]};
+/* --- 2-day: two big sessions/week (~60 min lifting + ~60 min cardio) --- */
+function sa2Session(w, v) { /* v: 0 = A, 1 = B */
+  const expl = saPick('explosive', w + v * 2);
+  const ex = [
+    SA_WARM(),
+    saMove(expl, saExplScheme(expl, 3)),
+    saMove(saPick('squat', w + v * 2),     'Superset 1 · 4 × 8–12 · leave 2–3 reps in reserve'),
+    saMove(saPick('hinge', w + v),         'Superset 1 · 4 × 8–12 · swap moves every 60–80 s'),
+    saMove(saPick('push',  w + v),         'Superset 2 · 4 × 8–12 · leave 2–3 reps in reserve'),
+    saMove(saPick('pull',  w + v * 2 + 1), 'Superset 2 · 4 × 8–12 · swap moves every 60–80 s'),
+    SA_CARRY(3, 'Superset 3 · heavy — alternate with the core hold'),
+    saMove(saPick('core', w + v), 'Superset 3 · alternate with the holds', 3)
+  ];
+  ex.push(...(v === 0 ? [SA_Z2(60)] : [SA_VO2(), SA_Z2(30)]));
+  return { title: `Full Body ${v === 0 ? 'A' : 'B'} · Wk ${w + 1} + ${v === 0 ? 'Zone 2' : 'VO₂ Max'}`, exercises: ex };
+}
+const SUPERAGE2 = [];
+for (let i = 0; i < 24; i++) SUPERAGE2.push(sa2Session(Math.floor(i / 2), i % 2));
+
+/* --- 4-day: 2 upper + 2 lower per week (~30 min lifting + ~30 min cardio) --- */
+function sa4Upper(w, v) { /* v: 0 = A, 1 = B */
+  const expl = [SA_POOL.explosive[3], SA_POOL.explosive[0]][(w + v) % 2]; /* jump rope / squat jumps */
+  const ex = [
+    saMove(expl, saExplScheme(expl, 2)),
+    saMove(saPick('push', w + v),         'Superset 1 · 3 × 8–12 · leave 2–3 reps in reserve'),
+    saMove(saPick('pull', w + v * 2),     'Superset 1 · 3 × 8–12 · swap moves every 60–80 s'),
+    saMove(saPick('push', w + v + 1),     'Superset 2 · 3 × 8–12 · leave 2–3 reps in reserve'),
+    saMove(saPick('pull', w + v * 2 + 1), 'Superset 2 · 3 × 8–12 · swap moves every 60–80 s'),
+    saMove(saPick('core', w + v), 'Core finisher', 2)
+  ];
+  ex.push(v === 1 ? SA_VO2() : SA_Z2(30));
+  return { title: `Upper ${v === 0 ? 'A' : 'B'} · Wk ${w + 1} + ${v === 1 ? 'VO₂ Max' : 'Zone 2'}`, exercises: ex };
+}
+function sa4Lower(w, v) { /* v: 0 = A, 1 = B */
+  const expl = [SA_POOL.explosive[0], SA_POOL.explosive[1], SA_POOL.explosive[2]][(w + v) % 3];
+  const ex = [
+    saMove(expl, saExplScheme(expl, 2)),
+    saMove(saPick('squat', w + v),     'Superset 1 · 3 × 8–12 · leave 2–3 reps in reserve'),
+    saMove(saPick('hinge', w + v),     'Superset 1 · 3 × 8–12 · swap moves every 60–80 s'),
+    saMove(saPick('squat', w + v + 1), 'Superset 2 · 3 × 8–12 · leave 2–3 reps in reserve'),
+    saMove(saPick('hinge', w + v + 1), 'Superset 2 · 3 × 8–12 · swap moves every 60–80 s'),
+    SA_CARRY(2, 'Core & carry finisher — heavy, tall posture'),
+    SA_Z2(30)
+  ];
+  return { title: `Lower ${v === 0 ? 'A' : 'B'} · Wk ${w + 1} + Zone 2`, exercises: ex };
+}
 const SUPERAGE4 = [];
-for (let i = 0; i < 24; i++) SUPERAGE4.push([SA4_UA, SA4_LA, SA4_UB, SA4_LB][i % 4]);
+for (let i = 0; i < 24; i++) {
+  const w = Math.floor(i / 4), slot = i % 4; /* UA, LA, UB, LB */
+  SUPERAGE4.push(slot % 2 === 0 ? sa4Upper(w, slot / 2) : sa4Lower(w, (slot - 1) / 2));
+}
 
 /* =====================================================================
    DAY-PROGRAM HELPERS  (shared by 30-Day Prep + Mobility)
