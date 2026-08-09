@@ -276,7 +276,7 @@ const SA2_B = { title: 'Full Body B + VO₂ Max', exercises: [
   sa('dblunge',        'Reverse Lunge',       '🦵', 10, 'Superset 1 · 4 × 8–12 / side · 2–3 in reserve', true),
   sa('deadlift',       'Barbell Deadlift',    '🏋️', 10, 'Superset 1 · 4 × 8–12 · back to lunges after 60–80 s'),
   sa('pushups',        'Push-Ups',            '💪', 10, 'Superset 2 · 4 × 8–12 · leave 2–3 reps in reserve'),
-  sa('latpull',        'Pull-Up / Band Pulldown', '⬇️', 10, 'Superset 2 · 4 × 8–12 · back to push-ups after 60–80 s'),
+  sa('latpull',        'Pull-Ups',            '🧗', 8,  'Superset 2 · 4 sets · stop 2–3 reps shy of failure'),
   saTimed('sideplank', 'Side Plank',          '📐', 30, 2, 'Core finisher', true),
   saTimed('vo2max',    'VO₂ Max Bike Intervals', '🫀', 240, 4, '4 × 4 min hard riding (8/10) · 3 min easy spin between'),
   saTimed('zone2',     'Zone 2 Ride',         '🚴', 1800, 1, '30 min steady spin — conversational pace')
@@ -290,7 +290,7 @@ const SA4_UA = { title: 'Upper A + Zone 2', exercises: [
   sa('sabench',        'Bench Press',         '💪', 10, 'Superset 1 · 3 × 8–12 · leave 2–3 reps in reserve'),
   sa('sarow',          'Bent-Over Row',       '🚣', 10, 'Superset 1 · 3 × 8–12 · back to presses after 60–80 s'),
   sa('pushups',        'Push-Ups',            '🙌', 10, 'Superset 2 · 3 × 8–12 · leave 2–3 reps in reserve'),
-  sa('latpull',        'Pull-Up / Band Pulldown', '⬇️', 10, 'Superset 2 · 3 × 8–12 · back to push-ups after 60–80 s'),
+  sa('latpull',        'Pull-Ups',            '🧗', 8,  'Superset 2 · 3 sets · stop 2–3 reps shy of failure'),
   saTimed('plank',     'Plank',               '🧘', 45, 2, 'Core finisher'),
   saTimed('zone2',     'Zone 2 Ride',         '🚴', 1800, 1, '30 min steady spin — conversational pace')
 ]};
@@ -1283,7 +1283,7 @@ const FORM_TIPS = {
   sarow:     { title: 'Bent-Over Row', body: 'Barbell or dumbbells. Hinge at the hips with a flat back, let the weight hang, then pull it to your waistline \u2014 drive your elbows back and squeeze your shoulder blades. Lower under control, torso still. No heaving.' },
   sardl:     { title: 'Romanian Deadlift', body: 'Barbell or dumbbells in front of your thighs, soft knees. Push your hips back and slide the weight down your legs until you feel a hamstring stretch \u2014 flat back the whole way \u2014 then drive your hips forward to stand tall. Hinge, don\u2019t squat.' },
   scissorlunge: { title: 'Scissor Lunges', body: 'From a lunge position, jump and switch legs in the air, landing softly in a lunge with the other foot forward \u2014 like scissors. Stay tall, arms driving for rhythm. Each switch is a rep per side. Low-impact option: fast alternating reverse lunges with no jump.' },
-  latpull:   { title: 'Pull-Up / Band Pulldown', body: 'Pull-up bar: from a dead hang, pull your chest toward the bar leading with your elbows, then lower all the way under control. Band pulldown: anchor a band overhead, kneel or sit tall, and pull the band to your collarbones by driving your elbows down. No bar or band? Do a single-arm dumbbell row instead. No swinging or momentum.' },
+  latpull:   { title: 'Pull-Ups', body: 'From a dead hang on your bar, pull your chest toward the bar leading with your elbows, chin over the bar, then lower all the way under control. Full range each rep, no swinging. Too hard for 8 reps? Switch to an underhand chin-up grip, or do slow negatives \u2014 jump or step up to the top and lower for a 3\u20135 second count.' },
   sidelunge: { title: 'Lateral Lunge', body: 'Step wide to one side, sit your hips back and bend that knee while the other leg stays straight, chest tall and heels down. Push off to return to standing. Hold a dumbbell at your chest to load it. Side-to-side strength keeps you agile and balanced as you age.' },
   carry:     { title: "Farmer's Hold & March", body: 'The no-space version of the farmer\'s carry. Grab heavy dumbbells — or go suitcase-style with your kettlebell in one hand (switch hands halfway) — and stand tall: shoulders back, ribs down. Hold for the full time, or march in place with slow, controlled knee lifts. Don\'t let the weight pull you into a lean. Same endurance under load, grip, core and posture work — zero floor space needed.' },
   sideplank: { title: 'Side Plank', body: 'Lie on your side, elbow under your shoulder, and lift your hips so your body forms one straight line from head to feet. Brace and breathe. Easier: keep your bottom knee on the floor. Do the time on each side.' },
