@@ -400,6 +400,21 @@ for (let w = 0; w < 6; w++) SUPERAGE4.push(
   sa4Upper(w, 0), saZ2Day(40, w), sa4Lower(w, 0), saZ2Day(40, w), sa4Upper(w, 1), saVO2Day(w), sa4Lower(w, 1)
 );
 
+/* --- hybrid: the week's shape itself rotates on a 4-week cycle ---
+   Wk1 condensed lifts + long ride · Wk2 everything spread across the
+   week · Wk3 condensed lifts + spread rides · Wk4 spread lifts + long
+   ride. Always 2 h lifting + 2 h riding. */
+function saHybridWeek(w) {
+  switch (w % 4) {
+    case 0: return [sa2Session(w, 0), PREP_REST, sa2Session(w, 1), PREP_REST, saLongRideDay(w), PREP_REST, PREP_REST];
+    case 1: return [sa4Upper(w, 0), saZ2Day(40, w), sa4Lower(w, 0), saZ2Day(40, w), sa4Upper(w, 1), saVO2Day(w), sa4Lower(w, 1)];
+    case 2: return [sa2Session(w, 0), saZ2Day(40, w), PREP_REST, sa2Session(w, 1), saZ2Day(40, w), saVO2Day(w), PREP_REST];
+    default: return [sa4Upper(w, 0), sa4Lower(w, 0), PREP_REST, sa4Upper(w, 1), sa4Lower(w, 1), saLongRideDay(w), PREP_REST];
+  }
+}
+const SUPERAGEH = [];
+for (let w = 0; w < 12; w++) SUPERAGEH.push(...saHybridWeek(w));
+
 /* =====================================================================
    DAY-PROGRAM HELPERS  (shared by 30-Day Prep + Mobility)
    ===================================================================== */
@@ -412,7 +427,8 @@ const DAY_PROGRAMS = {
   hiit:     { data: HIIT,     stateKey: 'hiit', label: 'Full-Body HIIT',     sub: 'timed circuit' },
   bjj:      { data: BJJ,      stateKey: 'bjj',  label: 'BJJ Solo Drills',    sub: 'jiu-jitsu movement' },
   sa2:      { data: SUPERAGE2, stateKey: 'sa2', label: 'SuperAge 2-Day',     sub: '3 days: 2 lifts + 1 long ride', holdLabel: 'Timed work' },
-  sa4:      { data: SUPERAGE4, stateKey: 'sa4', label: 'SuperAge 4-Day',     sub: 'all week: 4 lifts + 3 rides', holdLabel: 'Timed work' }
+  sa4:      { data: SUPERAGE4, stateKey: 'sa4', label: 'SuperAge 4-Day',     sub: 'all week: 4 lifts + 3 rides', holdLabel: 'Timed work' },
+  sahyb:    { data: SUPERAGEH, stateKey: 'sahyb', label: 'SuperAge Hybrid',   sub: 'week style rotates weekly', holdLabel: 'Timed work' }
 };
 function isDayProgram() { return !!DAY_PROGRAMS[S.program]; }
 function pcfg()   { return DAY_PROGRAMS[S.program] || DAY_PROGRAMS.prep30; }
@@ -537,7 +553,7 @@ function loadState() {
     if (raw) return migrate(JSON.parse(raw));
   } catch (e) { /* ignore */ }
   return { settings: structuredClone(DEFAULTS), cursor: { week: 0, day: 0 }, logs: {}, bodyLog: [],
-           program: 'prep30', prep: { day: 1, log: {} }, mob: { day: 1, log: {} }, core: { day: 1, log: {} }, db: { day: 1, log: {} }, pil: { day: 1, log: {} }, hiit: { day: 1, log: {} }, bjj: { day: 1, log: {} }, sa2: { day: 1, log: {} }, sa4: { day: 1, log: {} }, achievements: [], prs: {}, sessions: 0, history: [] };
+           program: 'prep30', prep: { day: 1, log: {} }, mob: { day: 1, log: {} }, core: { day: 1, log: {} }, db: { day: 1, log: {} }, pil: { day: 1, log: {} }, hiit: { day: 1, log: {} }, bjj: { day: 1, log: {} }, sa2: { day: 1, log: {} }, sa4: { day: 1, log: {} }, sahyb: { day: 1, log: {} }, achievements: [], prs: {}, sessions: 0, history: [] };
 }
 let S = loadState();
 
@@ -561,7 +577,7 @@ function migrate(st) {
   st.mob     = st.mob     || { day: 1, log: {} };
   if (st.mob.day == null) st.mob.day = 1;
   if (!st.mob.log) st.mob.log = {};
-  ['core', 'db', 'pil', 'hiit', 'bjj', 'sa2', 'sa4'].forEach(k => { st[k] = st[k] || { day: 1, log: {} }; if (st[k].day == null) st[k].day = 1; if (!st[k].log) st[k].log = {}; });
+  ['core', 'db', 'pil', 'hiit', 'bjj', 'sa2', 'sa4', 'sahyb'].forEach(k => { st[k] = st[k] || { day: 1, log: {} }; if (st[k].day == null) st[k].day = 1; if (!st[k].log) st[k].log = {}; });
   if (!st.achievements) st.achievements = [];
   if (!st.prs) st.prs = {};
   if (st.sessions == null) st.sessions = 0;
@@ -1728,6 +1744,7 @@ function renderSetup() {
           ['bjj','🥋','BJJ Drills','jiu-jitsu'],
           ['sa2','🫀','SuperAge 2-Day','3-day condensed week'],
           ['sa4','❤️‍🔥','SuperAge 4-Day','spread across the week'],
+          ['sahyb','🔀','SuperAge Hybrid','alternating week styles'],
           ['texas','🏋️','Texas Method','barbell']
         ].map(([k,ico,nm,sub]) => `<button class="prog-tile ${S.program===k?'on':''}" data-prog="${k}">
           <div class="prog-ico">${ico}</div><div class="prog-name">${nm}</div><div class="prog-sub">${sub}</div></button>`).join('')}
