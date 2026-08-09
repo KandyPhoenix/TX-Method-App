@@ -427,7 +427,7 @@ const DAY_PROGRAMS = {
   hiit:     { data: HIIT,     stateKey: 'hiit', label: 'Full-Body HIIT',     sub: 'timed circuit' },
   bjj:      { data: BJJ,      stateKey: 'bjj',  label: 'BJJ Solo Drills',    sub: 'jiu-jitsu movement' },
   sa2:      { data: SUPERAGE2, stateKey: 'sa2', label: 'SuperAge 2-Day',     sub: '3 days: 2 lifts + 1 long ride', holdLabel: 'Timed work' },
-  sa4:      { data: SUPERAGE4, stateKey: 'sa4', label: 'SuperAge 4-Day',     sub: 'all week: 4 lifts + 3 rides', holdLabel: 'Timed work' },
+  sa4:      { data: SUPERAGE4, stateKey: 'sa4', label: 'SuperAge Full Week', sub: 'all week: 4 lifts + 3 rides', holdLabel: 'Timed work' },
   sahyb:    { data: SUPERAGEH, stateKey: 'sahyb', label: 'SuperAge Hybrid',   sub: 'week style rotates weekly', holdLabel: 'Timed work' }
 };
 function isDayProgram() { return !!DAY_PROGRAMS[S.program]; }
@@ -1743,7 +1743,7 @@ function renderSetup() {
           ['hiit','⚡','Full-Body HIIT','timed circuit'],
           ['bjj','🥋','BJJ Drills','jiu-jitsu'],
           ['sa2','🫀','SuperAge 2-Day','3-day condensed week'],
-          ['sa4','❤️‍🔥','SuperAge 4-Day','spread across the week'],
+          ['sa4','❤️‍🔥','SuperAge Full Week','4 lifts + 3 rides'],
           ['sahyb','🔀','SuperAge Hybrid','alternating week styles'],
           ['texas','🏋️','Texas Method','barbell']
         ].map(([k,ico,nm,sub]) => `<button class="prog-tile ${S.program===k?'on':''}" data-prog="${k}">
