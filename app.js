@@ -301,14 +301,21 @@ function saMove(o, scheme, holdSets) {
 const SA_WARM  = () => saTimed('sawarm', 'Warm-Up + Mobility', '🚶', 300, 1, '5 min jump rope or brisk walk + joint circles');
 const SA_CARRY = (sets, scheme) => saTimed('carry', "Farmer's Hold & March", '🧳', 40, sets, scheme);
 const SA_Z2    = min => saTimed('zone2', 'Zone 2 Ride', '🚴', min * 60, 1, `${min} min steady road ride — conversational pace`);
-const SA_VO2   = () => saTimed('vo2max', 'VO₂ Max Bike Intervals', '🫀', 240, 4, '4 × 4 min hard riding (8/10) · 3 min easy pedaling between');
 function saExplScheme(o, sets) { return o.hold != null ? 'explosive warm-up — quick, light skips' : `${sets} sets · explosive — full effort, land soft`; }
-function saZ2Day(min, w) { return { title: `Zone 2 Ride · Wk ${w + 1}`, exercises: [SA_Z2(min)] }; }
-function saVO2Day(w) { return { title: `VO₂ Max Ride · Wk ${w + 1}`, exercises: [
-  saTimed('ridewarm', 'Easy Ride Warm-Up', '🚴', 600, 1, '10 min easy gear, building to moderate'),
-  SA_VO2(),
-  saTimed('zone2', 'Zone 2 Cool-Down', '🚴', 1200, 1, '20 min steady ride — flush the legs')
-]}; }
+function saZ2Day(min, w) { return { title: `Zone 2 Ride · Wk ${w + 1}`,
+  note: 'One steady road ride at a conversational pace — you should be able to talk in full sentences the whole way. Roughly 60–70% of max heart rate. If in doubt, go easier: Zone 2 should feel almost too easy.',
+  exercises: [SA_Z2(min)] }; }
+function saVO2Day(w) {
+  const ex = [saTimed('ridewarm', 'Easy Ride Warm-Up', '🚴', 600, 1, '10 min · easy gear, building to moderate by the end')];
+  for (let i = 1; i <= 4; i++) {
+    ex.push(saTimed('vo2i' + i, `Hard Interval ${i} of 4`, '🫀', 240, 1, '4 min @ 8/10 effort — only a few words at a time'));
+    if (i < 4) ex.push(saTimed('vo2r' + i, 'Easy Recovery', '🌬️', 180, 1, '3 min very easy pedaling — let your breathing settle'));
+  }
+  ex.push(saTimed('zone2', 'Zone 2 Cool-Down', '🚴', 1200, 1, '20 min steady ride — flush the legs'));
+  return { title: `VO₂ Max Ride · Wk ${w + 1}`,
+    note: 'One continuous ~55 min road ride: warm up 10 min, then 4 hard intervals of 4 min with 3 min easy pedaling between, and finish with 20 min in Zone 2. “Hard” = 8/10 — the fastest pace you could hold for the full 4 minutes, breathing hard, only a few words at a time. Ride the intervals seated and smooth (a steady climb or open road works well). If interval 4 matches interval 1, you paced it right.',
+    exercises: ex };
+}
 
 /* --- 2-day: two big sessions/week (~60 min lifting + ~60 min cardio) --- */
 function sa2Session(w, v) { /* v: 0 = A, 1 = B */
@@ -961,6 +968,7 @@ function renderPrepToday() {
     <button class="btn primary" id="prepComplete">Next day ›</button>`;
   } else {
     const log = pstate().log[dayNum] || { checks: {} };
+    if (d.note) html += `<div class="card"><div class="tiny muted" style="line-height:1.5">📋 ${d.note}</div></div>`;
     html += `<button class="btn primary" id="startSession">▶ Start Guided Workout</button><div class="spacer"></div>`;
     for (const item of prepDayItems(d)) {
       html += item.type === 'reps'
@@ -1346,8 +1354,12 @@ const FORM_TIPS = {
   carry:     { title: "Farmer's Hold & March", body: 'The no-space version of the farmer\'s carry. Grab heavy dumbbells — or go suitcase-style with your kettlebell in one hand (switch hands halfway) — and stand tall: shoulders back, ribs down. Hold for the full time, or march in place with slow, controlled knee lifts. Don\'t let the weight pull you into a lean. Same endurance under load, grip, core and posture work — zero floor space needed.' },
   sideplank: { title: 'Side Plank', body: 'Lie on your side, elbow under your shoulder, and lift your hips so your body forms one straight line from head to feet. Brace and breathe. Easier: keep your bottom knee on the floor. Do the time on each side.' },
   zone2:     { title: 'Zone 2 Ride', body: 'A steady road ride at a pace where you can still talk in full sentences but singing would be hard (roughly 60–70% of your max heart rate). Pick a flat-ish route or spin an easy gear at a comfortable cadence (~85–95 rpm); soft-pedal the downhills and ease off on climbs to stay in zone. If you\'re gasping, shift down: it should feel almost too easy. This builds the aerobic base most strongly tied to longevity.' },
-  vo2max:    { title: 'VO₂ Max Bike Intervals (4×4)', body: 'After 10 minutes of easy riding to warm up: 4 minutes hard — an 8/10 effort where you can only speak a few words at a time (a steady climb or a stretch of open road works well) — then 3 minutes of very easy spinning. Repeat 4 times, staying seated and smooth rather than sprinting. Once a week is plenty; VO₂ max is one of the strongest predictors of a long healthy life.' }
+  vo2max:    { title: 'VO₂ Max Hard Interval', body: 'Ride 4 minutes at an 8/10 effort — the fastest pace you could hold for the whole interval. Breathing hard, only a few words at a time; by the last minute it should feel genuinely tough. Stay seated and smooth rather than sprinting — a steady climb or a stretch of open road works well. Once a week is plenty; VO₂ max is one of the strongest predictors of a long healthy life.' },
+  vo2rec:    { title: 'Easy Recovery', body: 'Shift to an easy gear and keep the legs turning — soft, light pedaling, no hard efforts. Let your breathing and heart rate settle; you should be able to talk again by the end of the 3 minutes. The recovery is what makes the next interval good — don\'t ride it hard.' }
 };
+/* the VO₂ ride day uses per-interval keys — share the interval/recovery tips */
+['vo2i1', 'vo2i2', 'vo2i3', 'vo2i4'].forEach(k => { FORM_TIPS[k] = FORM_TIPS.vo2max; });
+['vo2r1', 'vo2r2', 'vo2r3'].forEach(k => { FORM_TIPS[k] = FORM_TIPS.vo2rec; });
 function showFormTip(key) {
   const info = FORM_TIPS[key]; if (!info) return;
   let pop = document.getElementById('infoPop');
