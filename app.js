@@ -260,7 +260,7 @@ function saTimed(key, name, icon, sec, sets, scheme, side) { return { key, name,
 
 /* --- 2-day: two big sessions (~60 min lifting + ~60 min cardio each) --- */
 const SA2_A = { title: 'Full Body A + Zone 2', exercises: [
-  saTimed('sawarm',    'Warm-Up Cardio + Mobility', '🚶', 300, 1, '5 min easy cardio + joint circles'),
+  saTimed('sawarm',    'Warm-Up Spin + Mobility', '🚶', 300, 1, '5 min easy spin or brisk walk + joint circles'),
   sa('mbslam',         'Medicine Ball Slams', '💥', 8,  '3 × 8 · explosive — slam hard, reset each rep'),
   sa('gobletsquat',    'Goblet Squat',        '🏋️', 10, 'Superset 1 · 4 × 8–12 · leave 2–3 reps in reserve'),
   sa('dbrdl',          'Romanian Deadlift',   '🦵', 10, 'Superset 1 · 4 × 8–12 · back to squats after 60–80 s'),
@@ -268,18 +268,18 @@ const SA2_A = { title: 'Full Body A + Zone 2', exercises: [
   sa('dbrow',          'Bent-Over Row',       '🚣', 10, 'Superset 2 · 4 × 8–12 · back to presses after 60–80 s'),
   saTimed('carry',     "Farmer's Carry",      '🧳', 40, 3, 'Superset 3 · heavy — alternate with plank'),
   saTimed('plank',     'Plank',               '🧘', 45, 3, 'Superset 3 · alternate with carries'),
-  saTimed('zone2',     'Zone 2 Cardio',       '🚴', 3600, 1, '60 min steady — you can talk in full sentences')
+  saTimed('zone2',     'Zone 2 Ride',         '🚴', 3600, 1, '60 min steady spin — you can talk in full sentences')
 ]};
 const SA2_B = { title: 'Full Body B + VO₂ Max', exercises: [
-  saTimed('sawarm',    'Warm-Up Cardio + Mobility', '🚶', 300, 1, '5 min easy cardio + joint circles'),
+  saTimed('sawarm',    'Warm-Up Spin + Mobility', '🚶', 300, 1, '5 min easy spin or brisk walk + joint circles'),
   sa('skaters',        'Skater Hops',         '⛸️', 10, '3 × 10 · explosive lateral bounds'),
   sa('dblunge',        'Reverse Lunge',       '🦵', 10, 'Superset 1 · 4 × 8–12 / side · 2–3 in reserve', true),
   sa('dbhinge',        'Deadlift',            '🏋️', 10, 'Superset 1 · 4 × 8–12 · back to lunges after 60–80 s'),
   sa('pushups',        'Push-Ups',            '💪', 10, 'Superset 2 · 4 × 8–12 · leave 2–3 reps in reserve'),
-  sa('latpull',        'Lat Pulldown / Pull-Up', '⬇️', 10, 'Superset 2 · 4 × 8–12 · back to push-ups after 60–80 s'),
+  sa('latpull',        'Pull-Up / Band Pulldown', '⬇️', 10, 'Superset 2 · 4 × 8–12 · back to push-ups after 60–80 s'),
   saTimed('sideplank', 'Side Plank',          '📐', 30, 2, 'Core finisher', true),
-  saTimed('vo2max',    'VO₂ Max Intervals',   '🫀', 240, 4, '4 × 4 min hard (8/10) · 3 min easy jog between'),
-  saTimed('zone2',     'Zone 2 Cool-Down',    '🚴', 1800, 1, '30 min steady — conversational pace')
+  saTimed('vo2max',    'VO₂ Max Bike Intervals', '🫀', 240, 4, '4 × 4 min hard riding (8/10) · 3 min easy spin between'),
+  saTimed('zone2',     'Zone 2 Ride',         '🚴', 1800, 1, '30 min steady spin — conversational pace')
 ]};
 const SUPERAGE2 = [];
 for (let i = 0; i < 24; i++) SUPERAGE2.push(i % 2 === 0 ? SA2_A : SA2_B);
@@ -290,9 +290,9 @@ const SA4_UA = { title: 'Upper A + Zone 2', exercises: [
   sa('dbpress',        'Chest Press',         '💪', 10, 'Superset 1 · 3 × 8–12 · leave 2–3 reps in reserve'),
   sa('dbrow',          'Bent-Over Row',       '🚣', 10, 'Superset 1 · 3 × 8–12 · back to presses after 60–80 s'),
   sa('pushups',        'Push-Ups',            '🙌', 10, 'Superset 2 · 3 × 8–12 · leave 2–3 reps in reserve'),
-  sa('latpull',        'Lat Pulldown / Pull-Up', '⬇️', 10, 'Superset 2 · 3 × 8–12 · back to push-ups after 60–80 s'),
+  sa('latpull',        'Pull-Up / Band Pulldown', '⬇️', 10, 'Superset 2 · 3 × 8–12 · back to push-ups after 60–80 s'),
   saTimed('plank',     'Plank',               '🧘', 45, 2, 'Core finisher'),
-  saTimed('zone2',     'Zone 2 Cardio',       '🚴', 1800, 1, '30 min steady — conversational pace')
+  saTimed('zone2',     'Zone 2 Ride',         '🚴', 1800, 1, '30 min steady spin — conversational pace')
 ]};
 const SA4_LA = { title: 'Lower A + Zone 2', exercises: [
   sa('squatjump',      'Squat Jumps',         '🦿', 6,  '2 × 6 · explosive — land soft'),
@@ -301,7 +301,7 @@ const SA4_LA = { title: 'Lower A + Zone 2', exercises: [
   sa('dblunge',        'Reverse Lunge',       '🦵', 10, 'Superset 2 · 3 × 8–12 / side', true),
   sa('dbhinge',        'Deadlift',            '🏋️', 10, 'Superset 2 · 3 × 8–12 · back to lunges after 60–80 s'),
   saTimed('carry',     "Farmer's Carry",      '🧳', 40, 2, 'Core & carry finisher — heavy, tall posture'),
-  saTimed('zone2',     'Zone 2 Cardio',       '🚴', 1800, 1, '30 min steady — conversational pace')
+  saTimed('zone2',     'Zone 2 Ride',         '🚴', 1800, 1, '30 min steady spin — conversational pace')
 ]};
 const SA4_UB = { title: 'Upper B + VO₂ Max', exercises: [
   sa('mbslam',         'Medicine Ball Slams', '💥', 8,  '2 × 8 · explosive warm-up'),
@@ -310,7 +310,7 @@ const SA4_UB = { title: 'Upper B + VO₂ Max', exercises: [
   sa('dbpushup',       'Push-Up',             '🙌', 10, 'Superset 2 · 3 × 8–12 · leave 2–3 reps in reserve'),
   sa('dbrenrow',       'Renegade Row',        '🚣', 8,  'Superset 2 · 3 × 8 / side', true),
   saTimed('sideplank', 'Side Plank',          '📐', 30, 2, 'Core finisher', true),
-  saTimed('vo2max',    'VO₂ Max Intervals',   '🫀', 240, 4, '4 × 4 min hard (8/10) · 3 min easy jog between')
+  saTimed('vo2max',    'VO₂ Max Bike Intervals', '🫀', 240, 4, '4 × 4 min hard riding (8/10) · 3 min easy spin between')
 ]};
 const SA4_LB = { title: 'Lower B + Zone 2', exercises: [
   sa('skaters',        'Skater Hops',         '⛸️', 10, '2 × 10 · explosive lateral bounds'),
@@ -319,7 +319,7 @@ const SA4_LB = { title: 'Lower B + Zone 2', exercises: [
   sa('gobletsquat',    'Goblet Squat',        '🏋️', 10, 'Superset 2 · 3 × 8–12 · leave 2–3 reps in reserve'),
   sa('dbhinge',        'Deadlift',            '🏋️', 10, 'Superset 2 · 3 × 8–12 · back to squats after 60–80 s'),
   saTimed('carry',     "Farmer's Carry",      '🧳', 40, 2, 'Core & carry finisher — heavy, tall posture'),
-  saTimed('zone2',     'Zone 2 Cardio',       '🚴', 1800, 1, '30 min steady — conversational pace')
+  saTimed('zone2',     'Zone 2 Ride',         '🚴', 1800, 1, '30 min steady spin — conversational pace')
 ]};
 const SUPERAGE4 = [];
 for (let i = 0; i < 24; i++) SUPERAGE4.push([SA4_UA, SA4_LA, SA4_UB, SA4_LB][i % 4]);
@@ -1277,14 +1277,14 @@ const FORM_TIPS = {
   breakfall: { title: 'Back Breakfalls', body: 'From standing or squatting, sit and roll backward onto your rounded back, slapping the mat with both arms at ~45° to disperse the impact, chin tucked to your chest. Practice landing softly and safely — the foundation for being thrown.' },
   hipheist:  { title: 'Hip Heist', body: 'From a seated/sprawl position, post a hand and swivel your hips, switching from facing one way to the other by threading your bottom leg through — the scramble movement used to come up on top. Keep your hips off the floor and switch quickly. Each side.' },
   invhold:   { title: 'Inversion Hold', body: 'On your back, roll your hips up and over so your weight is on your upper back/shoulders with your hips stacked above (support your back with your hands if needed). Hold and breathe — builds the spinal/hip mobility for inverting in guard. Ease into it; protect your neck.' },
-  sawarm:    { title: 'Warm-Up Cardio + Mobility', body: '5 minutes of easy cardio — jump rope, brisk walk, bike or row — plus big joint circles: arm circles, hip circles, leg swings and ankle rolls. Finish lightly warm, not tired. This takes your joints through their full range before you load them.' },
+  sawarm:    { title: 'Warm-Up Spin + Mobility', body: '5 minutes of very easy spinning on the bike (or a brisk walk / jump rope) plus big joint circles: arm circles, hip circles, leg swings and ankle rolls. Finish lightly warm, not tired. This takes your joints through their full range before you load them.' },
   mbslam:    { title: 'Medicine Ball Slam', body: 'Reach the ball tall overhead, rising onto your toes, then slam it into the floor as hard as you can — hinge at the hips and follow through with your whole body. Pick it up (or catch the bounce), reset, repeat. No ball? Do squat jumps instead. Explosive work where you move fast is a key longevity ingredient.' },
-  latpull:   { title: 'Lat Pulldown / Pull-Up', body: 'Pulldown: grip just wider than shoulders, chest tall, pull the bar to your collarbones by driving your elbows down, then control it back up. No machine? Do pull-ups, chin-ups or band pulldowns instead. No leaning way back, no momentum.' },
+  latpull:   { title: 'Pull-Up / Band Pulldown', body: 'Pull-up bar: from a dead hang, pull your chest toward the bar leading with your elbows, then lower all the way under control. Band pulldown: anchor a band overhead, kneel or sit tall, and pull the band to your collarbones by driving your elbows down. No bar or band? Do a single-arm dumbbell row instead. No swinging or momentum.' },
   sidelunge: { title: 'Lateral Lunge', body: 'Step wide to one side, sit your hips back and bend that knee while the other leg stays straight, chest tall and heels down. Push off to return to standing. Hold a dumbbell at your chest to load it. Side-to-side strength keeps you agile and balanced as you age.' },
   carry:     { title: "Farmer's Carry", body: 'Grab a heavy dumbbell or kettlebell in each hand, stand tall — shoulders back, ribs down — and walk with controlled steps for the full time. Don\'t let the weights pull you into a lean. Grip, core, posture and bone loading in one move.' },
   sideplank: { title: 'Side Plank', body: 'Lie on your side, elbow under your shoulder, and lift your hips so your body forms one straight line from head to feet. Brace and breathe. Easier: keep your bottom knee on the floor. Do the time on each side.' },
-  zone2:     { title: 'Zone 2 Cardio', body: 'Steady cardio — brisk walk, jog, bike, row or swim — at a pace where you can still talk in full sentences but singing would be hard (roughly 60–70% of your max heart rate). If you\'re gasping, slow down: it should feel almost too easy. This builds the aerobic base most strongly tied to longevity.' },
-  vo2max:    { title: 'VO₂ Max Intervals (4×4)', body: 'Go 4 minutes hard — run, bike or row at an 8/10 effort where you can only speak a few words at a time — then recover with 3 minutes very easy. Repeat 4 times. Once a week is plenty; VO₂ max is one of the strongest predictors of a long healthy life.' }
+  zone2:     { title: 'Zone 2 Ride', body: 'A steady road ride at a pace where you can still talk in full sentences but singing would be hard (roughly 60–70% of your max heart rate). Pick a flat-ish route or spin an easy gear at a comfortable cadence (~85–95 rpm); soft-pedal the downhills and ease off on climbs to stay in zone. If you\'re gasping, shift down: it should feel almost too easy. This builds the aerobic base most strongly tied to longevity.' },
+  vo2max:    { title: 'VO₂ Max Bike Intervals (4×4)', body: 'After 10 minutes of easy riding to warm up: 4 minutes hard — an 8/10 effort where you can only speak a few words at a time (a steady climb or a stretch of open road works well) — then 3 minutes of very easy spinning. Repeat 4 times, staying seated and smooth rather than sprinting. Once a week is plenty; VO₂ max is one of the strongest predictors of a long healthy life.' }
 };
 function showFormTip(key) {
   const info = FORM_TIPS[key]; if (!info) return;
