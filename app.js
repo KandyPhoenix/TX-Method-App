@@ -289,6 +289,12 @@ const SA_POOL = {
     { key: 'legraises', name: 'Leg Raises',       icon: '🦵', reps: 12 },
     { key: 'rtwist',    name: 'Russian Twists',   icon: '🔁', reps: 20 }
   ],
+  carry: [
+    { key: 'carry',    name: "Farmer's Hold & March",    icon: '🧳', hold: 40 },
+    { key: 'suitcase', name: 'Suitcase Hold & March',    icon: '💼', hold: 30, side: true },
+    { key: 'rackhold', name: 'Front-Rack / Goblet Hold', icon: '🏋️', hold: 40 },
+    { key: 'ohhold',   name: 'Overhead Hold & March',    icon: '🙌', hold: 30, side: true }
+  ],
   explosive: [
     { key: 'squatjump',    name: 'Squat Jumps',    icon: '🦿', reps: 8 },
     { key: 'skaters',      name: 'Skater Hops',    icon: '⛸️', reps: 10 },
@@ -314,7 +320,6 @@ function saWarmup() { return [
   sa('wuband',  'Banded Side-Steps', '↔️', 10, '10 steps each way — band above knees')
 ]; }
 function saLiftNote(rounds) { return `Warm up first, then the explosive move, then the supersets. A superset = one set of the first exercise, rest 60–80 s, one set of its partner, rest 60–80 s, back to the first — ${rounds} rounds per pair before the next pair. Pick weights that leave 2–3 reps in reserve: end each set while you could still do 2–3 clean reps. The timed core work at the end alternates the same way.`; }
-const SA_CARRY = (sets, scheme) => saTimed('carry', "Farmer's Hold & March", '🧳', 40, sets, scheme);
 const SA_Z2    = min => saTimed('zone2', 'Zone 2 Ride', '🚴', min * 60, 1, `${min} min steady road ride — conversational pace`);
 function saExplScheme(o, sets) { return o.hold != null ? 'explosive warm-up — quick, light skips' : `${sets} sets · explosive — full effort, land soft`; }
 function saZ2Day(min, w) { return { title: `Zone 2 Ride · Wk ${w + 1}`,
@@ -342,7 +347,7 @@ function sa2Session(w, v) { /* v: 0 = A, 1 = B */
     saMove(saPick('hinge', w + v),         'Superset 1 · 8–12 reps · rest 60–80 s, then back to partner', 4, 1),
     saMove(saPick('push',  w + v),         'Superset 2 · 8–12 reps · leave 2–3 in reserve', 4, 2),
     saMove(saPick('pull',  w + v * 2 + 1), 'Superset 2 · 8–12 reps · rest 60–80 s, then back to partner', 4, 2),
-    Object.assign(SA_CARRY(3, 'Superset 3 · heavy — alternates with the core hold'), { ss: 3 }),
+    saMove(saPick('carry', w + v), 'Superset 3 · heavy — alternates with the core exercise', 3, 3),
     saMove(saPick('core', w + v), 'Superset 3 · alternates with the holds', 3, 3)
   ];
   return { title: `Full Body ${v === 0 ? 'A' : 'B'} · Wk ${w + 1}`, note: saLiftNote(4), exercises: ex };
@@ -375,7 +380,7 @@ function sa4Lower(w, v) { /* v: 0 = A, 1 = B */
     saMove(saPick('hinge', w + v),     'Superset 1 · 8–12 reps · rest 60–80 s, then back to partner', 3, 1),
     saMove(saPick('squat', w + v + 1), 'Superset 2 · 8–12 reps · leave 2–3 in reserve', 3, 2),
     saMove(saPick('hinge', w + v + 1), 'Superset 2 · 8–12 reps · rest 60–80 s, then back to partner', 3, 2),
-    SA_CARRY(2, 'Core & carry finisher — heavy, tall posture')
+    saMove(saPick('carry', w + v), 'Core & carry finisher — heavy, tall posture', 2)
   ];
   return { title: `Lower ${v === 0 ? 'A' : 'B'} · Wk ${w + 1}`, note: saLiftNote(3), exercises: ex };
 }
@@ -1366,6 +1371,9 @@ const FORM_TIPS = {
   hipheist:  { title: 'Hip Heist', body: 'From a seated/sprawl position, post a hand and swivel your hips, switching from facing one way to the other by threading your bottom leg through — the scramble movement used to come up on top. Keep your hips off the floor and switch quickly. Each side.' },
   invhold:   { title: 'Inversion Hold', body: 'On your back, roll your hips up and over so your weight is on your upper back/shoulders with your hips stacked above (support your back with your hands if needed). Hold and breathe — builds the spinal/hip mobility for inverting in guard. Ease into it; protect your neck.' },
   deadbug:   { title: 'Dead Bug', body: 'Lie on your back, arms pointing at the ceiling, knees bent 90\u00b0 over your hips. Press your lower back into the floor, then slowly lower one arm overhead and the opposite leg toward the floor, return, and switch sides. Go slow \u2014 the whole exercise is keeping your lower back glued down while your limbs move. Each arm-and-leg pair is one rep per side.' },
+  suitcase:  { title: 'Suitcase Hold & March', body: 'Hold one heavy dumbbell (or your kettlebell) at your side like a suitcase, the other hand free. Stand tall and refuse to lean — that fight is the exercise. Hold, or march in place with slow knee lifts, then switch hands. Do the time on each side.' },
+  rackhold:  { title: 'Front-Rack / Goblet Hold', body: 'Hold one dumbbell at your chest goblet-style, or two dumbbells racked at your shoulders. Ribs down, elbows in, breathing steadily behind the brace. Hold or march in place. The weight in front makes your whole trunk work to stay tall.' },
+  ohhold:    { title: 'Overhead Hold & March', body: 'Press one dumbbell overhead and lock the elbow — biceps by your ear, ribs down, eyes forward. Hold, or march in place, keeping the weight stacked straight over your shoulder. Start light; switch arms and do the time on each side.' },
   wucardio:  { title: 'Jump Rope / Brisk Walk', body: '2 minutes easy — rope, brisk walking, or marching in place. Just enough to raise your heart rate and warm your muscles; this is not a workout yet.' },
   wuarm:     { title: 'Arm Circles', body: 'Stand tall, arms out to the sides. Draw big, slow circles from the shoulders — 10 forward, then 10 backward, letting them grow bigger. Loosens the shoulders before pressing and pulling.' },
   wuhip:     { title: 'Hip Circles', body: 'Hands on hips, feet shoulder-width. Circle your hips wide and slow — 10 one way, 10 the other, like stirring a big pot. Frees the hips before squats and hinges.' },
