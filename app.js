@@ -298,11 +298,17 @@ function saMove(o, scheme, holdSets) {
     ? saTimed(o.key, o.name, o.icon, o.hold, holdSets || 2, scheme, o.side)
     : sa(o.key, o.name, o.icon, o.reps, scheme + (o.side ? ' / side' : ''), o.side);
 }
-const SA_WARM  = () => saTimed('sawarm', 'Warm-Up Spin + Mobility', '🚶', 300, 1, '5 min easy spin or brisk walk + joint circles');
+const SA_WARM  = () => saTimed('sawarm', 'Warm-Up + Mobility', '🚶', 300, 1, '5 min jump rope or brisk walk + joint circles');
 const SA_CARRY = (sets, scheme) => saTimed('carry', "Farmer's Hold & March", '🧳', 40, sets, scheme);
-const SA_Z2    = min => saTimed('zone2', 'Zone 2 Ride', '🚴', min * 60, 1, `${min} min steady spin — conversational pace`);
-const SA_VO2   = () => saTimed('vo2max', 'VO₂ Max Bike Intervals', '🫀', 240, 4, '4 × 4 min hard riding (8/10) · 3 min easy spin between');
+const SA_Z2    = min => saTimed('zone2', 'Zone 2 Ride', '🚴', min * 60, 1, `${min} min steady road ride — conversational pace`);
+const SA_VO2   = () => saTimed('vo2max', 'VO₂ Max Bike Intervals', '🫀', 240, 4, '4 × 4 min hard riding (8/10) · 3 min easy pedaling between');
 function saExplScheme(o, sets) { return o.hold != null ? 'explosive warm-up — quick, light skips' : `${sets} sets · explosive — full effort, land soft`; }
+function saZ2Day(min, w) { return { title: `Zone 2 Ride · Wk ${w + 1}`, exercises: [SA_Z2(min)] }; }
+function saVO2Day(w) { return { title: `VO₂ Max Ride · Wk ${w + 1}`, exercises: [
+  saTimed('ridewarm', 'Easy Ride Warm-Up', '🚴', 600, 1, '10 min easy gear, building to moderate'),
+  SA_VO2(),
+  saTimed('zone2', 'Zone 2 Cool-Down', '🚴', 1200, 1, '20 min steady ride — flush the legs')
+]}; }
 
 /* --- 2-day: two big sessions/week (~60 min lifting + ~60 min cardio) --- */
 function sa2Session(w, v) { /* v: 0 = A, 1 = B */
@@ -317,11 +323,12 @@ function sa2Session(w, v) { /* v: 0 = A, 1 = B */
     SA_CARRY(3, 'Superset 3 · heavy — alternate with the core hold'),
     saMove(saPick('core', w + v), 'Superset 3 · alternate with the holds', 3)
   ];
-  ex.push(...(v === 0 ? [SA_Z2(60)] : [SA_VO2(), SA_Z2(30)]));
-  return { title: `Full Body ${v === 0 ? 'A' : 'B'} · Wk ${w + 1} + ${v === 0 ? 'Zone 2' : 'VO₂ Max'}`, exercises: ex };
+  return { title: `Full Body ${v === 0 ? 'A' : 'B'} · Wk ${w + 1}`, exercises: ex };
 }
 const SUPERAGE2 = [];
-for (let i = 0; i < 24; i++) SUPERAGE2.push(sa2Session(Math.floor(i / 2), i % 2));
+for (let w = 0; w < 12; w++) SUPERAGE2.push(
+  sa2Session(w, 0), saZ2Day(60, w), PREP_REST, sa2Session(w, 1), PREP_REST, saVO2Day(w), PREP_REST
+);
 
 /* --- 4-day: 2 upper + 2 lower per week (~30 min lifting + ~30 min cardio) --- */
 function sa4Upper(w, v) { /* v: 0 = A, 1 = B */
@@ -334,8 +341,7 @@ function sa4Upper(w, v) { /* v: 0 = A, 1 = B */
     saMove(saPick('pull', w + v * 2 + 1), 'Superset 2 · 3 × 8–12 · swap moves every 60–80 s'),
     saMove(saPick('core', w + v), 'Core finisher', 2)
   ];
-  ex.push(v === 1 ? SA_VO2() : SA_Z2(30));
-  return { title: `Upper ${v === 0 ? 'A' : 'B'} · Wk ${w + 1} + ${v === 1 ? 'VO₂ Max' : 'Zone 2'}`, exercises: ex };
+  return { title: `Upper ${v === 0 ? 'A' : 'B'} · Wk ${w + 1}`, exercises: ex };
 }
 function sa4Lower(w, v) { /* v: 0 = A, 1 = B */
   const expl = [SA_POOL.explosive[0], SA_POOL.explosive[1], SA_POOL.explosive[2]][(w + v) % 3];
@@ -345,16 +351,14 @@ function sa4Lower(w, v) { /* v: 0 = A, 1 = B */
     saMove(saPick('hinge', w + v),     'Superset 1 · 3 × 8–12 · swap moves every 60–80 s'),
     saMove(saPick('squat', w + v + 1), 'Superset 2 · 3 × 8–12 · leave 2–3 reps in reserve'),
     saMove(saPick('hinge', w + v + 1), 'Superset 2 · 3 × 8–12 · swap moves every 60–80 s'),
-    SA_CARRY(2, 'Core & carry finisher — heavy, tall posture'),
-    SA_Z2(30)
+    SA_CARRY(2, 'Core & carry finisher — heavy, tall posture')
   ];
-  return { title: `Lower ${v === 0 ? 'A' : 'B'} · Wk ${w + 1} + Zone 2`, exercises: ex };
+  return { title: `Lower ${v === 0 ? 'A' : 'B'} · Wk ${w + 1}`, exercises: ex };
 }
 const SUPERAGE4 = [];
-for (let i = 0; i < 24; i++) {
-  const w = Math.floor(i / 4), slot = i % 4; /* UA, LA, UB, LB */
-  SUPERAGE4.push(slot % 2 === 0 ? sa4Upper(w, slot / 2) : sa4Lower(w, (slot - 1) / 2));
-}
+for (let w = 0; w < 6; w++) SUPERAGE4.push(
+  sa4Upper(w, 0), sa4Lower(w, 0), saZ2Day(60, w), sa4Upper(w, 1), sa4Lower(w, 1), saVO2Day(w), PREP_REST
+);
 
 /* =====================================================================
    DAY-PROGRAM HELPERS  (shared by 30-Day Prep + Mobility)
@@ -367,8 +371,8 @@ const DAY_PROGRAMS = {
   pilates:  { data: PILATES,  stateKey: 'pil',  label: 'Pilates Mat',        sub: 'classical mat sequence' },
   hiit:     { data: HIIT,     stateKey: 'hiit', label: 'Full-Body HIIT',     sub: 'timed circuit' },
   bjj:      { data: BJJ,      stateKey: 'bjj',  label: 'BJJ Solo Drills',    sub: 'jiu-jitsu movement' },
-  sa2:      { data: SUPERAGE2, stateKey: 'sa2', label: 'SuperAge 2-Day',     sub: '2×/week · supersets + cardio', holdLabel: 'Timed work' },
-  sa4:      { data: SUPERAGE4, stateKey: 'sa4', label: 'SuperAge 4-Day',     sub: '4×/week · supersets + cardio', holdLabel: 'Timed work' }
+  sa2:      { data: SUPERAGE2, stateKey: 'sa2', label: 'SuperAge 2-Day',     sub: '2 lifts + 2 rides / week', holdLabel: 'Timed work' },
+  sa4:      { data: SUPERAGE4, stateKey: 'sa4', label: 'SuperAge 4-Day',     sub: '4 lifts + 2 rides / week', holdLabel: 'Timed work' }
 };
 function isDayProgram() { return !!DAY_PROGRAMS[S.program]; }
 function pcfg()   { return DAY_PROGRAMS[S.program] || DAY_PROGRAMS.prep30; }
@@ -1309,7 +1313,8 @@ const FORM_TIPS = {
   breakfall: { title: 'Back Breakfalls', body: 'From standing or squatting, sit and roll backward onto your rounded back, slapping the mat with both arms at ~45° to disperse the impact, chin tucked to your chest. Practice landing softly and safely — the foundation for being thrown.' },
   hipheist:  { title: 'Hip Heist', body: 'From a seated/sprawl position, post a hand and swivel your hips, switching from facing one way to the other by threading your bottom leg through — the scramble movement used to come up on top. Keep your hips off the floor and switch quickly. Each side.' },
   invhold:   { title: 'Inversion Hold', body: 'On your back, roll your hips up and over so your weight is on your upper back/shoulders with your hips stacked above (support your back with your hands if needed). Hold and breathe — builds the spinal/hip mobility for inverting in guard. Ease into it; protect your neck.' },
-  sawarm:    { title: 'Warm-Up Spin + Mobility', body: '5 minutes of very easy spinning on the bike (or a brisk walk / jump rope) plus big joint circles: arm circles, hip circles, leg swings and ankle rolls. Got leg bands? Add 10 banded side-steps each way — the article\'s lateral shuffle work, and it wakes up your hips before squats and deadlifts. Finish lightly warm, not tired.' },
+  sawarm:    { title: 'Warm-Up + Mobility', body: '5 minutes of easy jump rope or brisk walking plus big joint circles: arm circles, hip circles, leg swings and ankle rolls. Got leg bands? Add 10 banded side-steps each way — the article\'s lateral shuffle work, and it wakes up your hips before squats and deadlifts. Finish lightly warm, not tired.' },
+  ridewarm:  { title: 'Easy Ride Warm-Up', body: 'Start your VO\u2082 max ride with 10 minutes in an easy gear, gradually building to a moderate effort so your legs and heart are ready for the first hard interval. Don\'t skip this — intervals on cold legs feel awful and produce less.' },
   hops:      { title: 'Jump Rope', body: 'Quick, light two-footed skips — stay on the balls of your feet, elbows in, turning the rope from the wrists. Smooth and springy beats high and hard. Explosive work where your body leaves the ground keeps power and bone density as you age. Trip a lot? Just keep going — restarts count.' },
   sabench:   { title: 'Bench Press', body: 'On your bench with a barbell or dumbbells. Pinch your shoulder blades together, slight arch, feet planted. Lower to your mid-chest with elbows about 45\u201375\u00b0 from your body, touch, then press up over your shoulders. No spotter with a barbell? Stay 2\u20133 reps shy of failure (as programmed) or use dumbbells.' },
   sarow:     { title: 'Bent-Over Row', body: 'Barbell or dumbbells. Hinge at the hips with a flat back, let the weight hang, then pull it to your waistline \u2014 drive your elbows back and squeeze your shoulder blades. Lower under control, torso still. No heaving.' },
@@ -1640,8 +1645,8 @@ function renderSetup() {
           ['pilates','🤸','Pilates Mat','classical Pilates'],
           ['hiit','⚡','Full-Body HIIT','timed circuit'],
           ['bjj','🥋','BJJ Drills','jiu-jitsu'],
-          ['sa2','🫀','SuperAge 2-Day','supersets + cardio'],
-          ['sa4','❤️‍🔥','SuperAge 4-Day','supersets + cardio'],
+          ['sa2','🫀','SuperAge 2-Day','2 lifts + 2 rides'],
+          ['sa4','❤️‍🔥','SuperAge 4-Day','4 lifts + 2 rides'],
           ['texas','🏋️','Texas Method','barbell']
         ].map(([k,ico,nm,sub]) => `<button class="prog-tile ${S.program===k?'on':''}" data-prog="${k}">
           <div class="prog-ico">${ico}</div><div class="prog-name">${nm}</div><div class="prog-sub">${sub}</div></button>`).join('')}
