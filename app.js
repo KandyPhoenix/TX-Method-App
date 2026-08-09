@@ -293,10 +293,13 @@ const SA_POOL = {
   ]
 };
 function saPick(pool, i) { const p = SA_POOL[pool]; return p[((i % p.length) + p.length) % p.length]; }
-function saMove(o, scheme, holdSets) {
-  return o.hold != null
-    ? saTimed(o.key, o.name, o.icon, o.hold, holdSets || 2, scheme, o.side)
+function saMove(o, scheme, sets, ss) {
+  const m = o.hold != null
+    ? saTimed(o.key, o.name, o.icon, o.hold, sets || 2, scheme, o.side)
     : sa(o.key, o.name, o.icon, o.reps, scheme + (o.side ? ' / side' : ''), o.side);
+  if (o.hold == null && sets > 1) m.sets = sets;
+  if (ss != null) m.ss = ss;
+  return m;
 }
 function saWarmup() { return [
   saTimed('wucardio', 'Jump Rope / Brisk Walk', '➰', 120, 1, '2 min easy — just to get warm'),
@@ -330,13 +333,13 @@ function sa2Session(w, v) { /* v: 0 = A, 1 = B */
   const expl = saPick('explosive', w + v * 2);
   const ex = [
     ...saWarmup(),
-    saMove(expl, saExplScheme(expl, 3)),
-    saMove(saPick('squat', w + v * 2),     'Superset 1 · 4 × 8–12 · leave 2–3 reps in reserve'),
-    saMove(saPick('hinge', w + v),         'Superset 1 · 4 × 8–12 · swap moves every 60–80 s'),
-    saMove(saPick('push',  w + v),         'Superset 2 · 4 × 8–12 · leave 2–3 reps in reserve'),
-    saMove(saPick('pull',  w + v * 2 + 1), 'Superset 2 · 4 × 8–12 · swap moves every 60–80 s'),
-    SA_CARRY(3, 'Superset 3 · heavy — alternate with the core hold'),
-    saMove(saPick('core', w + v), 'Superset 3 · alternate with the holds', 3)
+    saMove(expl, saExplScheme(expl), expl.hold != null ? 2 : 3),
+    saMove(saPick('squat', w + v * 2),     'Superset 1 · 8–12 reps · leave 2–3 in reserve', 4, 1),
+    saMove(saPick('hinge', w + v),         'Superset 1 · 8–12 reps · rest 60–80 s, then back to partner', 4, 1),
+    saMove(saPick('push',  w + v),         'Superset 2 · 8–12 reps · leave 2–3 in reserve', 4, 2),
+    saMove(saPick('pull',  w + v * 2 + 1), 'Superset 2 · 8–12 reps · rest 60–80 s, then back to partner', 4, 2),
+    Object.assign(SA_CARRY(3, 'Superset 3 · heavy — alternates with the core hold'), { ss: 3 }),
+    saMove(saPick('core', w + v), 'Superset 3 · alternates with the holds', 3, 3)
   ];
   return { title: `Full Body ${v === 0 ? 'A' : 'B'} · Wk ${w + 1}`, note: saLiftNote(4), exercises: ex };
 }
@@ -350,11 +353,11 @@ function sa4Upper(w, v) { /* v: 0 = A, 1 = B */
   const expl = [SA_POOL.explosive[3], SA_POOL.explosive[0]][(w + v) % 2]; /* jump rope / squat jumps */
   const ex = [
     ...saWarmup(),
-    saMove(expl, saExplScheme(expl, 2)),
-    saMove(saPick('push', w + v),         'Superset 1 · 3 × 8–12 · leave 2–3 reps in reserve'),
-    saMove(saPick('pull', w + v * 2),     'Superset 1 · 3 × 8–12 · swap moves every 60–80 s'),
-    saMove(saPick('push', w + v + 1),     'Superset 2 · 3 × 8–12 · leave 2–3 reps in reserve'),
-    saMove(saPick('pull', w + v * 2 + 1), 'Superset 2 · 3 × 8–12 · swap moves every 60–80 s'),
+    saMove(expl, saExplScheme(expl), 2),
+    saMove(saPick('push', w + v),         'Superset 1 · 8–12 reps · leave 2–3 in reserve', 3, 1),
+    saMove(saPick('pull', w + v * 2),     'Superset 1 · 8–12 reps · rest 60–80 s, then back to partner', 3, 1),
+    saMove(saPick('push', w + v + 1),     'Superset 2 · 8–12 reps · leave 2–3 in reserve', 3, 2),
+    saMove(saPick('pull', w + v * 2 + 1), 'Superset 2 · 8–12 reps · rest 60–80 s, then back to partner', 3, 2),
     saMove(saPick('core', w + v), 'Core finisher', 2)
   ];
   return { title: `Upper ${v === 0 ? 'A' : 'B'} · Wk ${w + 1}`, note: saLiftNote(3), exercises: ex };
@@ -363,11 +366,11 @@ function sa4Lower(w, v) { /* v: 0 = A, 1 = B */
   const expl = [SA_POOL.explosive[0], SA_POOL.explosive[1], SA_POOL.explosive[2]][(w + v) % 3];
   const ex = [
     ...saWarmup(),
-    saMove(expl, saExplScheme(expl, 2)),
-    saMove(saPick('squat', w + v),     'Superset 1 · 3 × 8–12 · leave 2–3 reps in reserve'),
-    saMove(saPick('hinge', w + v),     'Superset 1 · 3 × 8–12 · swap moves every 60–80 s'),
-    saMove(saPick('squat', w + v + 1), 'Superset 2 · 3 × 8–12 · leave 2–3 reps in reserve'),
-    saMove(saPick('hinge', w + v + 1), 'Superset 2 · 3 × 8–12 · swap moves every 60–80 s'),
+    saMove(expl, saExplScheme(expl), 2),
+    saMove(saPick('squat', w + v),     'Superset 1 · 8–12 reps · leave 2–3 in reserve', 3, 1),
+    saMove(saPick('hinge', w + v),     'Superset 1 · 8–12 reps · rest 60–80 s, then back to partner', 3, 1),
+    saMove(saPick('squat', w + v + 1), 'Superset 2 · 8–12 reps · leave 2–3 in reserve', 3, 2),
+    saMove(saPick('hinge', w + v + 1), 'Superset 2 · 8–12 reps · rest 60–80 s, then back to partner', 3, 2),
     SA_CARRY(2, 'Core & carry finisher — heavy, tall posture')
   ];
   return { title: `Lower ${v === 0 ? 'A' : 'B'} · Wk ${w + 1}`, note: saLiftNote(3), exercises: ex };
@@ -406,12 +409,12 @@ function pLabel()    { return pcfg().label; }
 /* reps-exercise keys present in the active program (for the stats bars) */
 function pExKeys() {
   const seen = {}, out = [];
-  pdata().forEach(d => { if (d.rest) return; d.exercises.forEach(e => { if (!e.sets && !seen[e.key]) { seen[e.key] = 1; out.push({ key: e.key, name: e.name, icon: e.icon }); } }); });
+  pdata().forEach(d => { if (d.rest) return; d.exercises.forEach(e => { if (e.sec == null && !seen[e.key]) { seen[e.key] = 1; out.push({ key: e.key, name: e.name, icon: e.icon }); } }); });
   return out;
 }
 function pFull() {
   const t = { plankSec: 0 };
-  pdata().forEach(d => { if (d.rest) return; d.exercises.forEach(e => { if (e.sets) t.plankSec += e.sets * e.sec; else t[e.key] = (t[e.key] || 0) + e.reps; }); });
+  pdata().forEach(d => { if (d.rest) return; d.exercises.forEach(e => { if (e.sec != null) t.plankSec += (e.sets || 1) * e.sec; else t[e.key] = (t[e.key] || 0) + e.reps * (e.sets || 1); }); });
   return t;
 }
 
@@ -982,7 +985,7 @@ function renderPrepToday() {
     html += `<button class="btn primary" id="startSession">▶ Start Guided Workout</button><div class="spacer"></div>`;
     for (const item of prepDayItems(d)) {
       html += item.type === 'reps'
-        ? prepExerciseCard(item.ex, log)
+        ? prepExerciseCard(item.ex, item.setIndex, item.total, log)
         : plankSetCard(item.ex, item.setIndex, item.total, log);
     }
 
@@ -998,9 +1001,9 @@ function renderPrepToday() {
   wirePrepToday();
 }
 
-function prepExerciseCard(ex, log) {
+function prepExerciseCard(ex, setIndex, total, log) {
   let rows = '';
-  if (ex.sets) {
+  if (ex.sets && ex.sec != null) {
     /* plank — timed sets */
     for (let i = 0; i < ex.sets; i++) {
       const id = `${ex.key}_${i}`;
@@ -1015,49 +1018,55 @@ function prepExerciseCard(ex, log) {
       <div class="scheme">${ex.sets}×${ex.sec} sec</div></div>
       <span class="badge vol">Hold</span></div>${rows}</div>`;
   }
-  /* reps exercise — single set */
-  const id = ex.key;
+  /* reps exercise — one card per set */
+  const many = total > 1;
+  const id = many ? `${ex.key}_${setIndex}` : ex.key;
   const on = log.checks && log.checks[id] ? 'on' : '';
   rows = `<div class="set-row workset ${on ? 'done' : ''}">
-    <div class="lbl">Target</div>
+    <div class="lbl">${many ? `Set ${setIndex + 1}/${total}` : 'Target'}</div>
     <div class="wt">${ex.reps}<small> reps${ex.side ? '/side' : ''}</small></div>
     <div class="set-end"><button class="check ${on}" data-pcheck="${id}">✓</button></div></div>`;
   return `<div class="card lift">
     <div class="lift-head"><div><div class="name">${ex.name} ${formBtn(ex.key)}</div>
-    <div class="scheme">${ex.scheme || `${ex.reps} reps${ex.side ? ' each side' : ''}`}</div></div>
-    <span class="badge vol">${ex.scheme ? 'Sets' : 'Reps'}</span></div>${rows}</div>`;
+    <div class="scheme">${many ? `Set ${setIndex + 1} of ${total} · ` : ''}${ex.scheme || `${ex.reps} reps${ex.side ? ' each side' : ''}`}</div></div>
+    <span class="badge vol">${many || ex.scheme ? 'Sets' : 'Reps'}</span></div>${rows}</div>`;
 }
 
 /* ordered items for a day. In the 30-Day Prep the multi-set plank is
    spread between the other exercises; elsewhere multi-set holds simply
    expand into one item per set, in place. */
 function exItems(ex) {
-  if (!ex.sets) return [{ type: 'reps', ex }];
+  const total = ex.sets || 1;
+  const type = ex.sec != null ? 'plank' : 'reps';
   const out = [];
-  for (let i = 0; i < ex.sets; i++) out.push({ type: 'plank', ex, setIndex: i, total: ex.sets });
+  for (let i = 0; i < total; i++) out.push({ type, ex, setIndex: i, total });
   return out;
 }
 function prepDayItems(d) {
   const spread = S.program === 'prep30' && d.exercises.find(e => e.sets && e.sets > 1);
   if (!spread) {
-    /* adjacent multi-set holds form a superset (e.g. SuperAge's carry ⇆
-       plank pairing): interleave their sets so the workout alternates
-       between them instead of finishing one before starting the other */
+    /* exercises sharing an `ss` (superset group) interleave their sets
+       round-robin — squat s1, hinge s1, squat s2… — so the workout runs
+       the superset the way it's meant to be performed */
     const items = [];
+    const E = d.exercises;
     let i = 0;
-    while (i < d.exercises.length) {
-      let j = i;
-      while (j < d.exercises.length && d.exercises[j].sets > 1) j++;
-      if (j - i >= 2) {
-        const group = d.exercises.slice(i, j);
+    while (i < E.length) {
+      const g = E[i].ss;
+      let j = i + 1;
+      if (g != null && E[i].sets > 1) {
+        while (j < E.length && E[j].ss === g && E[j].sets > 1) j++;
+      }
+      if (g != null && j - i >= 2) {
+        const group = E.slice(i, j);
         const rounds = Math.max(...group.map(e => e.sets));
         for (let s = 0; s < rounds; s++)
-          group.forEach(e => { if (s < e.sets) items.push({ type: 'plank', ex: e, setIndex: s, total: e.sets }); });
-        i = j;
+          group.forEach(e => { if (s < e.sets) items.push({ type: e.sec != null ? 'plank' : 'reps', ex: e, setIndex: s, total: e.sets }); });
       } else {
-        items.push(...exItems(d.exercises[i]));
-        i++;
+        items.push(...exItems(E[i]));
+        j = i + 1;
       }
+      i = j;
     }
     return items;
   }
@@ -1523,7 +1532,7 @@ function renderPrepStats() {
   for (let n = 1; n <= ptotal(); n++) {
     if (!prepDayDone(n)) continue;
     pdata()[n - 1].exercises.forEach(ex => {
-      if (ex.sets) tally.plankSec += ex.sets * ex.sec; else tally[ex.key] = (tally[ex.key] || 0) + ex.reps;
+      if (ex.sec != null) tally.plankSec += (ex.sets || 1) * ex.sec; else tally[ex.key] = (tally[ex.key] || 0) + ex.reps * (ex.sets || 1);
     });
   }
   let totalReps = 0; exKeys.forEach(e => totalReps += (tally[e.key] || 0));
@@ -2755,7 +2764,8 @@ function buildSteps() {
     if (!d || d.rest) return steps;
     prepDayItems(d).forEach(item => {
       if (item.type === 'reps') {
-        steps.push({ name: item.ex.name, key: item.ex.key, label: 'Target', kind: 'reps', bw: true, reps: item.ex.reps, side: item.ex.side, scheme: item.ex.scheme, checkId: item.ex.key, store: 'prep' });
+        const many = item.total > 1;
+        steps.push({ name: item.ex.name, key: item.ex.key, label: many ? `Set ${item.setIndex + 1} of ${item.total}` : 'Target', kind: 'reps', bw: true, reps: item.ex.reps, side: item.ex.side, scheme: many ? `${item.ex.reps} reps${item.ex.side ? ' / side' : ''}` : item.ex.scheme, checkId: many ? `${item.ex.key}_${item.setIndex}` : item.ex.key, store: 'prep' });
       } else {
         steps.push({ name: item.ex.name, key: item.ex.key, label: item.total > 1 ? `Set ${item.setIndex + 1} of ${item.total}` : (item.ex.sec >= 90 ? 'Timed' : 'Hold'), kind: 'hold', seconds: item.ex.sec, side: item.ex.side, checkId: `${item.ex.key}_${item.setIndex}`, store: 'prep' });
       }
