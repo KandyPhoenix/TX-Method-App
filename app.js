@@ -298,7 +298,15 @@ function saMove(o, scheme, holdSets) {
     ? saTimed(o.key, o.name, o.icon, o.hold, holdSets || 2, scheme, o.side)
     : sa(o.key, o.name, o.icon, o.reps, scheme + (o.side ? ' / side' : ''), o.side);
 }
-const SA_WARM  = () => saTimed('sawarm', 'Warm-Up + Mobility', '🚶', 300, 1, '5 min jump rope or brisk walk + joint circles');
+function saWarmup() { return [
+  saTimed('wucardio', 'Jump Rope / Brisk Walk', '➰', 120, 1, '2 min easy — just to get warm'),
+  sa('wuarm',   'Arm Circles',       '🔄', 10, '10 each direction — big slow circles'),
+  sa('wuhip',   'Hip Circles',       '🌀', 10, '10 each direction — hands on hips'),
+  sa('wuleg',   'Leg Swings',        '🦵', 10, '10 / side — front-to-back, hold something', true),
+  sa('wuankle', 'Ankle Rolls',       '🦶', 10, '10 each direction / side', true),
+  sa('wuband',  'Banded Side-Steps', '↔️', 10, '10 steps each way — band above knees')
+]; }
+function saLiftNote(rounds) { return `Warm up first, then the explosive move, then the supersets. A superset = one set of the first exercise, rest 60–80 s, one set of its partner, rest 60–80 s, back to the first — ${rounds} rounds per pair before the next pair. Pick weights that leave 2–3 reps in reserve: end each set while you could still do 2–3 clean reps. The timed core work at the end alternates the same way.`; }
 const SA_CARRY = (sets, scheme) => saTimed('carry', "Farmer's Hold & March", '🧳', 40, sets, scheme);
 const SA_Z2    = min => saTimed('zone2', 'Zone 2 Ride', '🚴', min * 60, 1, `${min} min steady road ride — conversational pace`);
 function saExplScheme(o, sets) { return o.hold != null ? 'explosive warm-up — quick, light skips' : `${sets} sets · explosive — full effort, land soft`; }
@@ -321,7 +329,7 @@ function saVO2Day(w) {
 function sa2Session(w, v) { /* v: 0 = A, 1 = B */
   const expl = saPick('explosive', w + v * 2);
   const ex = [
-    SA_WARM(),
+    ...saWarmup(),
     saMove(expl, saExplScheme(expl, 3)),
     saMove(saPick('squat', w + v * 2),     'Superset 1 · 4 × 8–12 · leave 2–3 reps in reserve'),
     saMove(saPick('hinge', w + v),         'Superset 1 · 4 × 8–12 · swap moves every 60–80 s'),
@@ -330,7 +338,7 @@ function sa2Session(w, v) { /* v: 0 = A, 1 = B */
     SA_CARRY(3, 'Superset 3 · heavy — alternate with the core hold'),
     saMove(saPick('core', w + v), 'Superset 3 · alternate with the holds', 3)
   ];
-  return { title: `Full Body ${v === 0 ? 'A' : 'B'} · Wk ${w + 1}`, exercises: ex };
+  return { title: `Full Body ${v === 0 ? 'A' : 'B'} · Wk ${w + 1}`, note: saLiftNote(4), exercises: ex };
 }
 const SUPERAGE2 = [];
 for (let w = 0; w < 12; w++) SUPERAGE2.push(
@@ -341,6 +349,7 @@ for (let w = 0; w < 12; w++) SUPERAGE2.push(
 function sa4Upper(w, v) { /* v: 0 = A, 1 = B */
   const expl = [SA_POOL.explosive[3], SA_POOL.explosive[0]][(w + v) % 2]; /* jump rope / squat jumps */
   const ex = [
+    ...saWarmup(),
     saMove(expl, saExplScheme(expl, 2)),
     saMove(saPick('push', w + v),         'Superset 1 · 3 × 8–12 · leave 2–3 reps in reserve'),
     saMove(saPick('pull', w + v * 2),     'Superset 1 · 3 × 8–12 · swap moves every 60–80 s'),
@@ -348,11 +357,12 @@ function sa4Upper(w, v) { /* v: 0 = A, 1 = B */
     saMove(saPick('pull', w + v * 2 + 1), 'Superset 2 · 3 × 8–12 · swap moves every 60–80 s'),
     saMove(saPick('core', w + v), 'Core finisher', 2)
   ];
-  return { title: `Upper ${v === 0 ? 'A' : 'B'} · Wk ${w + 1}`, exercises: ex };
+  return { title: `Upper ${v === 0 ? 'A' : 'B'} · Wk ${w + 1}`, note: saLiftNote(3), exercises: ex };
 }
 function sa4Lower(w, v) { /* v: 0 = A, 1 = B */
   const expl = [SA_POOL.explosive[0], SA_POOL.explosive[1], SA_POOL.explosive[2]][(w + v) % 3];
   const ex = [
+    ...saWarmup(),
     saMove(expl, saExplScheme(expl, 2)),
     saMove(saPick('squat', w + v),     'Superset 1 · 3 × 8–12 · leave 2–3 reps in reserve'),
     saMove(saPick('hinge', w + v),     'Superset 1 · 3 × 8–12 · swap moves every 60–80 s'),
@@ -360,7 +370,7 @@ function sa4Lower(w, v) { /* v: 0 = A, 1 = B */
     saMove(saPick('hinge', w + v + 1), 'Superset 2 · 3 × 8–12 · swap moves every 60–80 s'),
     SA_CARRY(2, 'Core & carry finisher — heavy, tall posture')
   ];
-  return { title: `Lower ${v === 0 ? 'A' : 'B'} · Wk ${w + 1}`, exercises: ex };
+  return { title: `Lower ${v === 0 ? 'A' : 'B'} · Wk ${w + 1}`, note: saLiftNote(3), exercises: ex };
 }
 const SUPERAGE4 = [];
 for (let w = 0; w < 6; w++) SUPERAGE4.push(
@@ -1342,7 +1352,12 @@ const FORM_TIPS = {
   breakfall: { title: 'Back Breakfalls', body: 'From standing or squatting, sit and roll backward onto your rounded back, slapping the mat with both arms at ~45° to disperse the impact, chin tucked to your chest. Practice landing softly and safely — the foundation for being thrown.' },
   hipheist:  { title: 'Hip Heist', body: 'From a seated/sprawl position, post a hand and swivel your hips, switching from facing one way to the other by threading your bottom leg through — the scramble movement used to come up on top. Keep your hips off the floor and switch quickly. Each side.' },
   invhold:   { title: 'Inversion Hold', body: 'On your back, roll your hips up and over so your weight is on your upper back/shoulders with your hips stacked above (support your back with your hands if needed). Hold and breathe — builds the spinal/hip mobility for inverting in guard. Ease into it; protect your neck.' },
-  sawarm:    { title: 'Warm-Up + Mobility', body: '5 minutes of easy jump rope or brisk walking plus big joint circles: arm circles, hip circles, leg swings and ankle rolls. Got leg bands? Add 10 banded side-steps each way — the article\'s lateral shuffle work, and it wakes up your hips before squats and deadlifts. Finish lightly warm, not tired.' },
+  wucardio:  { title: 'Jump Rope / Brisk Walk', body: '2 minutes easy — rope, brisk walking, or marching in place. Just enough to raise your heart rate and warm your muscles; this is not a workout yet.' },
+  wuarm:     { title: 'Arm Circles', body: 'Stand tall, arms out to the sides. Draw big, slow circles from the shoulders — 10 forward, then 10 backward, letting them grow bigger. Loosens the shoulders before pressing and pulling.' },
+  wuhip:     { title: 'Hip Circles', body: 'Hands on hips, feet shoulder-width. Circle your hips wide and slow — 10 one way, 10 the other, like stirring a big pot. Frees the hips before squats and hinges.' },
+  wuleg:     { title: 'Leg Swings', body: 'Hold a wall or rack for balance. Swing one leg front-to-back like a relaxed pendulum, a little higher each swing — 10 per leg. Hips tight? Add 10 side-to-side swings per leg too.' },
+  wuankle:   { title: 'Ankle Rolls', body: 'Standing on one foot (or seated), roll each ankle through big slow circles — 10 each direction per side. Ankles are the base for squats, jumps and jump rope.' },
+  wuband:    { title: 'Banded Side-Steps', body: 'Loop the band just above your knees and sink into a quarter squat. Step sideways keeping tension on the band the whole time — 10 steps one way, 10 back. Knees pushed out, toes forward. Wakes up the glutes; this is the article\'s lateral shuffle work.' },
   ridewarm:  { title: 'Easy Ride Warm-Up', body: 'Start your VO\u2082 max ride with 10 minutes in an easy gear, gradually building to a moderate effort so your legs and heart are ready for the first hard interval. Don\'t skip this — intervals on cold legs feel awful and produce less.' },
   hops:      { title: 'Jump Rope', body: 'Quick, light two-footed skips — stay on the balls of your feet, elbows in, turning the rope from the wrists. Smooth and springy beats high and hard. Explosive work where your body leaves the ground keeps power and bone density as you age. Trip a lot? Just keep going — restarts count.' },
   sabench:   { title: 'Bench Press', body: 'On your bench with a barbell or dumbbells. Pinch your shoulder blades together, slight arch, feet planted. Lower to your mid-chest with elbows about 45\u201375\u00b0 from your body, touch, then press up over your shoulders. No spotter with a barbell? Stay 2\u20133 reps shy of failure (as programmed) or use dumbbells.' },
