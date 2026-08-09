@@ -295,7 +295,7 @@ const SA4_UA = { title: 'Upper A + Zone 2', exercises: [
   saTimed('zone2',     'Zone 2 Ride',         '🚴', 1800, 1, '30 min steady spin — conversational pace')
 ]};
 const SA4_LA = { title: 'Lower A + Zone 2', exercises: [
-  sa('boxjump',        'Box Jumps',           '📦', 5,  '2 × 5 · explosive — step down between reps'),
+  sa('scissorlunge',   'Scissor Lunges',      '✂️', 6,  '2 × 6 / side · explosive lunge switches', true),
   sa('gobletsquat',    'Goblet Squat',        '🏋️', 10, 'Superset 1 · 3 × 8–12 · leave 2–3 reps in reserve'),
   sa('sardl',          'Romanian Deadlift',   '🦵', 10, 'Superset 1 · 3 × 8–12 · back to squats after 60–80 s'),
   sa('dblunge',        'Reverse Lunge',       '🦵', 10, 'Superset 2 · 3 × 8–12 / side', true),
@@ -308,7 +308,7 @@ const SA4_UB = { title: 'Upper B + VO₂ Max', exercises: [
   sa('sabench',        'Bench Press',         '💪', 10, 'Superset 1 · 3 × 8–12 · leave 2–3 reps in reserve'),
   sa('chin',           'Pull-Up / Chin-Up',   '🧗', 8,  'Superset 1 · 3 sets · stop 2–3 reps shy of failure'),
   sa('dbpushup',       'Push-Up',             '🙌', 10, 'Superset 2 · 3 × 8–12 · leave 2–3 reps in reserve'),
-  sa('dbrenrow',       'Renegade Row',        '🚣', 8,  'Superset 2 · 3 × 8 / side', true),
+  sa('sarow',          'Bent-Over Row',       '🚣', 10, 'Superset 2 · 3 × 8–12 · back to push-ups after 60–80 s'),
   saTimed('sideplank', 'Side Plank',          '📐', 30, 2, 'Core finisher', true),
   saTimed('vo2max',    'VO₂ Max Bike Intervals', '🫀', 240, 4, '4 × 4 min hard riding (8/10) · 3 min easy spin between')
 ]};
@@ -1282,7 +1282,7 @@ const FORM_TIPS = {
   sabench:   { title: 'Bench Press', body: 'On your bench with a barbell or dumbbells. Pinch your shoulder blades together, slight arch, feet planted. Lower to your mid-chest with elbows about 45\u201375\u00b0 from your body, touch, then press up over your shoulders. No spotter with a barbell? Stay 2\u20133 reps shy of failure (as programmed) or use dumbbells.' },
   sarow:     { title: 'Bent-Over Row', body: 'Barbell or dumbbells. Hinge at the hips with a flat back, let the weight hang, then pull it to your waistline \u2014 drive your elbows back and squeeze your shoulder blades. Lower under control, torso still. No heaving.' },
   sardl:     { title: 'Romanian Deadlift', body: 'Barbell or dumbbells in front of your thighs, soft knees. Push your hips back and slide the weight down your legs until you feel a hamstring stretch \u2014 flat back the whole way \u2014 then drive your hips forward to stand tall. Hinge, don\u2019t squat.' },
-  boxjump:   { title: 'Box Jump', body: 'Stand a short step from your box. Swing your arms, jump, and land softly on top with both feet, knees bent, standing tall to finish. Step down \u2014 don\u2019t jump down \u2014 between reps. Pick a height you can land quietly on; power comes from the jump, not the box height.' },
+  scissorlunge: { title: 'Scissor Lunges', body: 'From a lunge position, jump and switch legs in the air, landing softly in a lunge with the other foot forward \u2014 like scissors. Stay tall, arms driving for rhythm. Each switch is a rep per side. Low-impact option: fast alternating reverse lunges with no jump.' },
   latpull:   { title: 'Pull-Up / Band Pulldown', body: 'Pull-up bar: from a dead hang, pull your chest toward the bar leading with your elbows, then lower all the way under control. Band pulldown: anchor a band overhead, kneel or sit tall, and pull the band to your collarbones by driving your elbows down. No bar or band? Do a single-arm dumbbell row instead. No swinging or momentum.' },
   sidelunge: { title: 'Lateral Lunge', body: 'Step wide to one side, sit your hips back and bend that knee while the other leg stays straight, chest tall and heels down. Push off to return to standing. Hold a dumbbell at your chest to load it. Side-to-side strength keeps you agile and balanced as you age.' },
   carry:     { title: "Farmer's Hold & March", body: 'The no-space version of the farmer\'s carry. Grab heavy dumbbells — or go suitcase-style with your kettlebell in one hand (switch hands halfway) — and stand tall: shoulders back, ribs down. Hold for the full time, or march in place with slow, controlled knee lifts. Don\'t let the weight pull you into a lean. Same endurance under load, grip, core and posture work — zero floor space needed.' },
