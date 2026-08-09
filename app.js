@@ -331,9 +331,20 @@ function saVO2Day(w) {
     ex.push(saTimed('vo2i' + i, `Hard Interval ${i} of 4`, '🫀', 240, 1, '4 min @ 8/10 effort — only a few words at a time'));
     if (i < 4) ex.push(saTimed('vo2r' + i, 'Easy Recovery', '🌬️', 180, 1, '3 min very easy pedaling — let your breathing settle'));
   }
-  ex.push(saTimed('zone2', 'Zone 2 Cool-Down', '🚴', 1200, 1, '20 min steady ride — flush the legs'));
+  ex.push(saTimed('zone2', 'Zone 2 Cool-Down', '🚴', 300, 1, '5 min easy — flush the legs'));
   return { title: `VO₂ Max Ride · Wk ${w + 1}`,
-    note: 'One continuous ~55 min road ride: warm up 10 min, then 4 hard intervals of 4 min with 3 min easy pedaling between, and finish with 20 min in Zone 2. “Hard” = 8/10 — the fastest pace you could hold for the full 4 minutes, breathing hard, only a few words at a time. Ride the intervals seated and smooth (a steady climb or open road works well). If interval 4 matches interval 1, you paced it right.',
+    note: 'One continuous ~40 min road ride: warm up 10 min, then 4 hard intervals of 4 min with 3 min easy pedaling between, and finish with 5 easy minutes. “Hard” = 8/10 — the fastest pace you could hold for the full 4 minutes, breathing hard, only a few words at a time. Ride the intervals seated and smooth (a steady climb or open road works well). If interval 4 matches interval 1, you paced it right.',
+    exercises: ex };
+}
+function saLongRideDay(w) {
+  const ex = [saTimed('ridewarm', 'Easy Ride Warm-Up', '🚴', 600, 1, '10 min · easy gear, building to moderate by the end')];
+  for (let i = 1; i <= 4; i++) {
+    ex.push(saTimed('vo2i' + i, `Hard Interval ${i} of 4`, '🫀', 240, 1, '4 min @ 8/10 effort — only a few words at a time'));
+    if (i < 4) ex.push(saTimed('vo2r' + i, 'Easy Recovery', '🌬️', 180, 1, '3 min very easy pedaling — let your breathing settle'));
+  }
+  ex.push(saTimed('zone2', 'Zone 2 Ride', '🚴', 5100, 1, '85 min steady road ride — conversational pace'));
+  return { title: `Long Ride · Wk ${w + 1}`,
+    note: 'The week’s full 2 hours of riding in one go: 10 min easy warm-up, the 4 × 4 min VO₂ intervals while your legs are fresh, then settle into Zone 2 for the remaining 85 min. After the intervals, drop to a pace where you can talk in full sentences and hold it there — if you’re still gasping, shift down.',
     exercises: ex };
 }
 
@@ -354,7 +365,7 @@ function sa2Session(w, v) { /* v: 0 = A, 1 = B */
 }
 const SUPERAGE2 = [];
 for (let w = 0; w < 12; w++) SUPERAGE2.push(
-  sa2Session(w, 0), saZ2Day(60, w), PREP_REST, sa2Session(w, 1), PREP_REST, saVO2Day(w), PREP_REST
+  sa2Session(w, 0), PREP_REST, sa2Session(w, 1), PREP_REST, saLongRideDay(w), PREP_REST, PREP_REST
 );
 
 /* --- 4-day: 2 upper + 2 lower per week (~30 min lifting + ~30 min cardio) --- */
@@ -386,7 +397,7 @@ function sa4Lower(w, v) { /* v: 0 = A, 1 = B */
 }
 const SUPERAGE4 = [];
 for (let w = 0; w < 6; w++) SUPERAGE4.push(
-  sa4Upper(w, 0), sa4Lower(w, 0), saZ2Day(60, w), sa4Upper(w, 1), sa4Lower(w, 1), saVO2Day(w), PREP_REST
+  sa4Upper(w, 0), saZ2Day(40, w), sa4Lower(w, 0), saZ2Day(40, w), sa4Upper(w, 1), saVO2Day(w), sa4Lower(w, 1)
 );
 
 /* =====================================================================
@@ -400,8 +411,8 @@ const DAY_PROGRAMS = {
   pilates:  { data: PILATES,  stateKey: 'pil',  label: 'Pilates Mat',        sub: 'classical mat sequence' },
   hiit:     { data: HIIT,     stateKey: 'hiit', label: 'Full-Body HIIT',     sub: 'timed circuit' },
   bjj:      { data: BJJ,      stateKey: 'bjj',  label: 'BJJ Solo Drills',    sub: 'jiu-jitsu movement' },
-  sa2:      { data: SUPERAGE2, stateKey: 'sa2', label: 'SuperAge 2-Day',     sub: '2 lifts + 2 rides / week', holdLabel: 'Timed work' },
-  sa4:      { data: SUPERAGE4, stateKey: 'sa4', label: 'SuperAge 4-Day',     sub: '4 lifts + 2 rides / week', holdLabel: 'Timed work' }
+  sa2:      { data: SUPERAGE2, stateKey: 'sa2', label: 'SuperAge 2-Day',     sub: '3 days: 2 lifts + 1 long ride', holdLabel: 'Timed work' },
+  sa4:      { data: SUPERAGE4, stateKey: 'sa4', label: 'SuperAge 4-Day',     sub: 'all week: 4 lifts + 3 rides', holdLabel: 'Timed work' }
 };
 function isDayProgram() { return !!DAY_PROGRAMS[S.program]; }
 function pcfg()   { return DAY_PROGRAMS[S.program] || DAY_PROGRAMS.prep30; }
@@ -1715,8 +1726,8 @@ function renderSetup() {
           ['pilates','🤸','Pilates Mat','classical Pilates'],
           ['hiit','⚡','Full-Body HIIT','timed circuit'],
           ['bjj','🥋','BJJ Drills','jiu-jitsu'],
-          ['sa2','🫀','SuperAge 2-Day','2 lifts + 2 rides'],
-          ['sa4','❤️‍🔥','SuperAge 4-Day','4 lifts + 2 rides'],
+          ['sa2','🫀','SuperAge 2-Day','3-day condensed week'],
+          ['sa4','❤️‍🔥','SuperAge 4-Day','spread across the week'],
           ['texas','🏋️','Texas Method','barbell']
         ].map(([k,ico,nm,sub]) => `<button class="prog-tile ${S.program===k?'on':''}" data-prog="${k}">
           <div class="prog-ico">${ico}</div><div class="prog-name">${nm}</div><div class="prog-sub">${sub}</div></button>`).join('')}
