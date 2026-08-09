@@ -261,7 +261,7 @@ function saTimed(key, name, icon, sec, sets, scheme, side) { return { key, name,
 /* --- 2-day: two big sessions (~60 min lifting + ~60 min cardio each) --- */
 const SA2_A = { title: 'Full Body A + Zone 2', exercises: [
   saTimed('sawarm',    'Warm-Up Spin + Mobility', '🚶', 300, 1, '5 min easy spin or brisk walk + joint circles'),
-  sa('mbslam',         'Medicine Ball Slams', '💥', 8,  '3 × 8 · explosive — slam hard, reset each rep'),
+  sa('squatjump',      'Squat Jumps',         '🦿', 8,  '3 × 8 · explosive — jump tall, land soft'),
   sa('gobletsquat',    'Goblet Squat',        '🏋️', 10, 'Superset 1 · 4 × 8–12 · leave 2–3 reps in reserve'),
   sa('dbrdl',          'Romanian Deadlift',   '🦵', 10, 'Superset 1 · 4 × 8–12 · back to squats after 60–80 s'),
   sa('dbpress',        'Chest Press',         '💪', 10, 'Superset 2 · 4 × 8–12 · leave 2–3 reps in reserve'),
@@ -286,7 +286,7 @@ for (let i = 0; i < 24; i++) SUPERAGE2.push(i % 2 === 0 ? SA2_A : SA2_B);
 
 /* --- 4-day: 2 upper + 2 lower (~30 min lifting + ~30 min cardio each) --- */
 const SA4_UA = { title: 'Upper A + Zone 2', exercises: [
-  sa('mbslam',         'Medicine Ball Slams', '💥', 8,  '2 × 8 · explosive warm-up'),
+  sa('hops',           'Quick Hops / Jump Rope', '🦘', 15, '2 × 15 · explosive warm-up — small fast jumps'),
   sa('dbpress',        'Chest Press',         '💪', 10, 'Superset 1 · 3 × 8–12 · leave 2–3 reps in reserve'),
   sa('dbrow',          'Bent-Over Row',       '🚣', 10, 'Superset 1 · 3 × 8–12 · back to presses after 60–80 s'),
   sa('pushups',        'Push-Ups',            '🙌', 10, 'Superset 2 · 3 × 8–12 · leave 2–3 reps in reserve'),
@@ -304,7 +304,7 @@ const SA4_LA = { title: 'Lower A + Zone 2', exercises: [
   saTimed('zone2',     'Zone 2 Ride',         '🚴', 1800, 1, '30 min steady spin — conversational pace')
 ]};
 const SA4_UB = { title: 'Upper B + VO₂ Max', exercises: [
-  sa('mbslam',         'Medicine Ball Slams', '💥', 8,  '2 × 8 · explosive warm-up'),
+  sa('hops',           'Quick Hops / Jump Rope', '🦘', 15, '2 × 15 · explosive warm-up — small fast jumps'),
   sa('dbpress',        'Chest Press',         '💪', 10, 'Superset 1 · 3 × 8–12 · leave 2–3 reps in reserve'),
   sa('chin',           'Pull-Up / Chin-Up',   '🧗', 8,  'Superset 1 · 3 sets · stop 2–3 reps shy of failure'),
   sa('dbpushup',       'Push-Up',             '🙌', 10, 'Superset 2 · 3 × 8–12 · leave 2–3 reps in reserve'),
@@ -1278,7 +1278,7 @@ const FORM_TIPS = {
   hipheist:  { title: 'Hip Heist', body: 'From a seated/sprawl position, post a hand and swivel your hips, switching from facing one way to the other by threading your bottom leg through — the scramble movement used to come up on top. Keep your hips off the floor and switch quickly. Each side.' },
   invhold:   { title: 'Inversion Hold', body: 'On your back, roll your hips up and over so your weight is on your upper back/shoulders with your hips stacked above (support your back with your hands if needed). Hold and breathe — builds the spinal/hip mobility for inverting in guard. Ease into it; protect your neck.' },
   sawarm:    { title: 'Warm-Up Spin + Mobility', body: '5 minutes of very easy spinning on the bike (or a brisk walk / jump rope) plus big joint circles: arm circles, hip circles, leg swings and ankle rolls. Finish lightly warm, not tired. This takes your joints through their full range before you load them.' },
-  mbslam:    { title: 'Medicine Ball Slam', body: 'Reach the ball tall overhead, rising onto your toes, then slam it into the floor as hard as you can — hinge at the hips and follow through with your whole body. Pick it up (or catch the bounce), reset, repeat. No ball? Do squat jumps instead. Explosive work where you move fast is a key longevity ingredient.' },
+  hops:      { title: 'Quick Hops / Jump Rope', body: 'Small, fast two-footed hops — stay on the balls of your feet, light and springy, letting your ankles do the work. Use a jump rope if you have one; without one, just hop in place at the same rhythm. Explosive work where your body leaves the ground keeps power and bone density as you age. Low-impact option: fast heel raises.' },
   latpull:   { title: 'Pull-Up / Band Pulldown', body: 'Pull-up bar: from a dead hang, pull your chest toward the bar leading with your elbows, then lower all the way under control. Band pulldown: anchor a band overhead, kneel or sit tall, and pull the band to your collarbones by driving your elbows down. No bar or band? Do a single-arm dumbbell row instead. No swinging or momentum.' },
   sidelunge: { title: 'Lateral Lunge', body: 'Step wide to one side, sit your hips back and bend that knee while the other leg stays straight, chest tall and heels down. Push off to return to standing. Hold a dumbbell at your chest to load it. Side-to-side strength keeps you agile and balanced as you age.' },
   carry:     { title: "Farmer's Hold & March", body: 'The no-space version of the farmer\'s carry. Grab a heavy dumbbell or kettlebell in each hand and stand tall — shoulders back, ribs down. Hold for the full time, or march in place with slow, controlled knee lifts. Don\'t let the weights pull you into a lean. Same endurance under load, grip, core and posture work — zero floor space needed.' },
