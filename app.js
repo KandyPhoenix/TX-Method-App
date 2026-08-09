@@ -1021,7 +1021,28 @@ function exItems(ex) {
 }
 function prepDayItems(d) {
   const spread = S.program === 'prep30' && d.exercises.find(e => e.sets && e.sets > 1);
-  if (!spread) return d.exercises.flatMap(exItems);
+  if (!spread) {
+    /* adjacent multi-set holds form a superset (e.g. SuperAge's carry ⇆
+       plank pairing): interleave their sets so the workout alternates
+       between them instead of finishing one before starting the other */
+    const items = [];
+    let i = 0;
+    while (i < d.exercises.length) {
+      let j = i;
+      while (j < d.exercises.length && d.exercises[j].sets > 1) j++;
+      if (j - i >= 2) {
+        const group = d.exercises.slice(i, j);
+        const rounds = Math.max(...group.map(e => e.sets));
+        for (let s = 0; s < rounds; s++)
+          group.forEach(e => { if (s < e.sets) items.push({ type: 'plank', ex: e, setIndex: s, total: e.sets }); });
+        i = j;
+      } else {
+        items.push(...exItems(d.exercises[i]));
+        i++;
+      }
+    }
+    return items;
+  }
   const others = d.exercises.filter(e => e !== spread);
   const items = [];
   let pi = 0;
