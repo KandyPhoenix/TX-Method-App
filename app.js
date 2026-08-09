@@ -434,11 +434,34 @@ function isDayProgram() { return !!DAY_PROGRAMS[S.program]; }
 function pcfg()   { return DAY_PROGRAMS[S.program] || DAY_PROGRAMS.prep30; }
 function pdata()  { return pcfg().data; }
 function ptotal() { return pdata().length; }
+function isoDate(d) { return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`; }
 function pstate() {
   const k = pcfg().stateKey;
   if (!S[k]) S[k] = { day: 1, log: {} };
   if (!S[k].log) S[k].log = {};
+  if (!S[k].start) { const d = new Date(); d.setDate(d.getDate() - ((S[k].day || 1) - 1)); S[k].start = isoDate(d); }
   return S[k];
+}
+/* calendar date for a program day, anchored to when the program was started */
+function prepDateFor(dayNum) {
+  const st = pstate();
+  if (!st.start) return null;
+  const d = new Date(st.start + 'T12:00:00');
+  d.setDate(d.getDate() + (dayNum - 1));
+  return d;
+}
+function fmtPrepDate(d) { return d.toLocaleDateString(undefined, { weekday: 'short', month: 'short', day: 'numeric' }); }
+/* rough session length: timed work + recoveries, ~110 s per lift set, 45 s per mobility move */
+function estDayMin(d) {
+  if (d.rest) return 0;
+  let sec = 0;
+  d.exercises.forEach(e => {
+    const n = e.sets || 1;
+    if (e.sec != null) sec += n * e.sec + (n - 1) * 60 + 30;
+    else if (e.sets)   sec += n * 110;
+    else               sec += 45;
+  });
+  return Math.max(1, Math.round(sec / 60));
 }
 function pWorkDays() { return pdata().filter(d => !d.rest).length; }
 function pLabel()    { return pcfg().label; }
@@ -1003,7 +1026,7 @@ function renderPrepToday() {
       <button class="btn small secondary" id="prepPrev" ${dayNum <= 1 ? 'disabled' : ''}>‹ Prev</button>
       <div class="center">
         <div style="font-weight:800;font-size:19px;">${d.title || `Day ${dayNum}`}</div>
-        <div class="tiny muted" style="white-space:nowrap;">${d.title ? `Day ${dayNum} · ` : ''}${prepDaysComplete()} / ${pWorkDays()} done</div>
+        <div class="tiny muted">${[d.title ? `Day ${dayNum}` : '', (w => w ? fmtPrepDate(w) : '')(prepDateFor(dayNum)), d.rest ? '' : `≈${estDayMin(d)} min`, `${prepDaysComplete()}/${pWorkDays()} done`].filter(Boolean).join(' · ')}</div>
       </div>
       <button class="btn small secondary" id="prepNext" ${dayNum >= ptotal() ? 'disabled' : ''}>Next ›</button>
     </div>`;
@@ -1234,11 +1257,14 @@ function renderPrepProgram() {
       inner = `<div class="prep-rest">REST</div>`;
     } else {
       inner = d.exercises.map(ex =>
-        `<div class="prep-ex">${ex.sets ? `${ex.name} ${ex.sets > 1 ? ex.sets + '×' : ''}${holdTxt(ex.sec).replace(' sec', 's')}` : `${ex.name} ${ex.reps}`}</div>`
+        `<div class="prep-ex">${ex.sec != null ? `${ex.name} ${ex.sets > 1 ? ex.sets + '×' : ''}${holdTxt(ex.sec).replace(' sec', 's')}` : `${ex.name} ${ex.sets > 1 ? ex.sets + '×' : ''}${ex.reps}`}</div>`
       ).join('');
     }
+    const when = prepDateFor(n);
+    const meta = [when ? fmtPrepDate(when) : '', d.rest ? '' : `≈${estDayMin(d)} min`].filter(Boolean).join(' · ');
     cells += `<div class="prep-cell ${cur} ${rest} ${done}" data-prepday="${n}">
       <div class="prep-num">${n}${done ? ' <span class="prep-tick">✓</span>' : ''}</div>
+      ${meta ? `<div class="tiny muted" style="font-size:9px;margin:1px 0 3px;">${meta}</div>` : ''}
       ${inner}</div>`;
   }
 
@@ -1886,7 +1912,7 @@ function wireSetup() {
   /* program selector */
   view.querySelectorAll('#segProgram button').forEach(b => b.onclick = () => {
     S.program = b.dataset.prog; save(); render();
-    const names = { prep30: '30-Day Prep 🗓️', mobility: 'Mobility Method 🧘', core: 'Core & Abs 🔥', dumbbell: 'Dumbbell Full-Body 💪', pilates: 'Pilates Mat 🤸', hiit: 'Full-Body HIIT ⚡', bjj: 'BJJ Solo Drills 🥋', texas: 'Texas Method 🏋️' };
+    const names = { prep30: '30-Day Prep 🗓️', mobility: 'Mobility Method 🧘', core: 'Core & Abs 🔥', dumbbell: 'Dumbbell Full-Body 💪', pilates: 'Pilates Mat 🤸', hiit: 'Full-Body HIIT ⚡', bjj: 'BJJ Solo Drills 🥋', sa2: 'SuperAge 2-Day 🫀', sa4: 'SuperAge Full Week ❤️‍🔥', sahyb: 'SuperAge Hybrid 🔀', texas: 'Texas Method 🏋️' };
     toast((names[S.program] || S.program) + ' active');
   });
 
