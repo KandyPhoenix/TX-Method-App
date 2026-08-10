@@ -628,18 +628,21 @@ function liftTrackerHTML() {
   const rows = LIFT_TRACK.map(t => {
     const arr = L[t.key] || [];
     const last = arr.length ? arr[arr.length - 1] : null;
-    return `<div class="bar-line" style="margin-bottom:12px">
-      <div class="top"><span>${t.icon} ${t.name}</span>
-        <b>${last ? `${fmt(last.w)} ${unit()} <span class="muted" style="font-weight:600">· ${last.d.slice(5)}</span>` : '<span class="muted" style="font-weight:600">not logged yet</span>'}</b></div>
+    const setupL = ['squat', 'deadlift', 'bench'].includes(t.key) ? S.settings.lifts[t.key] : null;
+    return `<div class="bar-line" style="margin-bottom:14px">
+      <div class="top"><span>${t.icon} ${t.name}${setupL ? ` <span class="muted" style="font-weight:600;font-size:11px">· Setup: ${fmt(setupL.weight)} × ${setupL.reps}</span>` : ''}</span>
+        <b>${last ? `${fmt(last.w)} ${unit()}${last.r ? ` × ${last.r}` : ''} <span class="muted" style="font-weight:600">· ${last.d.slice(5)}</span>` : '<span class="muted" style="font-weight:600">not logged yet</span>'}</b></div>
       <div style="display:flex;gap:8px;margin-top:6px">
-        <input type="number" inputmode="decimal" placeholder="top set weight (${unit()})" style="flex:1" data-liftlog="${t.key}" />
+        <input type="number" inputmode="decimal" placeholder="weight (${unit()})" style="flex:1" data-liftlog="${t.key}" />
+        <input type="number" inputmode="numeric" placeholder="reps" style="width:70px" data-liftlogreps="${t.key}" />
         <button class="btn small secondary" data-liftlogbtn="${t.key}">＋ Log</button>
       </div>
-      ${arr.length > 1 ? `<canvas class="chart" id="lt_${t.key}" style="margin-top:8px"></canvas>` : ''}
+      ${arr.length > 1 ? `<canvas class="chart" id="lt_${t.key}" style="margin-top:8px"></canvas>`
+        : `<div class="tiny muted" style="margin-top:4px">${arr.length === 0 ? 'Not logged yet — ' : 'One entry so far — '}log your top set after each workout; the graph appears from your second logged day.</div>`}
     </div>`;
   }).join('');
   return `<h2 class="section">Lift tracker — all programs</h2><div class="card">${rows}
-    <div class="tiny muted center" style="margin-top:2px">Log the top working set of these lifts on any day, in any program — the graphs follow you everywhere. Logging twice in a day updates that day's entry.</div></div>`;
+    <div class="tiny muted center" style="margin-top:2px">Logging squat, deadlift or bench also updates your Setup lifts, so the ≈ weight suggestions and Texas numbers always match your current strength. Twice in one day updates that day's entry.</div></div>`;
 }
 function wireLiftTracker() {
   view.querySelectorAll('[data-liftlogbtn]').forEach(b => b.onclick = () => {
@@ -649,10 +652,14 @@ function wireLiftTracker() {
     if (!w) { toast('Enter a weight first'); return; }
     if (!S.liftLog) S.liftLog = {};
     if (!S.liftLog[k]) S.liftLog[k] = [];
+    const rInp = view.querySelector(`[data-liftlogreps="${k}"]`);
+    const r = parseInt(rInp && rInp.value, 10) || 10;
     const arr = S.liftLog[k], d = isoDate(new Date());
     const last = arr[arr.length - 1];
-    if (last && last.d === d) last.w = w; else arr.push({ d, w });
-    save(); toast('Logged ✓'); render();
+    if (last && last.d === d) { last.w = w; last.r = r; } else arr.push({ d, w, r });
+    let synced = false;
+    if (['squat', 'deadlift', 'bench'].includes(k)) { S.settings.lifts[k] = { weight: w, reps: r }; synced = true; rebuild(); }
+    save(); toast(synced ? 'Logged ✓ — Setup lift updated' : 'Logged ✓'); render();
   });
   LIFT_TRACK.forEach(t => {
     const arr = (S.liftLog && S.liftLog[t.key]) || [];
@@ -1133,11 +1140,11 @@ function prepExerciseCard(ex, setIndex, total, log) {
   const on = log.checks && log.checks[id] ? 'on' : '';
   rows = `<div class="set-row workset ${on ? 'done' : ''}">
     <div class="lbl">${many ? `Set ${setIndex + 1}/${total}` : 'Target'}</div>
-    <div class="wt">${ex.reps}<small> reps${ex.side ? '/side' : ''}</small></div>
+    <div class="wt">${ex.reps}<small> reps${ex.side ? '/side' : ''}</small>${hint ? `<small> @ </small>${hint.txt}` : ''}</div>
     <div class="set-end"><button class="check ${on}" data-pcheck="${id}">✓</button></div></div>`;
   return `<div class="card lift">
     <div class="lift-head"><div><div class="name">${ex.name} ${formBtn(ex.key)}</div>
-    <div class="scheme">${many ? `Set ${setIndex + 1} of ${total} · ` : ''}${ex.scheme || `${ex.reps} reps${ex.side ? ' each side' : ''}`}${hint ? ` · ${hint.txt}` : ''}</div></div>
+    <div class="scheme">${many ? `Set ${setIndex + 1} of ${total} · ` : ''}${ex.scheme || `${ex.reps} reps${ex.side ? ' each side' : ''}`}</div></div>
     <span class="badge vol">${many || ex.scheme ? 'Sets' : 'Reps'}</span></div>${rows}</div>`;
 }
 
