@@ -319,7 +319,7 @@ function saWarmup() { return [
   sa('wuankle', 'Ankle Rolls',       '🦶', 10, '10 each direction / side', true),
   sa('wuband',  'Banded Side-Steps', '↔️', 10, '10 steps each way — band above knees')
 ]; }
-function saLiftNote(rounds) { return `Warm up first, then the explosive move, then the supersets. A superset = one set of the first exercise, rest 60–80 s, one set of its partner, rest 60–80 s, back to the first — ${rounds} rounds per pair before the next pair. Pick weights that leave 2–3 reps in reserve: end each set while you could still do 2–3 clean reps. The timed core work at the end alternates the same way. Weights start from your Setup lifts (marked ≈) and then auto-progress: log the reps you hit on each lift's hardest set — hit the target and that weight goes up next session, miss it and it holds.`; }
+function saLiftNote(rounds) { return `Warm up first, then the explosive move, then the supersets. No rest periods: finish a set and move straight to its partner exercise — that muscle rests while the other works. Alternate for ${rounds} rounds per pair (each move naturally gets ~60–80 s before you're back on it), then go to the next pair. Pick weights that leave 2–3 reps in reserve. The timed core work alternates the same way. Weights start from your Setup lifts (marked ≈) and auto-progress: log the reps on each lift's hardest set — hit the target and the weight goes up next session, miss and it holds.`; }
 const SA_Z2    = min => saTimed('zone2', 'Zone 2 Ride', '🚴', min * 60, 1, `${min} min steady road ride — conversational pace`);
 function saExplScheme(o, sets) { return o.hold != null ? 'explosive warm-up — quick, light skips' : `${sets} sets · explosive — full effort, land soft`; }
 function saZ2Day(min, w) { return { title: `Zone 2 Ride · Wk ${w + 1}`,
@@ -355,9 +355,9 @@ function sa2Session(w, v) { /* v: 0 = A, 1 = B */
     ...saWarmup(),
     saMove(expl, saExplScheme(expl), expl.hold != null ? 2 : 3),
     saMove(saPick('squat', w + v * 2),     'Superset 1 · 8–12 reps · leave 2–3 in reserve', 4, 1),
-    saMove(saPick('hinge', w + v),         'Superset 1 · 8–12 reps · rest 60–80 s, then back to partner', 4, 1),
+    saMove(saPick('hinge', w + v),         'Superset 1 · 8–12 reps · no rest — straight back to partner', 4, 1),
     saMove(saPick('push',  w + v),         'Superset 2 · 8–12 reps · leave 2–3 in reserve', 4, 2),
-    saMove(saPick('pull',  w + v * 2 + 1), 'Superset 2 · 8–12 reps · rest 60–80 s, then back to partner', 4, 2),
+    saMove(saPick('pull',  w + v * 2 + 1), 'Superset 2 · 8–12 reps · no rest — straight back to partner', 4, 2),
     saMove(saPick('carry', w + v), 'Superset 3 · heavy — alternates with the core exercise', 3, 3),
     saMove(saPick('core', w + v), 'Superset 3 · alternates with the holds', 3, 3)
   ];
@@ -375,9 +375,9 @@ function sa4Upper(w, v) { /* v: 0 = A, 1 = B */
     ...saWarmup(),
     saMove(expl, saExplScheme(expl), 2),
     saMove(saPick('push', w + v),         'Superset 1 · 8–12 reps · leave 2–3 in reserve', 3, 1),
-    saMove(saPick('pull', w + v * 2),     'Superset 1 · 8–12 reps · rest 60–80 s, then back to partner', 3, 1),
+    saMove(saPick('pull', w + v * 2),     'Superset 1 · 8–12 reps · no rest — straight back to partner', 3, 1),
     saMove(saPick('push', w + v + 1),     'Superset 2 · 8–12 reps · leave 2–3 in reserve', 3, 2),
-    saMove(saPick('pull', w + v * 2 + 1), 'Superset 2 · 8–12 reps · rest 60–80 s, then back to partner', 3, 2),
+    saMove(saPick('pull', w + v * 2 + 1), 'Superset 2 · 8–12 reps · no rest — straight back to partner', 3, 2),
     saMove(saPick('core', w + v), 'Core finisher', 2)
   ];
   return { title: `Upper ${v === 0 ? 'A' : 'B'} · Wk ${w + 1}`, note: saLiftNote(3), exercises: ex };
@@ -388,9 +388,9 @@ function sa4Lower(w, v) { /* v: 0 = A, 1 = B */
     ...saWarmup(),
     saMove(expl, saExplScheme(expl), 2),
     saMove(saPick('squat', w + v),     'Superset 1 · 8–12 reps · leave 2–3 in reserve', 3, 1),
-    saMove(saPick('hinge', w + v),     'Superset 1 · 8–12 reps · rest 60–80 s, then back to partner', 3, 1),
+    saMove(saPick('hinge', w + v),     'Superset 1 · 8–12 reps · no rest — straight back to partner', 3, 1),
     saMove(saPick('squat', w + v + 1), 'Superset 2 · 8–12 reps · leave 2–3 in reserve', 3, 2),
-    saMove(saPick('hinge', w + v + 1), 'Superset 2 · 8–12 reps · rest 60–80 s, then back to partner', 3, 2),
+    saMove(saPick('hinge', w + v + 1), 'Superset 2 · 8–12 reps · no rest — straight back to partner', 3, 2),
     saMove(saPick('carry', w + v), 'Core & carry finisher — heavy, tall posture', 2)
   ];
   return { title: `Lower ${v === 0 ? 'A' : 'B'} · Wk ${w + 1}`, note: saLiftNote(3), exercises: ex };
@@ -1007,7 +1007,7 @@ function wireToday(logKey) {
       btn.classList.toggle('on', log.checks[id]);
       btn.closest('.set-row').classList.toggle('done', log.checks[id]);
       save();
-      if (log.checks[id]) startRest();
+      if (log.checks[id] && !isSAProgram()) startRest();
     };
   });
   view.querySelectorAll('[data-rep]').forEach(btn => {
@@ -1320,7 +1320,7 @@ function wirePrepToday() {
       btn.classList.toggle('on', log.checks[id]);
       btn.closest('.set-row').classList.toggle('done', log.checks[id]);
       save();
-      if (log.checks[id]) startRest();
+      if (log.checks[id] && !isSAProgram()) startRest();
     };
   });
 
@@ -3093,6 +3093,9 @@ function renderSession() {
 
 function afterStep() {
   if (sess.i >= sess.steps.length - 1) { finishSession(); return; }
+  /* supersets provide the rest: SuperAge moves straight to the partner
+     exercise while the last muscle group recovers */
+  if (isSAProgram()) { nextStep(); return; }
   startSessRest();
 }
 function nextStep() {
