@@ -605,11 +605,60 @@ function migrate(st) {
   if (!st.prs) st.prs = {};
   if (st.sessions == null) st.sessions = 0;
   if (!st.history) st.history = [];
+  if (!st.liftLog) st.liftLog = {};
+  ['squat', 'deadlift', 'bench', 'glutestep'].forEach(k => { if (!st.liftLog[k]) st.liftLog[k] = []; });
   return st;
 }
 function save() {
   localStorage.setItem(activeStateKey(), JSON.stringify(S));
   if (typeof cloudOnLocalChange === 'function') cloudOnLocalChange();
+}
+
+/* =====================================================================
+   LIFT TRACKER  (cross-program: log a top set, graph it everywhere)
+   ===================================================================== */
+const LIFT_TRACK = [
+  { key: 'squat',     name: 'Squat',           icon: '🏋️' },
+  { key: 'deadlift',  name: 'Deadlift',        icon: '🏋️' },
+  { key: 'bench',     name: 'Bench Press',     icon: '💪' },
+  { key: 'glutestep', name: 'Glute Step Down', icon: '🦵' }
+];
+function liftTrackerHTML() {
+  const L = S.liftLog || {};
+  const rows = LIFT_TRACK.map(t => {
+    const arr = L[t.key] || [];
+    const last = arr.length ? arr[arr.length - 1] : null;
+    return `<div class="bar-line" style="margin-bottom:12px">
+      <div class="top"><span>${t.icon} ${t.name}</span>
+        <b>${last ? `${fmt(last.w)} ${unit()} <span class="muted" style="font-weight:600">· ${last.d.slice(5)}</span>` : '<span class="muted" style="font-weight:600">not logged yet</span>'}</b></div>
+      <div style="display:flex;gap:8px;margin-top:6px">
+        <input type="number" inputmode="decimal" placeholder="top set weight (${unit()})" style="flex:1" data-liftlog="${t.key}" />
+        <button class="btn small secondary" data-liftlogbtn="${t.key}">＋ Log</button>
+      </div>
+      ${arr.length > 1 ? `<canvas class="chart" id="lt_${t.key}" style="margin-top:8px"></canvas>` : ''}
+    </div>`;
+  }).join('');
+  return `<h2 class="section">Lift tracker — all programs</h2><div class="card">${rows}
+    <div class="tiny muted center" style="margin-top:2px">Log the top working set of these lifts on any day, in any program — the graphs follow you everywhere. Logging twice in a day updates that day's entry.</div></div>`;
+}
+function wireLiftTracker() {
+  view.querySelectorAll('[data-liftlogbtn]').forEach(b => b.onclick = () => {
+    const k = b.dataset.liftlogbtn;
+    const inp = view.querySelector(`[data-liftlog="${k}"]`);
+    const w = parseFloat(inp && inp.value);
+    if (!w) { toast('Enter a weight first'); return; }
+    if (!S.liftLog) S.liftLog = {};
+    if (!S.liftLog[k]) S.liftLog[k] = [];
+    const arr = S.liftLog[k], d = isoDate(new Date());
+    const last = arr[arr.length - 1];
+    if (last && last.d === d) last.w = w; else arr.push({ d, w });
+    save(); toast('Logged ✓'); render();
+  });
+  LIFT_TRACK.forEach(t => {
+    const arr = (S.liftLog && S.liftLog[t.key]) || [];
+    if (arr.length > 1) lineChart(document.getElementById('lt_' + t.key),
+      [{ name: t.name, color: '#aaff00', data: arr.map(e => e.w) }], arr.map(e => e.d.slice(5)));
+  });
 }
 
 /* confirm-tap state (persists across renders) */
@@ -1540,12 +1589,14 @@ function renderStats() {
     <h2 class="section">Strength-to-weight ratio ${ib('swr')}</h2>
     <div class="card">${ratios}</div>
     ${prCardHTML()}
+    ${liftTrackerHTML()}
     ${calendarHTML()}
     ${achievementsCardHTML()}
     <button class="btn secondary" id="shareBtn">📤 Share my progress</button>
   </div>`;
   drawProjectionCharts();
   const sb = document.getElementById('shareBtn'); if (sb) sb.onclick = shareCard;
+  wireLiftTracker();
   wireCalendar();
 }
 
@@ -1635,11 +1686,13 @@ function renderPrepStats() {
           : `${workoutDays - done} day${workoutDays-done===1?'':'s'} to go.`}
       </div>
     </div>
+    ${liftTrackerHTML()}
     ${calendarHTML()}
     ${achievementsCardHTML()}
     <button class="btn secondary" id="shareBtn">📤 Share my progress</button>
   </div>`;
   const sb = document.getElementById('shareBtn'); if (sb) sb.onclick = shareCard;
+  wireLiftTracker();
   wireCalendar();
 }
 
@@ -2918,6 +2971,7 @@ function renderSession() {
   el.innerHTML = `<div class="sess-card">
     <div class="sess-top"><span class="sess-prog">Set ${Math.min(sess.i + 1, n)} of ${n}</span>
       <button class="sess-x" id="sessExit">✕</button></div>
+    <div class="tiny muted" style="margin:2px 0 6px">${(n2 => `${n2.toLocaleDateString(undefined, { weekday: 'short', month: 'short', day: 'numeric' })} · ${n2.toLocaleTimeString(undefined, { hour: 'numeric', minute: '2-digit' })}`)(new Date())}</div>
     <div class="sess-track"><div class="sess-fill" style="width:${pct}%"></div></div>
     ${body}
     <div class="sess-navrow">${sess.i > 0 ? '<button class="sess-prev" id="sessPrev">‹ Prev</button>' : ''}</div>
