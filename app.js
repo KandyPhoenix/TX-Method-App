@@ -319,7 +319,7 @@ function saWarmup() { return [
   sa('wuankle', 'Ankle Rolls',       '🦶', 10, '10 each direction / side', true),
   sa('wuband',  'Banded Side-Steps', '↔️', 10, '10 steps each way — band above knees')
 ]; }
-function saLiftNote(rounds) { return `Warm up first, then the explosive move, then the supersets. A superset = one set of the first exercise, rest 60–80 s, one set of its partner, rest 60–80 s, back to the first — ${rounds} rounds per pair before the next pair. Pick weights that leave 2–3 reps in reserve: end each set while you could still do 2–3 clean reps. The timed core work at the end alternates the same way.`; }
+function saLiftNote(rounds) { return `Warm up first, then the explosive move, then the supersets. A superset = one set of the first exercise, rest 60–80 s, one set of its partner, rest 60–80 s, back to the first — ${rounds} rounds per pair before the next pair. Pick weights that leave 2–3 reps in reserve: end each set while you could still do 2–3 clean reps. The timed core work at the end alternates the same way. Weights marked ≈ are starting points computed from your lifts in Setup — adjust so you finish each set with 2–3 clean reps left.`; }
 const SA_Z2    = min => saTimed('zone2', 'Zone 2 Ride', '🚴', min * 60, 1, `${min} min steady road ride — conversational pace`);
 function saExplScheme(o, sets) { return o.hold != null ? 'explosive warm-up — quick, light skips' : `${sets} sets · explosive — full effort, land soft`; }
 function saZ2Day(min, w) { return { title: `Zone 2 Ride · Wk ${w + 1}`,
@@ -1128,6 +1128,7 @@ function prepExerciseCard(ex, setIndex, total, log) {
   }
   /* reps exercise — one card per set */
   const many = total > 1;
+  const hint = saHint(ex.key);
   const id = many ? `${ex.key}_${setIndex}` : ex.key;
   const on = log.checks && log.checks[id] ? 'on' : '';
   rows = `<div class="set-row workset ${on ? 'done' : ''}">
@@ -1136,7 +1137,7 @@ function prepExerciseCard(ex, setIndex, total, log) {
     <div class="set-end"><button class="check ${on}" data-pcheck="${id}">✓</button></div></div>`;
   return `<div class="card lift">
     <div class="lift-head"><div><div class="name">${ex.name} ${formBtn(ex.key)}</div>
-    <div class="scheme">${many ? `Set ${setIndex + 1} of ${total} · ` : ''}${ex.scheme || `${ex.reps} reps${ex.side ? ' each side' : ''}`}</div></div>
+    <div class="scheme">${many ? `Set ${setIndex + 1} of ${total} · ` : ''}${ex.scheme || `${ex.reps} reps${ex.side ? ' each side' : ''}`}${hint ? ` · ${hint.txt}` : ''}</div></div>
     <span class="badge vol">${many || ex.scheme ? 'Sets' : 'Reps'}</span></div>${rows}</div>`;
 }
 
@@ -1189,6 +1190,36 @@ function prepDayItems(d) {
   return items;
 }
 
+/* SuperAge weight hints: % of estimated 1RM from the Setup lifts,
+   tuned for 8-12 reps with 2-3 in reserve. Barbell weights snap to
+   the user's plates; dumbbell/hand weights round to 5s. */
+const SA_WEIGHT = {
+  sabench:     { src: 'bench',    pct: 0.70, type: 'bar' },
+  deadlift:    { src: 'deadlift', pct: 0.70, type: 'bar' },
+  sardl:       { src: 'deadlift', pct: 0.55, type: 'bar' },
+  sarow:       { src: 'bench',    pct: 0.65, type: 'bar' },
+  gobletsquat: { src: 'squat',    pct: 0.30, type: 'db' },
+  dblunge:     { src: 'squat',    pct: 0.15, type: 'hand' },
+  sidelunge:   { src: 'squat',    pct: 0.15, type: 'hand' },
+  carry:       { src: 'deadlift', pct: 0.25, type: 'hand' },
+  suitcase:    { src: 'deadlift', pct: 0.25, type: 'hand' },
+  rackhold:    { src: 'squat',    pct: 0.30, type: 'db' },
+  ohhold:      { src: 'press',    pct: 0.40, type: 'hand' }
+};
+function isSAProgram() { return S.program === 'sa2' || S.program === 'sa4' || S.program === 'sahyb'; }
+function saHint(key) {
+  if (!isSAProgram()) return null;
+  const m = SA_WEIGHT[key]; if (!m) return null;
+  const L = S.settings.lifts[m.src]; if (!L || !L.weight) return null;
+  const est = oneRM(L.weight, L.reps) * m.pct;
+  if (m.type === 'bar') {
+    const w = snapWeight(est, bar(), getPlates());
+    return { w, txt: `≈ ${fmt(w)} ${unit()}` };
+  }
+  const w = Math.max(5, round(est, 5));
+  return { txt: m.type === 'db' ? `≈ ${fmt(w)} ${unit()} DB/KB` : `≈ ${fmt(w)} ${unit()} / hand` };
+}
+
 /* duration label for timed work: seconds for holds, m:ss for cardio blocks */
 function holdTxt(sec) { return sec >= 90 ? fmtClock(sec) : `${sec} sec`; }
 
@@ -1197,9 +1228,10 @@ function plankSetCard(ex, i, total, log) {
   const id = `${ex.key}_${i}`;
   const on = log.checks && log.checks[id] ? 'on' : '';
   const setLbl = total > 1 ? `Set ${i + 1} of ${total} · ` : '';
-  const scheme = ex.scheme
+  const hint = saHint(ex.key);
+  const scheme = (ex.scheme
     ? `${setLbl}${holdTxt(ex.sec)} · ${ex.scheme}`
-    : `${setLbl}${holdTxt(ex.sec)}${ex.sec >= 90 ? '' : ' hold'}${ex.side ? ' · each side' : ''}`;
+    : `${setLbl}${holdTxt(ex.sec)}${ex.sec >= 90 ? '' : ' hold'}${ex.side ? ' · each side' : ''}`) + (hint ? ` · ${hint.txt}` : '');
   return `<div class="card lift">
     <div class="lift-head"><div><div class="name">${ex.name} ${formBtn(ex.key)}</div>
     <div class="scheme">${scheme}</div></div>
@@ -2885,7 +2917,10 @@ function buildSteps() {
     prepDayItems(d).forEach(item => {
       if (item.type === 'reps') {
         const many = item.total > 1;
-        steps.push({ name: item.ex.name, key: item.ex.key, label: many ? `Set ${item.setIndex + 1} of ${item.total}` : 'Target', kind: 'reps', bw: true, reps: item.ex.reps, side: item.ex.side, scheme: many ? `${item.ex.reps} reps${item.ex.side ? ' / side' : ''}` : item.ex.scheme, checkId: many ? `${item.ex.key}_${item.setIndex}` : item.ex.key, store: 'prep' });
+        const step = { name: item.ex.name, key: item.ex.key, label: many ? `Set ${item.setIndex + 1} of ${item.total}` : 'Target', kind: 'reps', bw: true, reps: item.ex.reps, side: item.ex.side, scheme: many ? `${item.ex.reps} reps${item.ex.side ? ' / side' : ''}` : item.ex.scheme, checkId: many ? `${item.ex.key}_${item.setIndex}` : item.ex.key, store: 'prep' };
+        const h = saHint(item.ex.key);
+        if (h) { step.scheme = (step.scheme ? step.scheme + ' · ' : '') + h.txt; if (h.w != null) step.weight = h.w; }
+        steps.push(step);
       } else {
         steps.push({ name: item.ex.name, key: item.ex.key, label: item.total > 1 ? `Set ${item.setIndex + 1} of ${item.total}` : (item.ex.sec >= 90 ? 'Timed' : 'Hold'), kind: 'hold', seconds: item.ex.sec, side: item.ex.side, checkId: `${item.ex.key}_${item.setIndex}`, store: 'prep' });
       }
