@@ -319,7 +319,7 @@ function saWarmup() { return [
   sa('wuankle', 'Ankle Rolls',       '🦶', 10, '10 each direction / side', true),
   sa('wuband',  'Banded Side-Steps', '↔️', 10, '10 steps each way — band above knees')
 ]; }
-function saLiftNote(rounds) { return `Warm up first, then the explosive move, then the supersets. No rest periods: finish a set and move straight to its partner exercise — that muscle rests while the other works. Alternate for ${rounds} rounds per pair (each move naturally gets ~60–80 s before you're back on it), then go to the next pair. Pick weights that leave 2–3 reps in reserve. The timed core work alternates the same way. Weights start from your Setup lifts (marked ≈) and auto-progress: log the reps on each lift's hardest set — hit the target and the weight goes up next session, miss and it holds.`; }
+function saLiftNote(rounds) { return `Warm up first, then the explosive move, then the supersets. No rest periods: finish a set and move straight to its partner exercise — that muscle rests while the other works. Alternate for ${rounds} rounds per pair (each move naturally gets ~60–80 s before you're back on it), then go to the next pair. Pick weights that leave 2–3 reps in reserve. The timed core work alternates the same way. Weights start from your Setup lifts (marked ≈) and auto-progress: each set has a reps-hit counter — hit the target on every set and that weight goes up next session; miss any set and it holds.`; }
 const SA_Z2    = min => saTimed('zone2', 'Zone 2 Ride', '🚴', min * 60, 1, `${min} min steady road ride — conversational pace`);
 function saExplScheme(o, sets) { return o.hold != null ? 'explosive warm-up — quick, light skips' : `${sets} sets · explosive — full effort, land soft`; }
 function saZ2Day(min, w) { return { title: `Zone 2 Ride · Wk ${w + 1}`,
@@ -1143,16 +1143,17 @@ function prepExerciseCard(ex, setIndex, total, log) {
     <div class="lbl">${many ? `Set ${setIndex + 1}/${total}` : 'Target'}</div>
     <div class="wt">${ex.reps}<small> reps${ex.side ? '/side' : ''}</small>${hint ? `<small> @ </small>${hint.txt}` : ''}</div>
     <div class="set-end"><button class="check ${on}" data-pcheck="${id}">✓</button></div></div>`;
-  if (isSAProgram() && SA_PROGRESS.includes(ex.key) && many && setIndex === total - 1) {
-    const cur = (log.reps && log.reps[ex.key] != null) ? log.reps[ex.key] : ex.reps;
+  if (isSAProgram() && SA_PROGRESS.includes(ex.key) && many) {
+    const rid = `${ex.key}_${setIndex}`;
+    const cur = (log.reps && log.reps[rid] != null) ? log.reps[rid] : ex.reps;
     rows += `<div class="log-row">
-      <label>Reps hit on hardest set</label>
+      <label>Reps hit</label>
       <div class="stepper">
-        <button data-sarep="${ex.key}" data-d="-1">−</button>
-        <div class="val" id="sarep_${ex.key}">${cur}</div>
-        <button data-sarep="${ex.key}" data-d="1">+</button>
+        <button data-sarep="${rid}" data-d="-1">−</button>
+        <div class="val" id="sarep_${rid}">${cur}</div>
+        <button data-sarep="${rid}" data-d="1">+</button>
       </div>
-      <span class="tiny muted">hit ${ex.reps}+ → weight goes up next time</span>
+      <span class="tiny muted">all sets ${ex.reps}+ → weight up</span>
     </div>`;
   }
   return `<div class="card lift">
@@ -1255,10 +1256,15 @@ function saApplyProgression(d, log) {
     const m = SA_WEIGHT[ex.key];
     const cur = S.saWeights[ex.key] != null ? S.saWeights[ex.key] : saEstimate(m);
     if (cur == null) return;
-    const hit = (log.reps && log.reps[ex.key] != null) ? log.reps[ex.key] : ex.reps;
+    let met = true;
+    for (let i = 0; i < ex.sets; i++) {
+      const v = log.reps && log.reps[`${ex.key}_${i}`];
+      const hit = v != null ? v : (log.reps && log.reps[ex.key] != null ? log.reps[ex.key] : ex.reps);
+      if (hit < ex.reps) { met = false; break; }
+    }
     const inc = S.settings.units === 'lb' ? 5 : 2.5;
     let next = cur;
-    if (hit >= ex.reps) {
+    if (met) {
       next = m.type === 'bar' ? snapWeight(cur + inc, bar(), getPlates()) : cur + inc;
       if (next <= cur) next = cur + inc;
       msgs.push(`${ex.name} +${fmt(next - cur)} ${unit()} next time 💪`);
@@ -1303,12 +1309,13 @@ function wirePrepToday() {
   if (!log.reps) log.reps = {};
   view.querySelectorAll('[data-sarep]').forEach(btn => {
     btn.onclick = () => {
-      const k = btn.dataset.sarep, d = +btn.dataset.d;
+      const rid = btn.dataset.sarep, d = +btn.dataset.d;
+      const k = rid.slice(0, rid.lastIndexOf('_'));
       const ex = pdata()[dayNum - 1].exercises.find(e => e.key === k);
-      let v = (log.reps[k] != null ? log.reps[k] : (ex ? ex.reps : 10)) + d;
+      let v = (log.reps[rid] != null ? log.reps[rid] : (ex ? ex.reps : 10)) + d;
       v = Math.max(0, Math.min(30, v));
-      log.reps[k] = v;
-      const el = document.getElementById('sarep_' + k);
+      log.reps[rid] = v;
+      const el = document.getElementById('sarep_' + rid);
       if (el) el.textContent = v;
       save();
     };
