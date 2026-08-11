@@ -1164,17 +1164,18 @@ function prepExerciseCard(ex, setIndex, total, log) {
   const hint = saHint(ex.key);
   const id = many ? `${ex.key}_${setIndex}` : ex.key;
   const on = log.checks && log.checks[id] ? 'on' : '';
-  /* barbell lifts: show the loaded weight + per-side plate breakdown, same
-     layout as the Texas Method lift card, with reps moved to the set-end */
-  rows = hint && hint.type === 'bar'
+  /* any weighted move (barbell, dumbbell, or hand weight): same layout as
+     the Texas Method lift card — weight prominent, reps in the set-end,
+     plate breakdown added for barbell only */
+  rows = hint
     ? `<div class="set-row workset ${on ? 'done' : ''}">
         <div class="lbl">${many ? `Set ${setIndex + 1}/${total}` : 'Target'}</div>
-        <div class="wt wt-sa">${hint.pre}${fmt(hint.w)} <small>${unit()}</small><div class="plate-math">${plateStripHTML(hint.w)}</div></div>
+        <div class="wt">${fmt(hint.w)} <small>${hint.suffix}</small>${hint.type === 'bar' ? `<div class="plate-math">${plateStripHTML(hint.w)}</div>` : ''}</div>
         <div class="set-end"><div class="reps">${ex.reps} reps${ex.side ? '/side' : ''}</div>
         <button class="check ${on}" data-pcheck="${id}">✓</button></div></div>`
     : `<div class="set-row workset ${on ? 'done' : ''}">
         <div class="lbl">${many ? `Set ${setIndex + 1}/${total}` : 'Target'}</div>
-        <div class="wt">${ex.reps}<small> reps${ex.side ? '/side' : ''}</small>${hint ? `<small> @ </small>${hint.txt}` : ''}</div>
+        <div class="wt">${ex.reps}<small> reps${ex.side ? '/side' : ''}</small></div>
         <div class="set-end"><button class="check ${on}" data-pcheck="${id}">✓</button></div></div>`;
   if (isSAProgram() && SA_PROGRESS.includes(ex.key) && many) {
     const rid = `${ex.key}_${setIndex}`;
@@ -1272,8 +1273,8 @@ function saHint(key) {
   const stored = S.saWeights && S.saWeights[key] != null;
   const w = stored ? S.saWeights[key] : saEstimate(m);
   if (w == null) return null;
-  if (m.type === 'bar') return { w, type: 'bar', pre: '', txt: `${fmt(w)} ${unit()}` };
-  return { type: m.type, txt: m.type === 'db' ? `${fmt(w)} ${unit()} DB/KB` : `${fmt(w)} ${unit()} / hand` };
+  const suffix = m.type === 'bar' ? unit() : m.type === 'db' ? `${unit()} DB/KB` : `${unit()} / hand`;
+  return { w, type: m.type, suffix, txt: `${fmt(w)} ${suffix}` };
 }
 /* rep-based lifts that auto-progress: hit the target reps on the hardest
    set and the weight goes up next session; miss it and it holds. */
