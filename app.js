@@ -439,7 +439,15 @@ function pstate() {
   const k = pcfg().stateKey;
   if (!S[k]) S[k] = { day: 1, log: {} };
   if (!S[k].log) S[k].log = {};
-  if (!S[k].start) { const d = new Date(); d.setDate(d.getDate() - ((S[k].day || 1) - 1)); S[k].start = isoDate(d); }
+  /* until a day has actually been logged, the program hasn't "started" —
+     keep Day 1 anchored to today rather than freezing a stale first-view
+     date. Reset is the only way to re-anchor once real progress exists. */
+  const started = (S[k].day || 1) > 1 || Object.keys(S[k].log).length > 0;
+  if (started) {
+    if (!S[k].start) { const d = new Date(); d.setDate(d.getDate() - ((S[k].day || 1) - 1)); S[k].start = isoDate(d); }
+  } else {
+    S[k].start = isoDate(new Date());
+  }
   return S[k];
 }
 /* calendar date for a program day, anchored to when the program was started */
@@ -1139,10 +1147,18 @@ function prepExerciseCard(ex, setIndex, total, log) {
   const hint = saHint(ex.key);
   const id = many ? `${ex.key}_${setIndex}` : ex.key;
   const on = log.checks && log.checks[id] ? 'on' : '';
-  rows = `<div class="set-row workset ${on ? 'done' : ''}">
-    <div class="lbl">${many ? `Set ${setIndex + 1}/${total}` : 'Target'}</div>
-    <div class="wt">${ex.reps}<small> reps${ex.side ? '/side' : ''}</small>${hint ? `<small> @ </small>${hint.txt}` : ''}</div>
-    <div class="set-end"><button class="check ${on}" data-pcheck="${id}">✓</button></div></div>`;
+  /* barbell lifts: show the loaded weight + per-side plate breakdown, same
+     layout as the Texas Method lift card, with reps moved to the set-end */
+  rows = hint && hint.type === 'bar'
+    ? `<div class="set-row workset ${on ? 'done' : ''}">
+        <div class="lbl">${many ? `Set ${setIndex + 1}/${total}` : 'Target'}</div>
+        <div class="wt">${hint.pre}${fmt(hint.w)} <small>${unit()}</small><div class="plate-math">${plateStripHTML(hint.w)}</div></div>
+        <div class="set-end"><div class="reps">${ex.reps} reps${ex.side ? '/side' : ''}</div>
+        <button class="check ${on}" data-pcheck="${id}">✓</button></div></div>`
+    : `<div class="set-row workset ${on ? 'done' : ''}">
+        <div class="lbl">${many ? `Set ${setIndex + 1}/${total}` : 'Target'}</div>
+        <div class="wt">${ex.reps}<small> reps${ex.side ? '/side' : ''}</small>${hint ? `<small> @ </small>${hint.txt}` : ''}</div>
+        <div class="set-end"><button class="check ${on}" data-pcheck="${id}">✓</button></div></div>`;
   if (isSAProgram() && SA_PROGRESS.includes(ex.key) && many) {
     const rid = `${ex.key}_${setIndex}`;
     const cur = (log.reps && log.reps[rid] != null) ? log.reps[rid] : ex.reps;
@@ -1240,8 +1256,8 @@ function saHint(key) {
   const w = stored ? S.saWeights[key] : saEstimate(m);
   if (w == null) return null;
   const pre = stored ? '' : '≈ ';
-  if (m.type === 'bar') return { w, txt: `${pre}${fmt(w)} ${unit()}` };
-  return { txt: m.type === 'db' ? `${pre}${fmt(w)} ${unit()} DB/KB` : `${pre}${fmt(w)} ${unit()} / hand` };
+  if (m.type === 'bar') return { w, type: 'bar', pre, txt: `${pre}${fmt(w)} ${unit()}` };
+  return { type: m.type, txt: m.type === 'db' ? `${pre}${fmt(w)} ${unit()} DB/KB` : `${pre}${fmt(w)} ${unit()} / hand` };
 }
 /* rep-based lifts that auto-progress: hit the target reps on the hardest
    set and the weight goes up next session; miss it and it holds. */
