@@ -435,6 +435,17 @@ function pcfg()   { return DAY_PROGRAMS[S.program] || DAY_PROGRAMS.prep30; }
 function pdata()  { return pcfg().data; }
 function ptotal() { return pdata().length; }
 function isoDate(d) { return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`; }
+/* true once any day has real recorded activity — a checked set, logged
+   reps, or a completed day. Just viewing the Today screen stubs in an
+   empty `{ checks: {} }` entry (see wirePrepToday), so a bare log key
+   is NOT enough to count as "started". */
+function progHasActivity(log) {
+  return Object.values(log).some(d => d && (
+    d.done ||
+    (d.checks && Object.values(d.checks).some(Boolean)) ||
+    (d.reps && Object.keys(d.reps).length)
+  ));
+}
 function pstate() {
   const k = pcfg().stateKey;
   if (!S[k]) S[k] = { day: 1, log: {} };
@@ -442,7 +453,7 @@ function pstate() {
   /* until a day has actually been logged, the program hasn't "started" —
      keep Day 1 anchored to today rather than freezing a stale first-view
      date. Reset is the only way to re-anchor once real progress exists. */
-  const started = (S[k].day || 1) > 1 || Object.keys(S[k].log).length > 0;
+  const started = (S[k].day || 1) > 1 || progHasActivity(S[k].log);
   if (started) {
     if (!S[k].start) { const d = new Date(); d.setDate(d.getDate() - ((S[k].day || 1) - 1)); S[k].start = isoDate(d); }
   } else {
@@ -473,6 +484,12 @@ function estDayMin(d) {
 }
 function pWorkDays() { return pdata().filter(d => !d.rest).length; }
 function pLabel()    { return pcfg().label; }
+/* the Setup screen's cursor-reset button: day-programs (SuperAge, prep30,
+   etc.) run on a Day 1..N counter anchored to a calendar date, not the
+   Texas Method's fixed Monday/Wednesday/Friday week structure */
+function resetCursorLabel() {
+  return isDayProgram() ? '↺ Jump to Day 1, today' : '↺ Jump to Week 1, Monday';
+}
 /* reps-exercise keys present in the active program (for the stats bars) */
 function pExKeys() {
   const seen = {}, out = [];
@@ -1152,7 +1169,7 @@ function prepExerciseCard(ex, setIndex, total, log) {
   rows = hint && hint.type === 'bar'
     ? `<div class="set-row workset ${on ? 'done' : ''}">
         <div class="lbl">${many ? `Set ${setIndex + 1}/${total}` : 'Target'}</div>
-        <div class="wt">${hint.pre}${fmt(hint.w)} <small>${unit()}</small><div class="plate-math">${plateStripHTML(hint.w)}</div></div>
+        <div class="wt wt-sa">${hint.pre}${fmt(hint.w)} <small>${unit()}</small><div class="plate-math">${plateStripHTML(hint.w)}</div></div>
         <div class="set-end"><div class="reps">${ex.reps} reps${ex.side ? '/side' : ''}</div>
         <button class="check ${on}" data-pcheck="${id}">✓</button></div></div>`
     : `<div class="set-row workset ${on ? 'done' : ''}">
@@ -1255,9 +1272,8 @@ function saHint(key) {
   const stored = S.saWeights && S.saWeights[key] != null;
   const w = stored ? S.saWeights[key] : saEstimate(m);
   if (w == null) return null;
-  const pre = stored ? '' : '≈ ';
-  if (m.type === 'bar') return { w, type: 'bar', pre, txt: `${pre}${fmt(w)} ${unit()}` };
-  return { type: m.type, txt: m.type === 'db' ? `${pre}${fmt(w)} ${unit()} DB/KB` : `${pre}${fmt(w)} ${unit()} / hand` };
+  if (m.type === 'bar') return { w, type: 'bar', pre: '', txt: `${fmt(w)} ${unit()}` };
+  return { type: m.type, txt: m.type === 'db' ? `${fmt(w)} ${unit()} DB/KB` : `${fmt(w)} ${unit()} / hand` };
 }
 /* rep-based lifts that auto-progress: hit the target reps on the hardest
    set and the weight goes up next session; miss it and it holds. */
@@ -2052,7 +2068,7 @@ function renderSetup() {
 
     <h2 class="section">Data</h2>
     <div class="card">
-      <button class="btn secondary" id="resetCursor">↺ Jump to Week 1, Monday</button>
+      <button class="btn secondary" id="resetCursor">${resetCursorLabel()}</button>
       <div class="spacer"></div>
       <button class="btn danger" id="wipe">Erase all logged data</button>
     </div>
@@ -2172,13 +2188,20 @@ function wireSetup() {
       setTimeout(() => {
         confirmState.reset = false;
         if (document.getElementById('resetCursor')) {
-          btn.textContent = '↺ Jump to Week 1, Monday';
+          btn.textContent = resetCursorLabel();
           btn.classList.remove('danger');
         }
       }, 3000);
     } else {
       confirmState.reset = false;
-      S.cursor = { week: 0, day: 0 }; save(); toast('Back to Week 1 🔁'); render();
+      if (isDayProgram()) {
+        const k = pcfg().stateKey;
+        S[k].day = 1;
+        S[k].start = isoDate(new Date());
+        save(); toast(`Back to Day 1 — ${fmtPrepDate(new Date())} 🔁`); render();
+      } else {
+        S.cursor = { week: 0, day: 0 }; save(); toast('Back to Week 1 🔁'); render();
+      }
     }
   };
 
