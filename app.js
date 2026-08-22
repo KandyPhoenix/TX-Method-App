@@ -2759,7 +2759,7 @@ function cloudOnLocalChange() { if (fb && !cloudApplying) cloudPush(false); }
    ===================================================================== */
 function loadZoom() {
   const z = parseFloat(localStorage.getItem('tm_zoom'));
-  return (z && z >= 0.8 && z <= 2.2) ? z : 1.28;
+  return (z && z >= 0.8 && z <= 2.2) ? z : 1;
 }
 function applyZoom(z) { document.documentElement.style.setProperty('--content-zoom', z); }
 applyZoom(loadZoom());
