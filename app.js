@@ -2762,6 +2762,20 @@ function loadZoom() {
   return (z && z >= 0.8 && z <= 2.2) ? z : 1;
 }
 function applyZoom(z) { document.documentElement.style.setProperty('--content-zoom', z); }
+
+/* v99 dropped the default zoom from 1.28 to 1. Anyone whose stored value is
+   still exactly the old default never deliberately chose it — they'd just see
+   no change from the density work — so clear it once. Any other value was a
+   real choice and is left alone. */
+(function migrateZoomDefault() {
+  try {
+    if (!localStorage.getItem('tm_zoom_v99') ) {
+      if (localStorage.getItem('tm_zoom') === '1.28') localStorage.removeItem('tm_zoom');
+      localStorage.setItem('tm_zoom_v99', '1');
+    }
+  } catch { /* storage blocked — nothing to migrate */ }
+})();
+
 applyZoom(loadZoom());
 
 /* =====================================================================
