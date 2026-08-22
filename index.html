@@ -11,6 +11,19 @@
   <link rel="manifest" href="manifest.json" />
   <link rel="apple-touch-icon" href="icons/icon-192.png" />
   <link rel="stylesheet" href="styles.css" />
+  <script>
+    /* Paint the right theme before first paint — app.js loads at end of body,
+       which would otherwise flash dark at a light-theme user on every launch. */
+    (function () {
+      try {
+        var t = localStorage.getItem('tm_theme') || 'dark';
+        if (t === 'auto') t = matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark';
+        document.documentElement.setAttribute('data-theme', t);
+        var m = document.querySelector('meta[name="theme-color"]');
+        if (m) m.setAttribute('content', t === 'light' ? '#f6f7f9' : '#080808');
+      } catch (e) { /* private mode / storage blocked — dark is the CSS default */ }
+    })();
+  </script>
 </head>
 <body>
   <div id="app">
@@ -20,7 +33,7 @@
         <div>
           <h1 id="screenTitle">Today</h1>
           <p id="screenSub" class="sub"></p>
-          <span class="version-badge">v98 · Aug 9</span>
+          <span class="version-badge">v99 · Aug 22</span>
         </div>
       </div>
       <div style="display:flex;gap:8px">

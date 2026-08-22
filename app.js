@@ -690,7 +690,7 @@ function wireLiftTracker() {
   LIFT_TRACK.forEach(t => {
     const arr = (S.liftLog && S.liftLog[t.key]) || [];
     if (arr.length > 1) lineChart(document.getElementById('lt_' + t.key),
-      [{ name: t.name, color: '#aaff00', data: arr.map(e => e.w) }], arr.map(e => e.d.slice(5)));
+      [{ name: t.name, color: cssVar('--chart-1', '#aaff00'), data: arr.map(e => e.w) }], arr.map(e => e.d.slice(5)));
   });
 }
 
@@ -1850,12 +1850,12 @@ function drawProjectionCharts() {
   lineChart(document.getElementById('ch1'),
     ['squat','bench','deadlift','press'].map((k,i) => ({
       name: LIFT_META[k].name,
-      color: ['#aaff00','#77cc00','#448800','#ccff44'][i],
+      color: chartPalette()[i],
       data: completedProgram.map(w => oneRM(w.intensity[k], 5))
     })), labels);
 
   lineChart(document.getElementById('ch2'),
-    [{ name:'PL Total', color:'#aaff00',
+    [{ name:'PL Total', color: cssVar('--chart-1', '#aaff00'),
        data: completedProgram.map(w => w.intensity.squat + w.intensity.bench + w.intensity.deadlift) }],
     labels);
 }
@@ -1868,19 +1868,20 @@ function emptyChart(canvas, seriesNames) {
   ctx.clearRect(0, 0, W, H);
   const pad = { l:38, r:10, t:12, b:22 };
   // Draw faint grid lines
-  ctx.strokeStyle = 'rgba(255,255,255,.06)'; ctx.lineWidth = 1;
+  ctx.strokeStyle = cssVar('--chart-grid', 'rgba(255,255,255,.06)'); ctx.lineWidth = 1;
   for (let g = 0; g <= 4; g++) {
     const y = pad.t + (H - pad.t - pad.b) * (g / 4);
     ctx.beginPath(); ctx.moveTo(pad.l, y); ctx.lineTo(W - pad.r, y); ctx.stroke();
   }
   // Legend placeholders
-  const colors = ['#aaff00','#77cc00','#448800','#ccff44'];
-  ctx.font = '10px -apple-system,sans-serif'; ctx.fillStyle = '#555555';
+  const colors = chartPalette();
+  const dimC = cssVar('--dim', '#555555');
+  ctx.font = '10px -apple-system,sans-serif'; ctx.fillStyle = dimC;
   seriesNames.forEach((nm, i) => {
     const lx = pad.l + i * 70;
-    ctx.fillStyle = colors[i] || '#555555';
+    ctx.fillStyle = colors[i] || dimC;
     ctx.fillRect(lx, 2, 10, 4);
-    ctx.fillStyle = '#555555';
+    ctx.fillStyle = dimC;
     ctx.fillText(nm, lx + 14, 8);
   });
 }
@@ -1897,7 +1898,8 @@ function lineChart(canvas, series, labels) {
   if (min === max) { min -= 1; max += 1; }
   const py = v => pad.t + (H - pad.t - pad.b) * (1 - (v - min) / (max - min));
   const px = i => pad.l + (W - pad.l - pad.r) * (i / (labels.length - 1));
-  ctx.strokeStyle = 'rgba(170,255,0,.15)'; ctx.fillStyle = '#aaaaaa'; ctx.font = '10px -apple-system,sans-serif'; ctx.lineWidth = 1;
+  const axisC = cssVar('--muted', '#aaaaaa');
+  ctx.strokeStyle = cssVar('--chart-grid', 'rgba(170,255,0,.15)'); ctx.fillStyle = axisC; ctx.font = '10px -apple-system,sans-serif'; ctx.lineWidth = 1;
   for (let g = 0; g <= 4; g++) {
     const v = min + (max - min) * g / 4, y = py(v);
     ctx.beginPath(); ctx.moveTo(pad.l, y); ctx.lineTo(W - pad.r, y); ctx.globalAlpha = .5; ctx.stroke(); ctx.globalAlpha = 1;
@@ -1912,7 +1914,7 @@ function lineChart(canvas, series, labels) {
   let lx = pad.l; ctx.font = '11px -apple-system,sans-serif';
   series.forEach(s => {
     ctx.fillStyle = s.color; ctx.fillRect(lx, 2, 10, 4);
-    ctx.fillStyle = '#aaaaaa'; ctx.fillText(s.name, lx + 14, 8);
+    ctx.fillStyle = axisC; ctx.fillText(s.name, lx + 14, 8);
     lx += ctx.measureText(s.name).width + 34;
   });
 }
@@ -1966,6 +1968,15 @@ function renderSetup() {
           <div class="prog-ico">${ico}</div><div class="prog-name">${nm}</div><div class="prog-sub">${sub}</div></button>`).join('')}
       </div>
       <div class="hint">Tap a program to switch — your progress in each is saved separately.</div>
+    </div>
+
+    <h2 class="section">Display — theme</h2>
+    <div class="card">
+      <div class="seg" id="segTheme">
+        ${[['dark','🌙 Dark'],['light','☀️ Light'],['auto','📱 Auto']]
+          .map(([k,lbl]) => `<button data-theme-opt="${k}" class="${loadTheme()===k?'on':''}">${lbl}</button>`).join('')}
+      </div>
+      <div class="hint">Auto follows your phone's light/dark setting.</div>
     </div>
 
     <h2 class="section">Display — text size</h2>
@@ -2150,6 +2161,15 @@ function wireSetup() {
     s.voice = b.dataset.voice === 'on'; save();
     view.querySelectorAll('#segVoice button').forEach(x => x.classList.toggle('on', (x.dataset.voice === 'on') === s.voice));
     if (s.voice) say('Voice coaching on');
+  });
+
+  /* theme */
+  view.querySelectorAll('#segTheme button').forEach(b => b.onclick = () => {
+    const t = b.dataset.themeOpt;
+    localStorage.setItem('tm_theme', t);
+    applyTheme(t);
+    view.querySelectorAll('#segTheme button')
+        .forEach(x => x.classList.toggle('on', x.dataset.themeOpt === t));
   });
 
   /* page zoom / text size */
@@ -2459,9 +2479,17 @@ function toast(msg) {
   if (!t) {
     t = document.createElement('div'); t.id = 'toast'; document.body.appendChild(t);
     Object.assign(t.style, { position:'fixed', bottom:'92px', left:'50%', transform:'translateX(-50%)',
-      background:'#202020', color:'#ffffff', padding:'12px 18px', borderRadius:'12px', zIndex:60,
-      border:'1px solid rgba(255,77,0,.25)', fontWeight:'700', boxShadow:'0 10px 30px rgba(0,0,0,.6)', transition:'opacity .3s' });
+      padding:'12px 18px', borderRadius:'12px', zIndex:60,
+      fontWeight:'700', transition:'opacity .3s' });
   }
+  /* recoloured on every call — the node is cached, so styling it only at
+     creation time would leave it stuck in whichever theme was active first */
+  Object.assign(t.style, {
+    background: cssVar('--panel2', '#202020'),
+    color:      cssVar('--text', '#ffffff'),
+    border:     '1px solid ' + cssVar('--border', '#333333'),
+    boxShadow:  '0 10px 30px ' + cssVar('--shadow-3', 'rgba(0,0,0,.6)')
+  });
   t.textContent = msg; t.style.opacity = '1';
   clearTimeout(toastT); toastT = setTimeout(() => t.style.opacity = '0', 1600);
 }
@@ -2737,6 +2765,43 @@ function applyZoom(z) { document.documentElement.style.setProperty('--content-zo
 applyZoom(loadZoom());
 
 /* =====================================================================
+   THEME  (dark / light / follow the phone)
+   ===================================================================== */
+const THEME_BAR = { dark: '#080808', light: '#f6f7f9' };
+function loadTheme() {
+  const t = localStorage.getItem('tm_theme');
+  return (t === 'dark' || t === 'light' || t === 'auto') ? t : 'dark';
+}
+function resolvedTheme(t) {
+  if (t !== 'auto') return t;
+  return matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark';
+}
+function applyTheme(t) {
+  const r = resolvedTheme(t);
+  document.documentElement.setAttribute('data-theme', r);
+  const m = document.querySelector('meta[name="theme-color"]');
+  if (m) m.setAttribute('content', THEME_BAR[r]);
+}
+applyTheme(loadTheme());
+
+/* Canvas can't use CSS vars, so read the resolved value at draw time.
+   Anything drawn on <canvas> must go through this or it won't follow the theme. */
+function cssVar(name, fallback) {
+  try {
+    const v = getComputedStyle(document.documentElement).getPropertyValue(name).trim();
+    return v || fallback;
+  } catch { return fallback; }
+}
+function chartPalette() {
+  return [cssVar('--chart-1', '#aaff00'), cssVar('--chart-2', '#77cc00'),
+          cssVar('--chart-3', '#448800'), cssVar('--chart-4', '#ccff44')];
+}
+
+/* keep 'auto' honest when the phone flips light/dark mid-session */
+matchMedia('(prefers-color-scheme: light)')
+  .addEventListener('change', () => { if (loadTheme() === 'auto') applyTheme('auto'); });
+
+/* =====================================================================
    WAKE LOCK  (keep the screen awake while working out)
    ===================================================================== */
 let wakeLock = null;
@@ -2765,7 +2830,9 @@ function confetti() {
   const dpr = window.devicePixelRatio || 1, W = innerWidth, H = innerHeight;
   cv.width = W * dpr; cv.height = H * dpr;
   const ctx = cv.getContext('2d'); ctx.scale(dpr, dpr);
-  const colors = ['#aaff00', '#ffffff', '#77cc00', '#ffd400', '#ff5e5e'];
+  /* --text keeps one streamer readable against the page in either theme */
+  const colors = [cssVar('--chart-1', '#aaff00'), cssVar('--text', '#ffffff'),
+                  cssVar('--chart-2', '#77cc00'), '#ffd400', '#ff5e5e'];
   const N = 140, parts = [];
   for (let i = 0; i < N; i++) parts.push({
     x: W / 2 + (Math.random() - .5) * 80, y: H / 3 + (Math.random() - .5) * 40,
@@ -2951,6 +3018,9 @@ function calendarHTML() {
     <div class="tiny muted center" style="margin-top:10px">${note}</div></div>`;
 }
 
+/* Deliberately NOT themed: this renders a 1080x1080 image the user exports and
+   posts elsewhere. It's a branded artifact, not app chrome, so it stays dark
+   whatever theme the app is in. Leave the literal colours below alone. */
 async function shareCard() {
   const W = 1080, H = 1080, c = document.createElement('canvas');
   c.width = W; c.height = H; const x = c.getContext('2d');
