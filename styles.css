@@ -69,18 +69,22 @@
   --safe-bottom: env(safe-area-inset-bottom, 0px);
 }
 
-/* ---------- LIGHT ---------- */
+/* ---------- LIGHT ----------
+   Warm cream rather than cool grey. The page is #fff7eb and the cards are
+   pure white, so each card lifts off the page without needing a heavy border
+   or shadow — that separation is what reads as "organised". Sampled from
+   The Standard (standard.superage.com), which uses exactly this background. */
 :root[data-theme="light"] {
-  --bg:     #f6f7f9;
-  --bg2:    #edeff3;
+  --bg:     #fff7eb;
+  --bg2:    #f6ecda;
   --panel:  #ffffff;
-  --panel2: #f4f6f8;
-  --border: #e1e5ec;
+  --panel2: #fbf4e8;
+  --border: #ece1cf;
 
-  --text:      #131519;
-  --text-soft: #3d434e;
-  --muted:     #5b6270;
-  --dim:       #868d9a;
+  --text:      #0a0a0a;
+  --text-soft: #3a352e;
+  --muted:     #6b6459;
+  --dim:       #968f82;
 
   /* lime stays the fill so the brand survives; ink darkens so it is
      actually readable on white (#aaff00 on white is ~1.4:1). */
@@ -102,21 +106,21 @@
   --red-glow:   rgba(217,34,34,.35);
   --danger-bg:  #fff1f1;
 
-  --tabbar-bg:  rgba(255,255,255,.94);
-  --overlay:    rgba(19,21,25,.42);
-  --overlay-2:  rgba(19,21,25,.50);
-  --overlay-3:  rgba(19,21,25,.62);
-  --shadow-1:   rgba(19,21,25,.08);
-  --shadow-2:   rgba(19,21,25,.12);
-  --shadow-3:   rgba(19,21,25,.22);
+  --tabbar-bg:  rgba(255,247,235,.95);
+  --overlay:    rgba(28,22,12,.42);
+  --overlay-2:  rgba(28,22,12,.50);
+  --overlay-3:  rgba(28,22,12,.62);
+  --shadow-1:   rgba(60,48,28,.07);
+  --shadow-2:   rgba(60,48,28,.11);
+  --shadow-3:   rgba(60,48,28,.20);
   --sheen:      rgba(255,255,255,.55);
 
   --plate-ink:  #ffffff;
   --plate-edge: rgba(0,0,0,.18);
 
   --cell-bg:     #ffffff;
-  --cell-border: #e1e5ec;
-  --cell-text:   #4b525e;
+  --cell-border: #ece1cf;
+  --cell-text:   #4b463d;
 
   --chart-grid: rgba(19,21,25,.09);
   --chart-1: #3f6b00;

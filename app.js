@@ -2767,7 +2767,7 @@ applyZoom(loadZoom());
 /* =====================================================================
    THEME  (dark / light / follow the phone)
    ===================================================================== */
-const THEME_BAR = { dark: '#080808', light: '#f6f7f9' };
+const THEME_BAR = { dark: '#080808', light: '#fff7eb' };
 function loadTheme() {
   const t = localStorage.getItem('tm_theme');
   return (t === 'dark' || t === 'light' || t === 'auto') ? t : 'dark';
