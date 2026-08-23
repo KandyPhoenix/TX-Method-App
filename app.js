@@ -5233,9 +5233,31 @@ render();
 /* auto-resume cloud sync if previously signed in */
 if (loadCloud().enabled) { setTimeout(cloudInit, 0); }
 if ('serviceWorker' in navigator) {
-  window.addEventListener('load', () => navigator.serviceWorker.register('sw.js').catch(() => {}));
+  /* Registering alone is not enough. An installed PWA opened from the home
+     screen does not navigate, so the browser may never re-check sw.js and the
+     app can sit on a months-old worker — which is how a phone ends up running
+     code many versions behind while the site itself is current. Ask for an
+     update explicitly on launch, and again whenever the app is brought back to
+     the foreground. */
+  let swReg = null;
+  const swCheck = () => { try { if (swReg) swReg.update(); } catch {} };
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('sw.js')
+      .then(reg => { swReg = reg; reg.update().catch(() => {}); })
+      .catch(() => {});
+  });
+  document.addEventListener('visibilitychange', () => {
+    if (document.visibilityState === 'visible') swCheck();
+  });
   // Auto-reload when a new service worker activates (picks up new version immediately)
   navigator.serviceWorker.addEventListener('message', e => {
-    if (e.data && e.data.type === 'SW_UPDATED') location.reload();
+    if (!e.data || e.data.type !== 'SW_UPDATED') return;
+    /* one reload per activation — never a loop if a worker keeps re-claiming */
+    try {
+      const last = +(sessionStorage.getItem('tm_swreload') || 0);
+      if (Date.now() - last < 10000) return;
+      sessionStorage.setItem('tm_swreload', String(Date.now()));
+    } catch {}
+    location.reload();
   });
 }
