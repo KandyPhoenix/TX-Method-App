@@ -37,6 +37,7 @@ const DEFAULTS = {
   sex: 'female',
   age: 45,            /* Fingerprint scoring is age-normed — see FP_ASSESS */
   equipment: 'gym',   /* gym | dumbbells | bodyweight — see EQUIP_RANK */
+  weeklyGoal: 4,      /* sessions per week — the week strip counts toward this */
   bodyweight: 165,
   barWeight: 45,
   plates: [45, 35, 25, 10, 5, 2.5],
@@ -1144,7 +1145,12 @@ function weekStripHTML() {
     cells += `<div class="day-chip ${isDone ? 'done' : ''} ${isToday ? 'today' : ''}">
       <span class="d">${LBL[i]}</span><span class="n">${isDone ? '✓' : d.getDate()}</span></div>`;
   }
-  return `<div class="week">${cells}<span class="week-count">${n}/7</span></div>`;
+  /* Counting toward seven implied training every day. The Standard counts
+     against a weekly goal instead — four sessions whenever they suit you —
+     which is how this app's day cursor already behaves. */
+  const goal = S.settings.weeklyGoal || 4;
+  const hit = n >= goal;
+  return `<div class="week">${cells}<span class="week-count${hit ? ' met' : ''}">${n}/${goal}</span></div>`;
 }
 
 function roadmapTop(o) {
@@ -2536,6 +2542,13 @@ function renderSetup() {
       </div>
       <div class="field"><label>Bodyweight (${s.units})</label>
         <input type="number" inputmode="decimal" id="bw" value="${s.bodyweight}" /></div>
+      <div class="field"><label>Sessions per week</label>
+        <div class="seg" id="segGoal">
+          ${[2,3,4,5,6].map(n2 =>
+            `<button data-goal="${n2}" class="${(s.weeklyGoal || 4) === n2 ? 'on' : ''}">${n2}</button>`).join('')}
+        </div>
+        <div class="hint">The week strip on Roadmap counts toward this rather than toward seven days — train on whichever days suit you.</div>
+      </div>
       <div class="field"><label>Equipment available</label>
         <div class="seg" id="segEquip">
           ${['gym','dumbbells','bodyweight'].map(k =>
@@ -2721,6 +2734,9 @@ function wireSetup() {
   view.querySelectorAll('#segMode button').forEach(b => b.onclick = () => { s.mode = b.dataset.m; save(); render(); });
 
   document.getElementById('bw').onchange  = e => { s.bodyweight = +e.target.value || 0; save(); };
+  view.querySelectorAll('#segGoal button').forEach(b => b.onclick = () => {
+    s.weeklyGoal = +b.dataset.goal; save(); render();
+  });
   view.querySelectorAll('#segEquip button').forEach(b => b.onclick = () => {
     s.equipment = b.dataset.eq; save(); render();
   });
