@@ -1406,3 +1406,12 @@ table.prog td.w { color: var(--text); }
 @media (max-width: 460px) {
   .equip-btn { font-size: 11px; padding-left: 9px; padding-right: 9px; }
 }
+
+/* ---- session difficulty tier ---- */
+.tier-bar { margin: 10px 0 2px; }
+.tier-seg { width: 100%; }
+.tier-seg button { flex: 1; font-size: 11.5px; padding: 8px 4px; letter-spacing: .2px; }
+.tier-note { margin-top: 7px; line-height: 1.5; }
+@media (max-width: 460px) {
+  .tier-seg button { font-size: 10.5px; padding: 8px 2px; }
+}

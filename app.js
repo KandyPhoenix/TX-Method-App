@@ -1461,7 +1461,8 @@ function renderPrepToday() {
     title:  d.title || `Day ${dayNum}`,
     sub:    [(x => x ? fmtPrepDate(x) : "")(prepDateFor(dayNum)),
              `${prepDaysComplete()}/${pWorkDays()} done`].filter(Boolean).join(" · "),
-    mins:   d.rest ? 0 : estDayMin(d),
+    /* estimate the session you are actually about to do, not the Core one */
+    mins:   d.rest ? 0 : estDayMin(tierDay(d)),
     rest:   !!d.rest,
     art:    d.rest ? "😴" : "💪",
     prevId: "prepPrev", prevDisabled: dayNum <= 1,
@@ -1478,6 +1479,7 @@ function renderPrepToday() {
   } else {
     const log = pstate().log[dayNum] || { checks: {} };
     if (d.note) html += `<details class="card note-fold"><summary>How this session works</summary><div class="note-body">${d.note}</div></details>`;
+    html += tierBarHTML();
     html += `<div class="spacer"></div>`;
     for (const g of groupDayItems(prepDayItems(d))) html += groupCard(g, log);
 
@@ -1652,7 +1654,77 @@ function exItems(ex) {
   for (let i = 0; i < total; i++) out.push({ type, ex, setIndex: i, total });
   return out;
 }
+/* ---------------------------------------------------------------------
+   Session difficulty tier.
+
+   The Standard puts a Foundation / Core / Advanced / Elite selector at the top
+   of a session and labels it "session only — your next workout uses your
+   algorithm tier". That last part is the whole point: it is a dial for how you
+   feel today, not a change to your programme. Turning it up because you slept
+   well should not permanently raise your targets, and turning it down on a bad
+   day should not cost you the progress you have already earned.
+
+   So it is deliberately NOT persisted, and it resets the moment the day
+   changes. It scales sets and timed holds, and it scales reps only on
+   bodyweight movements — a loaded lift progresses through the reps-hit rule,
+   and rewriting its target reps would corrupt that. Same reasoning as
+   fpProgress, which leaves loaded movements alone for the same reason.
+   --------------------------------------------------------------------- */
+const TIERS = [
+  { key: 'foundation', name: 'Foundation', sets: -1, vol: 0.75, note: 'Less volume — building the habit, or coming back from a break.' },
+  { key: 'core',       name: 'Core',       sets:  0, vol: 1,    note: 'The session as programmed.' },
+  { key: 'advanced',   name: 'Advanced',   sets:  1, vol: 1.2,  note: 'More volume — for a day you have the time and the legs for it.' },
+  { key: 'elite',      name: 'Elite',      sets:  2, vol: 1.4,  note: 'Significantly more work. Do not use this to make up for a missed day.' }
+];
+function tierBy(k) { return TIERS.find(t => t.key === k) || TIERS[1]; }
+
+let sessionTier = 'core';
+let sessionTierDay = null;
+
+/* Reads as a getter so anything can ask; resets itself when the day moves on. */
+function currentTier() {
+  const dayKey = S.program + ':' + (isDayProgram() ? pstate().day : 0);
+  if (sessionTierDay !== dayKey) { sessionTierDay = dayKey; sessionTier = 'core'; }
+  return sessionTier;
+}
+function setSessionTier(k) {
+  currentTier();                      /* make sure the day key is current first */
+  sessionTier = tierBy(k).key;
+  render();
+  toast(tierBy(k).name + ' — this session only');
+}
+
+/* Returns a NEW day object; never mutates the programme data, which for the
+   generated Focus plan is a memoised array shared across renders. */
+function tierDay(d) {
+  const t = tierBy(currentTier());
+  if (t.key === 'core' || !d || !d.exercises) return d;
+  const scale = (n, min) => Math.max(min, Math.round(n * t.vol));
+  const out = Object.assign({}, d);
+  out.exercises = d.exercises.map(ex => {
+    const e = Object.assign({}, ex);
+    if (e.sets) e.sets = Math.max(1, e.sets + t.sets);
+    if (e.sec)  e.sec  = Math.max(10, Math.round(scale(e.sec, 10) / 5) * 5);
+    /* loaded movements keep their target reps — that is what the reps-hit
+       progression reads */
+    if (e.reps && !SA_WEIGHT[e.key]) e.reps = scale(e.reps, 1);
+    return e;
+  });
+  return out;
+}
+
+function tierBarHTML() {
+  const cur = currentTier();
+  return `<div class="tier-bar">
+    <div class="seg tier-seg" id="segTier">
+      ${TIERS.map(t => `<button data-tier="${t.key}" class="${t.key === cur ? 'on' : ''}">${t.name}</button>`).join('')}
+    </div>
+    <div class="tiny muted tier-note">${tierBy(cur).note} <b>This session only</b> — tomorrow returns to Core.</div>
+  </div>`;
+}
+
 function prepDayItems(d) {
+  d = tierDay(d);
   const spread = S.program === 'prep30' && d.exercises.find(e => e.sets && e.sets > 1);
   if (!spread) {
     /* exercises sharing an `ss` (superset group) interleave their sets
@@ -4542,6 +4614,7 @@ function updateSessionUI() {
   if (!bar) return;
   /* the rail sticks below the whole sticky header, whose height changes with
      the session bar showing or hiding — measure it rather than hard-coding */
+  view.querySelectorAll('#segTier button').forEach(b => b.onclick = () => setSessionTier(b.dataset.tier));
   const eb = document.getElementById('equipBtn');
   if (eb && !eb.dataset.wired) { eb.dataset.wired = '1'; eb.onclick = equipMenu; }
   renderEquipBtn();
