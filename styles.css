@@ -4,51 +4,64 @@
    Every colour goes through a token below so both themes stay in sync. */
 
 /* ---------- DARK (default) ----------
-   Palette taken from the Synthesis workout generator: amber is the hero,
-   red is danger, green is success, violet and indigo are the chart accents,
-   all sitting on Tailwind-family neutrals. Amber inherits the role blue held
-   — actionable, or live state — and nothing else is allowed to use it.
-   The lime highlighter is untouched: it still means "done", and keeping it
-   distinct from the accent is the whole point of having two. */
+   The real Synthesis palette, read from that app's own styles.css rather than
+   from the fallback values scattered through its generator stylesheet — which
+   is how the first attempt at this ended up amber-primary and missed the
+   purple altogether.
+
+     primary   #6366f1  indigo      accent  #f59e0b  gold
+     secondary #ec4899  pink        success #10b981  green
+     surfaces  #0f0f1a -> #2d2d44, tinted toward indigo, not neutral grey
+
+   Indigo is the accent: actionable, or live state. Gold is the highlighter and
+   means "done" — it takes the job the lime held, which keeps the two signals
+   distinct while making both of them Synthesis's own colours. The category
+   array supplies the chart and tier colours, so the "array of other colours"
+   shows up where variety is actually useful. */
 :root {
-  /* surfaces */
-  --bg:     #111827;
-  --bg2:    #0c111c;
-  --panel:  #1f2937;
-  --panel2: #374151;
-  --border: #374151;
+  /* surfaces — indigo-tinted, per --color-bg-* */
+  --bg:     #0f0f1a;
+  --bg2:    #16162a;
+  --panel:  #1a1a2e;
+  --panel2: #252538;
+  --border: #2d2d44;
 
   /* type */
-  --text:      #f3f4f6;
-  --text-soft: #d1d5db;
-  --muted:     #9ca3af;
-  --dim:       #6b7280;
+  --text:      #ffffff;
+  --text-soft: #d5d5e2;
+  --muted:     #a8a8b8;
+  --dim:       #6b6b7b;
 
-  /* accent ramp — `accent` fills, `accent-ink` writes on page background */
-  --accent:      #f59e0b;
-  --accent-ink:  #fbbf24;
-  --accent-2:    #fbbf24;
-  --accent-3:    #d97706;
-  --accent-mid:  #f59e0b;
-  --accent-deep: #b45309;
-  --on-accent:   #000000;
-  --accent-soft: rgba(245,158,11,.20);
-  --accent-wash: rgba(245,158,11,.10);
-  --accent-line: rgba(245,158,11,.42);
-  --accent-edge: rgba(245,158,11,.58);
-  --accent-glow: rgba(245,158,11,.38);
+  /* accent ramp — indigo */
+  --accent:      #4f46e5;   /* dark end of Synthesis's own button gradient:
+                               white on #6366f1 is 4.47, just under AA */
+  --accent-ink:  #818cf8;
+  --accent-2:    #818cf8;
+  --accent-3:    #4f46e5;
+  --accent-mid:  #6366f1;
+  --accent-deep: #4338ca;
+  --on-accent:   #ffffff;
+  --accent-soft: rgba(99,102,241,.22);
+  --accent-wash: rgba(99,102,241,.12);
+  --accent-line: rgba(99,102,241,.44);
+  --accent-edge: rgba(99,102,241,.60);
+  --accent-glow: rgba(99,102,241,.40);
 
-  /* status */
+  /* status + the category array */
   --red:        #ef4444;
   --red-line:   rgba(239,68,68,.40);
   --red-glow:   rgba(239,68,68,.50);
-  --danger-bg:  #1f1114;
+  --danger-bg:  #240f18;
   --good:       #10b981;
   --violet:     #8b5cf6;
   --indigo:     #6366f1;
+  --pink:       #ec4899;
+  --teal:       #14b8a6;
+  --cyan:       #06b6d4;
+  --info:       #3b82f6;
 
   /* chrome */
-  --tabbar-bg:  rgba(17,24,39,.97);
+  --tabbar-bg:  rgba(15,15,26,.97);
   --overlay:    rgba(0,0,0,.60);
   --overlay-2:  rgba(0,0,0,.66);
   --overlay-3:  rgba(0,0,0,.82);
@@ -62,33 +75,33 @@
   --plate-edge: rgba(255,255,255,.15);
 
   /* month-calendar cells */
-  --cell-bg:     #1f2937;
-  --cell-border: #374151;
-  --cell-text:   #d1d5db;
+  --cell-bg:     #1a1a2e;
+  --cell-border: #2d2d44;
+  --cell-text:   #d5d5e2;
 
   /* canvas charts — read from JS via cssVar() at draw time */
   --chart-grid: rgba(255,255,255,.07);
-  --chart-1: #fbbf24;
-  --chart-2: #f59e0b;
-  --chart-3: #8b5cf6;
-  --chart-4: #10b981;
+  --chart-1: #818cf8;
+  --chart-2: #8b5cf6;
+  --chart-3: #ec4899;
+  --chart-4: #f59e0b;
 
   /* Fingerprint tiers — must stay visibly distinct from each other */
-  --tier-foundation: #9ca3af;
-  --tier-core:       #fbbf24;
-  --tier-advanced:   #f59e0b;
-  --tier-elite:      #10b981;
+  --tier-foundation: #6b6b7b;
+  --tier-core:       #ec4899;
+  --tier-advanced:   #818cf8;
+  --tier-elite:      #f59e0b;
 
   /* --- accent + highlighter system --- */
-  --blue:        #f59e0b;      /* token name kept: it is the accent role */
-  --blue-ink:    #fbbf24;
-  --hl:          #eaf962;      /* highlighter — reserved for "done" */
-  --hl-ink:      #eaf962;
+  --blue:        #6366f1;      /* token name kept: it is the accent role */
+  --blue-ink:    #818cf8;
+  --hl:          #f59e0b;      /* gold highlighter — reserved for "done" */
+  --hl-ink:      #fbbf24;
   --on-hl:       #1a1205;
-  --ink-surface: #0c111c;      /* dark card / hero */
+  --ink-surface: #16162a;      /* dark card / hero */
   --on-ink:      #ffffff;
-  --primary:     #f59e0b;
-  --on-primary:  #000000;
+  --primary:     #4f46e5;
+  --on-primary:  #ffffff;
   --r-card:      16px;
   --r-btn:       12px;
   --r-tag:       4px;
@@ -99,80 +112,85 @@
 }
 
 /* ---------- LIGHT ----------
-   Warm cream rather than cool grey, which suits amber better than it ever
-   suited blue. Amber is lightened for fills and darkened for text: #f59e0b
-   as a label on cream is about 2:1 and unreadable, so anything that is words
-   rather than a shape uses --accent-ink. */
+   Synthesis ships dark only, so this is a light counterpart built from the
+   same palette rather than a copy of anything: the page carries a faint
+   indigo tint instead of the old cream, indigo darkens for text on white,
+   and gold — which is close to unreadable as text on a pale background —
+   keeps its fill but writes through --hl-ink. */
 :root[data-theme="light"] {
-  --bg:     #fffaf0;
-  --bg2:    #f8efe0;
+  --bg:     #f6f6fb;
+  --bg2:    #ededf6;
   --panel:  #ffffff;
-  --panel2: #fdf6ea;
-  --border: #efe3d1;
+  --panel2: #f4f4fa;
+  --border: #e2e2ee;
 
-  --text:      #111827;
-  --text-soft: #374151;
-  --muted:     #6b7280;
-  --dim:       #9ca3af;
+  --text:      #14142b;
+  --text-soft: #3a3a55;
+  --muted:     #6b6b7b;
+  --dim:       #9a9aab;
 
-  --accent:      #f59e0b;
-  --accent-ink:  #b45309;
-  --accent-2:    #d97706;
-  --accent-3:    #b45309;
-  --accent-mid:  #f59e0b;
-  --accent-deep: #92400e;
-  --on-accent:   #1a1205;
-  --accent-soft: rgba(245,158,11,.14);
-  --accent-wash: rgba(245,158,11,.08);
-  --accent-line: rgba(180,83,9,.28);
-  --accent-edge: rgba(180,83,9,.46);
-  --accent-glow: rgba(245,158,11,.24);
+  --accent:      #4f46e5;
+  --accent-ink:  #4f46e5;
+  --accent-2:    #818cf8;
+  --accent-3:    #4338ca;
+  --accent-mid:  #6366f1;
+  --accent-deep: #3730a3;
+  --on-accent:   #ffffff;
+  --accent-soft: rgba(99,102,241,.13);
+  --accent-wash: rgba(99,102,241,.07);
+  --accent-line: rgba(79,70,229,.28);
+  --accent-edge: rgba(79,70,229,.46);
+  --accent-glow: rgba(99,102,241,.22);
 
   --red:        #dc2626;
   --red-line:   rgba(220,38,38,.35);
   --red-glow:   rgba(220,38,38,.35);
-  --danger-bg:  #fff1f1;
+  --danger-bg:  #fff1f2;
   --good:       #059669;
   --violet:     #7c3aed;
   --indigo:     #4f46e5;
+  --pink:       #db2777;
+  --teal:       #0d9488;
+  --cyan:       #0891b2;
+  --info:       #2563eb;
 
-  --tabbar-bg:  rgba(255,250,240,.95);
-  --overlay:    rgba(28,22,12,.42);
-  --overlay-2:  rgba(28,22,12,.50);
-  --overlay-3:  rgba(28,22,12,.62);
-  --shadow-1:   rgba(60,48,28,.07);
-  --shadow-2:   rgba(60,48,28,.11);
-  --shadow-3:   rgba(60,48,28,.20);
+  --tabbar-bg:  rgba(246,246,251,.95);
+  --overlay:    rgba(18,18,38,.42);
+  --overlay-2:  rgba(18,18,38,.50);
+  --overlay-3:  rgba(18,18,38,.62);
+  --shadow-1:   rgba(30,28,60,.07);
+  --shadow-2:   rgba(30,28,60,.11);
+  --shadow-3:   rgba(30,28,60,.20);
   --sheen:      rgba(255,255,255,.55);
 
   --plate-ink:  #ffffff;
   --plate-edge: rgba(0,0,0,.18);
 
   --cell-bg:     #ffffff;
-  --cell-border: #efe3d1;
-  --cell-text:   #4b463d;
+  --cell-border: #e2e2ee;
+  --cell-text:   #3a3a55;
 
-  --chart-grid: rgba(60,48,28,.12);
-  --chart-1: #b45309;
-  --chart-2: #f59e0b;
-  --chart-3: #7c3aed;
-  --chart-4: #059669;
+  --chart-grid: rgba(30,28,60,.12);
+  --chart-1: #4f46e5;
+  --chart-2: #7c3aed;
+  --chart-3: #db2777;
+  --chart-4: #b45309;
 
-  --tier-foundation: #a8a29e;
-  --tier-core:       #f59e0b;
-  --tier-advanced:   #b45309;
-  --tier-elite:      #059669;
+  --tier-foundation: #9a9aab;
+  --tier-core:       #db2777;
+  --tier-advanced:   #4f46e5;
+  --tier-elite:      #b45309;
 
   /* --- accent + highlighter system --- */
-  --blue:        #d97706;
-  --blue-ink:    #b45309;
-  --hl:          #eaf962;
-  --hl-ink:      #6b7a00;      /* highlighter is unreadable as text on cream */
+  --blue:        #4f46e5;
+  --blue-ink:    #4f46e5;
+  --hl:          #f59e0b;      /* gold fill stays; gold TEXT does not work here */
+  --hl-ink:      #8a5a00;
   --on-hl:       #1a1205;
-  --ink-surface: #111827;
+  --ink-surface: #14142b;
   --on-ink:      #ffffff;
-  --primary:     #f59e0b;
-  --on-primary:  #1a1205;
+  --primary:     #4f46e5;
+  --on-primary:  #ffffff;
 }
 
 * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
