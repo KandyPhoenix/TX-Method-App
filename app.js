@@ -513,6 +513,17 @@ function fpFocusWarmup() {
   ];
 }
 
+/* Relational Capacity and Working Memory are not in FP_POOLS on purpose — you
+   cannot train them with a squat, so they never steer exercise selection. But
+   a low score should not simply vanish either, so the session names it. */
+function fpNonPhysicalNote() {
+  const out = [];
+  const rel = fpGet('relational_capacity');
+  const wm  = fpGet('working_memory');
+  if (rel && rel.score < 40) out.push('Your Relational Capacity is low — that carries more risk than any lift here. Put one contact in the diary this week.');
+  if (wm && wm.score < 40) out.push('Working Memory is low; the aerobic work in this plan is the intervention with the best evidence behind it.');
+  return out.length ? ' ' + out.join(' ') : '';
+}
 function fpFocusDay(dayIdx) {
   const order = fpWeakestOrder();
   /* rotate which of the weak markers leads, so four weeks is not one session
@@ -535,7 +546,8 @@ function fpFocusDay(dayIdx) {
     note: 'Built from your Fingerprint. Today leads on ' + nice(lead) +
           (e ? ' — currently ' + e.score + '%, your weakest assessed marker.'
              : ' — not yet assessed, so it is being trained on the assumption it needs work.') +
-          ' Assess more markers in the Fingerprint tab and this plan re-orders itself.',
+          ' Assess more markers in the Fingerprint tab and this plan re-orders itself.' +
+          fpNonPhysicalNote(),
     exercises
   };
 }
@@ -1055,6 +1067,7 @@ function render() {
   if (TAB === 'stats')   renderStats();
   if (TAB === 'fp')      renderFingerprint();
   if (TAB === 'setup')   renderSetup();
+  updateSessionUI();   /* keeps the session bar in step with the current tab */
   if (typeof updateWakeLock === 'function') updateWakeLock();
 }
 
@@ -3922,8 +3935,11 @@ function updateSessionUI() {
   const rf = document.getElementById('railFill'); if (rf) rf.style.width = pct + '%';
 }
 
-/* one ticker for the whole app — only repaints while the Roadmap is showing */
-setInterval(() => { if (TAB === 'today') updateSessionUI(); }, 1000);
+/* One ticker for the whole app. It must run on EVERY tab, not just the
+   Roadmap: updateSessionUI() is also what hides the session bar, so gating the
+   interval on TAB left the bar frozen on screen after navigating away. It
+   early-returns cheaply everywhere else. */
+setInterval(updateSessionUI, 1000);
 
 /* =====================================================================
    PROTOCOLS  (browsable library, after The Standard's Protocols screen)
@@ -4244,15 +4260,146 @@ const FP_ASSESS = {
       elite:      'Top-percentile aerobic capacity. This is the number most worth defending as you age — it buys more independent years than any other marker here.'
     }
   }
+,
+
+  /* ---------------- Endurance under load ---------------- */
+  endurance_under_load: {
+    id: 'endurance_under_load', axis: 'endurance_under_load', title: 'Endurance Under Load', duration: '4 min',
+    kicker: '30-second sit-to-stand',
+    description: 'How many times you can stand from a chair in thirty seconds. It measures repeated force production under your own bodyweight — leg endurance rather than peak strength — and it is one of the best-validated field tests there is, drawn from the Senior Fitness Test battery.',
+    steps: [
+      ['Setup requirements', 'A straight-backed chair about 17 inches (43 cm) high, against a wall so it cannot slide. No arms, or arms you will not use. A timer.'],
+      ['Movement', 'Sit in the middle of the seat, feet flat, arms crossed over your chest with hands on opposite shoulders. On "go", stand fully upright, then sit back down completely. Repeat as many times as you can in thirty seconds.'],
+      ['Measurement', 'Count every full stand. If you are more than halfway up when time expires, count it. Arms must stay crossed — pushing off your thighs makes this a different test.'],
+      ['Contraindications', 'Skip this with acute knee or hip pain, recent lower-limb surgery, or if standing unaided is not currently safe for you.']
+    ],
+    why: 'Leg endurance is what actually fails first in daily life — the fourth flight of stairs, standing up from a low sofa, getting off the floor. It predicts future mobility limitation earlier and more reliably than grip or single-rep strength, and it is trainable at any age.',
+    input: { label: 'Full stands in 30 seconds', units: [['reps', 1]], hint: 'Scored against age- and sex-referenced norms.' },
+    /* Median full stands by age band. Anchored on the Senior Fitness Test
+       (Rikli & Jones) tables for 60+, extended sensibly for younger adults. */
+    norms: {
+      median: { male:   [[39, 25], [49, 23], [59, 20], [69, 17], [79, 14], [199, 12]],
+                female: [[39, 22], [49, 20], [59, 18], [69, 15], [79, 13], [199, 11]] },
+      sd: 4.2
+    },
+    score(v, s) {
+      if (!(v > 0)) return 0;
+      const sex = s.sex === 'male' ? 'male' : 'female';
+      const m = fpBand(this.norms.median[sex], s.age || 45);
+      return fpPct((v - m) / this.norms.sd);
+    },
+    blurb: {
+      foundation: 'Below the range for your age group. Sit-to-stands are their own remedy — three sets to near-failure, twice a week, moves this quickly.',
+      core:       'A workable base. Add load (hold a dumbbell at the chest) or slow the descent to keep this climbing.',
+      advanced:   'Strong leg endurance for your age group. Progress by loading it rather than by adding reps.',
+      elite:      'Top-percentile leg endurance. This is the marker that quietly protects your independence — worth defending.'
+    }
+  },
+
+  /* ---------------- Agility ---------------- */
+  agility: {
+    id: 'agility', axis: 'agility', title: 'Agility', duration: '4 min',
+    kicker: '8-foot up-and-go',
+    description: 'Stand from a chair, walk eight feet around a marker, and sit back down — timed. It measures the whole chain of getting up, changing direction and controlling deceleration, which is what actually keeps you upright when you catch a toe on a kerb. Faster is better on this one.',
+    steps: [
+      ['Setup requirements', 'The same chair against a wall, and a cone, bottle or shoe placed exactly 8 feet (2.44 m) in front of it, measured from the front edge of the seat. Clear floor, normal shoes.'],
+      ['Movement', 'Start seated, back against the chair, hands on thighs, feet flat. On "go", stand, walk as quickly as you safely can around the marker (either side), return and sit fully back down.'],
+      ['Measurement', 'Time from "go" to the moment you are seated again. Take two attempts with a minute between, and record the faster one. Walk — do not run.'],
+      ['Contraindications', 'Skip this if you have any significant balance impairment, use a walking aid, or have been advised against unassisted turning.']
+    ],
+    why: 'Almost no fall happens standing still. It happens during a transition — rising, turning, changing direction — which is exactly what this test times. It declines earlier than straight-line walking speed, so it catches trouble sooner.',
+    input: { label: 'Best time', units: [['sec', 1]], hint: 'Faster is better. Scored against age- and sex-referenced norms.' },
+    /* Median seconds by age band, anchored on the Senior Fitness Test 8-ft
+       up-and-go tables for 60+ and extended for younger adults. LOWER IS
+       BETTER, so the z-score is inverted below. */
+    norms: {
+      median: { male:   [[39, 3.8], [49, 4.2], [59, 4.7], [69, 5.2], [79, 6.0], [199, 7.2]],
+                female: [[39, 4.0], [49, 4.4], [59, 4.9], [69, 5.4], [79, 6.3], [199, 7.6]] },
+      sd: 0.9
+    },
+    score(v, s) {
+      if (!(v > 0)) return 0;
+      const sex = s.sex === 'male' ? 'male' : 'female';
+      const m = fpBand(this.norms.median[sex], s.age || 45);
+      /* inverted: a smaller time is a better result */
+      return fpPct((m - v) / this.norms.sd);
+    },
+    blurb: {
+      foundation: 'Slower than the range for your age group. Practise the transition itself — stand, turn, sit, repeated deliberately — rather than only walking more.',
+      core:       'A solid baseline. Add direction changes: lateral shuffles, carioca, and turning drills carry over directly.',
+      advanced:   'Quick transitions for your age group. Keep the skill sharp with regular change-of-direction work.',
+      elite:      'Top-percentile agility. This is the marker most protective against falls, and you are holding it well.'
+    }
+  }
+,
+
+  /* ---------------- Relational capacity ---------------- */
+  relational_capacity: {
+    id: 'relational_capacity', axis: 'relational_capacity', title: 'Relational Capacity', duration: '3 min',
+    kicker: 'Social network inventory', kind: 'survey',
+    description: 'Six questions about the people around you: how many you are in regular contact with, how many you could call on for help, and how many you can talk to about private things. Social connection is not a soft marker — weak social ties carry a mortality risk comparable to smoking, and larger than obesity or physical inactivity.',
+    steps: [
+      ['What this asks', 'Three questions about relatives and the same three about friends. Count people, not interactions.'],
+      ['Answer honestly', 'Count only people you actually see or hear from — not everyone you could theoretically call. Undercounting is the more common error here than overcounting.'],
+      ['Measurement', 'Each answer scores nought to five, for a total out of thirty. A total below twelve is the threshold researchers use to flag social isolation.'],
+      ['Note', 'This is modelled on the structure of published social-network scales rather than being a reproduction of a clinical instrument. Treat it as a prompt to look at your connections, not a diagnosis.']
+    ],
+    why: 'Isolation acts on the body, not just the mood: it raises inflammatory markers, disrupts sleep, and predicts cognitive decline independently of how much you exercise. Of all eight markers here, this is the one most likely to be quietly neglected by someone who trains seriously.',
+    survey: [
+      'How many relatives do you see or hear from at least once a month?',
+      'How many relatives could you call on for help if you needed it?',
+      'How many relatives can you talk to about private matters?',
+      'How many friends do you see or hear from at least once a month?',
+      'How many friends could you call on for help if you needed it?',
+      'How many friends can you talk to about private matters?'
+    ],
+    surveyOptions: ['0', '1', '2', '3-4', '5-8', '9+'],
+    /* total out of 30; population centre ~17.5 */
+    norms: { median: 17.5, sd: 6 },
+    score(v) {
+      return fpPct((v - this.norms.median) / this.norms.sd);
+    },
+    blurb: {
+      foundation: 'This is in the range researchers associate with social isolation. It is also the most fixable marker here — one standing weekly contact, put in the diary like a training session, changes it.',
+      core:       'A reasonable network. Depth matters more than breadth from here: one or two relationships you can be genuinely honest in outweigh a wider circle.',
+      advanced:   'A strong network for regular contact and support. Worth protecting deliberately as schedules shift.',
+      elite:      'An unusually well-connected result. On the evidence this is doing as much for your longevity as your training is.'
+    }
+  },
+
+  /* ---------------- Working memory ---------------- */
+  working_memory: {
+    id: 'working_memory', axis: 'working_memory', title: 'Working Memory', duration: '5 min',
+    kicker: 'Digit span', kind: 'digitspan',
+    description: 'A sequence of digits appears one at a time; you type them back in order. The sequence gets longer until you miss twice at the same length. Your span — the longest run you can hold and reproduce — is a direct measure of working memory capacity.',
+    steps: [
+      ['Setup requirements', 'Somewhere quiet, for five minutes, with no one talking to you. Phone notifications off. This is genuinely sensitive to distraction.'],
+      ['Movement', 'Watch the digits appear. When the sequence ends, type what you saw, in order. Do not write anything down and do not say them aloud — both turn this into a different test.'],
+      ['Measurement', 'Two attempts at each length. Get either one right and the sequence grows; miss both and the test ends. Your score is the longest length you completed.'],
+      ['Contraindications', 'None physical. Do not bother taking it exhausted or after a poor night — you will measure your sleep, not your memory.']
+    ],
+    why: 'Working memory is the scratchpad everything else runs on: following a conversation in a noisy room, holding a plan while executing it, keeping track mid-task. It declines gradually from the thirties, and the decline is steeper in people who are sedentary — which is one of the clearer links between training and cognition.',
+    /* Forward digit span. Adult mean sits near seven, drifting down with age. */
+    norms: {
+      median: [[39, 7.0], [49, 6.8], [59, 6.5], [69, 6.2], [199, 5.8]],
+      sd: 1.3
+    },
+    score(v, s) {
+      if (!(v > 0)) return 0;
+      const m = fpBand(this.norms.median, s.age || 45);
+      return fpPct((v - m) / this.norms.sd);
+    },
+    blurb: {
+      foundation: 'Below the typical span for your age group. Worth retaking rested before reading anything into it — this test punishes tiredness harder than it punishes age.',
+      core:       'A typical span for your age group. Aerobic work is the intervention with the best evidence behind it for holding this steady.',
+      advanced:   'Above the typical span for your age group. Keep loading it — novelty and complexity, not repetition of things you already do well.',
+      elite:      'An excellent span. Combined with your aerobic work this is the pairing most associated with cognitive resilience later on.'
+    }
+  }
 };
 
 /* Markers The Standard scores but we can't yet, shown honestly as locked. */
-const FP_PENDING = {
-  endurance_under_load: 'Loaded carry protocol — norms not yet sourced.',
-  agility:              'Change-of-direction test — needs a measured course and norms.',
-  relational_capacity:  'Not a physical marker.',
-  working_memory:       'Not a physical marker.'
-};
+const FP_PENDING = {};
 
 function fpState() { if (!S.fp) S.fp = {}; return S.fp; }
 function fpGet(axis) { return fpState()[axis] || null; }
@@ -4387,6 +4534,137 @@ function fpOpen(axis) {
 }
 function fpClose() { fpCur = null; const el = document.getElementById('fpSheet'); if (el) el.remove(); }
 
+/* ---------------------------------------------------------------------
+   Two assessment formats that are not "type in a number".
+   --------------------------------------------------------------------- */
+
+let fpSurveyAns = [];
+function fpSurveySheet(el, a) {
+  if (fpSurveyAns.length !== a.survey.length) fpSurveyAns = a.survey.map(() => -1);
+  const rows = a.survey.map((q, i) => `
+    <div class="fp-q">
+      <div class="fp-q-text">${i + 1}. ${q}</div>
+      <div class="fp-q-opts">${a.surveyOptions.map((o, v) =>
+        `<button class="fp-q-opt ${fpSurveyAns[i] === v ? 'on' : ''}" data-q="${i}" data-v="${v}">${o}</button>`).join('')}</div>
+    </div>`).join('');
+  const answered = fpSurveyAns.filter(x => x >= 0).length;
+  const done = answered === a.survey.length;
+  el.innerHTML = `<div class="fp-panel">
+    <div class="fp-panel-head">
+      <div><div class="fp-kicker">Enter your result</div><div class="fp-title">${a.title}</div></div>
+      <button class="prof-close" id="fpX">✕</button>
+    </div>
+    ${rows}
+    <div class="hint">${answered} of ${a.survey.length} answered</div>
+    <button class="btn primary" id="fpCalc" ${done ? '' : 'disabled'}>Calculate my score</button>
+    <button class="btn secondary" id="fpCancel">Cancel</button>
+  </div>`;
+  el.querySelector('#fpX').onclick = () => { fpSurveyAns = []; fpClose(); };
+  el.querySelector('#fpCancel').onclick = () => { fpSurveyAns = []; fpClose(); };
+  el.querySelectorAll('.fp-q-opt').forEach(b => b.onclick = () => {
+    fpSurveyAns[+b.dataset.q] = +b.dataset.v;
+    fpSurveySheet(el, a);                       /* re-render keeps state visible */
+  });
+  const calc = el.querySelector('#fpCalc');
+  if (calc && done) calc.onclick = () => {
+    const total = fpSurveyAns.reduce((n, v) => n + Math.max(0, v), 0);
+    const sc = a.score(total, S.settings);
+    fpSave(a.axis, total, 'pts', sc);
+    fpSurveyAns = [];
+    fpRenderSheet('result', sc);
+  };
+}
+
+/* digit span: show a sequence, type it back, grow until two misses at a length */
+let fpDig = null;
+function fpDigitSheet(el, a) {
+  if (!fpDig) fpDig = { level: 3, fails: 0, best: 0, phase: 'ready', seq: [] };
+  const d = fpDig;
+
+  const finish = () => {
+    const best = d.best;
+    fpDig = null;
+    if (!best) { toast('No length completed — try again when rested'); fpClose(); return; }
+    const sc = a.score(best, S.settings);
+    fpSave(a.axis, best, 'digits', sc);
+    fpRenderSheet('result', sc);
+  };
+
+  const wrap = inner => {
+    el.innerHTML = `<div class="fp-panel fp-dig">
+      <div class="fp-panel-head">
+        <div><div class="fp-kicker">Digit span</div><div class="fp-title">${a.title}</div></div>
+        <button class="prof-close" id="fpX">✕</button>
+      </div>${inner}</div>`;
+    el.querySelector('#fpX').onclick = () => { fpDig = null; fpClose(); };
+  };
+
+  if (d.phase === 'ready') {
+    wrap(`<div class="dig-stage">
+        <div class="dig-level">${d.level} digits</div>
+        <div class="dig-hint">${d.best ? 'Best so far: ' + d.best + ' digits. ' : ''}Watch the sequence, then type it back in order.</div>
+      </div>
+      <button class="btn primary" id="digGo">Show sequence</button>
+      <button class="btn secondary" id="digQuit">${d.best ? 'Finish and score' : 'Cancel'}</button>`);
+    el.querySelector('#digGo').onclick = () => {
+      d.seq = Array.from({ length: d.level }, () => Math.floor(Math.random() * 10));
+      d.phase = 'show';
+      fpDigitSheet(el, a);
+    };
+    el.querySelector('#digQuit').onclick = () => { if (d.best) finish(); else { fpDig = null; fpClose(); } };
+    return;
+  }
+
+  if (d.phase === 'show') {
+    wrap(`<div class="dig-stage"><div class="dig-digit" id="digDigit">&nbsp;</div>
+      <div class="dig-hint">Watching…</div></div>`);
+    const cell = el.querySelector('#digDigit');
+    let i = 0;
+    /* Each showing gets a token. Re-entering this phase — reopening the test,
+       a re-render, a double tap on Show — starts a new chain, and without a
+       token the old one keeps writing digits and flipping phase underneath it.
+       Two chains interleaving left the test stuck on "Watching..." forever. */
+    d.run = (d.run || 0) + 1;
+    const myRun = d.run;
+    const step = () => {
+      if (!fpDig || fpDig !== d || d.phase !== 'show' || d.run !== myRun) return;
+      if (i >= d.seq.length) {
+        cell.innerHTML = '&nbsp;';
+        d.phase = 'input';
+        setTimeout(() => fpDigitSheet(el, a), 260);
+        return;
+      }
+      cell.textContent = d.seq[i++];
+      setTimeout(() => { cell.innerHTML = '&nbsp;'; setTimeout(step, 220); }, 700);
+    };
+    setTimeout(step, 420);
+    return;
+  }
+
+  if (d.phase === 'input') {
+    wrap(`<div class="dig-stage">
+        <input class="dig-input" id="digIn" inputmode="numeric" autocomplete="off"
+               placeholder="${'•'.repeat(d.level)}" />
+        <div class="dig-hint">Type the ${d.level} digits in order</div>
+      </div>
+      <button class="btn primary" id="digSubmit">Check</button>`);
+    const inp = el.querySelector('#digIn');
+    setTimeout(() => inp.focus(), 40);
+    const submit = () => {
+      const ok = inp.value.replace(/[^0-9]/g, '') === d.seq.join('');
+      if (ok) { d.best = d.level; d.level++; d.fails = 0; }
+      else { d.fails++; }
+      if (!ok && d.fails >= 2) { finish(); return; }
+      toast(ok ? 'Correct — going longer' : 'Missed — one more try at ' + d.level);
+      d.phase = 'ready';
+      fpDigitSheet(el, a);
+    };
+    el.querySelector('#digSubmit').onclick = submit;
+    inp.onkeydown = e => { if (e.key === 'Enter') submit(); };
+    return;
+  }
+}
+
 function fpRenderSheet(stage, payload) {
   const a = FP_ASSESS[fpCur]; if (!a) return;
   let el = document.getElementById('fpSheet');
@@ -4416,6 +4694,8 @@ function fpRenderSheet(stage, payload) {
   }
 
   if (stage === 'input') {
+    if (a.kind === 'survey')    { fpSurveySheet(el, a); return; }
+    if (a.kind === 'digitspan') { fpDigitSheet(el, a);  return; }
     const u = a.input.units;
     el.innerHTML = `<div class="fp-panel">
       <div class="fp-panel-head">

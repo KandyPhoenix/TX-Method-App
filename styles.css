@@ -1245,3 +1245,39 @@ table.prog { font-size: 13px; }
 
 table.prog    { font-size: clamp(11px, 2.4vw, 13px); }
 table.prog td { padding: 6px 4px; }
+/* ---- survey-style assessment ---- */
+.fp-q { padding: 14px 0; border-bottom: 1px solid var(--border); }
+.fp-q:last-of-type { border-bottom: none; }
+.fp-q-text { font-size: 13.5px; line-height: 1.5; color: var(--text); margin-bottom: 10px; }
+.fp-q-opts { display: flex; gap: 6px; flex-wrap: wrap; }
+.fp-q-opt {
+  flex: 1; min-width: 42px; padding: 9px 4px; cursor: pointer;
+  border-radius: var(--r-btn); border: 1px solid var(--border);
+  background: var(--bg2); color: var(--muted);
+  font-family: var(--display); font-size: 12px; font-weight: 700;
+}
+.fp-q-opt.on { background: var(--primary); border-color: var(--primary); color: var(--on-primary); }
+.fp-panel .btn[disabled] { opacity: .45; cursor: not-allowed; }
+
+/* ---- digit span ---- */
+.dig-stage {
+  display: grid; place-items: center; gap: 10px;
+  min-height: 168px; margin: 6px 0 14px;
+  background: var(--bg2); border-radius: var(--r-card); padding: 20px;
+}
+.dig-digit {
+  font-family: var(--display); font-size: 76px; font-weight: 900;
+  line-height: 1; color: var(--text); font-variant-numeric: tabular-nums;
+}
+.dig-level {
+  font-family: var(--display); font-size: 30px; font-weight: 900;
+  text-transform: uppercase; color: var(--accent-ink);
+}
+.dig-hint { font-size: 12.5px; color: var(--muted); text-align: center; line-height: 1.5; max-width: 260px; }
+.dig-input {
+  width: 100%; text-align: center; letter-spacing: 8px;
+  font-family: var(--display); font-size: 30px; font-weight: 800;
+  padding: 12px; border-radius: var(--r-btn);
+  background: var(--panel); border: 2px solid var(--border); color: var(--text);
+}
+.dig-input:focus { outline: none; border-color: var(--primary); }
