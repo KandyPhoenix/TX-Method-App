@@ -905,7 +905,7 @@ function render() {
   document.querySelectorAll('.tab').forEach(t => t.classList.toggle('active', t.dataset.tab === TAB));
   const prep = isDayProgram();
   if (TAB === 'today')   prep ? renderPrepToday()   : renderToday();
-  if (TAB === 'program') prep ? renderPrepProgram() : renderProgram();
+  if (TAB === 'program') { prep ? renderPrepProgram() : renderProgram(); mountProtocols(); }
   if (TAB === 'stats')   renderStats();
   if (TAB === 'fp')      renderFingerprint();
   if (TAB === 'setup')   renderSetup();
@@ -917,26 +917,75 @@ function render() {
    ===================================================================== */
 const DAY_NAMES = ['Monday · Volume', 'Wednesday · Light', 'Friday · Intensity'];
 
+
+/* =====================================================================
+   ROADMAP  (hero + week strip, after The Standard's Roadmap screen)
+   ===================================================================== */
+/* Rough session length for a Texas day — the day-programs have estDayMin(),
+   barbell days don't, and the hero banner wants a number either way. */
+function estTexasMin(lifts) {
+  const sets = lifts.reduce((n, lf) => n + ((lf.sets && lf.sets.length) || 3) + 3, 0);
+  return Math.max(20, Math.round(sets * 2.2 / 5) * 5);
+}
+
+function weekStripHTML() {
+  const done = new Set(S.history || []);
+  const now = new Date(); now.setHours(0, 0, 0, 0);
+  /* week runs Mon..Sun; getDay() is 0=Sun so shift by 6 */
+  const monday = new Date(now);
+  monday.setDate(now.getDate() - ((now.getDay() + 6) % 7));
+  const LBL = ['M', 'T', 'W', 'T', 'F', 'S', 'S'];
+  let cells = '', n = 0;
+  for (let i = 0; i < 7; i++) {
+    const d = new Date(monday); d.setDate(monday.getDate() + i);
+    const isDone = done.has(isoDate(d));
+    const isToday = d.getTime() === now.getTime();
+    if (isDone) n++;
+    cells += `<div class="day-chip ${isDone ? 'done' : ''} ${isToday ? 'today' : ''}">
+      <span class="d">${LBL[i]}</span><span class="n">${isDone ? '✓' : d.getDate()}</span></div>`;
+  }
+  return `<div class="week">${cells}<span class="week-count">${n}/7</span></div>`;
+}
+
+function roadmapTop(o) {
+  const start = o.rest ? '' :
+    `<button class="btn primary" id="startSession">▶ Start</button>`;
+  return `
+  <div class="hl-banner">${o.rest ? 'Rest day &nbsp;|&nbsp; recover' : `Workout &nbsp;|&nbsp; ≈${o.mins} min`}</div>
+  <div class="hero">
+    <div class="hero-art" aria-hidden="true">${o.art}</div>
+    <div class="hero-kicker">${o.kicker}</div>
+    <div class="hero-title">${o.title}</div>
+    <div class="hero-sub">${o.sub}</div>
+    <div class="hero-actions">
+      <button class="btn ghost-hl" id="${o.prevId}" style="flex:0 0 44px" ${o.prevDisabled ? 'disabled' : ''}>‹</button>
+      ${start}
+      <button class="btn ghost-hl" id="${o.nextId}" ${o.nextDisabled ? 'disabled' : ''}>Skip ›</button>
+    </div>
+  </div>
+  <h2 class="section">This week</h2>
+  ${weekStripHTML()}
+  <button class="link-btn" id="rmLogLift">+ Log a lift</button>`;
+}
+
 function renderToday() {
   const { week, day } = S.cursor;
   const w = PROGRAM[week];
-  titleEl.textContent = 'Today';
+  titleEl.textContent = 'Roadmap';
   subEl.textContent   = `Cycle ${w.label} · Week ${w.subweek} · ${DAY_NAMES[day]}`;
 
   const logKey = `${week}-${day}`;
   const log    = S.logs[logKey] || { checks: {}, reps: {} };
 
-  let html = `<div class="screen">
-    <div class="card" style="display:flex;align-items:center;justify-content:space-between;">
-      <button class="btn small secondary" id="prevDay">‹ Prev</button>
-      <div class="center">
-        <div style="font-weight:800;font-size:19px;">${DAY_NAMES[day].split(' · ')[0]}</div>
-        <div class="tiny muted">${DAY_NAMES[day].split(' · ')[1]} day</div>
-      </div>
-      <button class="btn small secondary" id="nextDay">Next ›</button>
-    </div>
-    <button class="btn primary" id="startSession">▶ Start Guided Workout</button>
-    <div class="spacer"></div>`;
+  let html = `<div class="screen">` + roadmapTop({
+    kicker: `Texas Method · Cycle ${w.label} · Week ${w.subweek}`,
+    title:  DAY_NAMES[day].split(" · ")[0],
+    sub:    DAY_NAMES[day].split(" · ")[1] + " day",
+    mins:   estTexasMin(w.days[day]),
+    rest:   false,
+    art:    "🏋️",
+    prevId: "prevDay", nextId: "nextDay"
+  });
 
   for (const lf of w.days[day]) html += liftCard(lf, logKey, log);
 
@@ -1102,18 +1151,20 @@ function prepDaysComplete() {
 function renderPrepToday() {
   const dayNum = pstate().day;
   const d = pdata()[dayNum - 1];
-  titleEl.textContent = 'Today';
+  titleEl.textContent = 'Roadmap';
   subEl.textContent   = `${pLabel()} · Day ${dayNum} of ${ptotal()}`;
 
-  let html = `<div class="screen">
-    <div class="card" style="display:flex;align-items:center;justify-content:space-between;">
-      <button class="btn small secondary" id="prepPrev" ${dayNum <= 1 ? 'disabled' : ''}>‹ Prev</button>
-      <div class="center">
-        <div style="font-weight:800;font-size:19px;">${d.title || `Day ${dayNum}`}</div>
-        <div class="tiny muted">${[d.title ? `Day ${dayNum}` : '', (w => w ? fmtPrepDate(w) : '')(prepDateFor(dayNum)), d.rest ? '' : `≈${estDayMin(d)} min`, `${prepDaysComplete()}/${pWorkDays()} done`].filter(Boolean).join(' · ')}</div>
-      </div>
-      <button class="btn small secondary" id="prepNext" ${dayNum >= ptotal() ? 'disabled' : ''}>Next ›</button>
-    </div>`;
+  let html = `<div class="screen">` + roadmapTop({
+    kicker: `${pLabel()} · Day ${dayNum} of ${ptotal()}`,
+    title:  d.title || `Day ${dayNum}`,
+    sub:    [(x => x ? fmtPrepDate(x) : "")(prepDateFor(dayNum)),
+             `${prepDaysComplete()}/${pWorkDays()} done`].filter(Boolean).join(" · "),
+    mins:   d.rest ? 0 : estDayMin(d),
+    rest:   !!d.rest,
+    art:    d.rest ? "😴" : "💪",
+    prevId: "prepPrev", prevDisabled: dayNum <= 1,
+    nextId: "prepNext", nextDisabled: dayNum >= ptotal()
+  });
 
   if (d.rest) {
     html += `<div class="card lift" style="text-align:center;padding:34px 16px;">
@@ -1125,7 +1176,7 @@ function renderPrepToday() {
   } else {
     const log = pstate().log[dayNum] || { checks: {} };
     if (d.note) html += `<div class="card"><div class="tiny muted" style="line-height:1.5">📋 ${d.note}</div></div>`;
-    html += `<button class="btn primary" id="startSession">▶ Start Guided Workout</button><div class="spacer"></div>`;
+    html += `<div class="spacer"></div>`;
     for (const item of prepDayItems(d)) {
       html += item.type === 'reps'
         ? prepExerciseCard(item.ex, item.setIndex, item.total, log)
@@ -1431,7 +1482,7 @@ function finishPrep() {
    30-DAY PREP — PROGRAM (calendar)
    ===================================================================== */
 function renderPrepProgram() {
-  titleEl.textContent = 'Program';
+  titleEl.textContent = 'Protocols';
   subEl.textContent   = `${pLabel()} · ${prepDaysComplete()} of ${pWorkDays()} done`;
 
   let cells = '';
@@ -1473,7 +1524,7 @@ function renderPrepProgram() {
    PROGRAM
    ===================================================================== */
 function renderProgram() {
-  titleEl.textContent = 'Program';
+  titleEl.textContent = 'Protocols';
   subEl.textContent   = '24 weeks · Texas Method';
   let pills = '<div class="scroller">';
   CYCLE_LABELS.forEach((lab, i) => {
@@ -2503,6 +2554,11 @@ function toast(msg) {
 }
 
 document.querySelectorAll('.tab').forEach(t => t.onclick = () => { TAB = t.dataset.tab; window.scrollTo(0,0); render(); });
+/* Roadmap's '+ Log a lift' jumps to the Stats lift tracker. Delegated, so it
+   survives the re-render that replaces the button on every screen draw. */
+view.addEventListener('click', e => {
+  if (e.target.closest('#rmLogLift')) { TAB = 'stats'; window.scrollTo(0, 0); render(); }
+});
 document.getElementById('rfresh').onclick = () => { TAB = 'today'; render(); toast('Today'); };
 
 /* ---- Profile switcher sheet ---- */
@@ -3316,6 +3372,95 @@ function finishSession() {
 }
 
 /* init */
+/* =====================================================================
+   PROTOCOLS  (browsable library, after The Standard's Protocols screen)
+   ---------------------------------------------------------------------
+   Layered ON TOP of the existing program detail view rather than replacing
+   it: mountProtocols() prepends into whatever renderProgram() /
+   renderPrepProgram() already drew, so the Texas table and the prep
+   calendar keep working untouched.
+   ===================================================================== */
+const PROTOCOLS = [
+  { key: 'texas',    ico: '🏋️', name: 'Texas Method',      tag: 'Strength',     grp: 'workout', sub: 'Barbell' },
+  { key: 'dumbbell', ico: '💪',         name: 'Dumbbell A/B',      tag: 'Strength',     grp: 'workout', sub: 'Dumbbells only' },
+  { key: 'prep30',   ico: '🗓️', name: '30-Day Prep',       tag: 'Strength',     grp: 'workout', sub: 'Bodyweight ramp-up' },
+  { key: 'sa2',      ico: '🫀',         name: 'SuperAge 2-Day',    tag: 'Longevity',    grp: 'workout', sub: '2 lifts + 1 long ride' },
+  { key: 'sa4',      ico: '❤️‍🔥', name: 'SuperAge Full Week', tag: 'Longevity', grp: 'workout', sub: '4 lifts + 3 rides' },
+  { key: 'sahyb',    ico: '🔀',         name: 'SuperAge Hybrid',   tag: 'Longevity',    grp: 'workout', sub: 'Week style rotates' },
+  { key: 'hiit',     ico: '⚡',          name: 'Full-Body HIIT',    tag: 'Conditioning', grp: 'workout', sub: 'Timed circuit' },
+  { key: 'bjj',      ico: '🥋',         name: 'BJJ Drills',        tag: 'Conditioning', grp: 'workout', sub: 'Jiu-jitsu movement' },
+  { key: 'core',     ico: '🔥',         name: 'Core & Abs',        tag: 'Conditioning', grp: 'workout', sub: 'Core builder' },
+  { key: 'mobility', ico: '🧘',         name: 'Mobility',          tag: 'Mobility',     grp: 'recovery', sub: 'Hips · knees · ankles' },
+  { key: 'pilates',  ico: '🤸',         name: 'Pilates Mat',       tag: 'Mobility',     grp: 'recovery', sub: 'Classical Pilates' }
+];
+
+/* length in days, so every card carries a duration the way The Standard's do */
+function protoLen(key) {
+  if (key === 'texas') return PROGRAM_RULES.totalWeeks + ' weeks';
+  const cfg = DAY_PROGRAMS[key];
+  return cfg ? cfg.data.length + ' days' : '';
+}
+
+function protoCard(p) {
+  const on = S.program === p.key;
+  return `<div class="proto ${on ? 'on' : ''}">
+    <div class="proto-art" aria-hidden="true">${p.ico}</div>
+    <div class="proto-body">
+      <span class="proto-tag">${p.tag}</span>
+      <div class="proto-nm">${p.name}</div>
+      <div class="proto-meta">${p.sub}${protoLen(p.key) ? ' · ' + protoLen(p.key) : ''}</div>
+      <button class="btn ${on ? 'secondary' : 'primary'}" data-proto="${p.key}">
+        ${on ? 'Current' : 'Start'}</button>
+    </div>
+  </div>`;
+}
+
+function protocolsLibraryHTML() {
+  const workouts = PROTOCOLS.filter(p => p.grp === 'workout').map(protoCard).join('');
+  const recovery = PROTOCOLS.filter(p => p.grp === 'recovery').map(protoCard).join('');
+
+  /* diagnostics mirror the Fingerprint tab — live ones are startable, the
+     rest are listed so the set of markers reads as complete */
+  const diag = FP_AXES.map(ax => {
+    const a = FP_ASSESS[ax.key], e = fpGet(ax.key);
+    const live = !!a;
+    return `<div class="proto ${live ? '' : 'locked-proto'}">
+      <div class="proto-art" aria-hidden="true">${live ? '🧬' : '🔒'}</div>
+      <div class="proto-body">
+        <span class="proto-tag">${live ? a.duration : 'Locked'}</span>
+        <div class="proto-nm">${ax.name}</div>
+        <div class="proto-meta">${e ? e.score + '% · ' + fpTier(e.score).name
+          : live ? 'Not yet assessed' : (FP_PENDING[ax.key] || '')}</div>
+        ${live ? `<button class="btn ${e ? 'secondary' : 'primary'}" data-diag="${ax.key}">${e ? 'Retake' : 'Take test'}</button>` : ''}
+      </div>
+    </div>`;
+  }).join('');
+
+  return `
+    <h2 class="section">Workouts</h2>
+    <div class="proto-grid">${workouts}</div>
+    <h2 class="section">Diagnostic tests</h2>
+    <div class="proto-grid">${diag}</div>
+    <h2 class="section">Recovery</h2>
+    <div class="proto-grid">${recovery}</div>
+    <h2 class="section">${pLabel()} · detail</h2>`;
+}
+
+function mountProtocols() {
+  const screen = view.querySelector('.screen') || view;
+  screen.insertAdjacentHTML('afterbegin', protocolsLibraryHTML());
+  screen.querySelectorAll('[data-proto]').forEach(b => b.onclick = () => {
+    const k = b.dataset.proto;
+    if (k === S.program) return;
+    S.program = k; save(); rebuild();
+    TAB = 'today'; window.scrollTo(0, 0); render();
+    toast(PROTOCOLS.find(p => p.key === k).name);
+  });
+  screen.querySelectorAll('[data-diag]').forEach(b => b.onclick = () => {
+    TAB = 'fp'; window.scrollTo(0, 0); render(); fpOpen(b.dataset.diag);
+  });
+}
+
 /* =====================================================================
    LONGEVITY FINGERPRINT
    ---------------------------------------------------------------------

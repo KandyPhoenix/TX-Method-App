@@ -19,18 +19,18 @@
   --dim:       #555555;
 
   /* accent ramp — `accent` fills, `accent-ink` writes on page background */
-  --accent:      #aaff00;
-  --accent-ink:  #aaff00;
-  --accent-2:    #88dd00;
-  --accent-3:    #66aa00;
-  --accent-mid:  #77cc00;
-  --accent-deep: #448800;
-  --on-accent:   #000000;
-  --accent-soft: rgba(170,255,0,.12);
-  --accent-wash: rgba(170,255,0,.06);
-  --accent-line: rgba(170,255,0,.30);
-  --accent-edge: rgba(170,255,0,.45);
-  --accent-glow: rgba(170,255,0,.35);
+  --accent:      #2b4fff;
+  --accent-ink:  #8aa0ff;
+  --accent-2:    #5b78ff;
+  --accent-3:    #4463e6;
+  --accent-mid:  #3d63ff;
+  --accent-deep: #24399e;
+  --on-accent:   #eaf962;
+  --accent-soft: rgba(43,79,255,.20);
+  --accent-wash: rgba(43,79,255,.10);
+  --accent-line: rgba(43,79,255,.42);
+  --accent-edge: rgba(43,79,255,.58);
+  --accent-glow: rgba(43,79,255,.38);
 
   /* status */
   --red:        #ff3333;
@@ -59,17 +59,30 @@
 
   /* canvas charts — read from JS via cssVar() at draw time */
   --chart-grid: rgba(255,255,255,.06);
-  --chart-1: #aaff00;
-  --chart-2: #77cc00;
-  --chart-3: #448800;
-  --chart-4: #ccff44;
+  --chart-1: #8aa0ff;
+  --chart-2: #4a68ff;
+  --chart-3: #2b4fff;
+  --chart-4: #eaf962;
 
   /* Fingerprint tiers — must stay visibly distinct from each other */
   --tier-foundation: #7b7b7b;
-  --tier-core:       #5f9c00;
-  --tier-advanced:   #9bf000;
-  --tier-elite:      #d6ff6b;
+  --tier-core:       #5b78ff;
+  --tier-advanced:   #2b4fff;
+  --tier-elite:      #eaf962;
 
+  /* --- The Standard system: black + blue, highlighter accents --- */
+  --blue:        #3d63ff;      /* lifted for legibility on black */
+  --blue-ink:    #7d97ff;      /* blue as text on a dark page */
+  --hl:          #eaf962;      /* highlighter */
+  --hl-ink:      #eaf962;
+  --ink-surface: #101010;      /* black card / hero */
+  --on-ink:      #ffffff;
+  --primary:     #2b4fff;
+  --on-primary:  #eaf962;
+  --r-card:      16px;
+  --r-btn:       12px;
+  --r-tag:       4px;
+  --display: Archivo, "Archivo Expanded", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
   --radius: 13px;
   --safe-top:    env(safe-area-inset-top, 0px);
   --safe-bottom: env(safe-area-inset-bottom, 0px);
@@ -94,18 +107,18 @@
 
   /* lime stays the fill so the brand survives; ink darkens so it is
      actually readable on white (#aaff00 on white is ~1.4:1). */
-  --accent:      #a8f000;
-  --accent-ink:  #4a7a00;
-  --accent-2:    #4e7f00;
-  --accent-3:    #446e00;
-  --accent-mid:  #7ab800;
-  --accent-deep: #3f6800;
-  --on-accent:   #16220a;
-  --accent-soft: rgba(122,184,0,.14);
-  --accent-wash: rgba(122,184,0,.08);
-  --accent-line: rgba(122,184,0,.38);
-  --accent-edge: rgba(122,184,0,.55);
-  --accent-glow: rgba(122,184,0,.28);
+  --accent:      #1a40ff;
+  --accent-ink:  #1a40ff;
+  --accent-2:    #2b4fff;
+  --accent-3:    #1533c9;
+  --accent-mid:  #4a68ff;
+  --accent-deep: #0f2a99;
+  --on-accent:   #eaf962;
+  --accent-soft: rgba(26,64,255,.10);
+  --accent-wash: rgba(26,64,255,.06);
+  --accent-line: rgba(26,64,255,.26);
+  --accent-edge: rgba(26,64,255,.46);
+  --accent-glow: rgba(26,64,255,.22);
 
   --red:        #d92222;
   --red-line:   rgba(217,34,34,.35);
@@ -129,16 +142,25 @@
   --cell-text:   #4b463d;
 
   --chart-grid: rgba(60,48,28,.12);
-  --chart-1: #3f6b00;
-  --chart-2: #6aa300;
-  --chart-3: #1f3d00;
-  --chart-4: #94c500;
+  --chart-1: #1a40ff;
+  --chart-2: #6b86ff;
+  --chart-3: #0d1f7a;
+  --chart-4: #b8cc00;
 
   --tier-foundation: #a9a294;
-  --tier-core:       #8aa63c;
-  --tier-advanced:   #5c8a08;
-  --tier-elite:      #2f5200;
-}
+  --tier-core:       #6b86ff;
+  --tier-advanced:   #1a40ff;
+  --tier-elite:      #9aad00;
+
+  /* --- The Standard system: black + blue, highlighter accents --- */
+  --blue:        #1a40ff;
+  --blue-ink:    #1a40ff;
+  --hl:          #eaf962;
+  --hl-ink:      #6b7a00;      /* highlighter is unreadable as text on cream */
+  --ink-surface: #000000;
+  --on-ink:      #ffffff;
+  --primary:     #1a40ff;
+  --on-primary:  #eaf962;}
 
 * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
 html, body { margin: 0; height: 100%; }
@@ -820,3 +842,132 @@ table.prog td.s { text-align: right; color: var(--muted); width: 60px; }
 }
 .fp-pill.elite { background: var(--accent); color: var(--on-accent); border-color: var(--accent); }
 .fp-result .fp-lede { margin: 14px 0 6px; }
+
+/* =====================================================================
+   THE STANDARD RESTYLE
+   Black + blue with highlighter accents, after standard.superage.com.
+   Appended as an override layer so the base component rules above stay
+   intact and this whole section can be lifted out in one piece.
+   ===================================================================== */
+:root { --on-hl: #10120a; }   /* highlighter is light in both themes */
+
+body { font-family: Archivo, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
+
+/* ---- display type: uppercase, heavy, tight leading ---- */
+.topbar h1 {
+  font-family: var(--display); text-transform: uppercase;
+  font-weight: 800; font-size: 19px; letter-spacing: -.2px; line-height: 1;
+}
+h2.section {
+  font-family: var(--display); font-size: 11px; font-weight: 700;
+  letter-spacing: 1.1px; color: var(--text); text-transform: uppercase;
+  display: flex; align-items: center; gap: 10px; margin: 20px 2px 9px;
+}
+h2.section::after { content: ''; flex: 1; height: 1px; background: var(--border); }
+
+/* ---- buttons ---- */
+.btn {
+  border-radius: var(--r-btn); font-family: var(--display);
+  text-transform: uppercase; letter-spacing: .9px; font-weight: 700; font-size: 12px;
+}
+.btn.primary { background: var(--primary); color: var(--on-primary); box-shadow: none; }
+.btn.primary:active { transform: scale(.985); box-shadow: none; }
+.btn.secondary { box-shadow: none; }
+.btn.hl { background: var(--hl); color: var(--on-hl); border: none; }
+.btn.ghost-hl { background: transparent; color: var(--hl); border: 1px solid var(--hl); }
+.link-btn {
+  background: none; border: none; border-bottom: 1px solid var(--border);
+  color: var(--blue-ink); font-family: var(--display); font-size: 11.5px;
+  font-weight: 700; text-transform: uppercase; letter-spacing: .9px;
+  padding: 13px 2px; cursor: pointer; width: 100%; text-align: left; display: block;
+}
+.card, .tile, .fp-card { border-radius: var(--r-card); }
+
+/* ---- highlighter banner ---- */
+.hl-banner {
+  background: var(--hl); color: var(--on-hl); border-radius: var(--r-card);
+  padding: 10px 16px; margin-bottom: 10px;
+  font-family: var(--display); font-size: 11.5px; font-weight: 700;
+  text-transform: uppercase; letter-spacing: 1px;
+}
+
+/* ---- hero (today's session) ---- */
+.hero {
+  position: relative; overflow: hidden; border-radius: var(--r-card);
+  background: var(--ink-surface); color: var(--on-ink);
+  padding: 16px; min-height: 172px; margin-bottom: 10px;
+  display: flex; flex-direction: column; justify-content: flex-end;
+}
+.hero-art { position: absolute; right: 6px; top: -6px; font-size: 104px; opacity: .13; line-height: 1; pointer-events: none; }
+.hero-kicker {
+  font-family: var(--display); font-size: 9.5px; font-weight: 700;
+  letter-spacing: 1.5px; text-transform: uppercase; color: var(--hl);
+}
+.hero-title {
+  font-family: var(--display); font-size: 25px; font-weight: 800;
+  text-transform: uppercase; line-height: .98; margin: 6px 0 4px;
+}
+.hero-sub { font-size: 12.5px; color: rgba(255,255,255,.62); margin-bottom: 13px; }
+.hero-actions { display: flex; gap: 9px; }
+.hero-actions .btn { margin: 0; flex: 1; font-size: 11px; padding: 11px 8px; }
+
+/* ---- week strip ---- */
+.week {
+  display: flex; align-items: center; gap: 5px;
+  background: var(--panel); border: 1px solid var(--border);
+  border-radius: var(--r-card); padding: 7px;
+}
+.week-lbl {
+  font-family: var(--display); font-size: 8.5px; font-weight: 700;
+  letter-spacing: 1px; text-transform: uppercase; color: var(--muted);
+  padding: 0 5px; flex: 0 0 auto;
+}
+.day-chip {
+  flex: 1; text-align: center; border-radius: 9px; padding: 5px 1px;
+  background: var(--bg2); border: 1px solid transparent; cursor: pointer; min-width: 0;
+}
+.day-chip .d { font-family: var(--display); font-size: 8.5px; font-weight: 700; color: var(--muted); display: block; }
+.day-chip .n { font-family: var(--display); font-size: 13px; font-weight: 800; display: block; }
+.day-chip.done { background: var(--hl); border-color: var(--hl); }
+.day-chip.done .d, .day-chip.done .n { color: var(--on-hl); }
+.day-chip.today { border-color: var(--primary); }
+.week-count { font-family: var(--display); font-weight: 800; font-size: 12.5px; padding: 0 6px; flex: 0 0 auto; }
+
+/* ---- protocol cards ---- */
+.proto-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; }
+.proto {
+  background: var(--panel); border: 1px solid var(--border);
+  border-radius: var(--r-card); overflow: hidden;
+  display: flex; flex-direction: column; text-align: left;
+}
+.proto-art {
+  height: 84px; background: var(--ink-surface);
+  display: grid; place-items: center; font-size: 34px; position: relative;
+}
+.proto-body { padding: 9px 10px 10px; display: flex; flex-direction: column; gap: 4px; flex: 1; }
+.proto-tag {
+  align-self: flex-start; font-family: var(--display); font-size: 8px;
+  letter-spacing: 1px; text-transform: uppercase; border-radius: var(--r-tag);
+  padding: 3px 6px; background: var(--bg2); color: var(--muted); font-weight: 700;
+}
+.proto-nm {
+  font-family: var(--display); font-size: 13px; font-weight: 800;
+  text-transform: uppercase; line-height: 1.06; color: var(--text);
+}
+.proto-meta { font-size: 11px; color: var(--muted); }
+.proto .btn { margin-top: auto; font-size: 10px; padding: 8px; width: 100%; }
+.proto.on { border-color: var(--primary); }
+.proto.on .proto-art { background: var(--primary); }
+.proto.on .proto-tag { background: var(--primary); color: var(--on-primary); }
+
+/* horizontal scroller — bleeds to the screen edge like The Standard's */
+.hscroll { display: flex; gap: 10px; overflow-x: auto; padding: 2px 14px 4px; margin: 0 -14px; }
+.hscroll::-webkit-scrollbar { display: none; }
+.hscroll .proto { min-width: 146px; max-width: 146px; flex: 0 0 auto; }
+
+@media (max-width: 380px) {
+  .hero-title { font-size: 21px; }
+  .day-chip .n { font-size: 12px; }
+}
+.proto.locked-proto { opacity: .5; }
+.proto.locked-proto .proto-art { background: var(--bg2); }
