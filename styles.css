@@ -1094,3 +1094,32 @@ h2.section::after { content: ''; flex: 1; height: 1px; background: var(--border)
 .mcal-cell { font-size: 13px; }
 .mcal-title { font-size: 16px; }
 table.prog { font-size: 13px; }
+
+/* ---- rail cards: one idea each, with room around it ---- */
+.session-rail .rail-card + .rail-card { margin-top: 14px; }
+.session-rail .rail-card { padding: 18px 18px 20px; }
+.rail-kicker { margin-bottom: 11px; letter-spacing: 1.6px; }
+.rail-next {
+  font-size: 16px; line-height: 1.22; margin-top: 0;
+  letter-spacing: .2px;
+}
+.rail-next-sub { font-size: 12.5px; line-height: 1.6; margin-top: 9px; }
+.rail-tip-body {
+  font-size: 13px; line-height: 1.75; margin-top: 11px;
+  /* keep the longest cues from turning the card into a wall of text */
+  display: -webkit-box; -webkit-line-clamp: 6; -webkit-box-orient: vertical; overflow: hidden;
+}
+
+/* the quote is the one card that gets to feel like a pause */
+.rail-quote-card { border-left: 3px solid var(--hl); }
+.rail-quote {
+  margin: 0; font-size: 15px; line-height: 1.68;
+  color: var(--text); font-weight: 500; letter-spacing: .1px;
+}
+.rail-quote-by {
+  margin-top: 11px; font-family: var(--display); font-size: 10px;
+  font-weight: 700; letter-spacing: 1.3px; text-transform: uppercase; color: var(--muted);
+}
+
+/* progress card keeps its own tighter rhythm — it earns the density */
+.session-rail .rail-card:first-child { padding: 16px 18px 18px; }

@@ -3462,10 +3462,43 @@ function railHTML() {
    progress rail beside it. appendChild MOVES the nodes, so every listener the
    renderer already bound survives intact. */
 
-/* Fills the dead space under the progress card. Rather than a generic quote,
-   this surfaces what you're about to do and the written cue for it — content
-   the app already carries in FORM_TIPS for ~60 exercises. */
+/* Fills the space under the progress card: what's next, the written cue for
+   it, and a line to sit with. Each is one idea with room around it — the
+   progress card reads calmly because it has a single hierarchy, and these
+   follow the same rule rather than packing text in. */
+const RAIL_LINES = [
+  ['Show up before you feel like it. The feeling follows the work.', ''],
+  ['Strength is a skill. You are practising, not proving.', ''],
+  ['The set you almost skipped is the one that moved the needle.', ''],
+  ['Slow is smooth. Smooth is strong.', ''],
+  ['You do not rise to the occasion. You fall to your training.', 'Archilochus'],
+  ['Consistency beats intensity, every week of the year.', ''],
+  ['Add a little. Recover well. Repeat. That is the whole method.', ''],
+  ['Train the body you want at eighty, starting today.', ''],
+  ['Form first. Load is a reward for control.', ''],
+  ['The bar does not care how you feel. Pick it up anyway.', ''],
+  ['Rest is part of the programme, not a break from it.', ''],
+  ['Small weights, honest reps, long horizon.', ''],
+  ['Power is the first thing to go and the fastest to come back.', ''],
+  ['Balance is trainable. So is everything you think you have lost.', ''],
+  ['Nobody regrets the session they finished.', ''],
+  ['Progress is boring up close and obvious from a distance.', '']
+];
+/* one line per day, stable across re-renders so it does not flicker mid-set */
+function railLine() {
+  const d = new Date();
+  const day = Math.floor((d - new Date(d.getFullYear(), 0, 0)) / 86400000);
+  return RAIL_LINES[day % RAIL_LINES.length];
+}
+
 function railExtrasHTML() {
+  const [quote, by] = railLine();
+  const quoteCard = `<div class="card rail-card rail-quote-card">
+      <div class="rail-kicker">Today</div>
+      <blockquote class="rail-quote">${quote}</blockquote>
+      ${by ? `<div class="rail-quote-by">${by}</div>` : ''}
+    </div>`;
+
   const nextCheck = view.querySelector('.check:not(.on)');
   const card = nextCheck && nextCheck.closest('.card');
   if (!card) {
@@ -3473,7 +3506,7 @@ function railExtrasHTML() {
       <div class="rail-kicker">Session</div>
       <div class="rail-next">All sets done</div>
       <div class="rail-next-sub">Everything on this day is ticked — mark the day complete to bank it.</div>
-    </div>`;
+    </div>` + quoteCard;
   }
   const nm  = card.querySelector('.lift-head .name');
   /* the How-to button lives inside .name, so textContent would read
@@ -3492,7 +3525,7 @@ function railExtrasHTML() {
       <div class="rail-next">${tip.title}</div>
       <div class="rail-tip-body">${tip.body}</div>
     </div>`;
-  return out;
+  return out + quoteCard;
 }
 
 function mountSessionRail() {
