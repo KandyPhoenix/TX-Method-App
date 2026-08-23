@@ -35,6 +35,7 @@ const STD_PLATES_KG = [20, 15, 10, 5, 2.5, 1.25];
 const DEFAULTS = {
   units: 'lb',
   sex: 'female',
+  age: 45,            /* Fingerprint scoring is age-normed — see FP_ASSESS */
   bodyweight: 165,
   barWeight: 45,
   plates: [45, 35, 25, 10, 5, 2.5],
@@ -906,6 +907,7 @@ function render() {
   if (TAB === 'today')   prep ? renderPrepToday()   : renderToday();
   if (TAB === 'program') prep ? renderPrepProgram() : renderProgram();
   if (TAB === 'stats')   renderStats();
+  if (TAB === 'fp')      renderFingerprint();
   if (TAB === 'setup')   renderSetup();
   if (typeof updateWakeLock === 'function') updateWakeLock();
 }
@@ -2010,7 +2012,7 @@ function renderSetup() {
           <button data-u="kg" class="${s.units==='kg'?'on':''}">kg</button>
         </div>
       </div>
-      <div class="field"><label>Sex (for Wilks score)</label>
+      <div class="field"><label>Sex (for Wilks score &amp; Fingerprint norms)</label>
         <div class="seg" id="segSex">
           <button data-x="female" class="${s.sex==='female'?'on':''}">Female</button>
           <button data-x="male"   class="${s.sex==='male'?'on':''}">Male</button>
@@ -2018,6 +2020,9 @@ function renderSetup() {
       </div>
       <div class="field"><label>Bodyweight (${s.units})</label>
         <input type="number" inputmode="decimal" id="bw" value="${s.bodyweight}" /></div>
+      <div class="field"><label>Age</label>
+        <input type="number" inputmode="numeric" id="age" value="${s.age ?? 45}" />
+        <div class="hint">Fingerprint scores are percentiles against your age group, so this changes them directly.</div></div>
     </div>
 
     <h2 class="section">Current lifts — weight × reps</h2>
@@ -2191,6 +2196,9 @@ function wireSetup() {
   view.querySelectorAll('#segMode button').forEach(b => b.onclick = () => { s.mode = b.dataset.m; save(); render(); });
 
   document.getElementById('bw').onchange  = e => { s.bodyweight = +e.target.value || 0; save(); };
+  document.getElementById('age').onchange = e => {
+    s.age = Math.max(10, Math.min(110, +e.target.value || 45)); save();
+  };
   document.getElementById('ohp').onchange = e => { s.ohpDecrement = Math.min(.99, Math.max(.9, (+e.target.value || 95) / 100)); save(); };
 
   view.querySelectorAll('[data-lift]').forEach(inp => inp.onchange = () => {
@@ -3308,6 +3316,340 @@ function finishSession() {
 }
 
 /* init */
+/* =====================================================================
+   LONGEVITY FINGERPRINT
+   ---------------------------------------------------------------------
+   Modelled on The Standard (standard.superage.com), whose protocols the
+   SUPERAGE programs here already follow. Eight markers, each scored as a
+   PERCENTILE (0-100) against age- and sex-referenced norms, then bucketed
+   into a tier. Tier bands were read off the live app:
+     Foundation 0-39 · Core 40-71 · Advanced 72-87 · Elite 88-100
+
+   Only the markers we can score honestly are live. The rest render as
+   "not yet available" rather than inventing a number — a longevity score
+   that is quietly made up is worse than no score.
+   ===================================================================== */
+const FP_TIERS = [
+  { key: 'foundation', name: 'Foundation', min: 0,  max: 39  },
+  { key: 'core',       name: 'Core',       min: 40, max: 71  },
+  { key: 'advanced',   name: 'Advanced',   min: 72, max: 87  },
+  { key: 'elite',      name: 'Elite',      min: 88, max: 100 }
+];
+function fpTier(score) {
+  if (score == null) return null;
+  return FP_TIERS.find(t => score >= t.min && score <= t.max) || FP_TIERS[0];
+}
+
+const FP_AXES = [
+  { key: 'balance',              name: 'Balance',              label: ['BALANCE'] },
+  { key: 'functional_strength',  name: 'Functional Strength',  label: ['FUNCTIONAL','STRENGTH'] },
+  { key: 'peripheral_strength',  name: 'Grip Strength',        label: ['GRIP','STRENGTH'] },
+  { key: 'endurance_under_load', name: 'Endurance Under Load', label: ['ENDURANCE','UNDER LOAD'] },
+  { key: 'vo2_max',              name: 'Aerobic Capacity',     label: ['AEROBIC','CAPACITY'] },
+  { key: 'agility',              name: 'Agility',              label: ['AGILITY'] },
+  { key: 'relational_capacity',  name: 'Relational Capacity',  label: ['RELATIONAL','CAPACITY'] },
+  { key: 'working_memory',       name: 'Working Memory',       label: ['WORKING','MEMORY'] }
+];
+
+/* normal CDF (Abramowitz & Stegun 26.2.17) — turns a z-score into a percentile */
+function normCdf(z) {
+  const t = 1 / (1 + 0.2316419 * Math.abs(z));
+  const d = 0.3989423 * Math.exp(-z * z / 2);
+  const p = d * t * (0.3193815 + t * (-0.3565638 + t * (1.781478 + t * (-1.821256 + t * 1.330274))));
+  return z > 0 ? 1 - p : p;
+}
+function fpPct(z) { return Math.max(0, Math.min(100, Math.round(normCdf(z) * 100))); }
+function fpBand(table, age) {
+  for (const [max, v] of table) if (age <= max) return v;
+  return table[table.length - 1][1];
+}
+
+const FP_ASSESS = {
+  /* ---------------- Balance ---------------- */
+  balance: {
+    id: 'balance', axis: 'balance', title: 'Balance', duration: '5 min',
+    kicker: 'Single-leg stance, eyes closed',
+    description: 'Single-leg stance with eyes closed measures static balance and proprioception — both strong predictors of fall risk and functional independence. With vision removed you are relying on the inner ear and on position sense from the joints, which is what actually degrades with age.',
+    steps: [
+      ['Setup requirements', 'Bare feet, hard flat floor. Stand next to a wall or counter you can grab, but do not rest against it. Have a timer ready or use the one below.'],
+      ['Movement', 'Shift your weight onto one leg, lift the other foot clear of the floor (do not rest it against the standing leg), fold your arms across your chest, then close your eyes and start the clock.'],
+      ['Measurement', 'Stop the clock the moment your eyes open, your arms unfold, your raised foot touches down, or you hop or reach for support. Take the better of two attempts on your stronger leg.'],
+      ['Contraindications', 'Skip this if you have significant vertigo, an unmanaged inner-ear condition, or any balance impairment that makes an unsupported fall likely.']
+    ],
+    why: 'Eyes-closed balance falls off a cliff with age — the median drops from roughly 10 seconds in your thirties to about 3 seconds by your sixties. It is one of the earliest measurable signals of neuromuscular ageing, and unlike many markers it responds quickly to deliberate practice.',
+    input: { label: 'Best hold', units: [['sec', 1]], hint: 'Scored against age-referenced norms.' },
+    /* Median eyes-closed single-leg stance in seconds by age band. The
+       distribution is heavily right-skewed, so the percentile is taken on
+       log(seconds) rather than raw seconds. */
+    norms: { median: [[39, 10.0], [49, 7.2], [59, 5.0], [69, 3.1], [79, 1.9], [199, 1.3]], logSd: 0.62 },
+    score(v, s) {
+      if (!(v > 0)) return 0;
+      const m = fpBand(this.norms.median, s.age || 45);
+      return fpPct((Math.log(v) - Math.log(m)) / this.norms.logSd);
+    },
+    blurb: {
+      foundation: 'Below the range for your age group, and this is one of the most trainable markers there is. Daily practice — 30 seconds a side, eyes closed, next to a counter — usually moves this within weeks.',
+      core:       'A solid baseline. Eyes-closed balance responds fast to deliberate work; adding single-leg holds to the end of your existing sessions is usually enough to push this up a tier.',
+      advanced:   'Strong proprioception for your age group. Keep it by progressing the challenge — narrow the base, add a head turn, or stand on a folded towel.',
+      elite:      'Top-percentile balance. This is a meaningful marker of neuromuscular age running younger than chronological age. Maintain rather than chase it.'
+    }
+  },
+
+  /* ---------------- Functional strength ---------------- */
+  functional_strength: {
+    id: 'functional_strength', axis: 'functional_strength', title: 'Functional Strength', duration: '3 min',
+    kicker: 'Standing broad jump',
+    description: 'The standing broad jump measures lower-body explosive power: the ability to generate maximal force rapidly through the legs. Unlike tests of sustained force, it captures peak power output and fast-twitch fibre recruitment — the fastest-declining physical attribute with age, and one of the most responsive to training.',
+    steps: [
+      ['Setup requirements', 'Hard flat surface — tile, hardwood or concrete, not carpet or grass. A tape measure and at least 3 m of clear landing zone. Bare feet or thin shoes, kept consistent between retests.'],
+      ['Movement', 'Stand behind the start line, feet hip-width, toes at the line. Perform a full countermovement: bend the knees, swing the arms back, then drive the arms forward and jump.'],
+      ['Landing and measurement', 'Measure from the start line to the back of the nearest heel. If you lose balance on landing — step, stumble or fall back — the attempt is void. Up to 3 attempts, 60-90 seconds rest between. Your best valid jump is the score.'],
+      ['Contraindications', 'Do not attempt this with an acute lower-limb injury, post-surgical restrictions on loaded jumping, or significant balance impairment.']
+    ],
+    why: 'Type II (fast-twitch) fibres atrophy at roughly twice the rate of Type I after 40. By the seventh decade power output can be 30-40% below peak even in people who stay aerobically active. That decline underlies fall risk, stair-climbing capacity, and the ability to recover from a stumble.',
+    input: { label: 'Best valid jump', units: [['in', 1], ['cm', 0.3937008]], hint: 'Scored against research norms for your age and sex.' },
+    /* Median standing broad jump in inches by age band, from field-test
+       population data. Roughly normal within a band. */
+    norms: {
+      median: { male:   [[29, 80], [39, 75], [49, 70], [59, 63], [69, 55], [199, 45]],
+                female: [[29, 63], [39, 59], [49, 55], [59, 49], [69, 43], [199, 35]] },
+      sd: { male: 10, female: 8 }
+    },
+    score(v, s) {
+      if (!(v > 0)) return 0;
+      const sex = s.sex === 'male' ? 'male' : 'female';
+      const m = fpBand(this.norms.median[sex], s.age || 45);
+      return fpPct((v - m) / this.norms.sd[sex]);
+    },
+    blurb: {
+      foundation: 'Below the range for your age group. Explosive power is highly trainable — start with low-impact work (step-ups, fast concentric squats) before adding jumps.',
+      core:       'Solid baseline. There is meaningful room to grow, and explosive power is one of the most responsive attributes to targeted training. A focused 8-12 week power block can shift this noticeably.',
+      advanced:   'Strong lower-body power for your age group. Hold it with regular low-volume jump work — quality over quantity, and always land soft.',
+      elite:      'Elite explosive power. Your lower-body output ranks in the top percentile for your age group, a strong marker of biological age running younger than chronological age.'
+    }
+  }
+};
+
+/* Markers The Standard scores but we can't yet, shown honestly as locked. */
+const FP_PENDING = {
+  peripheral_strength:  'Dead-hang protocol — needs a pull-up bar and bodyweight-referenced norms.',
+  endurance_under_load: 'Loaded carry protocol — norms not yet sourced.',
+  vo2_max:              'Submaximal aerobic test — needs a validated estimation protocol.',
+  agility:              'Change-of-direction test — needs a measured course and norms.',
+  relational_capacity:  'Not a physical marker.',
+  working_memory:       'Not a physical marker.'
+};
+
+function fpState() { if (!S.fp) S.fp = {}; return S.fp; }
+function fpGet(axis) { return fpState()[axis] || null; }
+function fpSave(axis, raw, unit, score) {
+  fpState()[axis] = { raw, unit, score, tier: fpTier(score).key, date: isoDate(new Date()) };
+  save();
+}
+
+/* ---------- radar ---------- */
+function fpRadar(canvas) {
+  if (!canvas) return;
+  const dpr = window.devicePixelRatio || 1;
+  const W = canvas.clientWidth, H = W;            /* square */
+  canvas.width = W * dpr; canvas.height = H * dpr;
+  canvas.style.height = H + 'px';
+  const ctx = canvas.getContext('2d'); ctx.scale(dpr, dpr);
+  ctx.clearRect(0, 0, W, H);
+
+  const cx = W / 2, cy = H / 2, R = Math.min(W, H) / 2 - 68;
+  const n = FP_AXES.length;
+  const ang = i => (i / n) * Math.PI * 2 - Math.PI / 2;
+  const grid = cssVar('--chart-grid', 'rgba(255,255,255,.06)');
+  const dim  = cssVar('--dim', '#555555');
+
+  /* web: 4 rings + spokes */
+  ctx.strokeStyle = grid; ctx.lineWidth = 1;
+  for (let r = 1; r <= 4; r++) {
+    ctx.beginPath();
+    for (let i = 0; i < n; i++) {
+      const a = ang(i), x = cx + Math.cos(a) * R * r / 4, y = cy + Math.sin(a) * R * r / 4;
+      i ? ctx.lineTo(x, y) : ctx.moveTo(x, y);
+    }
+    ctx.closePath(); ctx.stroke();
+  }
+  for (let i = 0; i < n; i++) {
+    const a = ang(i);
+    ctx.beginPath(); ctx.moveTo(cx, cy);
+    ctx.lineTo(cx + Math.cos(a) * R, cy + Math.sin(a) * R); ctx.stroke();
+  }
+
+  /* scored polygon */
+  const vals = FP_AXES.map(ax => { const e = fpGet(ax.key); return e ? e.score : 0; });
+  if (vals.some(v => v > 0)) {
+    ctx.beginPath();
+    vals.forEach((v, i) => {
+      const a = ang(i), r = R * (v / 100);
+      const x = cx + Math.cos(a) * r, y = cy + Math.sin(a) * r;
+      i ? ctx.lineTo(x, y) : ctx.moveTo(x, y);
+    });
+    ctx.closePath();
+    ctx.fillStyle = cssVar('--accent-soft', 'rgba(170,255,0,.12)'); ctx.fill();
+    ctx.strokeStyle = cssVar('--accent-ink', '#aaff00'); ctx.lineWidth = 2; ctx.stroke();
+    vals.forEach((v, i) => {
+      if (!v) return;
+      const a = ang(i), r = R * (v / 100);
+      ctx.beginPath();
+      ctx.arc(cx + Math.cos(a) * r, cy + Math.sin(a) * r, 3.5, 0, Math.PI * 2);
+      ctx.fillStyle = cssVar('--accent-ink', '#aaff00'); ctx.fill();
+    });
+  }
+
+  /* axis labels */
+  ctx.font = '700 8.5px -apple-system,Segoe UI,Roboto,sans-serif';
+  ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+  FP_AXES.forEach((ax, i) => {
+    const a = ang(i), cs = Math.cos(a), sn = Math.sin(a);
+    /* anchor the text away from the wheel instead of centring it, or the
+       left- and right-hand labels run off the edge of the canvas */
+    ctx.textAlign = cs > 0.3 ? 'left' : cs < -0.3 ? 'right' : 'center';
+    const lx = cx + cs * (R + 8), ly = cy + sn * (R + 12);
+    const e = fpGet(ax.key);
+    const lines = e ? ax.label.concat(e.score + '%') : ax.label;
+    lines.forEach((ln, k) => {
+      ctx.fillStyle = (e && k === lines.length - 1) ? cssVar('--accent-ink', '#aaff00') : dim;
+      ctx.fillText(ln, lx, ly + (k - (lines.length - 1) / 2) * 10);
+    });
+  });
+  ctx.textAlign = 'start'; ctx.textBaseline = 'alphabetic';
+}
+
+/* ---------- screen ---------- */
+function renderFingerprint() {
+  titleEl.textContent = 'Fingerprint';
+  subEl.textContent   = 'Your 8-marker health profile';
+
+  const cards = FP_AXES.map(ax => {
+    const a = FP_ASSESS[ax.key], e = fpGet(ax.key);
+    if (!a) return `<div class="fp-card locked">
+        <div class="fp-card-nm">${ax.name}</div>
+        <div class="fp-card-sub">${FP_PENDING[ax.key] || 'Not yet available'}</div>
+      </div>`;
+    const t = e ? fpTier(e.score) : null;
+    return `<div class="fp-card">
+        <div class="fp-card-nm">${ax.name}</div>
+        <div class="fp-card-sub">${e
+          ? `<b class="fp-score">${e.score}%</b> · ${t.name} <span class="dim">· ${e.date}</span>`
+          : 'Not yet assessed'}</div>
+        <button class="btn ${e ? 'secondary' : 'primary'} small fp-take" data-fp="${ax.key}">
+          ${e ? 'Retake' : 'Take assessment'}</button>
+      </div>`;
+  }).join('');
+
+  const done = FP_AXES.filter(ax => fpGet(ax.key)).length;
+  view.innerHTML = `<div class="screen">
+    <div class="card fp-radar-card"><canvas id="fpRadar" class="fp-radar"></canvas>
+      <div class="fp-legend">${FP_TIERS.map(t =>
+        `<span class="fp-leg"><i class="fp-dot ${t.key}"></i>${t.name}</span>`).join('')}</div>
+    </div>
+    <h2 class="section">Assessments · ${done} of ${FP_AXES.length} scored</h2>
+    <div class="fp-grid">${cards}</div>
+    <div class="card"><div class="tiny muted" style="line-height:1.55">
+      Scores are percentiles against age- and sex-referenced norms, so 50% is
+      average <em>for you</em>, not a pass mark. Set your age and sex in Setup —
+      they drive the whole calculation. Markers without a protocol yet are shown
+      unscored rather than guessed at.</div></div>
+  </div>`;
+
+  fpRadar(document.getElementById('fpRadar'));
+  view.querySelectorAll('.fp-take').forEach(b => b.onclick = () => fpOpen(b.dataset.fp));
+}
+
+/* ---------- assessment sheet ---------- */
+let fpCur = null, fpUnit = 0;
+function fpOpen(axis) {
+  const a = FP_ASSESS[axis]; if (!a) return;
+  fpCur = axis; fpUnit = 0;
+  fpRenderSheet('protocol');
+}
+function fpClose() { fpCur = null; const el = document.getElementById('fpSheet'); if (el) el.remove(); }
+
+function fpRenderSheet(stage, payload) {
+  const a = FP_ASSESS[fpCur]; if (!a) return;
+  let el = document.getElementById('fpSheet');
+  if (!el) { el = document.createElement('div'); el.id = 'fpSheet'; el.className = 'fp-sheet'; document.body.appendChild(el); }
+
+  if (stage === 'protocol') {
+    el.innerHTML = `<div class="fp-panel">
+      <div class="fp-panel-head">
+        <div><div class="fp-kicker">Longevity marker</div>
+             <div class="fp-title">${a.title}</div></div>
+        <button class="prof-close" id="fpX">✕</button>
+      </div>
+      <div class="fp-lede">${a.description}</div>
+      <div class="fp-chips"><span class="fp-chip">⏱ ${a.duration}</span>
+        <span class="fp-chip">${a.kicker}</span></div>
+      <ol class="fp-steps">${a.steps.map(([t, b]) =>
+        `<li><b>${t}</b><span>${b}</span></li>`).join('')}</ol>
+      <h2 class="section">Why it matters</h2>
+      <div class="fp-lede">${a.why}</div>
+      <button class="btn primary" id="fpStart">${fpGet(a.axis) ? 'Retake' : 'Start'}</button>
+      <button class="btn secondary" id="fpCancel">Cancel</button>
+    </div>`;
+    document.getElementById('fpX').onclick = fpClose;
+    document.getElementById('fpCancel').onclick = fpClose;
+    document.getElementById('fpStart').onclick = () => fpRenderSheet('input');
+    return;
+  }
+
+  if (stage === 'input') {
+    const u = a.input.units;
+    el.innerHTML = `<div class="fp-panel">
+      <div class="fp-panel-head">
+        <div><div class="fp-kicker">Enter your result</div>
+             <div class="fp-title">How did you do?</div></div>
+        <button class="prof-close" id="fpX">✕</button>
+      </div>
+      <div class="field">
+        <label>${a.input.label}</label>
+        ${u.length > 1 ? `<div class="seg" id="fpUnits">${u.map(([nm], i) =>
+          `<button data-u="${i}" class="${i === fpUnit ? 'on' : ''}">${nm}</button>`).join('')}</div>` : ''}
+        <input type="number" inputmode="decimal" id="fpVal" placeholder="0" />
+        <div class="hint">${a.input.hint}</div>
+      </div>
+      <button class="btn primary" id="fpCalc">Calculate my score</button>
+      <button class="btn secondary" id="fpCancel">Cancel</button>
+    </div>`;
+    document.getElementById('fpX').onclick = fpClose;
+    document.getElementById('fpCancel').onclick = fpClose;
+    el.querySelectorAll('#fpUnits button').forEach(b => b.onclick = () => {
+      fpUnit = +b.dataset.u;
+      el.querySelectorAll('#fpUnits button').forEach(x => x.classList.toggle('on', +x.dataset.u === fpUnit));
+    });
+    const inp = document.getElementById('fpVal');
+    setTimeout(() => inp.focus(), 30);
+    document.getElementById('fpCalc').onclick = () => {
+      const v = parseFloat(inp.value);
+      if (!(v > 0)) { toast('Enter your result first'); return; }
+      const base = v * a.input.units[fpUnit][1];      /* convert to the norm's unit */
+      const sc = a.score(base, S.settings);
+      fpSave(a.axis, v, a.input.units[fpUnit][0], sc);
+      fpRenderSheet('result', sc);
+    };
+    return;
+  }
+
+  if (stage === 'result') {
+    const t = fpTier(payload);
+    el.innerHTML = `<div class="fp-panel fp-result tier-${t.key}">
+      <div class="fp-kicker center">Results</div>
+      <div class="fp-title center">${a.title} complete</div>
+      <div class="fp-big">${payload}%</div>
+      <div class="center"><span class="fp-pill ${t.key}">${t.name} · ${t.min}-${t.max}</span></div>
+      <div class="fp-lede center">${a.blurb[t.key]}</div>
+      <button class="btn primary" id="fpDone">Back to Fingerprint</button>
+      <div class="tiny muted center">You can retake this assessment at any time.</div>
+    </div>`;
+    document.getElementById('fpDone').onclick = () => { fpClose(); render(); };
+    if (t.key === 'elite') confetti();
+  }
+}
+
 backfillHistory();
 syncAchievements();
 render();

@@ -718,3 +718,94 @@ table.prog td.s { text-align: right; color: var(--muted); width: 60px; }
 .pr-row .pr-nm { color: var(--text); font-weight: 700; font-size: 16px; }
 .pr-row b { color: var(--accent-ink); font-size: 16px; }
 .pr-row .pr-1rm { color: var(--muted); font-size: 13px; }
+
+/* =====================================================================
+   LONGEVITY FINGERPRINT
+   ===================================================================== */
+.fp-radar-card { padding: 10px 10px 12px; }
+.fp-radar { width: 100%; max-width: 360px; margin: 0 auto; display: block; }
+.fp-legend {
+  display: flex; flex-wrap: wrap; justify-content: center; gap: 10px;
+  margin-top: 4px; font-size: 10.5px; font-weight: 700;
+  letter-spacing: .5px; text-transform: uppercase; color: var(--muted);
+}
+.fp-leg { display: inline-flex; align-items: center; gap: 5px; }
+.fp-dot { width: 8px; height: 8px; border-radius: 50%; display: inline-block; }
+.fp-dot.elite      { background: var(--accent); }
+.fp-dot.advanced   { background: var(--accent-2); }
+.fp-dot.core       { background: var(--accent-3); }
+.fp-dot.foundation { background: var(--accent-deep); }
+
+.fp-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; }
+.fp-card {
+  background: var(--panel); border: 1px solid var(--border);
+  border-radius: var(--radius); padding: 12px;
+  display: flex; flex-direction: column; gap: 6px;
+}
+.fp-card.locked { opacity: .55; }
+.fp-card-nm  { font-weight: 800; font-size: 14px; color: var(--text); line-height: 1.25; }
+.fp-card-sub { font-size: 12px; color: var(--muted); line-height: 1.4; flex: 1; }
+.fp-score    { color: var(--accent-ink); font-size: 15px; }
+.fp-card .btn { margin-top: 2px; width: 100%; font-size: 13px; padding: 9px; }
+
+/* ---- assessment sheet ---- */
+.fp-sheet {
+  position: fixed; inset: 0; z-index: 120; display: flex;
+  align-items: center; justify-content: center; padding: 18px;
+  background: var(--overlay-2); backdrop-filter: blur(3px);
+  animation: fade .18s ease; overflow-y: auto;
+}
+.fp-panel {
+  width: 100%; max-width: 420px; max-height: 88vh; overflow-y: auto;
+  background: var(--panel); border: 1px solid var(--border);
+  border-radius: 20px; padding: 18px 18px 22px;
+  box-shadow: 0 24px 70px var(--shadow-3);
+  animation: restPop .2s cubic-bezier(.2,.8,.2,1.2);
+}
+.fp-panel-head { display: flex; justify-content: space-between; align-items: flex-start; gap: 10px; }
+.fp-kicker {
+  font-size: 10px; font-weight: 800; letter-spacing: 1.4px;
+  text-transform: uppercase; color: var(--accent-ink);
+}
+.fp-kicker.center, .fp-title.center, .fp-lede.center { text-align: center; }
+.fp-title { font-size: 21px; font-weight: 900; letter-spacing: -.4px; color: var(--text); line-height: 1.15; }
+.fp-lede  { font-size: 14px; line-height: 1.6; color: var(--text-soft); margin: 10px 0 4px; }
+
+.fp-chips { display: flex; flex-wrap: wrap; gap: 6px; margin: 10px 0 4px; }
+.fp-chip {
+  font-size: 11px; font-weight: 700; padding: 4px 10px; border-radius: 999px;
+  background: var(--panel2); border: 1px solid var(--border); color: var(--muted);
+}
+
+.fp-steps { list-style: none; counter-reset: fp; margin: 12px 0 4px; padding: 0; }
+.fp-steps li {
+  counter-increment: fp; position: relative; padding: 0 0 12px 32px;
+  border-bottom: 1px solid var(--border); margin-bottom: 12px;
+}
+.fp-steps li:last-child { border-bottom: none; margin-bottom: 0; padding-bottom: 0; }
+.fp-steps li::before {
+  content: counter(fp); position: absolute; left: 0; top: 0;
+  width: 22px; height: 22px; border-radius: 50%;
+  background: var(--panel2); border: 1px solid var(--border);
+  display: grid; place-items: center;
+  font-size: 11px; font-weight: 800; color: var(--muted);
+}
+.fp-steps b { display: block; font-size: 13px; color: var(--text); margin-bottom: 3px; }
+.fp-steps span { display: block; font-size: 13px; line-height: 1.55; color: var(--muted); }
+
+/* ---- result ---- */
+.fp-result { text-align: center; }
+.fp-big {
+  font-size: 62px; font-weight: 900; letter-spacing: -3px; line-height: 1.05;
+  margin: 12px 0 8px; color: var(--text); font-variant-numeric: tabular-nums;
+}
+.fp-result.tier-elite .fp-big { color: var(--accent-ink); }
+.fp-pill {
+  display: inline-block; font-size: 11.5px; font-weight: 800;
+  letter-spacing: .8px; text-transform: uppercase;
+  padding: 5px 13px; border-radius: 999px;
+  background: var(--accent-soft); border: 1px solid var(--accent-line);
+  color: var(--accent-ink);
+}
+.fp-pill.elite { background: var(--accent); color: var(--on-accent); border-color: var(--accent); }
+.fp-result .fp-lede { margin: 14px 0 6px; }

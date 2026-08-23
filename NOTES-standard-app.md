@@ -45,7 +45,32 @@ uses a lime banner too, so it's on-idiom.
 tightened the type/spacing scale. Roughly doubles what fits on screen. The Setup
 text-size slider is untouched, so it's reversible per-person.
 
-## 3. Fingerprint — **next**, highest value
+## 3. Fingerprint — **built** (v100)
+
+Shipped as a fifth tab. Radar chart over all eight markers, assessment cards,
+and a protocol sheet that mirrors The Standard's structure: kicker, description,
+duration chips, numbered steps (setup / movement / measurement /
+contraindications), "why it matters", then a single numeric input with a unit
+toggle, then a scored result with a tier pill and tier-specific copy.
+
+**Tier bands, read off the live app by probing it:** Foundation 0-39 ·
+Core 40-71 · Advanced 72-87 · Elite 88-100. Core and Elite were observed
+directly; Advanced is forced by the gap between them.
+
+**Scoring** is a percentile against age- and sex-referenced norms, via a normal
+CDF. Added `age` to `DEFAULTS` and to Setup, since it drives the whole
+calculation.
+
+**Calibration check:** a 55-inch broad jump for a 45-year-old woman scores 48%
+in The Standard and 50% in ours — within two points, so the norms are sound.
+
+Only Balance and Functional Strength are live. The other six render as
+"not yet available" with the reason stated, rather than inventing a number:
+Grip Strength, Endurance Under Load, Aerobic Capacity and Agility need sourced
+norms, and Relational Capacity and Working Memory are not physical markers at
+all. A made-up longevity score is worse than no score.
+
+### Old notes on this item
 
 This is the "training precisely to your unique footprint" Kandy reacted to. It is
 literally called *Fingerprint*, and it is concrete, not marketing.
