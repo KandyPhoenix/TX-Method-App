@@ -1377,11 +1377,7 @@ function renderPrepToday() {
     const log = pstate().log[dayNum] || { checks: {} };
     if (d.note) html += `<details class="card note-fold"><summary>How this session works</summary><div class="note-body">${d.note}</div></details>`;
     html += `<div class="spacer"></div>`;
-    for (const item of prepDayItems(d)) {
-      html += item.type === 'reps'
-        ? prepExerciseCard(item.ex, item.setIndex, item.total, log)
-        : plankSetCard(item.ex, item.setIndex, item.total, log);
-    }
+    for (const g of groupDayItems(prepDayItems(d))) html += groupCard(g, log);
 
     const last = dayNum >= ptotal();
     const lastLabel = S.program === 'prep30' ? '🎉 Finish prep → Start Texas Method' : '🎉 Finish program!';
@@ -1393,6 +1389,101 @@ function renderPrepToday() {
   html += `</div>`;
   view.innerHTML = html;
   wirePrepToday();
+}
+
+/* ---------------------------------------------------------------------
+   One card per exercise instead of one per set.
+
+   Grouping is over CONSECUTIVE items only, which matters: prepDayItems()
+   interleaves superset sets round-robin on purpose (squat s1 -> hinge s1 ->
+   squat s2) so the superset runs as designed. Collapsing by exercise name
+   would silently reorder that into straight sets and change the stimulus.
+   Consecutive-only grouping folds ordinary straight sets into one card and
+   leaves the interleaving untouched — and a whole superset run, which is
+   consecutive by definition, becomes a single card with its rows in the
+   programmed order.
+   --------------------------------------------------------------------- */
+function groupDayItems(items) {
+  const groups = [];
+  for (const it of items) {
+    const last = groups[groups.length - 1];
+    if (last && last.kind === 'ex' && last.ex === it.ex) { last.items.push(it); continue; }
+    const ss = it.ex.ss;
+    if (ss != null && last && last.kind === 'ss' && last.ss === ss) { last.items.push(it); continue; }
+    /* an item starts a superset group only if the next one shares its ss */
+    groups.push(ss != null ? { kind: 'ss', ss, items: [it] } : { kind: 'ex', ex: it.ex, items: [it] });
+  }
+  /* a "superset" of one exercise is just an exercise */
+  return groups.map(g => {
+    if (g.kind !== 'ss') return g;
+    const names = new Set(g.items.map(i => i.ex));
+    return names.size > 1 ? g : { kind: 'ex', ex: g.items[0].ex, items: g.items };
+  });
+}
+
+/* one set row — the same markup the per-set cards used, so every checkbox id
+   is unchanged and no logged set is orphaned */
+function itemRow(item, log, showName) {
+  const ex = item.ex, many = item.total > 1;
+  const timed = ex.sec != null;
+  const id = (timed || many) ? ex.key + '_' + item.setIndex : ex.key;
+  const on = log.checks && log.checks[id] ? 'on' : '';
+  const label = showName
+    ? ex.name + ' ' + formBtn(ex.key)
+    : (many ? 'Set ' + (item.setIndex + 1) + '/' + item.total : 'Target');
+
+  if (timed) {
+    return `<div class="set-row workset ${showName ? 'named ' : ''}${on ? 'done' : ''}">
+      <div class="lbl">${label}</div>
+      <button class="mini-start" data-hold="${ex.sec}" data-holdname="${ex.name}" data-holdcheck="${id}">▶ ${holdTxt(ex.sec).replace(' sec', 's')}</button>
+      <div class="set-end"><button class="check ${on}" data-pcheck="${id}">✓</button></div></div>`;
+  }
+
+  const hint = saHint(ex.key);
+  let row = hint
+    ? `<div class="set-row workset ${showName ? 'named ' : ''}${on ? 'done' : ''}">
+        <div class="lbl">${label}</div>
+        <div class="wt">${fmt(hint.w)} <small>${hint.suffix}</small>${hint.type === 'bar' ? `<div class="plate-math">${plateStripHTML(hint.w)}</div>` : ''}</div>
+        <div class="set-end"><div class="reps">${ex.reps} reps${ex.side ? '/side' : ''}</div>
+        <button class="check ${on}" data-pcheck="${id}">✓</button></div></div>`
+    : `<div class="set-row workset ${showName ? 'named ' : ''}${on ? 'done' : ''}">
+        <div class="lbl">${label}</div>
+        <div class="wt">${ex.reps}<small> reps${ex.side ? '/side' : ''}</small></div>
+        <div class="set-end"><button class="check ${on}" data-pcheck="${id}">✓</button></div></div>`;
+
+  if (hasLoadProgression() && SA_PROGRESS.includes(ex.key) && many) {
+    const rid = ex.key + '_' + item.setIndex;
+    const cur = (log.reps && log.reps[rid] != null) ? log.reps[rid] : ex.reps;
+    row += `<div class="log-row">
+      <label>Reps hit</label>
+      <div class="stepper">
+        <button data-sarep="${rid}" data-d="-1">−</button>
+        <div class="val" id="sarep_${rid}">${cur}</div>
+        <button data-sarep="${rid}" data-d="1">+</button>
+      </div>
+      <span class="tiny muted">all sets ${ex.reps}+ → weight up</span>
+    </div>`;
+  }
+  return row;
+}
+
+function groupCard(g, log) {
+  if (g.kind === 'ss') {
+    const names = [...new Set(g.items.map(i => i.ex.name))];
+    const rounds = Math.max(...g.items.map(i => i.total));
+    return `<div class="card lift">
+      <div class="lift-head"><div><div class="name">${names.join(' + ')}</div>
+      <div class="scheme">Superset · ${rounds} rounds · alternate with no rest between partners</div></div>
+      <span class="badge vol">Superset</span></div>${g.items.map(i => itemRow(i, log, true)).join('')}</div>`;
+  }
+  const ex = g.ex, n = g.items.length;
+  const timed = ex.sec != null;
+  const base = ex.scheme || (timed ? holdTxt(ex.sec) + (ex.sec >= 90 ? '' : ' hold') : ex.reps + ' reps' + (ex.side ? ' each side' : ''));
+  const hint = saHint(ex.key);
+  return `<div class="card lift">
+    <div class="lift-head"><div><div class="name">${ex.name} ${formBtn(ex.key)}</div>
+    <div class="scheme">${n > 1 ? n + ' sets · ' : ''}${base}${hint ? ' · ' + hint.txt : ''}</div></div>
+    <span class="badge vol">${timed ? (ex.sec >= 90 ? 'Timed' : 'Hold') : 'Sets'}</span></div>${g.items.map(i => itemRow(i, log, false)).join('')}</div>`;
 }
 
 function prepExerciseCard(ex, setIndex, total, log) {
@@ -3900,7 +3991,10 @@ function currentRailKey() {
   const nextCheck = view.querySelector('.check:not(.on)');
   const card = nextCheck && nextCheck.closest('.card');
   if (!card) return 'all-done';
-  const btn = card.querySelector('.form-btn[data-tip]');
+  /* a superset card holds two exercises — prefer the button on the row that is
+     actually next, and only fall back to the card's first */
+  const row = nextCheck.closest('.set-row');
+  const btn = (row && row.querySelector('.form-btn[data-tip]')) || card.querySelector('.form-btn[data-tip]');
   if (btn) return btn.dataset.tip;
   const nm = card.querySelector('.lift-head .name');
   return nm ? nm.textContent.trim() : 'unknown';
