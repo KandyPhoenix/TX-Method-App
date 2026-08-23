@@ -1225,3 +1225,23 @@ table.prog { font-size: 13px; }
   font-size: 13px; line-height: 1.55; color: var(--text-soft);
 }
 .tip-swap b { color: var(--accent-ink); }
+
+/* ---- detail calendars: scale to fit instead of clipping ----
+   .prep-ex was white-space:nowrap inside an overflow:hidden cell, so on any
+   narrow screen the exercise summary was simply cut off mid-word. Let it wrap,
+   and size the calendar text against the viewport so five columns fit whatever
+   the width, rather than picking one number that only works on a desktop. */
+.prep-num { font-size: clamp(11px, 2.7vw, 15px); }
+.prep-ex  {
+  font-size: clamp(9px, 2.1vw, 13px);
+  white-space: normal; line-height: 1.32; overflow-wrap: anywhere;
+}
+.prep-cell { min-height: 0; padding: 6px 5px; }
+.prep-tick { font-size: clamp(9px, 2vw, 13px); }
+
+.mcal-cell  { font-size: clamp(10px, 2.3vw, 13px); }
+.mcal-title { font-size: clamp(13px, 3.2vw, 16px); }
+.mcal-dow   { font-size: clamp(9px, 2vw, 12px); }
+
+table.prog    { font-size: clamp(11px, 2.4vw, 13px); }
+table.prog td { padding: 6px 4px; }

@@ -420,6 +420,139 @@ for (let w = 0; w < 12; w++) SUPERAGEH.push(...saHybridWeek(w));
 /* =====================================================================
    DAY-PROGRAM HELPERS  (shared by 30-Day Prep + Mobility)
    ===================================================================== */
+/* =====================================================================
+   FINGERPRINT FOCUS
+   ---------------------------------------------------------------------
+   The programme that actually consumes the Fingerprint. Every other plan
+   here is a fixed array; this one is generated from your current marker
+   scores, weakest first, and re-generated whenever those scores or your
+   available equipment change.
+
+   Two rules it obeys:
+     - Only ASSESSED markers can be called weak. An unassessed marker is
+       unknown, not bad, so it sits after the assessed ones rather than
+       dominating the plan on the strength of a zero.
+     - Every movement is tagged with the kit it needs and filtered through
+       the same equipment ladder as the protocol library, so the plan is
+       always something you can actually do today.
+   ===================================================================== */
+function fpx(key, name, icon, reps, scheme, needs, side) {
+  return { key, name, icon, reps, scheme, needs: needs || 'bodyweight', side: !!side };
+}
+function fpxT(key, name, icon, sec, sets, scheme, needs, side) {
+  return { key, name, icon, sets: sets || 1, sec, scheme, needs: needs || 'bodyweight', side: !!side };
+}
+
+const FP_POOLS = {
+  balance: [
+    fpxT('slstance', 'Single-Leg Stance', '🦩', 30, 2, 'Eyes closed if you can — 30 s each side', 'bodyweight', true),
+    fpxT('deepsquat', 'Deep Squat Hold', '🧘', 45, 2, 'Sink in, heels down, breathe', 'bodyweight'),
+    fpx('slrdl', 'Single-Leg RDL', '🦵', 8, 'Slow — the wobble is the work', 'bodyweight', true),
+    fpx('tibraise', 'Tibialis Raises', '🦶', 15, 'Back to a wall, toes up slow', 'bodyweight'),
+    fpxT('tandem', 'Tandem Walk', '➡️', 40, 1, 'Heel to toe, arms folded', 'bodyweight')
+  ],
+  functional_strength: [
+    fpx('squatjump', 'Squat Jumps', '🔥', 6, 'Explosive — full effort, land soft', 'bodyweight'),
+    fpx('broadjump', 'Standing Broad Jump', '➡️', 5, 'Max distance, reset every rep', 'bodyweight'),
+    fpx('stepup', 'Weighted Step-Ups', '🪜', 8, 'Drive through the heel', 'dumbbells', true),
+    fpx('atgsplit', 'ATG Split Squat', '🦵', 8, 'Deep, controlled, knee travels forward', 'bodyweight', true),
+    fpx('gobletsquat', 'Goblet Squat', '🏋️', 10, 'Chest tall, elbows inside knees', 'dumbbells')
+  ],
+  peripheral_strength: [
+    fpxT('deadhang', 'Dead Hang', '🪢', 30, 3, 'Shoulders active, no straps', 'gym'),
+    fpxT('farmcarry', 'Farmer Carry', '🧳', 40, 3, 'Heavy, tall, no shrugging', 'dumbbells'),
+    fpx('dbrow', 'DB Bent-Over Row', '💪', 10, 'Squeeze the blades, no swing', 'dumbbells'),
+    fpxT('towelhang', 'Towel Hang', '🧻', 20, 2, 'Over the bar — brutal on the grip', 'gym'),
+    fpx('pushups', 'Pushups', '💪', 12, 'One straight line, no sagging', 'bodyweight')
+  ],
+  vo2_max: [
+    fpxT('zone2', 'Zone 2 Effort', '🚴', 1200, 1, '20 min steady — you can still hold a conversation', 'bodyweight'),
+    fpxT('intervals', '4x4 Intervals', '⚡', 960, 1, '4 min hard / 3 min easy, four rounds', 'bodyweight'),
+    fpxT('jumprope', 'Jump Rope', '🪢', 180, 3, '3 min on, 1 min off', 'bodyweight'),
+    fpxT('brisk', 'Brisk Walk', '🚶', 900, 1, '15 min, fast enough to be slightly breathless', 'bodyweight')
+  ],
+  agility: [
+    fpx('sidestep', 'Banded Side-Steps', '↔️', 12, '12 steps each way, knees out', 'bodyweight'),
+    fpxT('carioca', 'Carioca', '🔀', 30, 2, 'Grapevine, both directions', 'bodyweight'),
+    fpx('shuffle', 'Lateral Shuffle', '↔️', 10, '5 m out and back, stay low', 'bodyweight'),
+    fpxT('highknees', 'High Knees', '🏃', 30, 2, 'Quick feet, tall posture', 'bodyweight')
+  ],
+  endurance_under_load: [
+    fpxT('suitcase', 'Suitcase Carry', '🧳', 40, 2, 'One side at a time, do not lean', 'dumbbells', true),
+    fpx('lunge', 'Reverse Lunge', '🦵', 10, 'Long steps, torso tall', 'bodyweight', true),
+    fpxT('plank', 'Plank', '🧘', 45, 3, 'Ribs down, glutes on', 'bodyweight'),
+    fpx('dblunge', 'DB Reverse Lunge', '💪', 8, 'Weight at your sides', 'dumbbells', true)
+  ]
+};
+
+/* weakest assessed marker first; unassessed markers trail behind, because an
+   unknown score is not the same as a bad one */
+function fpWeakestOrder() {
+  const keys = Object.keys(FP_POOLS);
+  const assessed = [], unknown = [];
+  keys.forEach(k => {
+    const e = fpGet(k);
+    (e ? assessed : unknown).push({ k, score: e ? e.score : null });
+  });
+  assessed.sort((a, b) => a.score - b.score);
+  return assessed.map(x => x.k).concat(unknown.map(x => x.k));
+}
+
+function fpPickFrom(pool, i) {
+  const usable = FP_POOLS[pool].filter(e => canRun(e.needs));
+  const list = usable.length ? usable : FP_POOLS[pool].filter(e => e.needs === 'bodyweight');
+  if (!list.length) return null;
+  return list[((i % list.length) + list.length) % list.length];
+}
+
+function fpFocusWarmup() {
+  return [
+    fpxT('wucardio', 'Easy Cardio', '🚶', 180, 1, '3 min — just raise the temperature'),
+    fpx('hipcars', 'Hip CARs', '🕺', 5, 'Slow, biggest circle you can', 'bodyweight', true),
+    fpx('anklerock', 'Ankle Rocks', '🦶', 10, 'Knee to wall, heel down', 'bodyweight', true)
+  ];
+}
+
+function fpFocusDay(dayIdx) {
+  const order = fpWeakestOrder();
+  /* rotate which of the weak markers leads, so four weeks is not one session
+     repeated — the first two are always drawn from the weakest half */
+  const lead  = order[dayIdx % Math.max(1, Math.min(3, order.length))];
+  const second = order[(dayIdx + 1) % Math.max(1, Math.min(4, order.length))];
+  const third  = order[(dayIdx + 2) % order.length];
+  const picks = [lead, second, third]
+    .map((p, n) => fpPickFrom(p, dayIdx + n))
+    .filter(Boolean);
+  /* a second movement from the leading weakness — it is the priority */
+  const extra = fpPickFrom(lead, dayIdx + 4);
+  const exercises = fpFocusWarmup().concat(picks);
+  if (extra && !picks.includes(extra)) exercises.push(extra);
+
+  const nice = k => (FP_AXES.find(a => a.key === k) || { name: k }).name;
+  const e = fpGet(lead);
+  return {
+    title: 'Focus · ' + nice(lead),
+    note: 'Built from your Fingerprint. Today leads on ' + nice(lead) +
+          (e ? ' — currently ' + e.score + '%, your weakest assessed marker.'
+             : ' — not yet assessed, so it is being trained on the assumption it needs work.') +
+          ' Assess more markers in the Fingerprint tab and this plan re-orders itself.',
+    exercises
+  };
+}
+
+/* 28 days, 6 on / 1 rest. Memoised against the inputs that shape it so pdata()
+   is not rebuilding the whole plan on every render. */
+let fpPlanCache = null, fpPlanKey = null;
+function fpFocusPlan() {
+  const key = fpWeakestOrder().join(',') + '|' + haveEquip() + '|' +
+              FP_AXES.map(a => { const e = fpGet(a.key); return e ? e.score : '-'; }).join(',');
+  if (fpPlanKey === key && fpPlanCache) return fpPlanCache;
+  const days = [];
+  for (let i = 0; i < 28; i++) days.push((i % 7 === 6) ? { rest: true } : fpFocusDay(i - Math.floor(i / 7)));
+  fpPlanKey = key; fpPlanCache = days;
+  return days;
+}
+
 const DAY_PROGRAMS = {
   prep30:   { data: PREP30,   stateKey: 'prep', label: '30-Day Prep',       sub: 'bodyweight ramp-up' },
   mobility: { data: MOBILITY, stateKey: 'mob',  label: 'Mobility Method',   sub: 'daily joint mobility' },
@@ -430,7 +563,8 @@ const DAY_PROGRAMS = {
   bjj:      { data: BJJ,      stateKey: 'bjj',  label: 'BJJ Solo Drills',    sub: 'jiu-jitsu movement' },
   sa2:      { data: SUPERAGE2, stateKey: 'sa2', label: 'SuperAge 2-Day',     sub: '3 days: 2 lifts + 1 long ride', holdLabel: 'Timed work' },
   sa4:      { data: SUPERAGE4, stateKey: 'sa4', label: 'SuperAge Full Week', sub: 'all week: 4 lifts + 3 rides', holdLabel: 'Timed work' },
-  sahyb:    { data: SUPERAGEH, stateKey: 'sahyb', label: 'SuperAge Hybrid',   sub: 'week style rotates weekly', holdLabel: 'Timed work' }
+  sahyb:    { data: SUPERAGEH, stateKey: 'sahyb', label: 'SuperAge Hybrid',   sub: 'week style rotates weekly', holdLabel: 'Timed work' },
+  fpfocus:  { get data() { return fpFocusPlan(); }, stateKey: 'fpfocus', label: 'Fingerprint Focus', sub: 'targets your weakest markers', holdLabel: 'Timed work' }
 };
 function isDayProgram() { return !!DAY_PROGRAMS[S.program]; }
 function pcfg()   { return DAY_PROGRAMS[S.program] || DAY_PROGRAMS.prep30; }
@@ -2071,6 +2205,7 @@ function renderSetup() {
     <div class="card">
       <div class="prog-grid" id="segProgram">
         ${[
+          ['fpfocus','🧬','Fingerprint Focus','targets your weakest'],
           ['prep30','🗓️','30-Day Prep','bodyweight ramp-up'],
           ['mobility','🧘','Mobility','joint mobility'],
           ['core','🔥','Core & Abs','core builder'],
@@ -3845,6 +3980,7 @@ function equipSwapFor(key) {
 }
 
 const PROTOCOLS = [
+  { key: 'fpfocus',  ico: '\u{1F9EC}', name: 'Fingerprint Focus', tag: 'Adaptive', grp: 'workout', needs: 'bodyweight', sub: 'Built from your markers' },
   { key: 'texas', needs: 'gym',     ico: '🏋️', name: 'Texas Method',      tag: 'Strength',     grp: 'workout', sub: 'Barbell' },
   { key: 'dumbbell', needs: 'dumbbells',  ico: '💪',         name: 'Dumbbell A/B',      tag: 'Strength',     grp: 'workout', sub: 'Dumbbells only' },
   { key: 'prep30', needs: 'bodyweight',    ico: '🗓️', name: '30-Day Prep',       tag: 'Strength',     grp: 'workout', sub: 'Bodyweight ramp-up' },
@@ -4038,13 +4174,81 @@ const FP_ASSESS = {
       elite:      'Elite explosive power. Your lower-body output ranks in the top percentile for your age group, a strong marker of biological age running younger than chronological age.'
     }
   }
+,
+
+  /* ---------------- Grip strength ---------------- */
+  peripheral_strength: {
+    id: 'peripheral_strength', axis: 'peripheral_strength', title: 'Grip Strength', duration: '5 min',
+    kicker: 'Dead hang for time',
+    description: 'Grip and forearm endurance is one of the most consistently predictive single measures in longevity research — it tracks with all-cause mortality more tightly than blood pressure does. A dead hang measures grip endurance relative to your own bodyweight, which is more functionally relevant day to day than raw crushing force.',
+    steps: [
+      ['Setup requirements', 'A pull-up bar, doorway bar or any solid overhead bar you can hang from with your feet clear of the floor. Chalk if you use it, but no straps — straps make this measure your shoulders, not your grip.'],
+      ['Movement', 'Take an overhand grip a little wider than your shoulders. Hang with your arms straight, shoulders active rather than fully slack, feet off the floor. Start the clock when you settle.'],
+      ['Measurement', 'Stop the clock the moment you drop, a hand slips, or you touch down. One attempt when fresh — a second attempt is always worse and will understate you.'],
+      ['Contraindications', 'Skip this with a shoulder injury or impingement, an elbow or wrist problem, or any recent upper-limb surgery. Do not attempt it over a hard floor without something to land on.']
+    ],
+    why: 'Grip predicts more than forearm strength: it stands in for total-body neuromuscular integrity, which is why it keeps turning up as a mortality marker. It also declines quietly — most people lose it without noticing, because nothing in daily life tests it to failure.',
+    input: { label: 'Hang time', units: [['sec', 1]], hint: 'Scored against age- and sex-referenced norms.' },
+    /* Median dead-hang seconds by age band. Heavily right-skewed, so the
+       percentile is taken on log(seconds). */
+    norms: {
+      median: { male:   [[39, 45], [49, 38], [59, 30], [69, 22], [199, 15]],
+                female: [[39, 30], [49, 25], [59, 20], [69, 14], [199, 9]] },
+      logSd: 0.52
+    },
+    score(v, s) {
+      if (!(v > 0)) return 0;
+      const sex = s.sex === 'male' ? 'male' : 'female';
+      const m = fpBand(this.norms.median[sex], s.age || 45);
+      return fpPct((Math.log(v) - Math.log(m)) / this.norms.logSd);
+    },
+    blurb: {
+      foundation: 'Below the range for your age group, and grip responds quickly to being asked. Hang for as long as you can, twice a day, and this moves within a fortnight.',
+      core:       'A solid baseline. Grip is cheap to train — add two hangs to the end of any session and let the time creep up.',
+      advanced:   'Strong grip endurance for your age group. Keep it by hanging regularly rather than chasing a number.',
+      elite:      'Top-percentile grip. Given how tightly this tracks with overall resilience, it is one of the better numbers to hold on to.'
+    }
+  },
+
+  /* ---------------- Aerobic capacity ---------------- */
+  vo2_max: {
+    id: 'vo2_max', axis: 'vo2_max', title: 'Aerobic Capacity', duration: '18 min',
+    kicker: 'Cooper 12-minute test',
+    description: 'Cover as much ground as you can in twelve minutes. The distance estimates VO2 max — the ceiling on how much oxygen your body can use — which is the single strongest predictor of how long you stay independent. You can run, jog, walk, or mix all three; the test is the distance, not the method.',
+    steps: [
+      ['Setup requirements', 'A measured route: a running track is ideal, otherwise use a phone GPS or a treadmill. Warm up for five easy minutes first. Pick a day you feel normal — this is not a day to push through illness.'],
+      ['Movement', 'Twelve minutes, as much distance as you can cover. Start conservatively; almost everyone goes out too hard and walks the last three minutes. Even effort beats a fast start.'],
+      ['Measurement', 'Record total distance at exactly twelve minutes. Enter it below in miles or metres. Cool down properly afterwards.'],
+      ['Contraindications', 'Do not attempt this with known cardiac disease, uncontrolled blood pressure, or if you have been told to avoid maximal exertion. If in doubt, ask your doctor first — this is a hard effort by design.']
+    ],
+    why: 'VO2 max falls roughly 10% per decade after thirty, and the drop accelerates once it goes unchallenged. It is also the most reversible of the longevity markers: moving from the bottom quartile to merely average is associated with a larger reduction in mortality risk than almost any other single change.',
+    input: { label: 'Distance in 12 minutes', units: [['mi', 1609.34], ['m', 1]], hint: 'Converted to an estimated VO2 max, then scored for your age and sex.' },
+    /* Cooper: VO2max ~= (metres - 504.9) / 44.73. Median VO2max by age band
+       from population data; roughly normal within a band. */
+    norms: {
+      median: { male:   [[29, 42], [39, 40], [49, 37], [59, 34], [69, 30], [199, 26]],
+                female: [[29, 35], [39, 33], [49, 31], [59, 28], [69, 25], [199, 22]] },
+      sd: 7
+    },
+    score(v, s) {
+      if (!(v > 0)) return 0;                       /* v arrives in metres */
+      const vo2 = (v - 504.9) / 44.73;
+      const sex = s.sex === 'male' ? 'male' : 'female';
+      const m = fpBand(this.norms.median[sex], s.age || 45);
+      return fpPct((vo2 - m) / this.norms.sd);
+    },
+    blurb: {
+      foundation: 'Below the range for your age group — and this is the marker where improvement pays off most. Two easy aerobic sessions a week, long enough to be boring, moves it faster than anything harder.',
+      core:       'A workable base. Adding one longer easy session and one harder interval session per week is the standard route from here.',
+      advanced:   'Strong aerobic capacity for your age group. Protect it with volume; intensity alone will not hold this.',
+      elite:      'Top-percentile aerobic capacity. This is the number most worth defending as you age — it buys more independent years than any other marker here.'
+    }
+  }
 };
 
 /* Markers The Standard scores but we can't yet, shown honestly as locked. */
 const FP_PENDING = {
-  peripheral_strength:  'Dead-hang protocol — needs a pull-up bar and bodyweight-referenced norms.',
   endurance_under_load: 'Loaded carry protocol — norms not yet sourced.',
-  vo2_max:              'Submaximal aerobic test — needs a validated estimation protocol.',
   agility:              'Change-of-direction test — needs a measured course and norms.',
   relational_capacity:  'Not a physical marker.',
   working_memory:       'Not a physical marker.'
