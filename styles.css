@@ -1011,9 +1011,27 @@ h2.section::after { content: ''; flex: 1; height: 1px; background: var(--border)
   .session-rail { position: sticky; top: calc(var(--sticky-h, 84px) + 10px); }
 }
 @media (max-width: 899px) {
-  /* on a phone the rail is a compact strip above the list, not a column */
-  .session-rail { order: -1; }
-  .rail-big { font-size: 34px; }
+  /* On a phone the rail goes BELOW the workout. The sticky bar already carries
+     live sets and the clock, so a progress card above the list would be the
+     same information standing between you and the first set. Down here it
+     reads as an end-of-session summary instead. */
+  .session-rail { order: 2; margin-top: 4px; }
+  .rail-big { font-size: 38px; }
+  .session-rail .rail-card { padding: 16px 16px 18px; }
+  .session-rail .rail-card + .rail-card { margin-top: 10px; }
+
+  /* Start is the button you actually reach for — let it dominate the row */
+  .hero-actions .btn.primary { flex: 2.4; }
+  .hero-actions .btn.ghost-hl { flex: 1; }
+  .hero { min-height: 0; padding: 14px; }
+  .hero-title { font-size: 22px; }
+  .hero-art { font-size: 86px; right: 2px; }
+
+  /* seven day chips plus a counter on a 360px screen needs the padding back */
+  .week { padding: 6px; gap: 3px; }
+  .day-chip { padding: 5px 0; border-radius: 8px; }
+  .week-lbl { display: none; }
+  .week-count { padding: 0 4px; font-size: 11.5px; }
 }
 .rail-card { padding: 15px 16px 16px; }
 .rail-kicker {
@@ -1123,3 +1141,9 @@ table.prog { font-size: 13px; }
 
 /* progress card keeps its own tighter rhythm — it earns the density */
 .session-rail .rail-card:first-child { padding: 16px 18px 18px; }
+
+/* per-exercise progress pill: fills once that exercise is finished */
+.badge.badge-done {
+  background: var(--primary); color: var(--on-primary); border-color: var(--primary);
+}
+.badge { font-variant-numeric: tabular-nums; }

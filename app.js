@@ -725,10 +725,12 @@ function bar()      { return S.settings.barWeight != null ? S.settings.barWeight
 function getPlates(){ return (S.settings.plates && S.settings.plates.length) ? S.settings.plates : (S.settings.units === 'lb' ? STD_PLATES_LB : STD_PLATES_KG); }
 
 /* plate visualizer — list of plates to load on ONE side, biggest first */
-/* Highlighter plate colours. Kept distinct per denomination so a loaded bar is
-   still readable at a glance; lb and kg equivalents share a hue (45/20 = the
-   big plate, 35/15 = the middle one). */
-const PLATE_COLORS = { 45:'#eaf962', 35:'#6cf2a8', 25:'#6fdcff', 20:'#eaf962', 15:'#6cf2a8', 10:'#ff9bd6', 5:'#ffb45c', 2.5:'#cbb0ff', 1.25:'#cbb0ff' };
+/* Plate colours drawn from the app's own palette rather than an arbitrary set:
+   a deep-navy -> brand-blue -> pale-blue ramp, ending on the highlighter and a
+   neutral for the change plates. Ordered so heavier plates are visually
+   heavier, which makes a loaded bar readable at a glance. lb and kg
+   equivalents share a step (45/20 heaviest, 35/15 next). */
+const PLATE_COLORS = { 45:'#17287d', 35:'#1a40ff', 25:'#4f7bff', 20:'#17287d', 15:'#1a40ff', 10:'#9db8ff', 5:'#eaf962', 2.5:'#b8bfcc', 1.25:'#b8bfcc' };
 /* Every highlighter is light, so the old "only the 10 is light" rule would put
    white text on yellow. Decide ink from the chip's own luminance instead. */
 function plateInk(hex) {
@@ -2572,7 +2574,7 @@ view.addEventListener('click', e => {
      shared .check class is what both actually have in common. */
   if (e.target.closest('.check') || e.target.closest('.mini-start') || e.target.closest('#startSession')) {
     sessionEnsure();
-    requestAnimationFrame(updateSessionUI);
+    requestAnimationFrame(refreshSessionPanels);
   }
 });
 document.getElementById('rfresh').onclick = () => { TAB = 'today'; render(); toast('Today'); };
@@ -3528,9 +3530,31 @@ function railExtrasHTML() {
   return out + quoteCard;
 }
 
+/* The type pill on an exercise card said "SETS" — on a card whose entire
+   content is sets. Turn it into that exercise's own progress where there is
+   more than one set to track, keep TIMED/HOLD because those change how you use
+   the row, and drop it when it would say nothing at all. */
+function annotateBadges() {
+  view.querySelectorAll('.card.lift').forEach(card => {
+    const badge = card.querySelector('.badge');
+    if (!badge) return;
+    const checks = card.querySelectorAll('.check');
+    if (checks.length > 1) {
+      let done = 0;
+      checks.forEach(c => { if (c.classList.contains('on')) done++; });
+      badge.textContent = done + '/' + checks.length;
+      badge.classList.toggle('badge-done', done === checks.length);
+      return;
+    }
+    const t = badge.textContent.trim().toUpperCase();
+    if (t === 'SETS' || t === 'REPS') badge.remove();
+  });
+}
+
 function mountSessionRail() {
   const screen = view.querySelector('.screen');
   if (!screen || screen.querySelector('.session-grid')) return;
+  annotateBadges();
   const grid = document.createElement('div'); grid.className = 'session-grid';
   const main = document.createElement('div'); main.className = 'session-main';
   while (screen.firstChild) main.appendChild(screen.firstChild);
@@ -3542,6 +3566,16 @@ function mountSessionRail() {
   rail.innerHTML = railHTML();
 }
 
+/* Ticking a set toggles the checkbox class in place — it does NOT re-render —
+   so anything derived from the checks has to be refreshed explicitly or it
+   silently goes stale. That covers the per-exercise pills and the rail's
+   "up next" / "form cue", which both depend on which set is next. */
+function refreshSessionPanels() {
+  annotateBadges();
+  const rail = view.querySelector('.session-rail');
+  if (rail) rail.innerHTML = railHTML();
+  updateSessionUI();
+}
 function updateSessionUI() {
   const bar = document.getElementById('sessBar');
   if (!bar) return;
@@ -3554,6 +3588,20 @@ function updateSessionUI() {
   bar.classList.toggle('hidden', !onRoadmap || !total);
   if (!onRoadmap || !total) return;
   const pct = Math.round(done / total * 100);
+
+  /* Ticking a set toggles a class in place without re-rendering, and the click
+     path proved unreliable to hook (the row's own handler can open the rest
+     overlay mid-dispatch). Reconcile here instead: this already runs once a
+     second while the Roadmap is up, so anything derived from the checks
+     self-heals rather than silently going stale. The rail is only rebuilt when
+     the count actually moves, so it is not thrashed every tick. */
+  annotateBadges();
+  if (updateSessionUI._last !== done) {
+    updateSessionUI._last = done;
+    const rail = view.querySelector('.session-rail');
+    if (rail) rail.innerHTML = railHTML();
+  }
+
   const set = (id, v) => { const el = document.getElementById(id); if (el) el.textContent = v; };
   set('sessCount', done + ' / ' + total);
   set('sessClock', fmtElapsed(sessionElapsedMs()));
