@@ -2611,6 +2611,7 @@ function renderSetup() {
       <button class="btn secondary" id="resetCursor">${resetCursorLabel()}</button>
       <div class="spacer"></div>
       <button class="btn danger" id="wipe">Erase all logged data</button>
+      <div class="hint">Clears every set you have ticked, your workout history, personal records, streaks and progression weights — and with them the achievements, which are earned from that data rather than stored separately. Your settings, programmes and Fingerprint scores are kept.</div>
     </div>
 
     <h2 class="section">Backup &amp; Restore</h2>
@@ -2772,7 +2773,7 @@ function wireSetup() {
       }, 3000);
     } else {
       confirmState.wipe = false;
-      S.logs = {}; S.bodyLog = []; S.cursor = { week: 0, day: 0 }; save(); rebuild(); toast('All logs cleared 🗑'); render();
+      wipeLoggedData(); toast('Logs, streaks and achievements cleared 🗑'); render();
     }
   };
 
@@ -2847,6 +2848,37 @@ function wireSetup() {
       setTimeout(() => location.reload(), 1000);
     }
   };
+}
+
+/* =====================================================================
+   ERASE LOGGED DATA
+   ---------------------------------------------------------------------
+   Achievements are not stored — syncAchievements() recomputes them on every
+   load from workout count, prep days completed, best streak and PR count. So
+   clearing S.achievements does nothing; it repopulates immediately.
+
+   The old wipe cleared S.logs, bodyLog and cursor — none of which are what
+   achievements are derived from. S.history, S.prs and the per-programme day
+   logs all survived, so every badge came straight back and the reset looked
+   broken. This clears the inputs, which is the only thing that actually
+   resets them.
+   ===================================================================== */
+function wipeLoggedData() {
+  S.logs = {};
+  S.bodyLog = [];
+  S.cursor = { week: 0, day: 0 };
+  S.history = [];          /* workout count comes from here */
+  S.prs = {};              /* PR badges come from here */
+  S.sessions = 0;
+  S.saWeights = {};        /* progression starts from the Setup lifts again */
+  S.achievements = [];
+  /* every day-programme's cursor and log — prep days and streaks live here */
+  Object.values(DAY_PROGRAMS).forEach(cfg => { S[cfg.stateKey] = { day: 1, log: {} }; });
+  if (S.liftLog) Object.keys(S.liftLog).forEach(k => { S.liftLog[k] = []; });
+  save();
+  rebuild();
+  syncAchievements();      /* recomputes to zero now the inputs are gone */
+  save();
 }
 
 /* =====================================================================
@@ -3961,23 +3993,31 @@ function railHTML() {
    it, and a line to sit with. Each is one idea with room around it — the
    progress card reads calmly because it has a single hierarchy, and these
    follow the same rule rather than packing text in. */
+/* Practical habit-formation and longevity prompts, written here rather than
+   lifted from anyone's newsletter. The behavioural ones are standard findings
+   (implementation intentions, habit stacking, friction, never-miss-twice); the
+   physiological ones restate the same evidence the Fingerprint protocols cite. */
 const RAIL_LINES = [
-  ['Show up before you feel like it. The feeling follows the work.', ''],
-  ['Strength is a skill. You are practising, not proving.', ''],
-  ['The set you almost skipped is the one that moved the needle.', ''],
-  ['Slow is smooth. Smooth is strong.', ''],
-  ['You do not rise to the occasion. You fall to your training.', 'Archilochus'],
-  ['Consistency beats intensity, every week of the year.', ''],
-  ['Add a little. Recover well. Repeat. That is the whole method.', ''],
-  ['Train the body you want at eighty, starting today.', ''],
-  ['Form first. Load is a reward for control.', ''],
-  ['The bar does not care how you feel. Pick it up anyway.', ''],
-  ['Rest is part of the programme, not a break from it.', ''],
-  ['Small weights, honest reps, long horizon.', ''],
-  ['Power is the first thing to go and the fastest to come back.', ''],
-  ['Balance is trainable. So is everything you think you have lost.', ''],
-  ['Nobody regrets the session they finished.', ''],
-  ['Progress is boring up close and obvious from a distance.', '']
+  ['Decide when and where, not just what. "Monday, Wednesday, Friday at seven" beats "three times a week" — a plan with a time attached is far more likely to happen.', 'Habit'],
+  ['Never miss twice. One skipped session is an accident; two in a row is the start of a new pattern. Protect the second day harder than the first.', 'Habit'],
+  ['Stack it onto something you already do without thinking. After the morning coffee, the kit goes on. The existing habit becomes the cue.', 'Habit'],
+  ['Cut the friction to almost nothing. Clothes out the night before, bag by the door. Most missed sessions are lost at the getting-ready stage, not the training stage.', 'Habit'],
+  ['On a bad day, do two minutes. The point is not the training effect — it is refusing to break the chain. Two minutes usually turns into the session anyway.', 'Habit'],
+  ['You are not trying to finish a programme, you are becoming someone who trains. Every session is a vote for that, and the votes compound.', 'Habit'],
+  ['Make the streak visible. A row of completed days is a surprisingly stubborn thing to break, and this app already draws you one.', 'Habit'],
+  ['Reduce the decision. Same time, same place, same first exercise. Willpower spent deciding is willpower not spent lifting.', 'Habit'],
+  ['Type II muscle fibres shrink at roughly twice the rate of Type I after forty. Something explosive each week — a jump, a throw, a fast step-up — is what defends them.', 'Longevity'],
+  ['VO2 max falls about ten percent a decade once it goes unchallenged, and it is the most reversible marker here. Two easy aerobic sessions a week move it more than one hard one.', 'Longevity'],
+  ['Grip strength tracks with all-cause mortality more tightly than blood pressure does. Hang from something. It costs thirty seconds.', 'Longevity'],
+  ['Eyes-closed balance drops from about ten seconds in your thirties to three by your sixties — and it comes back fast when trained. Practise it while the kettle boils.', 'Longevity'],
+  ['Weak social ties carry a mortality risk comparable to smoking. Of everything here, that is the one most likely to be neglected by someone who trains seriously.', 'Longevity'],
+  ['Almost no fall happens standing still — it happens mid-transition, rising or turning. Train the transitions, not just the strength.', 'Longevity'],
+  ['Recovery is not time off from the programme, it is part of it. Adaptation happens between sessions, not during them.', 'Training'],
+  ['Add a little, recover well, repeat. Progressive overload is not complicated; it is just hard to stay patient with.', 'Training'],
+  ['Leave two or three reps in reserve on most sets. Training to failure every session buys fatigue, not progress.', 'Training'],
+  ['Consistency beats intensity across a year. The programme you actually follow outperforms the better one you abandon in March.', 'Training'],
+  ['Slow the lowering phase. Most of the strength you are building is in the part everyone rushes.', 'Training'],
+  ['Progress is boring up close and obvious from a distance. Judge it in months, not sessions.', 'Training']
 ];
 /* one line per day, stable across re-renders so it does not flicker mid-set */
 function railLine() {
@@ -4003,9 +4043,9 @@ function currentRailKey() {
 function railExtrasHTML() {
   const [quote, by] = railLine();
   const quoteCard = `<div class="card rail-card rail-quote-card">
-      <div class="rail-kicker">Today</div>
+      <div class="rail-kicker">${by || 'Today'}</div>
       <blockquote class="rail-quote">${quote}</blockquote>
-      ${by ? `<div class="rail-quote-by">${by}</div>` : ''}
+
     </div>`;
 
   const nextCheck = view.querySelector('.check:not(.on)');
