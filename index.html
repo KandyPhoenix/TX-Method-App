@@ -3,9 +3,9 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, user-scalable=yes, maximum-scale=5" />
-  <meta name="theme-color" content="#10121b" />
+  <meta name="theme-color" content="#fff7eb" />
   <meta name="apple-mobile-web-app-capable" content="yes" />
-  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="default" />
   <meta name="apple-mobile-web-app-title" content="Texas Method" />
   <title>Texas Method Trainer</title>
   <link rel="manifest" href="manifest.json" />
@@ -16,12 +16,17 @@
        which would otherwise flash dark at a light-theme user on every launch. */
     (function () {
       try {
-        var t = localStorage.getItem('tm_theme') || 'dark';
+        var t = localStorage.getItem('tm_theme') || 'light';
         if (t === 'auto') t = matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark';
         document.documentElement.setAttribute('data-theme', t);
         var m = document.querySelector('meta[name="theme-color"]');
         if (m) m.setAttribute('content', t === 'light' ? '#fff7eb' : '#080808');
-      } catch (e) { /* private mode / storage blocked — dark is the CSS default */ }
+      } catch (e) {
+        /* storage blocked (private mode, site-data off). Bare :root is the
+           DARK palette, so pin light explicitly or the fallback contradicts
+           the default set above. */
+        document.documentElement.setAttribute('data-theme', 'light');
+      }
     })();
   </script>
 </head>
@@ -33,7 +38,7 @@
         <div>
           <h1 id="screenTitle">Today</h1>
           <p id="screenSub" class="sub"></p>
-          <span class="version-badge">v100 · Aug 22</span>
+          <span class="version-badge">v101 · Aug 22</span>
         </div>
       </div>
       <div style="display:flex;gap:8px">
