@@ -102,6 +102,11 @@
   --on-ink:      #ffffff;
   --primary:     #4f46e5;
   --on-primary:  #ffffff;
+  /* Page gutter. The topbar, the sticky session bar and the content column
+     all read this one value, so the header can never drift out of line with
+     the cards underneath it. It steps up with screen width — 14px everywhere
+     was tight on a phone and looked cramped on a desktop. */
+  --gutter:      20px;
   --r-card:      16px;
   --r-btn:       12px;
   --r-tag:       4px;
@@ -210,7 +215,7 @@ body {
 .topbar {
   position: sticky; top: 0; z-index: 20;
   display: flex; align-items: center; justify-content: space-between;
-  padding: calc(9px + var(--safe-top)) 14px 9px;
+  padding: calc(9px + var(--safe-top)) var(--gutter) 9px;
   background: var(--bg);
   border-bottom: 1px solid var(--border);
 }
@@ -235,7 +240,7 @@ body {
 .ghost-btn:active { transform: scale(.94); }
 
 /* ---------- Main / screens ---------- */
-main { flex: 1; padding: 16px 14px 104px; max-width: 980px; width: 100%; margin: 0 auto; zoom: var(--content-zoom, 1); }
+main { flex: 1; padding: 18px var(--gutter) 104px; max-width: 980px; width: 100%; margin: 0 auto; zoom: var(--content-zoom, 1); }
 .screen { animation: fade .25s ease; }
 @keyframes fade { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: none; } }
 
@@ -1010,7 +1015,7 @@ h2.section::after { content: ''; flex: 1; height: 1px; background: var(--border)
 .sess-bar {
   position: sticky; top: 0; z-index: 19;
   display: flex; align-items: center; gap: 12px;
-  padding: 8px 14px; background: var(--bg);
+  padding: 8px var(--gutter); background: var(--bg);
   border-bottom: 1px solid var(--border);
 }
 .sess-bar.hidden { display: none !important; }
@@ -1028,7 +1033,7 @@ h2.section::after { content: ''; flex: 1; height: 1px; background: var(--border)
 }
 
 /* two-column session layout — list left, progress right, like The Standard */
-.session-grid { display: grid; grid-template-columns: minmax(0, 1fr); gap: 14px; }
+.session-grid { display: grid; grid-template-columns: minmax(0, 1fr); gap: 18px; }
 .session-main { min-width: 0; }
 @media (min-width: 900px) {
   /* The workout column is CAPPED, not fluid. Letting it fill a desktop width
@@ -1037,6 +1042,7 @@ h2.section::after { content: ''; flex: 1; height: 1px; background: var(--border)
      list around 440px; 520px here holds our 3-column set row comfortably. */
   .session-grid {
     grid-template-columns: minmax(0, 520px) 286px;
+    gap: 24px;
     justify-content: center; align-items: start;
   }
   .session-rail { position: sticky; top: calc(var(--sticky-h, 84px) + 10px); }
@@ -1458,3 +1464,8 @@ table.prog td.w { color: var(--text); }
 }
 .gen-roll { flex: 1 1 100%; height: 38px; padding: 0 12px; font-size: 13px; }
 @media (min-width: 620px) { .gen-roll { flex: 0 0 auto; } }
+
+/* Wider screens get a wider gutter — the same 14px that felt tight on a phone
+   looked cramped against a desktop's empty margins. */
+@media (min-width: 620px) { :root { --gutter: 28px; } }
+@media (min-width: 900px) { :root { --gutter: 36px; } }
