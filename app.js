@@ -725,7 +725,17 @@ function bar()      { return S.settings.barWeight != null ? S.settings.barWeight
 function getPlates(){ return (S.settings.plates && S.settings.plates.length) ? S.settings.plates : (S.settings.units === 'lb' ? STD_PLATES_LB : STD_PLATES_KG); }
 
 /* plate visualizer — list of plates to load on ONE side, biggest first */
-const PLATE_COLORS = { 45:'#2f6fed', 35:'#e0b400', 25:'#1faa4b', 20:'#2f6fed', 15:'#e0b400', 10:'#dddddd', 5:'#e23b3b', 2.5:'#9aa0a6', 1.25:'#9aa0a6' };
+/* Highlighter plate colours. Kept distinct per denomination so a loaded bar is
+   still readable at a glance; lb and kg equivalents share a hue (45/20 = the
+   big plate, 35/15 = the middle one). */
+const PLATE_COLORS = { 45:'#eaf962', 35:'#6cf2a8', 25:'#6fdcff', 20:'#eaf962', 15:'#6cf2a8', 10:'#ff9bd6', 5:'#ffb45c', 2.5:'#cbb0ff', 1.25:'#cbb0ff' };
+/* Every highlighter is light, so the old "only the 10 is light" rule would put
+   white text on yellow. Decide ink from the chip's own luminance instead. */
+function plateInk(hex) {
+  const h = hex.replace('#', '');
+  const r = parseInt(h.slice(0, 2), 16), g = parseInt(h.slice(2, 4), 16), b = parseInt(h.slice(4, 6), 16);
+  return (0.2126 * r + 0.7152 * g + 0.0722 * b) / 255 > 0.55 ? '#10120a' : '#ffffff';
+}
 function platesPerSide(weight) {
   const b = bar(), plts = getPlates().filter(p => p > 0).sort((a, b) => b - a);
   let side = (weight - b) / 2; const out = [];
@@ -738,8 +748,7 @@ function plateStripHTML(weight) {
   if (!ps.length) return '<span class="plate-none">Bar only</span>';
   const chips = ps.map(p => {
     const c = PLATE_COLORS[p] || '#888';
-    const dark = (p === 10);
-    return `<span class="plate" style="background:${c};color:${dark ? '#111' : '#fff'}">${fmt(p)}</span>`;
+    return `<span class="plate" style="background:${c};color:${plateInk(c)}">${fmt(p)}</span>`;
   }).join('');
   return `<span class="plates">${chips}<span class="plate-side">/ side</span></span>`;
 }
@@ -1704,7 +1713,7 @@ function showFormTip(key) {
     <a class="tip-demo" href="https://www.youtube.com/results?search_query=${q}" target="_blank" rel="noopener">🎬 Watch a demo</a>`;
   pop.classList.add('visible');
 }
-function formBtn(key) { return FORM_TIPS[key] ? `<button class="info-btn form-btn" onclick="showFormTip('${key}')"><span class="fb-i">ⓘ</span> How-to</button>` : ''; }
+function formBtn(key) { return FORM_TIPS[key] ? `<button class="info-btn form-btn" data-tip="${key}" onclick="showFormTip('${key}')"><span class="fb-i">ⓘ</span> How-to</button>` : ''; }
 
 function renderStats() {
   if (isDayProgram()) { renderPrepStats(); return; }
@@ -3446,12 +3455,46 @@ function railHTML() {
     <div class="rail-row"><span>Elapsed</span><b id="railClock">${fmtElapsed(sessionElapsedMs())}</b></div>
     <div class="rail-row"><span>Estimated</span><b>${est ? '≈' + est + ' min' : '—'}</b></div>
     <div class="rail-row hl"><span>Complete</span><b id="railPct">${pct}%</b></div>
-  </div>`;
+  </div>` + railExtrasHTML();
 }
 
 /* Wrap whatever the day renderer drew into a two-column grid and hang the
    progress rail beside it. appendChild MOVES the nodes, so every listener the
    renderer already bound survives intact. */
+
+/* Fills the dead space under the progress card. Rather than a generic quote,
+   this surfaces what you're about to do and the written cue for it — content
+   the app already carries in FORM_TIPS for ~60 exercises. */
+function railExtrasHTML() {
+  const nextCheck = view.querySelector('.check:not(.on)');
+  const card = nextCheck && nextCheck.closest('.card');
+  if (!card) {
+    return `<div class="card rail-card">
+      <div class="rail-kicker">Session</div>
+      <div class="rail-next">All sets done</div>
+      <div class="rail-next-sub">Everything on this day is ticked — mark the day complete to bank it.</div>
+    </div>`;
+  }
+  const nm  = card.querySelector('.lift-head .name');
+  /* the How-to button lives inside .name, so textContent would read
+     "Squat ⓘ How-to" — take only the element's own text nodes */
+  const nmText = nm ? [...nm.childNodes].filter(x => x.nodeType === 3).map(x => x.textContent).join('').trim() : '';
+  const sch = card.querySelector('.lift-head .scheme');
+  const btn = card.querySelector('.form-btn[data-tip]');
+  const tip = btn && FORM_TIPS[btn.dataset.tip];
+  let out = `<div class="card rail-card">
+      <div class="rail-kicker">Up next</div>
+      <div class="rail-next">${nmText || '—'}</div>
+      ${sch ? `<div class="rail-next-sub">${sch.textContent.trim()}</div>` : ''}
+    </div>`;
+  if (tip) out += `<div class="card rail-card">
+      <div class="rail-kicker">Form cue</div>
+      <div class="rail-next">${tip.title}</div>
+      <div class="rail-tip-body">${tip.body}</div>
+    </div>`;
+  return out;
+}
+
 function mountSessionRail() {
   const screen = view.querySelector('.screen');
   if (!screen || screen.querySelector('.session-grid')) return;

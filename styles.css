@@ -1071,3 +1071,26 @@ h2.section::after { content: ''; flex: 1; height: 1px; background: var(--border)
 .stickytop { position: sticky; top: 0; z-index: 20; background: var(--bg); }
 .stickytop .topbar { position: static; }
 .stickytop .sess-bar { position: static; }
+/* ---- exercise card title area: white, uppercase, a touch smaller ---- */
+.lift-head { background: var(--panel); }
+.lift-head .name {
+  font-family: var(--display); font-size: 14.5px; font-weight: 800;
+  text-transform: uppercase; letter-spacing: .2px; line-height: 1.15;
+}
+.lift-head .scheme { font-size: 12px; }
+
+/* ---- rail: what's next + form cue, under the progress card ---- */
+.session-rail .rail-card + .rail-card { margin-top: 10px; }
+.rail-next {
+  font-family: var(--display); font-size: 15px; font-weight: 800;
+  text-transform: uppercase; line-height: 1.12; color: var(--text); margin-top: 5px;
+}
+.rail-next-sub { font-size: 12px; color: var(--muted); margin-top: 4px; line-height: 1.45; }
+.rail-tip-body { font-size: 12.5px; color: var(--muted); line-height: 1.55; margin-top: 6px; }
+
+/* ---- Protocols: the chosen program's detail calendar, 2px down ---- */
+.prep-num { font-size: 15px; }
+.prep-ex  { font-size: 14.5px; }
+.mcal-cell { font-size: 13px; }
+.mcal-title { font-size: 16px; }
+table.prog { font-size: 13px; }
