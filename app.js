@@ -3300,6 +3300,22 @@ async function cloudLoadSDK() {
    So when the device is factory-fresh AND the cloud holds data, ask which way
    the sync should go instead of assuming. Nothing is deleted without a choice.
    --------------------------------------------------------------------- */
+/* Firebase codes are not answers. Say what to do about it. */
+function authWhy(err) {
+  const code = (err && (err.code || err.message)) || String(err);
+  const map = {
+    'auth/unauthorized-domain':  'this address is not on the Firebase authorised-domain list',
+    'auth/popup-blocked':        'the browser blocked the sign-in window — allow pop-ups for this site and try again',
+    'auth/popup-closed-by-user': 'the sign-in window was closed before finishing',
+    'auth/cancelled-popup-request': 'sign-in was already in progress',
+    'auth/network-request-failed': 'no network — check the connection and try again',
+    'auth/operation-not-supported-in-this-environment': 'this browser will not allow sign-in from an installed app — open the site in the browser instead',
+    'auth/web-storage-unsupported': 'this browser is blocking site storage, which sign-in needs — turn off private browsing or allow cookies for this site'
+  };
+  for (const k in map) if (String(code).includes(k)) return map[k] + ' (' + k + ')';
+  return String(code);
+}
+
 function localLooksFresh() {
   const profiles = loadProfiles();
   if (!profiles || !profiles.list || profiles.list.length !== 1) return false;
@@ -3350,7 +3366,17 @@ async function cloudInit() {
     if (!fbApp) fbApp = appMod.initializeApp(FIREBASE_CONFIG);
     fbAuth = authMod.getAuth(fbApp);
     fbDb   = fsMod.getFirestore(fbApp);
+    /* A redirect sign-in came back and nothing ever read the result. On a
+       phone the popup is usually blocked, so cloudSignIn falls through to
+       signInWithRedirect — and the return trip landed on a page that never
+       asked how it went. Errors were invisible and a failure looked like a
+       hang. onAuthStateChanged still fires on success; this is here to catch
+       the failures it cannot report. */
+    authMod.getRedirectResult(fbAuth).catch(err => {
+      cloudStatus('Sign-in failed: ' + authWhy(err));
+    });
     authMod.onAuthStateChanged(fbAuth, user => {
+      clearTimeout(cloudSignInT);
       cloudUser = user || null;
       if (user) { const c = loadCloud(); c.enabled = true; saveCloud(c); cloudStartSync(user); }
       else { cloudStopSync(); }
@@ -3363,8 +3389,15 @@ async function cloudInit() {
   }
 }
 
+let cloudSignInT = null;
 async function cloudSignIn() {
   cloudStatus('Opening Google sign-in…');
+  /* If nothing resolves, say so rather than leaving that message up for good.
+     A silent wait is indistinguishable from a broken button. */
+  clearTimeout(cloudSignInT);
+  cloudSignInT = setTimeout(() => {
+    if (!cloudUser) cloudStatus('Still waiting on Google. If no window opened, allow pop-ups for this site, or open the site in your browser rather than the installed app, then try again.');
+  }, 12000);
   const c = loadCloud(); c.enabled = true; saveCloud(c);   // so a redirect-return resumes
   if (!fbAuth) { const ok = await cloudInit(); if (!ok) return; }
   try {
@@ -3378,9 +3411,9 @@ async function cloudSignIn() {
         const { authMod } = await cloudLoadSDK();
         await authMod.signInWithRedirect(fbAuth, new authMod.GoogleAuthProvider());
         return;
-      } catch (e2) { cloudStatus('Sign-in failed: ' + (e2.code || e2.message || e2)); return; }
+      } catch (e2) { cloudStatus('Sign-in failed: ' + authWhy(e2)); return; }
     }
-    cloudStatus('Sign-in failed: ' + code);
+    cloudStatus('Sign-in failed: ' + authWhy(err));
   }
 }
 
@@ -3428,7 +3461,7 @@ async function cloudStartSync(user) {
       toast('Synced from another device ⬇');
     });
   } catch (err) {
-    cloudStatus('Sync error: ' + (err && err.message ? err.message : err));
+    cloudStatus('Sync error: ' + authWhy(err));
   }
 }
 
