@@ -1295,3 +1295,7 @@ table.prog td { padding: 6px 4px; }
   font-size: 11px; color: var(--dim); text-decoration: underline;
 }
 .tip-vid-swap > summary::-webkit-details-marker { display: none; }
+
+/* the how-to demo sitting in the rail */
+.rail-video { margin: 11px 0 4px; border-radius: var(--r-btn); }
+.session-rail .rail-tip-body { -webkit-line-clamp: 8; }

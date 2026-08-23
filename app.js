@@ -1919,7 +1919,14 @@ const FORM_VIDEOS = {
   clean:       'lI35socHJ4k',   // How To Power Clean: Step by Step Beginner's Tutorial — Barbell Logic
   gobletsquat: '6mf0oa2GGUc',   // Goblet Squat Tutorial - Proper Form and Technique — Runna
   plank:       'zDjiVB-8kOs',   // The Proper form for the Plank & Side Plank — Gaston Webbe Fitness
-  glutestep:   '3sRrVvxwaUw'    // How to Perform Step Downs | Glute Exercise Tutorial — Buff Dudes
+  glutestep:   '3sRrVvxwaUw',   // How to Perform Step Downs | Glute Exercise Tutorial — Buff Dudes
+  pushups:     'WDIpL0pjun0',   // How to do a Push-Up | Proper Form & Technique — NASM
+  dbpushup:    'WDIpL0pjun0',   // same movement
+  chin:        'e1YSApl-QcM',   // PERFECT CHIN-UPS | The Only Chin-up Tutorial You'll Ever Need — Simonster Strength
+  burpees:     'qLBImHhCXSw',   // How To Do A Burpee | The Right Way — Well+Good
+  atgsplit:    'bHoCPnoHVLk',   // How To ATG Split Squat: In Depth Tutorial — Gymless Fitness
+  carry:       'lLAw6fUccKA',   // Farmer's Carry Tutorial - Proper Form and Technique — Runna
+  suitcase:    'lLAw6fUccKA'    // same carry mechanics, one side loaded
 };
 /* a pinned video always beats the bundled one */
 function videoFor(key) { return loadVideos()[key] || FORM_VIDEOS[key] || null; }
@@ -3809,6 +3816,17 @@ function railLine() {
   return RAIL_LINES[day % RAIL_LINES.length];
 }
 
+/* identifies which exercise the rail is currently describing */
+function currentRailKey() {
+  const nextCheck = view.querySelector('.check:not(.on)');
+  const card = nextCheck && nextCheck.closest('.card');
+  if (!card) return 'all-done';
+  const btn = card.querySelector('.form-btn[data-tip]');
+  if (btn) return btn.dataset.tip;
+  const nm = card.querySelector('.lift-head .name');
+  return nm ? nm.textContent.trim() : 'unknown';
+}
+
 function railExtrasHTML() {
   const [quote, by] = railLine();
   const quoteCard = `<div class="card rail-card rail-quote-card">
@@ -3838,11 +3856,19 @@ function railExtrasHTML() {
       <div class="rail-next">${nmText || '—'}</div>
       ${sch ? `<div class="rail-next-sub">${sch.textContent.trim()}</div>` : ''}
     </div>`;
-  if (tip) out += `<div class="card rail-card">
-      <div class="rail-kicker">Form cue</div>
+  if (tip) {
+    const vid = videoFor(btn.dataset.tip);
+    out += `<div class="card rail-card">
+      <div class="rail-kicker">How to</div>
       <div class="rail-next">${tip.title}</div>
+      ${vid ? `<div class="tip-video rail-video">
+           <iframe src="https://www.youtube-nocookie.com/embed/${vid}?rel=0" title="${tip.title} demo"
+             allow="accelerometer; encrypted-media; gyroscope; picture-in-picture"
+             allowfullscreen loading="lazy"></iframe>
+         </div>` : ''}
       <div class="rail-tip-body">${tip.body}</div>
     </div>`;
+  }
   return out + quoteCard;
 }
 
@@ -4026,8 +4052,13 @@ function updateSessionUI() {
      the count actually moves, so it is not thrashed every tick. */
   annotateBadges();
   applyCollapse();
-  if (updateSessionUI._last !== done) {
-    updateSessionUI._last = done;
+  /* Rebuild the rail only when the NEXT exercise changes, not on every set.
+     The progress figures are patched by id above, so they stay live without a
+     rebuild — and rebuilding would tear out the how-to iframe and restart the
+     video underneath you mid-set, which is exactly when you are watching it. */
+  const tipKey = currentRailKey();
+  if (updateSessionUI._tipKey !== tipKey) {
+    updateSessionUI._tipKey = tipKey;
     const rail = view.querySelector('.session-rail');
     if (rail) rail.innerHTML = railHTML();
   }
