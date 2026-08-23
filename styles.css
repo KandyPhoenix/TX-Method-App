@@ -1360,3 +1360,14 @@ table.prog td.w { color: var(--text); }
    left stripe on an active set row. */
 /* weekly goal met — the one place the highlighter means "done" */
 .week-count.met { color: var(--on-hl); background: var(--hl); border-radius: 999px; padding: 3px 8px; }
+
+/* No bundled demo for this movement — offer the search rather than a gap.
+   Reads as a quiet link, not a primary action; it leaves the app. */
+.rail-vid-search {
+  display: block; margin: 11px 0 2px; padding: 9px 11px;
+  border: 1px dashed var(--border); border-radius: var(--r-btn);
+  font-size: 12px; font-weight: 700; letter-spacing: .2px;
+  color: var(--muted); text-decoration: none; text-align: center;
+  transition: border-color .15s ease, color .15s ease;
+}
+.rail-vid-search:hover { border-color: var(--accent); color: var(--accent); }

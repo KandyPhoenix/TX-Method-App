@@ -3242,12 +3242,21 @@ function buildBundle() {
     const raw = localStorage.getItem('tm_state_' + p.id);
     if (raw) { try { states[p.id] = JSON.parse(raw); } catch { /* skip */ } }
   });
-  return { type: 'tm_full_backup', version: 1, profiles, states };
+  /* Pinned videos were never in the bundle, so a factory reset wiped them and
+     a restore could not bring them back — and they never reached a second
+     device either. They are per-device, not per-profile, so they ride at the
+     top level. */
+  return { type: 'tm_full_backup', version: 1, profiles, states, videos: loadVideos() };
 }
 function applyBundle(bundle) {
   if (!bundle || !bundle.profiles || !bundle.states) return false;
   saveProfiles(bundle.profiles);
   Object.entries(bundle.states).forEach(([id, st]) => localStorage.setItem('tm_state_' + id, JSON.stringify(st)));
+  /* Older bundles have no videos key — leave whatever is on this device alone
+     rather than clearing it. */
+  if (bundle.videos && typeof bundle.videos === 'object') {
+    try { localStorage.setItem(VID_KEY, JSON.stringify(bundle.videos)); } catch {}
+  }
   S = loadState(); rebuild(); updateProfileBtn(); render();
   return true;
 }
@@ -4237,25 +4246,34 @@ function railExtrasHTML() {
   /* on a superset card prefer the row being pointed at, not the card's first */
   const btn = (row && row.querySelector('.form-btn[data-tip]')) || card.querySelector('.form-btn[data-tip]');
   const tip = btn && FORM_TIPS[btn.dataset.tip];
-  let out = `<div class="card rail-card">
+  const upNext = `<div class="card rail-card">
       <div class="rail-kicker">${t.focused ? 'Viewing' : 'Up next'}</div>
       <div class="rail-next">${nmText || '—'}</div>
       ${sch ? `<div class="rail-next-sub">${sch.textContent.trim()}</div>` : ''}
     </div>`;
+  let howTo = '';
   if (tip) {
     const vid = videoFor(btn.dataset.tip);
-    out += `<div class="card rail-card">
+    /* Only 15 of the 129 movements ship with a demo, so most exercises left a
+       How-to card with a title, a paragraph and a conspicuous gap where a video
+       should be. A search link is not a video, but it beats the gap and it
+       cannot teach the wrong movement, which a guessed id would. */
+    const q = encodeURIComponent(tip.title + ' exercise how to');
+    howTo = `<div class="card rail-card">
       <div class="rail-kicker">How to</div>
       <div class="rail-next">${tip.title}</div>
       ${vid ? `<div class="tip-video rail-video">
            <iframe src="https://www.youtube-nocookie.com/embed/${vid}?rel=0" title="${tip.title} demo"
              allow="accelerometer; encrypted-media; gyroscope; picture-in-picture"
              allowfullscreen loading="lazy"></iframe>
-         </div>` : ''}
+         </div>`
+        : `<a class="rail-vid-search" href="https://www.youtube.com/results?search_query=${q}"
+              target="_blank" rel="noopener">Find a demo on YouTube ↗</a>`}
       <div class="rail-tip-body">${tip.body}</div>
     </div>`;
   }
-  return out + quoteCard;
+  /* How-to first: it is what you read while you are doing the set. */
+  return howTo + upNext + quoteCard;
 }
 
 /* The type pill on an exercise card said "SETS" — on a card whose entire
