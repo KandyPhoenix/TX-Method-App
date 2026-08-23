@@ -1085,6 +1085,71 @@ function genRegisterTips() {
   });
 }
 
+/* =====================================================================
+   The nine complete programmes from Synthesis's fitness tracker.
+
+   These are fixed splits, not generated: Push Pull Legs, Upper/Lower, Full
+   Body 3x, Knee-Friendly, Asian Pilates, Military Calisthenics & Pelvic
+   Pilates, Mobility Snacks, Joint Mobility Mastery and MovesMethod. A split
+   repeats — day 7 of a 6-day PPL is Push A again — so the days are cycled out
+   to a month, which is how a split is meant to be run and keeps the cursor,
+   the calendar and "day N of M" behaving as they do everywhere else.
+
+   Their coaching text is richer than anything here: every movement carries
+   instructions, a list of cues and, for all but three, an anatomy note. All of
+   it is folded into the same table the How-to panel reads.
+   ===================================================================== */
+function synCfgKey(id) { return 'syn_' + id.replace(/-/g, '_'); }
+
+function synPlanDays(plan) {
+  const src = plan.days;
+  if (!src.length) return [];
+  const out = [];
+  const target = Math.max(src.length, Math.ceil(28 / src.length) * src.length);
+  for (let i = 0; i < target; i++) {
+    const d = src[i % src.length];
+    const cycle = Math.floor(i / src.length) + 1;
+    out.push({
+      title: d.title,
+      note: (d.focus ? d.focus + '. ' : '') + plan.name + ' — ' + (plan.desc || '') +
+            (src.length > 1 ? ' Round ' + cycle + ' of this ' + src.length + '-day split.' : ''),
+      exercises: d.exercises
+    });
+  }
+  return out;
+}
+
+let synPlanCache = {};
+function synData(id) {
+  const plan = (typeof SYN_PLANS === 'undefined' ? [] : SYN_PLANS).find(p => p.id === id);
+  if (!plan) return [];
+  if (!synPlanCache[id]) synPlanCache[id] = synPlanDays(plan);
+  return synPlanCache[id];
+}
+
+function synRegisterTips() {
+  if (typeof SYN_TIPS === 'undefined') return;
+  Object.keys(SYN_TIPS).forEach(k => { if (!FORM_TIPS[k]) FORM_TIPS[k] = SYN_TIPS[k]; });
+}
+
+/* Icons and grouping per programme, so the library reads at a glance. */
+const SYN_ICO = {
+  'ppl': '\u{1F3CB}\u{FE0F}', 'upper-lower': '\u{2696}\u{FE0F}', 'full-body': '\u{1F525}',
+  'knee-friendly-2x': '\u{1F9BF}', 'asian-pilates-3x': '\u{1F338}',
+  'military-pelvic-4x': '\u{1F396}\u{FE0F}', 'mobility-snacks-4x': '\u{1F34E}',
+  'joint-mobility-mastery-7x': '\u{1F9B4}', 'movesmethod-workouts-3x': '\u{1F57A}'
+};
+const SYN_TAG = {
+  'ppl': 'Strength', 'upper-lower': 'Strength', 'full-body': 'Strength',
+  'knee-friendly-2x': 'Strength', 'asian-pilates-3x': 'Mobility',
+  'military-pelvic-4x': 'Conditioning', 'mobility-snacks-4x': 'Mobility',
+  'joint-mobility-mastery-7x': 'Mobility', 'movesmethod-workouts-3x': 'Mobility'
+};
+const SYN_GRP = {
+  'asian-pilates-3x': 'recovery', 'mobility-snacks-4x': 'recovery',
+  'joint-mobility-mastery-7x': 'recovery', 'movesmethod-workouts-3x': 'recovery'
+};
+
 const DAY_PROGRAMS = {
   prep30:   { data: PREP30,   stateKey: 'prep', label: '30-Day Prep',       sub: 'bodyweight ramp-up' },
   mobility: { data: MOBILITY, stateKey: 'mob',  label: 'Mobility Method',   sub: 'daily joint mobility' },
@@ -1099,6 +1164,20 @@ const DAY_PROGRAMS = {
   fpfocus:  { get data() { return fpFocusPlan(); }, stateKey: 'fpfocus', label: 'Fingerprint Focus', sub: 'targets your weakest markers', holdLabel: 'Timed work' },
   gen:      { get data() { return genPlan(); }, stateKey: 'gen', label: 'Random Generator', sub: 'a fresh workout on demand', holdLabel: 'Timed work' }
 };
+/* Registered from the data file rather than written out one by one, so
+   adding a programme there is enough to make it appear everywhere. */
+if (typeof SYN_PLANS !== 'undefined') {
+  SYN_PLANS.forEach(p => {
+    DAY_PROGRAMS['syn-' + p.id] = {
+      get data() { return synData(p.id); },
+      stateKey: synCfgKey(p.id),
+      label: p.name,
+      sub: p.desc.length > 46 ? p.desc.slice(0, 44) + '\u2026' : p.desc,
+      holdLabel: 'Timed work'
+    };
+  });
+}
+
 function isDayProgram() { return !!DAY_PROGRAMS[S.program]; }
 function pcfg()   { return DAY_PROGRAMS[S.program] || DAY_PROGRAMS.prep30; }
 function pdata()  { return pcfg().data; }
@@ -1301,6 +1380,15 @@ function migrate(st) {
      EQUIP_SHORT['dumbbells'] is undefined and the header pill reads
      "undefined". */
   if (st.settings && st.settings.equipment === 'dumbbells') st.settings.equipment = 'gym';
+  /* one slot per imported programme, same shape as the built-in ones */
+  if (typeof SYN_PLANS !== 'undefined') {
+    SYN_PLANS.forEach(p => {
+      const k = 'syn_' + p.id.replace(/-/g, '_');
+      st[k] = st[k] || { day: 1, log: {} };
+      if (st[k].day == null) st[k].day = 1;
+      if (!st[k].log) st[k].log = {};
+    });
+  }
   ['core', 'db', 'pil', 'hiit', 'bjj', 'sa2', 'sa4', 'sahyb'].forEach(k => { st[k] = st[k] || { day: 1, log: {} }; if (st[k].day == null) st[k].day = 1; if (!st[k].log) st[k].log = {}; });
   if (!st.achievements) st.achievements = [];
   if (!st.prs) st.prs = {};
@@ -5241,6 +5329,20 @@ const PROTOCOLS = [
   { key: 'pilates', needs: 'bodyweight',   ico: '🤸',         name: 'Pilates Mat',       tag: 'Mobility',     grp: 'recovery', sub: 'Classical Pilates' }
 ];
 
+/* The imported programmes join the library from their data file, so adding one
+   there is enough to make it appear here too. */
+if (typeof SYN_PLANS !== 'undefined') {
+  SYN_PLANS.forEach(p => PROTOCOLS.push({
+    key: 'syn-' + p.id,
+    needs: 'bodyweight',
+    ico: SYN_ICO[p.id] || '\u{1F4AA}',
+    name: p.name,
+    tag: SYN_TAG[p.id] || 'Strength',
+    grp: SYN_GRP[p.id] || 'workout',
+    sub: p.desc
+  }));
+}
+
 /* length in days, so every card carries a duration the way The Standard's do */
 function protoLen(key) {
   if (key === 'texas') return PROGRAM_RULES.totalWeeks + ' weeks';
@@ -5985,6 +6087,7 @@ function fpRenderSheet(stage, payload) {
 backfillHistory();
 syncAchievements();
 genRegisterTips();
+synRegisterTips();
 render();
 /* auto-resume cloud sync if previously signed in */
 if (loadCloud().enabled) { setTimeout(cloudInit, 0); }
