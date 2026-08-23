@@ -64,6 +64,12 @@
   --chart-3: #448800;
   --chart-4: #ccff44;
 
+  /* Fingerprint tiers — must stay visibly distinct from each other */
+  --tier-foundation: #7b7b7b;
+  --tier-core:       #5f9c00;
+  --tier-advanced:   #9bf000;
+  --tier-elite:      #d6ff6b;
+
   --radius: 13px;
   --safe-top:    env(safe-area-inset-top, 0px);
   --safe-bottom: env(safe-area-inset-bottom, 0px);
@@ -127,6 +133,11 @@
   --chart-2: #6aa300;
   --chart-3: #1f3d00;
   --chart-4: #94c500;
+
+  --tier-foundation: #a9a294;
+  --tier-core:       #8aa63c;
+  --tier-advanced:   #5c8a08;
+  --tier-elite:      #2f5200;
 }
 
 * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
@@ -731,10 +742,10 @@ table.prog td.s { text-align: right; color: var(--muted); width: 60px; }
 }
 .fp-leg { display: inline-flex; align-items: center; gap: 5px; }
 .fp-dot { width: 8px; height: 8px; border-radius: 50%; display: inline-block; }
-.fp-dot.elite      { background: var(--accent); }
-.fp-dot.advanced   { background: var(--accent-2); }
-.fp-dot.core       { background: var(--accent-3); }
-.fp-dot.foundation { background: var(--accent-deep); }
+.fp-dot.elite      { background: var(--tier-elite); }
+.fp-dot.advanced   { background: var(--tier-advanced); }
+.fp-dot.core       { background: var(--tier-core); }
+.fp-dot.foundation { background: var(--tier-foundation); }
 
 .fp-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; }
 .fp-card {

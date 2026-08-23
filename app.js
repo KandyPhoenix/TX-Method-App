@@ -3491,12 +3491,16 @@ function fpRadar(canvas) {
     ctx.closePath();
     ctx.fillStyle = cssVar('--accent-soft', 'rgba(170,255,0,.12)'); ctx.fill();
     ctx.strokeStyle = cssVar('--accent-ink', '#aaff00'); ctx.lineWidth = 2; ctx.stroke();
+    /* each vertex takes its own tier colour, so the legend below the chart
+       actually decodes something rather than sitting there decoratively */
     vals.forEach((v, i) => {
       if (!v) return;
       const a = ang(i), r = R * (v / 100);
       ctx.beginPath();
-      ctx.arc(cx + Math.cos(a) * r, cy + Math.sin(a) * r, 3.5, 0, Math.PI * 2);
-      ctx.fillStyle = cssVar('--accent-ink', '#aaff00'); ctx.fill();
+      ctx.arc(cx + Math.cos(a) * r, cy + Math.sin(a) * r, 4, 0, Math.PI * 2);
+      ctx.fillStyle = cssVar('--tier-' + fpTier(v).key, cssVar('--accent-ink', '#aaff00'));
+      ctx.fill();
+      ctx.strokeStyle = cssVar('--panel', '#1a1a1a'); ctx.lineWidth = 1.5; ctx.stroke();
     });
   }
 
