@@ -2261,7 +2261,7 @@ function achievementsCardHTML() {
     return `<div class="ach ${on ? 'on' : ''}"><div class="ach-emoji">${a.emoji}</div><div class="ach-name">${a.name}</div></div>`;
   }).join('');
   const got = S.achievements.length, tot = ACHIEVEMENTS.length;
-  return `<h2 class="section">Achievements — ${got}/${tot}</h2><div class="card"><div class="ach-grid">${items}</div></div>`;
+  return `<h2 class="section">Achievements — ${got}/${tot}</h2><div class="card"><div class="ach-grid">${items}</div></div><button class="btn secondary small" id="resetAch" style="width:100%;margin-top:10px">Reset achievements</button><div class="hint">Sets your badges back to zero and starts earning them again from today. Your logged sets, history, PRs and streaks are all kept.</div>`;
 }
 function prCardHTML() {
   const keys = Object.keys(S.prs || {});
@@ -2872,6 +2872,7 @@ function wipeLoggedData() {
   S.sessions = 0;
   S.saWeights = {};        /* progression starts from the Setup lifts again */
   S.achievements = [];
+  S.achieveBaseline = null;   /* raw counts go to zero, so the origin must too */
   /* every day-programme's cursor and log — prep days and streaks live here */
   Object.values(DAY_PROGRAMS).forEach(cfg => { S[cfg.stateKey] = { day: 1, log: {} }; });
   if (S.liftLog) Object.keys(S.liftLog).forEach(k => { S.liftLog[k] = []; });
@@ -3092,6 +3093,22 @@ function toast(msg) {
 document.querySelectorAll('.tab').forEach(t => t.onclick = () => { TAB = t.dataset.tab; window.scrollTo(0,0); render(); });
 /* Roadmap's '+ Log a lift' jumps to the Stats lift tracker. Delegated, so it
    survives the re-render that replaces the button on every screen draw. */
+view.addEventListener('click', e => {
+  const ra = e.target.closest('#resetAch');
+  if (ra) {
+    if (ra.dataset.armed !== '1') {
+      ra.dataset.armed = '1';
+      ra.textContent = 'Tap again to reset badges';
+      setTimeout(() => { if (ra.isConnected) { ra.dataset.armed = '0'; ra.textContent = 'Reset achievements'; } }, 3000);
+    } else {
+      resetAchievements();
+      toast('Achievements reset — earning from today');
+      render();
+    }
+    return;
+  }
+});
+
 view.addEventListener('click', e => {
   if (e.target.closest('#rmLogLift')) { TAB = 'stats'; window.scrollTo(0, 0); render(); return; }
   /* any set tick or pressing Start begins the session clock */
@@ -3493,14 +3510,36 @@ const ACHIEVEMENTS = [
 function workoutCount() {
   return (S.history || []).length;
 }
+/* Achievements are derived, never stored — syncAchievements() rebuilds them
+   from these four numbers on every load. That is why clearing the list does
+   nothing, and why the only way to reset the badges WITHOUT throwing away your
+   training history is to move the origin: record where you are now, and count
+   from there. Everything below is a delta against that baseline. */
 function achievementStats() {
   const st = prepStreaks();
+  const b = S.achieveBaseline || {};
+  const sub = (now, was) => Math.max(0, now - (was || 0));
   return {
+    workouts: sub(workoutCount(), b.workouts),
+    prepDays: sub(prepDaysComplete(), b.prepDays),
+    streak:   sub(st.best, b.streak),   // best streak (monotonic) drives streak badges
+    prCount:  sub(Object.keys(S.prs || {}).length, b.prCount)
+  };
+}
+
+/* zero the badges but keep every logged set, PR and streak */
+function resetAchievements() {
+  const st = prepStreaks();
+  S.achieveBaseline = {
     workouts: workoutCount(),
     prepDays: prepDaysComplete(),
-    streak:   st.best,            // best streak (monotonic) drives streak badges
+    streak:   st.best,
     prCount:  Object.keys(S.prs || {}).length
   };
+  S.achievements = [];
+  save();
+  syncAchievements();   /* recomputes against the new origin — all deltas zero */
+  save();
 }
 /* recompute the full earned set from current data (self-corrects stale badges) */
 function syncAchievements() {
