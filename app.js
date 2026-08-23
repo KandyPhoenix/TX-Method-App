@@ -354,7 +354,7 @@ function sa2Session(w, v) { /* v: 0 = A, 1 = B */
   const expl = saPick('explosive', w + v * 2);
   const ex = [
     ...saWarmup(),
-    saMove(expl, saExplScheme(expl), expl.hold != null ? 2 : 3),
+    saMove(expl, saExplScheme(expl, expl.hold != null ? 2 : 3), expl.hold != null ? 2 : 3),
     saMove(saPick('squat', w + v * 2),     'Superset 1 · 8–12 reps · leave 2–3 in reserve', 4, 1),
     saMove(saPick('hinge', w + v),         'Superset 1 · 8–12 reps · no rest — straight back to partner', 4, 1),
     saMove(saPick('push',  w + v),         'Superset 2 · 8–12 reps · leave 2–3 in reserve', 4, 2),
@@ -374,7 +374,7 @@ function sa4Upper(w, v) { /* v: 0 = A, 1 = B */
   const expl = [SA_POOL.explosive[3], SA_POOL.explosive[0]][(w + v) % 2]; /* jump rope / squat jumps */
   const ex = [
     ...saWarmup(),
-    saMove(expl, saExplScheme(expl), 2),
+    saMove(expl, saExplScheme(expl, 2), 2),
     saMove(saPick('push', w + v),         'Superset 1 · 8–12 reps · leave 2–3 in reserve', 3, 1),
     saMove(saPick('pull', w + v * 2),     'Superset 1 · 8–12 reps · no rest — straight back to partner', 3, 1),
     saMove(saPick('push', w + v + 1),     'Superset 2 · 8–12 reps · leave 2–3 in reserve', 3, 2),
@@ -387,7 +387,7 @@ function sa4Lower(w, v) { /* v: 0 = A, 1 = B */
   const expl = [SA_POOL.explosive[0], SA_POOL.explosive[1], SA_POOL.explosive[2]][(w + v) % 3];
   const ex = [
     ...saWarmup(),
-    saMove(expl, saExplScheme(expl), 2),
+    saMove(expl, saExplScheme(expl, 2), 2),
     saMove(saPick('squat', w + v),     'Superset 1 · 8–12 reps · leave 2–3 in reserve', 3, 1),
     saMove(saPick('hinge', w + v),     'Superset 1 · 8–12 reps · no rest — straight back to partner', 3, 1),
     saMove(saPick('squat', w + v + 1), 'Superset 2 · 8–12 reps · leave 2–3 in reserve', 3, 2),
@@ -3469,6 +3469,10 @@ function mountSessionRail() {
 function updateSessionUI() {
   const bar = document.getElementById('sessBar');
   if (!bar) return;
+  /* the rail sticks below the whole sticky header, whose height changes with
+     the session bar showing or hiding — measure it rather than hard-coding */
+  const head = document.querySelector('.stickytop');
+  if (head) document.documentElement.style.setProperty('--sticky-h', head.offsetHeight + 'px');
   const onRoadmap = TAB === 'today';
   const { done, total } = onRoadmap ? sessionCounts() : { done: 0, total: 0 };
   bar.classList.toggle('hidden', !onRoadmap || !total);

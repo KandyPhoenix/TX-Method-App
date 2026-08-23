@@ -1008,7 +1008,7 @@ h2.section::after { content: ''; flex: 1; height: 1px; background: var(--border)
     grid-template-columns: minmax(0, 520px) 286px;
     justify-content: center; align-items: start;
   }
-  .session-rail { position: sticky; top: 68px; }
+  .session-rail { position: sticky; top: calc(var(--sticky-h, 84px) + 10px); }
 }
 @media (max-width: 899px) {
   /* on a phone the rail is a compact strip above the list, not a column */
@@ -1065,3 +1065,9 @@ h2.section::after { content: ''; flex: 1; height: 1px; background: var(--border)
 .note-fold > summary::after { content: ' ▾'; }
 .note-fold[open] > summary::after { content: ' ▴'; }
 .note-fold .note-body { padding: 0 13px 13px; font-size: 13px; line-height: 1.55; color: var(--muted); }
+/* The topbar and the session bar were BOTH position:sticky top:0, so the
+   session bar slid underneath the taller topbar as soon as the page scrolled.
+   One sticky wrapper lets them stack instead of collide. */
+.stickytop { position: sticky; top: 0; z-index: 20; background: var(--bg); }
+.stickytop .topbar { position: static; }
+.stickytop .sess-bar { position: static; }
