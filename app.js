@@ -36,6 +36,7 @@ const DEFAULTS = {
   units: 'lb',
   sex: 'female',
   age: 45,            /* Fingerprint scoring is age-normed — see FP_ASSESS */
+  equipment: 'gym',   /* gym | dumbbells | bodyweight — see EQUIP_RANK */
   bodyweight: 165,
   barWeight: 45,
   plates: [45, 35, 25, 10, 5, 2.5],
@@ -1700,6 +1701,33 @@ const FORM_TIPS = {
 /* the VO₂ ride day uses per-interval keys — share the interval/recovery tips */
 ['vo2i1', 'vo2i2', 'vo2i3', 'vo2i4'].forEach(k => { FORM_TIPS[k] = FORM_TIPS.vo2max; });
 ['vo2r1', 'vo2r2', 'vo2r3'].forEach(k => { FORM_TIPS[k] = FORM_TIPS.vo2rec; });
+/* ---------------------------------------------------------------------
+   Demo video per exercise.
+
+   No video IDs are shipped. Guessing YouTube IDs for ~60 exercises would mean
+   fabricating them, and a wrong ID silently teaches the wrong movement — worse
+   than no video at all. Instead you attach one once per exercise (paste any
+   YouTube link) and it plays inline from then on, keyed to the exercise and
+   kept in localStorage. The search link stays as the way to go find one.
+   --------------------------------------------------------------------- */
+const VID_KEY = 'tm_videos';
+function loadVideos() {
+  try { return JSON.parse(localStorage.getItem(VID_KEY)) || {}; } catch { return {}; }
+}
+function saveVideo(key, id) {
+  const v = loadVideos();
+  if (id) v[key] = id; else delete v[key];
+  try { localStorage.setItem(VID_KEY, JSON.stringify(v)); } catch {}
+}
+/* accepts a full watch URL, a youtu.be link, an embed URL, or a bare id */
+function parseYouTubeId(raw) {
+  if (!raw) return null;
+  const t = raw.trim();
+  if (/^[\w-]{11}$/.test(t)) return t;
+  const m = t.match(/(?:youtube\.com\/(?:watch\?(?:.*&)?v=|embed\/|shorts\/)|youtu\.be\/)([\w-]{11})/);
+  return m ? m[1] : null;
+}
+
 function showFormTip(key) {
   const info = FORM_TIPS[key]; if (!info) return;
   let pop = document.getElementById('infoPop');
@@ -1711,9 +1739,35 @@ function showFormTip(key) {
     }, true);
   }
   const q = encodeURIComponent(info.title + ' exercise how to');
-  pop.innerHTML = `<div class="info-pop-title">${info.title}</div><div class="info-pop-body">${info.body}</div>
-    <a class="tip-demo" href="https://www.youtube.com/results?search_query=${q}" target="_blank" rel="noopener">🎬 Watch a demo</a>`;
+  const vid = loadVideos()[key];
+  const player = vid
+    ? `<div class="tip-video">
+         <iframe src="https://www.youtube-nocookie.com/embed/${vid}?rel=0" title="${info.title} demo"
+           allow="accelerometer; encrypted-media; gyroscope; picture-in-picture" allowfullscreen loading="lazy"></iframe>
+       </div>
+       <button class="tip-vid-clear" data-vidclear="${key}">Remove video</button>`
+    : `<div class="tip-vid-add">
+         <input type="url" class="tip-vid-input" data-vidfor="${key}" placeholder="Paste a YouTube link to pin a demo here" />
+         <button class="btn primary small" data-vidsave="${key}">Pin</button>
+       </div>`;
+  const swap = equipSwapFor(key);
+  pop.innerHTML = `<div class="info-pop-title">${info.title}</div>
+    ${player}
+    <div class="info-pop-body">${info.body}</div>
+    ${swap ? `<div class="tip-swap"><b>No barbell today?</b> ${swap}</div>` : ''}
+    <a class="tip-demo" href="https://www.youtube.com/results?search_query=${q}" target="_blank" rel="noopener">🎬 Find a demo</a>`;
   pop.classList.add('visible');
+
+  pop.querySelectorAll('[data-vidsave]').forEach(b => b.onclick = () => {
+    const k = b.dataset.vidsave;
+    const input = pop.querySelector('[data-vidfor="' + k + '"]');
+    const id = parseYouTubeId(input && input.value);
+    if (!id) { toast('That does not look like a YouTube link'); return; }
+    saveVideo(k, id); showFormTip(k); toast('Demo pinned');
+  });
+  pop.querySelectorAll('[data-vidclear]').forEach(b => b.onclick = () => {
+    saveVideo(b.dataset.vidclear, null); showFormTip(b.dataset.vidclear);
+  });
 }
 function formBtn(key) { return FORM_TIPS[key] ? `<button class="info-btn form-btn" data-tip="${key}" onclick="showFormTip('${key}')"><span class="fb-i">ⓘ</span> How-to</button>` : ''; }
 
@@ -2082,6 +2136,13 @@ function renderSetup() {
       </div>
       <div class="field"><label>Bodyweight (${s.units})</label>
         <input type="number" inputmode="decimal" id="bw" value="${s.bodyweight}" /></div>
+      <div class="field"><label>Equipment available</label>
+        <div class="seg" id="segEquip">
+          ${['gym','dumbbells','bodyweight'].map(k =>
+            `<button data-eq="${k}" class="${(s.equipment || 'gym') === k ? 'on' : ''}">${EQUIP_LABEL[k]}</button>`).join('')}
+        </div>
+        <div class="hint">Protocols you cannot run today are marked in the library, and barbell movements show a stand-in in their How-to.</div>
+      </div>
       <div class="field"><label>Age</label>
         <input type="number" inputmode="numeric" id="age" value="${s.age ?? 45}" />
         <div class="hint">Fingerprint scores are percentiles against your age group, so this changes them directly.</div></div>
@@ -2258,6 +2319,9 @@ function wireSetup() {
   view.querySelectorAll('#segMode button').forEach(b => b.onclick = () => { s.mode = b.dataset.m; save(); render(); });
 
   document.getElementById('bw').onchange  = e => { s.bodyweight = +e.target.value || 0; save(); };
+  view.querySelectorAll('#segEquip button').forEach(b => b.onclick = () => {
+    s.equipment = b.dataset.eq; save(); render();
+  });
   document.getElementById('age').onchange = e => {
     s.age = Math.max(10, Math.min(110, +e.target.value || 45)); save();
   };
@@ -3734,18 +3798,64 @@ setInterval(() => { if (TAB === 'today') updateSessionUI(); }, 1000);
    renderPrepProgram() already drew, so the Texas table and the prep
    calendar keep working untouched.
    ===================================================================== */
+/* ---------------------------------------------------------------------
+   Equipment.
+
+   Kit is a ladder, not a set: a barbell gym can run anything, dumbbells can
+   run dumbbell and bodyweight work, bodyweight runs only itself. So one rank
+   comparison decides whether a protocol is available.
+
+   Note what this does NOT do: silently swap exercises inside a running
+   programme. Texas Method prescribes 110lb because of what you squatted last
+   week — quietly turning that into a goblet squat would keep the number and
+   make it meaningless, and the same applies to every SuperAge progression.
+   Instead the library tells you what you can actually run today, and each
+   barbell movement carries a documented stand-in in its How-to.
+   --------------------------------------------------------------------- */
+const EQUIP_RANK  = { bodyweight: 0, dumbbells: 1, gym: 2 };
+const EQUIP_LABEL = { bodyweight: 'Bodyweight only', dumbbells: 'Dumbbells', gym: 'Full gym' };
+const EQUIP_NEEDS = { bodyweight: 'bodyweight', dumbbells: 'dumbbells', gym: 'a barbell' };
+
+function haveEquip() { return S.settings.equipment || 'gym'; }
+function canRun(needs) { return EQUIP_RANK[haveEquip()] >= EQUIP_RANK[needs || 'bodyweight']; }
+
+/* stand-ins shown in the How-to when you do not have the kit for a movement */
+const EQUIP_SWAPS = {
+  squat:    { dumbbells: 'Goblet squat — same depth, hold one dumbbell at the chest.',
+              bodyweight: 'Bodyweight squat, or an ATG split squat for more load per leg.' },
+  bench:    { dumbbells: 'Dumbbell bench press, or a floor press if you have no bench.',
+              bodyweight: 'Push-ups — elevate the feet to make them harder.' },
+  deadlift: { dumbbells: 'Dumbbell Romanian deadlift — hinge, do not squat it.',
+              bodyweight: 'Single-leg Romanian deadlift, then glute bridges for volume.' },
+  press:    { dumbbells: 'Dumbbell shoulder press, seated or standing.',
+              bodyweight: 'Pike push-ups; feet raised as you get stronger.' },
+  clean:    { dumbbells: 'Dumbbell snatch or a dumbbell high pull.',
+              bodyweight: 'Squat jumps — the point is speed, not load.' },
+  backext:  { dumbbells: 'Dumbbell good morning, light.',
+              bodyweight: 'Supermans, or a glute bridge hold.' },
+  chin:     { dumbbells: 'Dumbbell bent-over row.',
+              bodyweight: 'Inverted row under a table, or a doorway isometric hold.' }
+};
+function equipSwapFor(key) {
+  const sw = EQUIP_SWAPS[key];
+  if (!sw) return '';
+  const have = haveEquip();
+  if (have === 'gym') return '';
+  return sw[have] || '';
+}
+
 const PROTOCOLS = [
-  { key: 'texas',    ico: '🏋️', name: 'Texas Method',      tag: 'Strength',     grp: 'workout', sub: 'Barbell' },
-  { key: 'dumbbell', ico: '💪',         name: 'Dumbbell A/B',      tag: 'Strength',     grp: 'workout', sub: 'Dumbbells only' },
-  { key: 'prep30',   ico: '🗓️', name: '30-Day Prep',       tag: 'Strength',     grp: 'workout', sub: 'Bodyweight ramp-up' },
-  { key: 'sa2',      ico: '🫀',         name: 'SuperAge 2-Day',    tag: 'Longevity',    grp: 'workout', sub: '2 lifts + 1 long ride' },
-  { key: 'sa4',      ico: '❤️‍🔥', name: 'SuperAge Full Week', tag: 'Longevity', grp: 'workout', sub: '4 lifts + 3 rides' },
-  { key: 'sahyb',    ico: '🔀',         name: 'SuperAge Hybrid',   tag: 'Longevity',    grp: 'workout', sub: 'Week style rotates' },
-  { key: 'hiit',     ico: '⚡',          name: 'Full-Body HIIT',    tag: 'Conditioning', grp: 'workout', sub: 'Timed circuit' },
-  { key: 'bjj',      ico: '🥋',         name: 'BJJ Drills',        tag: 'Conditioning', grp: 'workout', sub: 'Jiu-jitsu movement' },
-  { key: 'core',     ico: '🔥',         name: 'Core & Abs',        tag: 'Conditioning', grp: 'workout', sub: 'Core builder' },
-  { key: 'mobility', ico: '🧘',         name: 'Mobility',          tag: 'Mobility',     grp: 'recovery', sub: 'Hips · knees · ankles' },
-  { key: 'pilates',  ico: '🤸',         name: 'Pilates Mat',       tag: 'Mobility',     grp: 'recovery', sub: 'Classical Pilates' }
+  { key: 'texas', needs: 'gym',     ico: '🏋️', name: 'Texas Method',      tag: 'Strength',     grp: 'workout', sub: 'Barbell' },
+  { key: 'dumbbell', needs: 'dumbbells',  ico: '💪',         name: 'Dumbbell A/B',      tag: 'Strength',     grp: 'workout', sub: 'Dumbbells only' },
+  { key: 'prep30', needs: 'bodyweight',    ico: '🗓️', name: '30-Day Prep',       tag: 'Strength',     grp: 'workout', sub: 'Bodyweight ramp-up' },
+  { key: 'sa2', needs: 'gym',       ico: '🫀',         name: 'SuperAge 2-Day',    tag: 'Longevity',    grp: 'workout', sub: '2 lifts + 1 long ride' },
+  { key: 'sa4', needs: 'gym',       ico: '❤️‍🔥', name: 'SuperAge Full Week', tag: 'Longevity', grp: 'workout', sub: '4 lifts + 3 rides' },
+  { key: 'sahyb', needs: 'gym',     ico: '🔀',         name: 'SuperAge Hybrid',   tag: 'Longevity',    grp: 'workout', sub: 'Week style rotates' },
+  { key: 'hiit', needs: 'bodyweight',      ico: '⚡',          name: 'Full-Body HIIT',    tag: 'Conditioning', grp: 'workout', sub: 'Timed circuit' },
+  { key: 'bjj', needs: 'bodyweight',       ico: '🥋',         name: 'BJJ Drills',        tag: 'Conditioning', grp: 'workout', sub: 'Jiu-jitsu movement' },
+  { key: 'core', needs: 'bodyweight',      ico: '🔥',         name: 'Core & Abs',        tag: 'Conditioning', grp: 'workout', sub: 'Core builder' },
+  { key: 'mobility', needs: 'bodyweight',  ico: '🧘',         name: 'Mobility',          tag: 'Mobility',     grp: 'recovery', sub: 'Hips · knees · ankles' },
+  { key: 'pilates', needs: 'bodyweight',   ico: '🤸',         name: 'Pilates Mat',       tag: 'Mobility',     grp: 'recovery', sub: 'Classical Pilates' }
 ];
 
 /* length in days, so every card carries a duration the way The Standard's do */
@@ -3757,14 +3867,15 @@ function protoLen(key) {
 
 function protoCard(p) {
   const on = S.program === p.key;
-  return `<div class="proto ${on ? 'on' : ''}">
+  const ok = canRun(p.needs);
+  return `<div class="proto ${on ? 'on' : ''} ${ok ? '' : 'needs-kit'}">
     <div class="proto-art" aria-hidden="true">${p.ico}</div>
     <div class="proto-body">
       <span class="proto-tag">${p.tag}</span>
       <div class="proto-nm">${p.name}</div>
       <div class="proto-meta">${p.sub}${protoLen(p.key) ? ' · ' + protoLen(p.key) : ''}</div>
-      <button class="btn ${on ? 'secondary' : 'primary'}" data-proto="${p.key}">
-        ${on ? 'Current' : 'Start'}</button>
+      <button class="btn ${on ? 'secondary' : ok ? 'primary' : 'secondary'}" data-proto="${p.key}">
+        ${on ? 'Current' : ok ? 'Start' : 'Needs ' + EQUIP_NEEDS[p.needs]}</button>
     </div>
   </div>`;
 }
