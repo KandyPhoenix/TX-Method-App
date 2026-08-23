@@ -3,43 +3,52 @@
    Rule for future edits: never write a raw hex/rgba in a rule body.
    Every colour goes through a token below so both themes stay in sync. */
 
-/* ---------- DARK (default) ---------- */
+/* ---------- DARK (default) ----------
+   Palette taken from the Synthesis workout generator: amber is the hero,
+   red is danger, green is success, violet and indigo are the chart accents,
+   all sitting on Tailwind-family neutrals. Amber inherits the role blue held
+   — actionable, or live state — and nothing else is allowed to use it.
+   The lime highlighter is untouched: it still means "done", and keeping it
+   distinct from the accent is the whole point of having two. */
 :root {
   /* surfaces */
-  --bg:     #080808;
-  --bg2:    #111111;
-  --panel:  #1a1a1a;
-  --panel2: #242424;
-  --border: #333333;
+  --bg:     #111827;
+  --bg2:    #0c111c;
+  --panel:  #1f2937;
+  --panel2: #374151;
+  --border: #374151;
 
   /* type */
-  --text:      #ffffff;
-  --text-soft: #cfcfcf;
-  --muted:     #999999;
-  --dim:       #555555;
+  --text:      #f3f4f6;
+  --text-soft: #d1d5db;
+  --muted:     #9ca3af;
+  --dim:       #6b7280;
 
   /* accent ramp — `accent` fills, `accent-ink` writes on page background */
-  --accent:      #2b4fff;
-  --accent-ink:  #8aa0ff;
-  --accent-2:    #5b78ff;
-  --accent-3:    #4463e6;
-  --accent-mid:  #3d63ff;
-  --accent-deep: #24399e;
-  --on-accent:   #eaf962;
-  --accent-soft: rgba(43,79,255,.20);
-  --accent-wash: rgba(43,79,255,.10);
-  --accent-line: rgba(43,79,255,.42);
-  --accent-edge: rgba(43,79,255,.58);
-  --accent-glow: rgba(43,79,255,.38);
+  --accent:      #f59e0b;
+  --accent-ink:  #fbbf24;
+  --accent-2:    #fbbf24;
+  --accent-3:    #d97706;
+  --accent-mid:  #f59e0b;
+  --accent-deep: #b45309;
+  --on-accent:   #000000;
+  --accent-soft: rgba(245,158,11,.20);
+  --accent-wash: rgba(245,158,11,.10);
+  --accent-line: rgba(245,158,11,.42);
+  --accent-edge: rgba(245,158,11,.58);
+  --accent-glow: rgba(245,158,11,.38);
 
   /* status */
-  --red:        #ff3333;
-  --red-line:   rgba(255,51,51,.40);
-  --red-glow:   rgba(255,51,51,.50);
-  --danger-bg:  #1a0000;
+  --red:        #ef4444;
+  --red-line:   rgba(239,68,68,.40);
+  --red-glow:   rgba(239,68,68,.50);
+  --danger-bg:  #1f1114;
+  --good:       #10b981;
+  --violet:     #8b5cf6;
+  --indigo:     #6366f1;
 
   /* chrome */
-  --tabbar-bg:  rgba(8,8,8,.97);
+  --tabbar-bg:  rgba(17,24,39,.97);
   --overlay:    rgba(0,0,0,.60);
   --overlay-2:  rgba(0,0,0,.66);
   --overlay-3:  rgba(0,0,0,.82);
@@ -53,32 +62,33 @@
   --plate-edge: rgba(255,255,255,.15);
 
   /* month-calendar cells */
-  --cell-bg:     #1c1c1c;
-  --cell-border: #2a2a2a;
-  --cell-text:   #cfcfcf;
+  --cell-bg:     #1f2937;
+  --cell-border: #374151;
+  --cell-text:   #d1d5db;
 
   /* canvas charts — read from JS via cssVar() at draw time */
-  --chart-grid: rgba(255,255,255,.06);
-  --chart-1: #8aa0ff;
-  --chart-2: #4a68ff;
-  --chart-3: #2b4fff;
-  --chart-4: #eaf962;
+  --chart-grid: rgba(255,255,255,.07);
+  --chart-1: #fbbf24;
+  --chart-2: #f59e0b;
+  --chart-3: #8b5cf6;
+  --chart-4: #10b981;
 
   /* Fingerprint tiers — must stay visibly distinct from each other */
-  --tier-foundation: #7b7b7b;
-  --tier-core:       #5b78ff;
-  --tier-advanced:   #2b4fff;
-  --tier-elite:      #eaf962;
+  --tier-foundation: #9ca3af;
+  --tier-core:       #fbbf24;
+  --tier-advanced:   #f59e0b;
+  --tier-elite:      #10b981;
 
-  /* --- The Standard system: black + blue, highlighter accents --- */
-  --blue:        #3d63ff;      /* lifted for legibility on black */
-  --blue-ink:    #7d97ff;      /* blue as text on a dark page */
-  --hl:          #eaf962;      /* highlighter */
+  /* --- accent + highlighter system --- */
+  --blue:        #f59e0b;      /* token name kept: it is the accent role */
+  --blue-ink:    #fbbf24;
+  --hl:          #eaf962;      /* highlighter — reserved for "done" */
   --hl-ink:      #eaf962;
-  --ink-surface: #101010;      /* black card / hero */
+  --on-hl:       #1a1205;
+  --ink-surface: #0c111c;      /* dark card / hero */
   --on-ink:      #ffffff;
-  --primary:     #2b4fff;
-  --on-primary:  #eaf962;
+  --primary:     #f59e0b;
+  --on-primary:  #000000;
   --r-card:      16px;
   --r-btn:       12px;
   --r-tag:       4px;
@@ -89,43 +99,44 @@
 }
 
 /* ---------- LIGHT ----------
-   Warm cream rather than cool grey. The page is #fff7eb and the cards are
-   pure white, so each card lifts off the page without needing a heavy border
-   or shadow — that separation is what reads as "organised". Sampled from
-   The Standard (standard.superage.com), which uses exactly this background. */
+   Warm cream rather than cool grey, which suits amber better than it ever
+   suited blue. Amber is lightened for fills and darkened for text: #f59e0b
+   as a label on cream is about 2:1 and unreadable, so anything that is words
+   rather than a shape uses --accent-ink. */
 :root[data-theme="light"] {
-  --bg:     #fff7eb;
-  --bg2:    #f6ecda;
+  --bg:     #fffaf0;
+  --bg2:    #f8efe0;
   --panel:  #ffffff;
-  --panel2: #fbf4e8;
-  --border: #ece1cf;
+  --panel2: #fdf6ea;
+  --border: #efe3d1;
 
-  --text:      #0a0a0a;
-  --text-soft: #3a352e;
-  --muted:     #6b6459;
-  --dim:       #968f82;
+  --text:      #111827;
+  --text-soft: #374151;
+  --muted:     #6b7280;
+  --dim:       #9ca3af;
 
-  /* lime stays the fill so the brand survives; ink darkens so it is
-     actually readable on white (#aaff00 on white is ~1.4:1). */
-  --accent:      #1a40ff;
-  --accent-ink:  #1a40ff;
-  --accent-2:    #2b4fff;
-  --accent-3:    #1533c9;
-  --accent-mid:  #4a68ff;
-  --accent-deep: #0f2a99;
-  --on-accent:   #eaf962;
-  --accent-soft: rgba(26,64,255,.10);
-  --accent-wash: rgba(26,64,255,.06);
-  --accent-line: rgba(26,64,255,.26);
-  --accent-edge: rgba(26,64,255,.46);
-  --accent-glow: rgba(26,64,255,.22);
+  --accent:      #f59e0b;
+  --accent-ink:  #b45309;
+  --accent-2:    #d97706;
+  --accent-3:    #b45309;
+  --accent-mid:  #f59e0b;
+  --accent-deep: #92400e;
+  --on-accent:   #1a1205;
+  --accent-soft: rgba(245,158,11,.14);
+  --accent-wash: rgba(245,158,11,.08);
+  --accent-line: rgba(180,83,9,.28);
+  --accent-edge: rgba(180,83,9,.46);
+  --accent-glow: rgba(245,158,11,.24);
 
-  --red:        #d92222;
-  --red-line:   rgba(217,34,34,.35);
-  --red-glow:   rgba(217,34,34,.35);
+  --red:        #dc2626;
+  --red-line:   rgba(220,38,38,.35);
+  --red-glow:   rgba(220,38,38,.35);
   --danger-bg:  #fff1f1;
+  --good:       #059669;
+  --violet:     #7c3aed;
+  --indigo:     #4f46e5;
 
-  --tabbar-bg:  rgba(255,247,235,.95);
+  --tabbar-bg:  rgba(255,250,240,.95);
   --overlay:    rgba(28,22,12,.42);
   --overlay-2:  rgba(28,22,12,.50);
   --overlay-3:  rgba(28,22,12,.62);
@@ -138,29 +149,31 @@
   --plate-edge: rgba(0,0,0,.18);
 
   --cell-bg:     #ffffff;
-  --cell-border: #ece1cf;
+  --cell-border: #efe3d1;
   --cell-text:   #4b463d;
 
   --chart-grid: rgba(60,48,28,.12);
-  --chart-1: #1a40ff;
-  --chart-2: #6b86ff;
-  --chart-3: #0d1f7a;
-  --chart-4: #b8cc00;
+  --chart-1: #b45309;
+  --chart-2: #f59e0b;
+  --chart-3: #7c3aed;
+  --chart-4: #059669;
 
-  --tier-foundation: #a9a294;
-  --tier-core:       #6b86ff;
-  --tier-advanced:   #1a40ff;
-  --tier-elite:      #9aad00;
+  --tier-foundation: #a8a29e;
+  --tier-core:       #f59e0b;
+  --tier-advanced:   #b45309;
+  --tier-elite:      #059669;
 
-  /* --- The Standard system: black + blue, highlighter accents --- */
-  --blue:        #1a40ff;
-  --blue-ink:    #1a40ff;
+  /* --- accent + highlighter system --- */
+  --blue:        #d97706;
+  --blue-ink:    #b45309;
   --hl:          #eaf962;
   --hl-ink:      #6b7a00;      /* highlighter is unreadable as text on cream */
-  --ink-surface: #000000;
+  --on-hl:       #1a1205;
+  --ink-surface: #111827;
   --on-ink:      #ffffff;
-  --primary:     #1a40ff;
-  --on-primary:  #eaf962;}
+  --primary:     #f59e0b;
+  --on-primary:  #1a1205;
+}
 
 * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
 html, body { margin: 0; height: 100%; }
@@ -1383,7 +1396,7 @@ table.prog td.w { color: var(--text); }
 .equip-pop button {
   display: flex; align-items: center; gap: 9px; width: 100%;
   padding: 10px 11px; border: 0; background: none; cursor: pointer;
-  font: inherit; font-size: 13px; font-weight: 700; color: var(--ink);
+  font: inherit; font-size: 13px; font-weight: 700; color: var(--text);
   text-align: left; border-radius: 10px;
 }
 .equip-pop button:hover { background: var(--panel2); }
