@@ -204,7 +204,7 @@ body {
 .ghost-btn:active { transform: scale(.94); }
 
 /* ---------- Main / screens ---------- */
-main { flex: 1; padding: 16px 14px 104px; max-width: 1200px; width: 100%; margin: 0 auto; zoom: var(--content-zoom, 1); }
+main { flex: 1; padding: 16px 14px 104px; max-width: 980px; width: 100%; margin: 0 auto; zoom: var(--content-zoom, 1); }
 .screen { animation: fade .25s ease; }
 @keyframes fade { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: none; } }
 
@@ -971,3 +971,97 @@ h2.section::after { content: ''; flex: 1; height: 1px; background: var(--border)
 }
 .proto.locked-proto { opacity: .5; }
 .proto.locked-proto .proto-art { background: var(--bg2); }
+
+/* =====================================================================
+   SESSION VIEW  (sticky progress bar + right-hand progress rail)
+   After The Standard's workout player.
+   ===================================================================== */
+.sess-bar {
+  position: sticky; top: 0; z-index: 19;
+  display: flex; align-items: center; gap: 12px;
+  padding: 8px 14px; background: var(--bg);
+  border-bottom: 1px solid var(--border);
+}
+.sess-bar.hidden { display: none !important; }
+.sess-bar-count {
+  font-family: var(--display); font-size: 10px; font-weight: 600;
+  letter-spacing: 1px; text-transform: uppercase; color: var(--muted);
+  white-space: nowrap; flex: 0 0 auto;
+}
+.sess-bar-count b { color: var(--text); font-weight: 800; }
+.sess-bar-track { flex: 1; height: 3px; background: var(--border); border-radius: 999px; overflow: hidden; min-width: 40px; }
+.sess-bar-fill2 { display: block; height: 100%; width: 0%; background: var(--primary); transition: width .25s ease; }
+.sess-bar-clock {
+  font-family: var(--display); font-size: 13px; font-weight: 800;
+  font-variant-numeric: tabular-nums; color: var(--text); flex: 0 0 auto;
+}
+
+/* two-column session layout — list left, progress right, like The Standard */
+.session-grid { display: grid; grid-template-columns: minmax(0, 1fr); gap: 14px; }
+.session-main { min-width: 0; }
+@media (min-width: 900px) {
+  /* The workout column is CAPPED, not fluid. Letting it fill a desktop width
+     is what made the page feel chaotic — a set row stretched ~900px, so
+     reading one line meant crossing the whole screen. The Standard keeps its
+     list around 440px; 520px here holds our 3-column set row comfortably. */
+  .session-grid {
+    grid-template-columns: minmax(0, 520px) 286px;
+    justify-content: center; align-items: start;
+  }
+  .session-rail { position: sticky; top: 68px; }
+}
+@media (max-width: 899px) {
+  /* on a phone the rail is a compact strip above the list, not a column */
+  .session-rail { order: -1; }
+  .rail-big { font-size: 34px; }
+}
+.rail-card { padding: 15px 16px 16px; }
+.rail-kicker {
+  font-family: var(--display); font-size: 9.5px; font-weight: 700;
+  letter-spacing: 1.4px; text-transform: uppercase; color: var(--muted);
+}
+.rail-big {
+  font-family: var(--display); font-size: 44px; font-weight: 900;
+  line-height: 1; letter-spacing: -1.5px; margin: 6px 0 2px;
+  color: var(--text); font-variant-numeric: tabular-nums;
+}
+.rail-big span { font-size: 20px; color: var(--dim); margin-left: 3px; }
+.rail-lbl {
+  font-family: var(--display); font-size: 9.5px; font-weight: 700;
+  letter-spacing: 1.2px; text-transform: uppercase; color: var(--muted); margin-bottom: 9px;
+}
+.rail-track { height: 5px; background: var(--bg2); border-radius: 999px; overflow: hidden; }
+.rail-fill { display: block; height: 100%; width: 0%; background: var(--primary); transition: width .25s ease; }
+.rail-row {
+  display: flex; justify-content: space-between; align-items: baseline;
+  margin-top: 10px; font-size: 12px; color: var(--muted);
+}
+.rail-row b { font-family: var(--display); font-size: 14px; font-weight: 800; color: var(--text); font-variant-numeric: tabular-nums; }
+.rail-row.hl b { color: var(--accent-ink); }
+
+/* Card grids fill by track size rather than always two columns. At 1200px a
+   2-up grid produced enormous cards; this keeps them the same size on a phone
+   and simply fits more across on a wider screen, like The Standard's. */
+.proto-grid { grid-template-columns: repeat(auto-fill, minmax(158px, 1fr)); }
+.fp-grid    { grid-template-columns: repeat(auto-fill, minmax(190px, 1fr)); }
+/* A red bar struck through every completed row, which dominated the page once
+   a few sets were ticked. The filled check already says "done"; the row just
+   needs to recede. */
+.set-row.done::after { display: none; }
+.set-row.done .lbl,
+.set-row.done .wt,
+.set-row.done .reps,
+.set-row.done .plate-math { opacity: .32; }
+.set-row.done .mini-start { opacity: .32; }
+
+/* long program notes collapse — they were eight lines of prose above the work */
+.note-fold { padding: 0; overflow: hidden; }
+.note-fold > summary {
+  list-style: none; cursor: pointer; padding: 11px 13px;
+  font-family: var(--display); font-size: 10.5px; font-weight: 700;
+  letter-spacing: 1px; text-transform: uppercase; color: var(--accent-ink);
+}
+.note-fold > summary::-webkit-details-marker { display: none; }
+.note-fold > summary::after { content: ' ▾'; }
+.note-fold[open] > summary::after { content: ' ▴'; }
+.note-fold .note-body { padding: 0 13px 13px; font-size: 13px; line-height: 1.55; color: var(--muted); }

@@ -904,7 +904,7 @@ function render() {
   rebuild();
   document.querySelectorAll('.tab').forEach(t => t.classList.toggle('active', t.dataset.tab === TAB));
   const prep = isDayProgram();
-  if (TAB === 'today')   prep ? renderPrepToday()   : renderToday();
+  if (TAB === 'today') { prep ? renderPrepToday() : renderToday(); mountSessionRail(); }
   if (TAB === 'program') { prep ? renderPrepProgram() : renderProgram(); mountProtocols(); }
   if (TAB === 'stats')   renderStats();
   if (TAB === 'fp')      renderFingerprint();
@@ -1175,7 +1175,7 @@ function renderPrepToday() {
     <button class="btn primary" id="prepComplete">Next day ›</button>`;
   } else {
     const log = pstate().log[dayNum] || { checks: {} };
-    if (d.note) html += `<div class="card"><div class="tiny muted" style="line-height:1.5">📋 ${d.note}</div></div>`;
+    if (d.note) html += `<details class="card note-fold"><summary>How this session works</summary><div class="note-body">${d.note}</div></details>`;
     html += `<div class="spacer"></div>`;
     for (const item of prepDayItems(d)) {
       html += item.type === 'reps'
@@ -2557,7 +2557,14 @@ document.querySelectorAll('.tab').forEach(t => t.onclick = () => { TAB = t.datas
 /* Roadmap's '+ Log a lift' jumps to the Stats lift tracker. Delegated, so it
    survives the re-render that replaces the button on every screen draw. */
 view.addEventListener('click', e => {
-  if (e.target.closest('#rmLogLift')) { TAB = 'stats'; window.scrollTo(0, 0); render(); }
+  if (e.target.closest('#rmLogLift')) { TAB = 'stats'; window.scrollTo(0, 0); render(); return; }
+  /* any set tick or pressing Start begins the session clock */
+  /* Texas rows use [data-check], the day-programs use [data-pcheck]; the
+     shared .check class is what both actually have in common. */
+  if (e.target.closest('.check') || e.target.closest('.mini-start') || e.target.closest('#startSession')) {
+    sessionEnsure();
+    requestAnimationFrame(updateSessionUI);
+  }
 });
 document.getElementById('rfresh').onclick = () => { TAB = 'today'; render(); toast('Today'); };
 
@@ -3372,6 +3379,114 @@ function finishSession() {
 }
 
 /* init */
+/* =====================================================================
+   SESSION PROGRESS  (elapsed clock + sticky bar + right-hand rail)
+   ---------------------------------------------------------------------
+   The clock is keyed to the specific workout, persisted to localStorage,
+   and derived from wall-clock timestamps rather than an interval counter —
+   so a backgrounded PWA (screen off mid-set) still reports the real
+   elapsed time when it wakes.
+   ===================================================================== */
+const SESS_KEY = 'tm_session';
+
+function sessionDayKey() {
+  return isDayProgram()
+    ? S.program + '-' + pstate().day
+    : 'texas-' + S.cursor.week + '-' + S.cursor.day;
+}
+function sessionLoad() {
+  try { return JSON.parse(localStorage.getItem(SESS_KEY)) || null; } catch { return null; }
+}
+function sessionSave(o) { try { localStorage.setItem(SESS_KEY, JSON.stringify(o)); } catch {} }
+
+/* start the clock on first real activity; switching workouts starts a new one */
+function sessionEnsure() {
+  const key = sessionDayKey();
+  const cur = sessionLoad();
+  if (!cur || cur.key !== key) sessionSave({ key, started: Date.now(), stopped: null });
+}
+function sessionStop() {
+  const cur = sessionLoad();
+  if (cur && cur.key === sessionDayKey() && !cur.stopped) {
+    cur.stopped = Date.now(); sessionSave(cur);
+  }
+}
+function sessionElapsedMs() {
+  const cur = sessionLoad();
+  if (!cur || cur.key !== sessionDayKey()) return 0;
+  return (cur.stopped || Date.now()) - cur.started;
+}
+function fmtElapsed(ms) {
+  const t = Math.max(0, Math.floor(ms / 1000));
+  const h = Math.floor(t / 3600), m = Math.floor((t % 3600) / 60), sec = t % 60;
+  const mm = h ? String(m).padStart(2, '0') : String(m);
+  return (h ? h + ':' : '') + mm + ':' + String(sec).padStart(2, '0');
+}
+
+/* counts come from the rendered checkboxes, so this works for every program
+   without each renderer having to report its own totals */
+function sessionCounts() {
+  const all = view.querySelectorAll('.check');
+  let done = 0;
+  all.forEach(c => { if (c.classList.contains('on')) done++; });
+  return { done, total: all.length };
+}
+
+function railHTML() {
+  const { done, total } = sessionCounts();
+  const pct = total ? Math.round(done / total * 100) : 0;
+  const est = isDayProgram()
+    ? (pdata()[pstate().day - 1] && !pdata()[pstate().day - 1].rest ? estDayMin(pdata()[pstate().day - 1]) : 0)
+    : estTexasMin(PROGRAM[S.cursor.week].days[S.cursor.day]);
+  return `<div class="card rail-card">
+    <div class="rail-kicker">Progress</div>
+    <div class="rail-big"><b id="railDone">${done}</b><span>/ ${total}</span></div>
+    <div class="rail-lbl">Sets complete</div>
+    <div class="rail-track"><span class="rail-fill" id="railFill" style="width:${pct}%"></span></div>
+    <div class="rail-row"><span>Elapsed</span><b id="railClock">${fmtElapsed(sessionElapsedMs())}</b></div>
+    <div class="rail-row"><span>Estimated</span><b>${est ? '≈' + est + ' min' : '—'}</b></div>
+    <div class="rail-row hl"><span>Complete</span><b id="railPct">${pct}%</b></div>
+  </div>`;
+}
+
+/* Wrap whatever the day renderer drew into a two-column grid and hang the
+   progress rail beside it. appendChild MOVES the nodes, so every listener the
+   renderer already bound survives intact. */
+function mountSessionRail() {
+  const screen = view.querySelector('.screen');
+  if (!screen || screen.querySelector('.session-grid')) return;
+  const grid = document.createElement('div'); grid.className = 'session-grid';
+  const main = document.createElement('div'); main.className = 'session-main';
+  while (screen.firstChild) main.appendChild(screen.firstChild);
+  const rail = document.createElement('aside'); rail.className = 'session-rail';
+  grid.appendChild(main); grid.appendChild(rail);
+  screen.appendChild(grid);
+  /* fill the rail only AFTER the grid is in the document — sessionCounts()
+     queries `view`, and a detached main would report zero sets */
+  rail.innerHTML = railHTML();
+}
+
+function updateSessionUI() {
+  const bar = document.getElementById('sessBar');
+  if (!bar) return;
+  const onRoadmap = TAB === 'today';
+  const { done, total } = onRoadmap ? sessionCounts() : { done: 0, total: 0 };
+  bar.classList.toggle('hidden', !onRoadmap || !total);
+  if (!onRoadmap || !total) return;
+  const pct = Math.round(done / total * 100);
+  const set = (id, v) => { const el = document.getElementById(id); if (el) el.textContent = v; };
+  set('sessCount', done + ' / ' + total);
+  set('sessClock', fmtElapsed(sessionElapsedMs()));
+  set('railDone', done);
+  set('railClock', fmtElapsed(sessionElapsedMs()));
+  set('railPct', pct + '%');
+  const f = document.getElementById('sessFill'); if (f) f.style.width = pct + '%';
+  const rf = document.getElementById('railFill'); if (rf) rf.style.width = pct + '%';
+}
+
+/* one ticker for the whole app — only repaints while the Roadmap is showing */
+setInterval(() => { if (TAB === 'today') updateSessionUI(); }, 1000);
+
 /* =====================================================================
    PROTOCOLS  (browsable library, after The Standard's Protocols screen)
    ---------------------------------------------------------------------

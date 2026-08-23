@@ -41,7 +41,7 @@
         <div>
           <h1 id="screenTitle">Today</h1>
           <p id="screenSub" class="sub"></p>
-          <span class="version-badge">v102 · Aug 23</span>
+          <span class="version-badge">v103 · Aug 23</span>
         </div>
       </div>
       <div style="display:flex;gap:8px">
@@ -49,6 +49,12 @@
         <button id="rfresh" class="ghost-btn" title="Jump to current day">⟳</button>
       </div>
     </header>
+
+    <div id="sessBar" class="sess-bar hidden">
+      <span class="sess-bar-count"><b id="sessCount">0 / 0</b> sets complete</span>
+      <span class="sess-bar-track"><span id="sessFill" class="sess-bar-fill2"></span></span>
+      <span class="sess-bar-clock" id="sessClock">0:00</span>
+    </div>
 
     <main id="view"><!-- screens render here --></main>
 
