@@ -39,6 +39,11 @@ const DEFAULTS = {
   equipment: 'gym',   /* gym | dumbbells | bodyweight — see EQUIP_RANK */
   weeklyGoal: 4,      /* sessions per week — the week strip counts toward this */
   dbMax: 25,          /* heaviest dumbbell/kettlebell owned, per hand — see capHand */
+  /* What is actually in the room. The generator's exercises carry their own
+     equipment lists, so this is a set of things owned rather than a tier.
+     Punching bag and treadmill are off by default: one is disliked, the other
+     is not owned. */
+  kit: ['barbell','dumbbells','kettlebell','bench','box','bands','jump-rope','bike','pull-up-bar','mat','yoga-ball','stairs'],
   bodyweight: 165,
   barWeight: 45,
   plates: [45, 35, 25, 10, 5, 2.5],
@@ -851,6 +856,235 @@ function fpFocusPlan() {
   return days;
 }
 
+/* =====================================================================
+   Random workout generator — ported from the Synthesis app.
+
+   The selection logic is theirs: pick a category, filter by difficulty, score
+   every exercise for freshness, then weight the random draw toward what you
+   have not done lately, roughly 60/40 basic to creative. What is new here is
+   everything around it — the workout has to survive being rendered, ticked,
+   progressed, tier-scaled and equipment-filtered by machinery that already
+   exists, so a generated session is turned into an ordinary day-programme day
+   and nothing downstream needs to know where it came from.
+
+   The one genuinely dangerous part is randomness. pdata() is read on every
+   render, so generating inside it would reshuffle the workout under your
+   hands as you ticked sets. Generation therefore happens once, is written to
+   state, and is read back from there for ever after.
+   ===================================================================== */
+const GEN_TYPES = [
+  { key: 'random',     name: 'Surprise me' },
+  { key: 'full-body',  name: 'Full body' },
+  { key: 'push',       name: 'Push' },
+  { key: 'pull',       name: 'Pull' },
+  { key: 'legs',       name: 'Legs' },
+  { key: 'core',       name: 'Core' },
+  { key: 'cardio',     name: 'Cardio' }
+];
+const GEN_DIFFS = [
+  { key: 'easy',   name: 'Easy' },
+  { key: 'medium', name: 'Medium' },
+  { key: 'hard',   name: 'Hard' }
+];
+const GEN_SLOTS = 28;
+
+function genState() {
+  if (!S.gen) S.gen = { day: 1, log: {}, made: {}, used: {}, type: 'random', diff: 'medium' };
+  const g = S.gen;
+  if (g.day == null) g.day = 1;
+  if (!g.log) g.log = {};
+  if (!g.made) g.made = {};
+  if (!g.used) g.used = {};
+  if (!g.type) g.type = 'random';
+  if (!g.diff) g.diff = 'medium';
+  return g;
+}
+
+function kit() { return S.settings.kit || DEFAULTS.kit; }
+
+/* Bodyweight mode means no equipment beyond a mat. Gym mode means the things
+   actually owned — which is why this is a set test, not a rank comparison. */
+function genCanRun(ex) {
+  const need = ex.equip || [];
+  if (!need.length) return true;
+  if (haveEquip() === 'bodyweight') return need.every(k => k === 'mat');
+  const have = kit();
+  return need.every(k => have.indexOf(k) !== -1);
+}
+
+/* Map the generator's equipment list onto this app's coarse needs value, so a
+   generated exercise passes through canRun() like any other. */
+function genNeeds(ex) {
+  const need = ex.equip || [];
+  if (need.every(k => k === 'mat')) return 'bodyweight';
+  if (need.indexOf('barbell') !== -1) return 'gym';
+  return 'dumbbells';
+}
+
+function genPoolFor(type, diff) {
+  let pool = GEN_EX.filter(e => {
+    switch (type) {
+      case 'upper-body': return e.cat === 'push' || e.cat === 'pull';
+      case 'full-body':  return ['full-body','legs','push','pull'].indexOf(e.cat) !== -1;
+      case 'random':     return true;
+      default:           return e.cat === type;
+    }
+  });
+  if (diff === 'easy')      pool = pool.filter(e => e.diff === 'easy' || e.diff === 'medium');
+  else if (diff === 'hard') pool = pool.filter(e => e.diff === 'medium' || e.diff === 'hard');
+  return pool.filter(genCanRun);
+}
+
+/* Freshness: never done ranks highest, done this week lowest. Theirs. */
+function genFreshness(ex, used, now) {
+  const last = used[ex.id];
+  if (!last) return 3;
+  const day = 86400000;
+  if (last < now - 14 * day) return 2.5;
+  if (last < now - 7 * day)  return 1.5;
+  return 0.5;
+}
+
+function genWeightedDraw(pool, count, out, seen) {
+  const avail = pool.slice();
+  for (let i = 0; i < count && avail.length; i++) {
+    const total = avail.reduce((a, e) => a + e._fresh, 0);
+    let r = Math.random() * total, idx = 0;
+    for (let j = 0; j < avail.length; j++) { r -= avail[j]._fresh; if (r <= 0) { idx = j; break; } }
+    const pick = avail.splice(idx, 1)[0];
+    if (!seen.has(pick.id)) { seen.add(pick.id); out.push(pick); }
+  }
+}
+
+function genPickOne(list) { return list[Math.floor(Math.random() * list.length)]; }
+
+/* Turn a generator record into the shape a day-programme exercise has. The
+   key is namespaced so a generated Push-Up can never collide with the
+   Fingerprint pools' own pushups entry in logs or progression. */
+function genEx(e, n) {
+  const out = {
+    key: 'gen_' + e.id,
+    name: e.name,
+    icon: GEN_ICON[e.cat] || '💪',
+    sets: e.sets || 3,
+    scheme: e.scheme || '',
+    needs: genNeeds(e)
+  };
+  if (e.reps != null) out.reps = e.reps;
+  if (e.sec != null)  out.sec = e.sec;
+  if (e.side) out.side = true;
+  return out;
+}
+const GEN_ICON = { push: '🙌', pull: '💪', legs: '🦵', core: '🧘', cardio: '🚴', 'full-body': '🔥' };
+
+function genWarmCool(list, prefix) {
+  return list.map(w => {
+    const out = { key: prefix + slugKey(w.name), name: w.name, icon: prefix === 'gw_' ? '🔥' : '🧊',
+                  sets: 1, scheme: w.scheme || '', needs: 'bodyweight' };
+    if (w.sec != null) out.sec = w.sec; else out.reps = w.reps != null ? w.reps : 10;
+    if (w.side) out.side = true;
+    return out;
+  });
+}
+function slugKey(name) { return String(name).toLowerCase().replace(/[^a-z0-9]+/g, '_').replace(/^_|_$/g, ''); }
+
+function genBuild(type, diff) {
+  const g = genState();
+  const now = Date.now();
+  const chosen = type === 'random'
+    ? GEN_TYPES.filter(t => t.key !== 'random')[Math.floor(Math.random() * (GEN_TYPES.length - 1))].key
+    : type;
+  let pool = genPoolFor(chosen, diff);
+  /* Nothing runnable in this category on today's equipment — widen rather than
+     hand back an empty workout. */
+  if (pool.length < 3) pool = genPoolFor('random', diff);
+  pool = pool.map(e => Object.assign({ _fresh: genFreshness(e, g.used, now) }, e));
+
+  let target = chosen === 'cardio' ? 3 : chosen === 'core' ? 5 : 6;
+  if (diff === 'easy') target = Math.max(4, target - 1);
+  else if (diff === 'hard') target = target + 1;
+
+  const basic = pool.filter(e => e.kind === 'basic').sort((a, b) => b._fresh - a._fresh);
+  const creative = pool.filter(e => e.kind === 'creative').sort((a, b) => b._fresh - a._fresh);
+  const picked = [], seen = new Set();
+  genWeightedDraw(basic, Math.ceil(target * 0.6), picked, seen);
+  genWeightedDraw(creative, target - Math.ceil(target * 0.6), picked, seen);
+  /* short of target because a pool ran dry — top up from whatever is left */
+  if (picked.length < target) genWeightedDraw(pool, target - picked.length, picked, seen);
+  for (let i = picked.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); const t = picked[i]; picked[i] = picked[j]; picked[j] = t; }
+
+  const wuGroup = GEN_WARMUP[chosen] ? [chosen, 'general'] : ['general'];
+  const cdGroup = GEN_COOLDOWN[chosen] ? [chosen, 'general'] : ['general'];
+  const wu = [], cd = [];
+  wuGroup.forEach(k => { const l = GEN_WARMUP[k]; if (l && l.length) wu.push(genPickOne(l)); });
+  cdGroup.forEach(k => { const l = GEN_COOLDOWN[k]; if (l && l.length) cd.push(genPickOne(l)); });
+
+  const name = (GEN_TYPES.find(t => t.key === chosen) || { name: chosen }).name;
+  const dn = (GEN_DIFFS.find(d => d.key === diff) || { name: diff }).name;
+  return {
+    genType: chosen,
+    genDiff: diff,
+    ids: picked.map(e => e.id),
+    title: name,
+    note: 'Generated for you — ' + name.toLowerCase() + ', ' + dn.toLowerCase() +
+          '. Exercises you have not done recently are favoured, so generating again gives you a different session. ' +
+          'Tap Generate a different one if this is not what today needs.',
+    exercises: genWarmCool(wu, 'gw_')
+      .concat(picked.map(genEx))
+      .concat(genWarmCool(cd, 'gc_'))
+  };
+}
+
+/* Read the stored workout for a slot, making one the first time it is asked
+   for. Never regenerates on its own — see the note at the top. */
+function genDay(n) {
+  const g = genState();
+  if (!g.made[n]) { g.made[n] = genBuild(g.type, g.diff); save(); }
+  return g.made[n];
+}
+function genRegenerate() {
+  const g = genState();
+  delete g.made[g.day];
+  genDay(g.day);
+  save();
+  render();
+  toast('New workout generated 🎲');
+}
+/* Mark everything in the finished session as done today, which is what makes
+   the next generation prefer different movements. */
+function genMarkUsed(n) {
+  const g = genState();
+  const w = g.made[n];
+  if (!w) return;
+  const now = Date.now();
+  (w.ids || []).forEach(id => { g.used[id] = now; });
+  save();
+}
+function genPlan() {
+  const g = genState();
+  const out = [];
+  for (let i = 1; i <= GEN_SLOTS; i++) out.push(i === g.day ? genDay(i) : (g.made[i] || genPlaceholder()));
+  return out;
+}
+function genPlaceholder() {
+  return { title: 'Generated workout', note: 'This one is made when you reach it.',
+           exercises: [{ key: 'gen_pending', name: 'Not generated yet', icon: '🎲', sets: 1, reps: 1,
+                         scheme: 'Open this day to roll a workout', needs: 'bodyweight' }] };
+}
+
+/* Instructions for every generated movement, warm-up and cool-down, folded
+   into the same table the How-to panel already reads. 110 exercises plus
+   warm-ups and cool-downs arrive with their text written. */
+function genRegisterTips() {
+  if (typeof GEN_EX === 'undefined') return;
+  GEN_EX.forEach(e => { if (e.body) FORM_TIPS['gen_' + e.id] = { title: e.name, body: e.body }; });
+  [['gw_', GEN_WARMUP], ['gc_', GEN_COOLDOWN]].forEach(([p, db]) => {
+    Object.keys(db).forEach(gk => db[gk].forEach(w => {
+      if (w.body) FORM_TIPS[p + slugKey(w.name)] = { title: w.name, body: w.body };
+    }));
+  });
+}
+
 const DAY_PROGRAMS = {
   prep30:   { data: PREP30,   stateKey: 'prep', label: '30-Day Prep',       sub: 'bodyweight ramp-up' },
   mobility: { data: MOBILITY, stateKey: 'mob',  label: 'Mobility Method',   sub: 'daily joint mobility' },
@@ -862,7 +1096,8 @@ const DAY_PROGRAMS = {
   sa2:      { data: SUPERAGE2, stateKey: 'sa2', label: 'SuperAge 2-Day',     sub: '3 days: 2 lifts + 1 long ride', holdLabel: 'Timed work' },
   sa4:      { data: SUPERAGE4, stateKey: 'sa4', label: 'SuperAge Full Week', sub: 'all week: 4 lifts + 3 rides', holdLabel: 'Timed work' },
   sahyb:    { data: SUPERAGEH, stateKey: 'sahyb', label: 'SuperAge Hybrid',   sub: 'week style rotates weekly', holdLabel: 'Timed work' },
-  fpfocus:  { get data() { return fpFocusPlan(); }, stateKey: 'fpfocus', label: 'Fingerprint Focus', sub: 'targets your weakest markers', holdLabel: 'Timed work' }
+  fpfocus:  { get data() { return fpFocusPlan(); }, stateKey: 'fpfocus', label: 'Fingerprint Focus', sub: 'targets your weakest markers', holdLabel: 'Timed work' },
+  gen:      { get data() { return genPlan(); }, stateKey: 'gen', label: 'Random Generator', sub: 'a fresh workout on demand', holdLabel: 'Timed work' }
 };
 function isDayProgram() { return !!DAY_PROGRAMS[S.program]; }
 function pcfg()   { return DAY_PROGRAMS[S.program] || DAY_PROGRAMS.prep30; }
@@ -1635,6 +1870,7 @@ function renderPrepToday() {
     const log = pstate().log[dayNum] || { checks: {} };
     if (d.note) html += `<details class="card note-fold"><summary>How this session works</summary><div class="note-body">${d.note}</div></details>`;
     html += tierBarHTML();
+    if (S.program === 'gen') html += genBarHTML();
     html += `<div class="spacer"></div>`;
     for (const g of groupDayItems(prepDayItems(d))) html += groupCard(g, log);
 
@@ -1866,6 +2102,21 @@ function tierDay(d) {
     return e;
   });
   return out;
+}
+
+function genBarHTML() {
+  const g = genState();
+  return `<div class="gen-bar">
+    <div class="gen-row">
+      <select id="genType" class="gen-sel" aria-label="Workout type">
+        ${GEN_TYPES.map(t => `<option value="${t.key}" ${t.key === g.type ? 'selected' : ''}>${t.name}</option>`).join('')}
+      </select>
+      <select id="genDiff" class="gen-sel" aria-label="Difficulty">
+        ${GEN_DIFFS.map(d => `<option value="${d.key}" ${d.key === g.diff ? 'selected' : ''}>${d.name}</option>`).join('')}
+      </select>
+      <button class="btn primary gen-roll" id="genRoll">🎲 Generate a different one</button>
+    </div>
+  </div>`;
 }
 
 function tierBarHTML() {
@@ -2121,6 +2372,10 @@ function wirePrepToday() {
     const d = pdata()[dayNum - 1];
     let progMsgs = [];
     if (!d.rest) { log.done = true; S.sessions = (S.sessions || 0) + 1; progMsgs = saApplyProgression(d, log); }
+    /* Finishing a generated session is what teaches the generator what you
+       have just done — without this, freshness never moves and every roll
+       draws from the same favourites. */
+    if (S.program === 'gen' && !d.rest) genMarkUsed(dayNum);
     save();
     if (dayNum >= ptotal()) { finishPrep(); return; }
     if (d.rest) { toast('Rested 😴'); }
@@ -4795,6 +5050,11 @@ function updateSessionUI() {
   /* the rail sticks below the whole sticky header, whose height changes with
      the session bar showing or hiding — measure it rather than hard-coding */
   view.querySelectorAll('#segTier button').forEach(b => b.onclick = () => setSessionTier(b.dataset.tier));
+  const gt = document.getElementById('genType'), gd = document.getElementById('genDiff'),
+        gb = document.getElementById('genRoll');
+  if (gt) gt.onchange = () => { genState().type = gt.value; save(); genRegenerate(); };
+  if (gd) gd.onchange = () => { genState().diff = gd.value; save(); genRegenerate(); };
+  if (gb) gb.onclick = genRegenerate;
   const eb = document.getElementById('equipBtn');
   if (eb && !eb.dataset.wired) { eb.dataset.wired = '1'; eb.onclick = equipMenu; }
   renderEquipBtn();
@@ -5719,6 +5979,7 @@ function fpRenderSheet(stage, payload) {
 
 backfillHistory();
 syncAchievements();
+genRegisterTips();
 render();
 /* auto-resume cloud sync if previously signed in */
 if (loadCloud().enabled) { setTimeout(cloudInit, 0); }
