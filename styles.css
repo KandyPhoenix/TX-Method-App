@@ -1473,3 +1473,38 @@ table.prog td.w { color: var(--text); }
    looked cramped against a desktop's empty margins. */
 @media (min-width: 620px) { :root { --gutter: 28px; } }
 @media (min-width: 900px) { :root { --gutter: 36px; } }
+
+/* ---------------------------------------------------------------------
+   Exercise-row rhythm, matched to the Synthesis workout screen.
+
+   Measured there rather than guessed: rows are 83px tall with 16px/20px of
+   padding, a 12px radius, 12px between them and a 4px accent stripe down the
+   left, sitting on a surface one step lighter than the page so each row lifts
+   off it. Ours were 60px tall on a 70px pitch with the padding pushed onto an
+   inner element — the same information in two thirds of the space, which is
+   what read as cramped.
+
+   The stripe is the part that does the most work: it gives every row a fixed
+   left edge to start from, so a list of ten scans as a column rather than as
+   ten separate boxes.
+   --------------------------------------------------------------------- */
+.session-main .card.lift { margin-bottom: 12px; border-radius: 12px; }
+.session-main .card.lift .lift-head {
+  padding: 16px 20px 16px 17px;
+  border-left: 4px solid var(--accent);
+  background: var(--panel2);
+}
+.session-main .card.lift .lift-head .name { font-size: 15.5px; line-height: 1.25; }
+.session-main .card.lift .lift-head .scheme { font-size: 13px; margin-top: 3px; }
+
+/* A FINISHED row drops its stripe to the muted tone — done is not actionable.
+   Keyed to .is-done, not .collapsed: closed is the default state for every
+   exercise, so styling .collapsed muted every stripe on the page and made a
+   fresh workout look entirely completed. */
+.session-main .card.lift.is-done .lift-head { border-left-color: var(--dim); }
+
+/* Set rows inside an opened exercise get the same treatment, indented so they
+   read as belonging to the row above rather than as siblings of it. */
+.session-main .card.lift .setrow, .session-main .card.lift .item-row {
+  padding-top: 12px; padding-bottom: 12px;
+}
