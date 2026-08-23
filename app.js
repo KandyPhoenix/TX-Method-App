@@ -2834,6 +2834,8 @@ function wireSetup() {
     s.weeklyGoal = +b.dataset.goal; save(); render();
   });
   view.querySelectorAll('#segEquip button').forEach(b => b.onclick = () => {
+    /* the header pill reads the same setting, so refresh it too */
+    setTimeout(renderEquipBtn, 0);
     s.equipment = b.dataset.eq; save(); render();
   });
   document.getElementById('age').onchange = e => {
@@ -4540,6 +4542,9 @@ function updateSessionUI() {
   if (!bar) return;
   /* the rail sticks below the whole sticky header, whose height changes with
      the session bar showing or hiding — measure it rather than hard-coding */
+  const eb = document.getElementById('equipBtn');
+  if (eb && !eb.dataset.wired) { eb.dataset.wired = '1'; eb.onclick = equipMenu; }
+  renderEquipBtn();
   const head = document.querySelector('.stickytop');
   if (head) document.documentElement.style.setProperty('--sticky-h', head.offsetHeight + 'px');
   const onRoadmap = TAB === 'today';
@@ -4607,6 +4612,62 @@ setInterval(updateSessionUI, 1000);
    --------------------------------------------------------------------- */
 const EQUIP_RANK  = { bodyweight: 0, dumbbells: 1, gym: 2 };
 const EQUIP_LABEL = { bodyweight: 'Bodyweight only', dumbbells: 'Dumbbells', gym: 'Full gym' };
+/* The header pill has room for a word, not a phrase. */
+const EQUIP_SHORT = { bodyweight: 'Bodyweight', dumbbells: 'Free weights', gym: 'Gym' };
+
+/* ---------------------------------------------------------------------
+   Equipment lives in the workout header, not only in Setup.
+
+   The setting already existed and already drove exercise selection, but it
+   was four taps away inside Setup — which is the wrong place for a decision
+   you make when you walk into the room and find the rack taken. The Standard
+   puts exactly this control in the top-right of a running session, and that
+   is the right call: it is a property of today, not of your profile.
+   --------------------------------------------------------------------- */
+function renderEquipBtn() {
+  const b = document.getElementById('equipBtn');
+  if (!b) return;
+  b.textContent = EQUIP_SHORT[haveEquip()] + ' ⌄';
+}
+
+function setEquip(k) {
+  if (!EQUIP_RANK.hasOwnProperty(k)) return;
+  S.settings.equipment = k;
+  save();
+  /* fpFocusPlan's cache key includes haveEquip(), so the generated plan
+     rebuilds itself on the next read — no cache busting needed here. */
+  renderEquipBtn();
+  render();
+  toast(EQUIP_SHORT[k] + ' — today\u2019s session re-picked');
+}
+
+function equipMenu() {
+  let pop = document.getElementById('equipPop');
+  if (pop) { pop.remove(); return; }
+  pop = document.createElement('div');
+  pop.id = 'equipPop';
+  pop.className = 'equip-pop';
+  const cur = haveEquip();
+  pop.innerHTML = ['bodyweight', 'dumbbells', 'gym'].map(k =>
+    `<button data-eq="${k}" class="${k === cur ? 'on' : ''}">
+       <span class="equip-dot"></span>${EQUIP_SHORT[k]}
+     </button>`).join('');
+  document.body.appendChild(pop);
+  const b = document.getElementById('equipBtn');
+  const r = b.getBoundingClientRect();
+  /* right-aligned under the button, clamped so it cannot hang off a phone */
+  const w = 176;
+  pop.style.top  = (r.bottom + 6) + 'px';
+  pop.style.left = Math.max(8, Math.min(window.innerWidth - w - 8, r.right - w)) + 'px';
+  pop.querySelectorAll('[data-eq]').forEach(x => x.onclick = () => {
+    const k = x.dataset.eq; pop.remove(); setEquip(k);
+  });
+  const away = e => {
+    if (e.target.closest('#equipPop') || e.target.closest('#equipBtn')) return;
+    pop.remove(); document.removeEventListener('click', away, true);
+  };
+  setTimeout(() => document.addEventListener('click', away, true), 0);
+}
 const EQUIP_NEEDS = { bodyweight: 'bodyweight', dumbbells: 'dumbbells', gym: 'a barbell' };
 
 function haveEquip() { return S.settings.equipment || 'gym'; }

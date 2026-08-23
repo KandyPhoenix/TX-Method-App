@@ -1371,3 +1371,38 @@ table.prog td.w { color: var(--text); }
   transition: border-color .15s ease, color .15s ease;
 }
 .rail-vid-search:hover { border-color: var(--accent); color: var(--accent); }
+
+/* ---- equipment switcher in the header ---- */
+.equip-btn { font-weight: 800; letter-spacing: .3px; white-space: nowrap; }
+.equip-pop {
+  position: fixed; z-index: 200; width: 176px; padding: 6px;
+  background: var(--panel); border: 1px solid var(--border);
+  border-radius: 14px; box-shadow: 0 18px 50px var(--shadow-3);
+  animation: fade .14s ease;
+}
+.equip-pop button {
+  display: flex; align-items: center; gap: 9px; width: 100%;
+  padding: 10px 11px; border: 0; background: none; cursor: pointer;
+  font: inherit; font-size: 13px; font-weight: 700; color: var(--ink);
+  text-align: left; border-radius: 10px;
+}
+.equip-pop button:hover { background: var(--panel2); }
+.equip-pop .equip-dot {
+  width: 8px; height: 8px; border-radius: 50%; flex: none;
+  border: 1.5px solid var(--border); background: transparent;
+}
+.equip-pop button.on .equip-dot { background: var(--accent); border-color: var(--accent); }
+
+/* The header row let its buttons shrink below their own text, so "Free
+   weights ⌄" spilled out from under a 36px-wide button and collided with the
+   profile button. The label must never be squeezed; the title may be. */
+.equip-btn {
+  /* .ghost-btn is a fixed 36x36 icon button; this one holds a word. */
+  flex: none; width: auto; min-width: 0; height: 36px; padding: 0 11px;
+  font-size: 12px; font-weight: 800; letter-spacing: .3px; white-space: nowrap;
+}
+.topbar .brand { min-width: 0; }
+.topbar .brand h1, .topbar .brand .sub { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+@media (max-width: 460px) {
+  .equip-btn { font-size: 11px; padding-left: 9px; padding-right: 9px; }
+}
