@@ -4027,17 +4027,40 @@ function railLine() {
 }
 
 /* identifies which exercise the rail is currently describing */
+/* Which card the rail describes: the one you opened by hand if it is still
+   open, otherwise whichever holds the next unticked set. Opening a card is an
+   explicit "show me this", and it should win over the automatic follow. */
+let railFocus = null;
+
+function railTargetCard() {
+  const cards = [...view.querySelectorAll('.card.lift')];
+  if (railFocus != null) {
+    const c = cards[railFocus];
+    if (c && !c.classList.contains('collapsed')) return { card: c, focused: true };
+    railFocus = null;                       /* it was closed or is gone */
+  }
+  const next = view.querySelector('.check:not(.on)');
+  const card = next && next.closest('.card');
+  return card ? { card, focused: false, next } : null;
+}
+
+/* the row whose exercise the rail should describe — matters on superset cards,
+   which hold two different movements */
+function railTargetRow(t) {
+  if (!t) return null;
+  if (!t.focused && t.next) return t.next.closest('.set-row');
+  return t.card.querySelector('.check:not(.on)')?.closest('.set-row')
+      || t.card.querySelector('.set-row');
+}
+
 function currentRailKey() {
-  const nextCheck = view.querySelector('.check:not(.on)');
-  const card = nextCheck && nextCheck.closest('.card');
-  if (!card) return 'all-done';
-  /* a superset card holds two exercises — prefer the button on the row that is
-     actually next, and only fall back to the card's first */
-  const row = nextCheck.closest('.set-row');
-  const btn = (row && row.querySelector('.form-btn[data-tip]')) || card.querySelector('.form-btn[data-tip]');
-  if (btn) return btn.dataset.tip;
-  const nm = card.querySelector('.lift-head .name');
-  return nm ? nm.textContent.trim() : 'unknown';
+  const t = railTargetCard();
+  if (!t) return 'all-done';
+  const row = railTargetRow(t);
+  const btn = (row && row.querySelector('.form-btn[data-tip]')) || t.card.querySelector('.form-btn[data-tip]');
+  if (btn) return (t.focused ? 'focus:' : '') + btn.dataset.tip;
+  const nm = t.card.querySelector('.lift-head .name');
+  return (t.focused ? 'focus:' : '') + (nm ? nm.textContent.trim() : 'unknown');
 }
 
 function railExtrasHTML() {
@@ -4048,24 +4071,26 @@ function railExtrasHTML() {
 
     </div>`;
 
-  const nextCheck = view.querySelector('.check:not(.on)');
-  const card = nextCheck && nextCheck.closest('.card');
-  if (!card) {
+  const t = railTargetCard();
+  if (!t) {
     return `<div class="card rail-card">
       <div class="rail-kicker">Session</div>
       <div class="rail-next">All sets done</div>
       <div class="rail-next-sub">Everything on this day is ticked — mark the day complete to bank it.</div>
     </div>` + quoteCard;
   }
+  const card = t.card;
+  const row  = railTargetRow(t);
   const nm  = card.querySelector('.lift-head .name');
   /* the How-to button lives inside .name, so textContent would read
      "Squat ⓘ How-to" — take only the element's own text nodes */
   const nmText = nm ? [...nm.childNodes].filter(x => x.nodeType === 3).map(x => x.textContent).join('').trim() : '';
   const sch = card.querySelector('.lift-head .scheme');
-  const btn = card.querySelector('.form-btn[data-tip]');
+  /* on a superset card prefer the row being pointed at, not the card's first */
+  const btn = (row && row.querySelector('.form-btn[data-tip]')) || card.querySelector('.form-btn[data-tip]');
   const tip = btn && FORM_TIPS[btn.dataset.tip];
   let out = `<div class="card rail-card">
-      <div class="rail-kicker">Up next</div>
+      <div class="rail-kicker">${t.focused ? 'Viewing' : 'Up next'}</div>
       <div class="rail-next">${nmText || '—'}</div>
       ${sch ? `<div class="rail-next-sub">${sch.textContent.trim()}</div>` : ''}
     </div>`;
@@ -4198,6 +4223,10 @@ view.addEventListener('click', e => {
   const nowCollapsed = card.classList.contains('collapsed');
   collapseChoice.set(i, nowCollapsed);        // opening it = forced open
   card.classList.toggle('collapsed', !nowCollapsed);
+  /* opening a card focuses the rail on it; closing that same card releases it
+     back to following whatever set is next */
+  railFocus = nowCollapsed ? i : (railFocus === i ? null : railFocus);
+  refreshSessionPanels();
 });
 
 function annotateBadges() {
