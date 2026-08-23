@@ -567,6 +567,88 @@ const FP_SESSIONS = [
     bias: ['trapcarry', 'frontrackcarry', 'farmcarry', 'deadhang', 'towelhang'] }
 ];
 
+/* ---------------------------------------------------------------------
+   The five protocols that are unlocked on the account, transcribed from the
+   app itself — exercise for exercise, in order, with their own set counts.
+   The loads are not copied: those come from The Standard's own algorithm tier
+   for her, and this app already has its own progression. Movements map onto
+   keys that already exist here, so the How-to text, the videos, the equipment
+   filter and fpProgress all keep working.
+
+   The seven locked protocols have no list here on purpose. They fall back to
+   pool selection steered by their bias, and the session note says the content
+   is ours rather than theirs.
+   --------------------------------------------------------------------- */
+function pex(base, sets) { const e = Object.assign({}, base); e.sets = sets; return e; }
+
+const PROTOCOL_EX = {
+  balance_control: () => [
+    pex(fpx('woodchop',      'Dumbbell Wood Chopper',    '🪓',  8, 'Up to 8 each side — rotate from the ribs',   'dumbbells', true), 2),
+    pex(fpx('splitsquatecc', 'Dumbbell Split Squat',     '🦵',  8, 'Up to 8 each leg — chest tall',              'dumbbells', true), 2),
+    pex(fpx('sadbpress',     'Single-Arm Dumbbell Press','🙌',  8, 'Up to 8 each side — do not lean away',       'dumbbells', true), 2),
+    pex(fpx('slrdl',         'Single-Leg RDL',           '🦩',  6, '6 each leg — slow, the wobble is the work',  'bodyweight', true), 2),
+    pex(fpxT('suitcase',     'Suitcase Carry',           '🧳', 30, 2, '20-40 s each side, one side loaded',      'dumbbells', true), 2)
+  ],
+  continuous_cap: () => [
+    pex(fpxT('carryintervals', 'Dumbbell Carry Intervals', '🧳', 120, 3, '2 min on / 1 min off — posture is the stop signal', 'dumbbells'), 3),
+    pex(fpxT('jumprope',       'Jump Rope',                '🪢', 120, 2, '2 min continuous',                                  'bodyweight'), 2),
+    pex(fpxT('kbswing',        'Light Kettlebell Swings',  '🔔', 120, 3, '2 min — hinge and snap, arms are ropes',            'dumbbells'), 3),
+    pex(fpxT('stepup',         'Step Ups',                 '🪜',  30, 4, '30 s on / 30 s off — drive through the heel',       'bodyweight'), 4)
+  ],
+  dynamic_load: () => [
+    pex(fpx('sardl',          'Barbell RDL',          '🏋️', 10, 'Up to 10 — hinge, flat back, bar close', 'gym'), 2),
+    pex(fpxT('farmcarry',     'Heavy Carry Complex',  '🧳', 30, 2, '30 s heavy — tall, no shrugging',      'dumbbells'), 2),
+    pex(fpx('stepup',         'Dumbbell Step-Ups',    '🪜',  8, 'Up to 8 each leg — drive through the heel', 'dumbbells', true), 2),
+    pex(fpx('declinepushup',  'Decline Push-Up',      '📐',  6, 'Up to 6 — feet raised, hips level',       'bodyweight'), 2),
+    pex(fpx('walkinglunge',   'Walking Lunge',        '🚶',  8, 'Up to 8 each leg — long steps',           'dumbbells', true), 2)
+  ],
+  ground_press: () => [
+    pex(fpx('dbrow',       'Dumbbell Row',           '💪', 10, 'Up to 10 — squeeze the blades, no swing', 'dumbbells'), 2),
+    pex(fpx('pushpress',   'Dumbbell Push Press',    '🙌',  8, 'Up to 8 — legs start it, shoulders finish', 'dumbbells'), 2),
+    pex(fpx('dblunge',     'Dumbbell Reverse Lunge', '🦵',  8, 'Up to 8 each leg — torso tall',           'dumbbells', true), 2),
+    pex(fpxT('farmcarry',  'Farmer Carry',           '🧳', 25, 2, '20-30 s — heavy, tall, no shrugging',   'dumbbells'), 2),
+    pex(fpx('gobletsquat', 'Goblet Squat',           '🏋️', 10, 'Up to 10 — elbows inside the knees',      'dumbbells'), 2)
+  ],
+  foot_health: () => [
+    pex(fpx('toeyoga',   'Toe Yoga and Toe Spread', '🦶', 10, '10 each way per foot — slow and deliberate', 'bodyweight', true), 1),
+    pex(fpx('shortfoot', 'Short Foot',              '🦶',  8, '8 holds of 5 s per foot',                    'bodyweight', true), 1),
+    pex(fpx('calfraise', 'Calf Raises',             '🦵', 12, 'Slow down — the lowering is the work',       'bodyweight'), 1),
+    pex(fpx('anklerock', 'Ankle Dorsiflexion',      '🦶', 10, 'Knee to wall, heel stays down',              'bodyweight'), 1)
+  ]
+};
+
+/* An explicit list still has to respect the equipment on hand: a barbell RDL
+   is no use on a bodyweight day. Anything unusable is replaced by a pool pick
+   for the same marker rather than silently dropped, so the session keeps its
+   shape and its set count. */
+function fpSessionExercises(sess, dayIdx) {
+  const make = PROTOCOL_EX[sess.key];
+  if (!make) return null;
+  const seen = new Set();
+  const out = [];
+  make().forEach((e, n) => {
+    let pick = canRun(e.needs) ? e : null;
+    if (!pick) {
+      /* the first substitute is often one already used by an earlier swap;
+         walk the pool until an unused movement turns up, so a bodyweight day
+         keeps five exercises rather than collapsing to three */
+      /* Prefer the session's own marker, then its bias dropped, then any
+         other pool. Endurance Under Load has only two bodyweight movements,
+         so a bodyweight Dynamic Load needing four swaps cannot be served from
+         that pool alone — without this it silently shrank to three. */
+      const pools = [sess.marker].concat(Object.keys(FP_POOLS).filter(p => p !== sess.marker));
+      for (let pi = 0; pi < pools.length && !pick; pi++) {
+        for (let k = 0; k < 10 && !pick; k++) {
+          const sub = fpPickFrom(pools[pi], dayIdx + n + k, (pi === 0 && k < 5) ? sess.bias : null);
+          if (sub && !seen.has(sub.key)) pick = pex(sub, e.sets);
+        }
+      }
+    }
+    if (pick && !seen.has(pick.key)) { seen.add(pick.key); out.push(pick); }
+  });
+  return out.length ? out : null;
+}
+
 /* every session that trains this marker, in table order */
 function fpSessionsFor(marker) {
   return FP_SESSIONS.filter(x => x.marker === marker);
@@ -669,9 +751,12 @@ function fpFocusDay(dayIdx) {
   /* a second movement from the leading weakness — it is the priority */
   const extra = fpPickFrom(lead, dayIdx + 4, bias);
   const week = Math.floor(dayIdx / 6);          /* 6 training days per block */
+  const real = sess ? fpSessionExercises(sess, dayIdx) : null;
   const exercises = fpFocusWarmup()
-    .concat(picks.map(e => fpProgress(e, week)));
-  if (extra && !picks.includes(extra)) exercises.push(fpProgress(extra, week));
+    .concat((real || picks).map(e => fpProgress(e, week)));
+  /* the extra movement is a pool-selection idea; a transcribed protocol
+     already says how much work it is */
+  if (!real && extra && !picks.includes(extra)) exercises.push(fpProgress(extra, week));
 
   const nice = k => (FP_AXES.find(a => a.key === k) || { name: k }).name;
   const e = fpGet(lead);
@@ -679,7 +764,9 @@ function fpFocusDay(dayIdx) {
                   : ' — not yet assessed, so it is being trained on the assumption it needs work.';
   const basis = sess
     ? sess.name + ' is built on ' + nice(lead) + where +
-      (sess.open ? '' : ' This one is locked on The Standard, so the name and the marker are theirs and the session is ours in that spirit.')
+      (sess.open
+        ? ' These are the protocol\u2019s own exercises, in its own order; the loads are this app\u2019s.'
+        : ' This one is locked on The Standard, so the name and the marker are theirs and the session is ours in that spirit.')
     : 'Today leads on ' + nice(lead) + where;
   return {
     title: sess ? sess.name : 'Focus · ' + nice(lead),
@@ -2125,6 +2212,14 @@ const FORM_TIPS = {
   n9090:     { title: '90/90 Hip Switches', body: 'Sit with one leg bent in front (shin across you) and the other bent out to the side, both knees ~90°. Keeping your chest tall, rotate your knees across the floor to switch to the mirror position. Controlled, no hands if you can. That\'s one rep.' },
   deepsquat: { title: 'Deep Squat Hold', body: 'Sink into the bottom of a squat, heels down, chest up, and gently push your knees out with your elbows. Relax into it and breathe. Hold a doorframe for balance if needed. Builds hip, knee and ankle mobility.' },
   tibraise:  { title: 'Tibialis Raises', body: 'Stand with your back against a wall, feet a step out. Keeping legs straight, pull your toes up toward your shins as high as possible, then lower slowly. Strengthens the front-shin muscle — huge for knee health and ankle control.' },
+  toeyoga: {
+    title: 'Toe Yoga and Toe Spread',
+    body: 'Stand or sit barefoot with the foot flat. Press the big toe down while lifting the other four; then reverse — big toe up, the other four down. Then spread all five toes apart without curling them. Slow and deliberate; the point is control you do not currently have, not range. 10 of each per foot.'
+  },
+  shortfoot: {
+    title: 'Short Foot',
+    body: 'Stand barefoot. Without curling your toes, shorten the foot by drawing the ball of the foot toward the heel — as if making the arch taller by contracting the sole. The toes stay long and flat on the ground. Hold each contraction 5 seconds, then release. Repeat 8 times. Think of making a fist with the bottom of your foot.'
+  },
   calfraise: { title: 'Eccentric Calf Raises', body: 'On a step (or floor), rise onto the balls of both feet, shift to one foot, then lower that heel down slowly (3–4 seconds) below the step for a stretch. Builds strong, resilient Achilles tendons. Do the reps each side.' },
   anklerock: { title: 'Knee-to-Wall Ankle Rocks', body: 'Face a wall, foot a few inches back, heel down. Drive your knee forward over your toes to touch the wall without your heel lifting, then back. Move your foot farther as you improve. Great for ankle/Achilles mobility. Each side.' },
   shouldercars: { title: 'Shoulder CARs', body: 'Stand tall, brace your core. Slowly draw the biggest circle you can with one straight arm — up the front, overhead, around the back, and down — keeping tension the whole way. Keep your ribs down. Reverse direction, then the other arm.' },
