@@ -525,6 +525,61 @@ const FP_POOLS = {
   ]
 };
 
+/* ---------------------------------------------------------------------
+   The Standard's Protocols page lists every workout against the longevity
+   marker it trains, which is the thing worth copying: a session is not a
+   random circuit, it is an intervention aimed at one marker. The marker
+   column below is theirs, recorded as printed — including Balance & Control
+   sitting under Functional Strength, which reads oddly but is what the page
+   says.
+
+   Five of these are open on her account and their contents were read from the
+   app. The other seven are locked, so the name and the marker are theirs and
+   the programming is ours in that spirit — 'bias' just steers which pool
+   entries the session prefers, so equipment fallback and fpProgress keep
+   working exactly as before.
+   --------------------------------------------------------------------- */
+const FP_SESSIONS = [
+  { key: 'balance_control',  name: 'Balance & Control',   marker: 'functional_strength', open: true,
+    bias: ['slstance', 'tandem', 'birddog', 'airsquattempo', 'atgsplit', 'slrdl'] },
+  { key: 'continuous_cap',   name: 'Continuous Capacity',  marker: 'endurance_under_load', open: true,
+    bias: ['carryintervals', 'marchcarry', 'walkinglunge', 'plank', 'lunge'] },
+  { key: 'dynamic_load',     name: 'Dynamic Load',         marker: 'endurance_under_load', open: true,
+    bias: ['trapdeadlift', 'dblunge', 'splitsquatecc', 'suitcase', 'lunge'] },
+  { key: 'ground_press',     name: 'Ground & Press',       marker: 'agility', open: true,
+    bias: ['plankdrag', 'shuffle', 'carioca', 'sidestep', 'woodchop'] },
+  { key: 'foot_health',      name: 'Ground-Up: Foot Health', marker: 'balance', open: true, recovery: true,
+    bias: ['tibraise', 'slstance', 'tandem', 'crosscrawl', 'deepsquat'] },
+
+  { key: 'thirty_thirty',    name: '30/30',                marker: 'vo2_max',
+    bias: ['intervals', 'jumprope', 'shadowbox'] },
+  { key: 'slow_burn',        name: 'The Slow Burn',        marker: 'vo2_max',
+    bias: ['zone2', 'bike', 'brisk'] },
+  { key: 'vertical_output',  name: 'Vertical Output',      marker: 'functional_strength',
+    bias: ['boxjump', 'squatjump', 'broadjump', 'pushpress', 'stepup'] },
+  { key: 'elastic_engine',   name: 'Elastic Engine',       marker: 'agility',
+    bias: ['highknees', 'carioca', 'shuffle', 'sidestep'] },
+  { key: 'sprint_repeat',    name: 'Sprint Repeat',        marker: 'agility',
+    bias: ['shuffle', 'highknees', 'sidestep', 'plankdrag'] },
+  { key: 'loaded_flow',      name: 'Loaded Aerobic Flow',  marker: 'balance',
+    bias: ['slrdlreach', 'crosscrawl', 'pushuptap', 'birddog', 'slrdl'] },
+  { key: 'loaded_power',     name: 'Loaded Power',         marker: 'peripheral_strength',
+    bias: ['trapcarry', 'frontrackcarry', 'farmcarry', 'deadhang', 'towelhang'] }
+];
+
+/* every session that trains this marker, in table order */
+function fpSessionsFor(marker) {
+  return FP_SESSIONS.filter(x => x.marker === marker);
+}
+/* Chosen from (marker, dayIdx) alone — nothing is stored. fpFocusPlan's cache
+   key already covers both, so adding a remembered rotation here would serve
+   stale days. */
+function fpSessionFor(marker, dayIdx) {
+  const list = fpSessionsFor(marker);
+  if (!list.length) return null;
+  return list[((dayIdx % list.length) + list.length) % list.length];
+}
+
 /* weakest assessed marker first; unassessed markers trail behind, because an
    unknown score is not the same as a bad one */
 function fpWeakestOrder() {
@@ -538,10 +593,42 @@ function fpWeakestOrder() {
   return assessed.map(x => x.k).concat(unknown.map(x => x.k));
 }
 
-function fpPickFrom(pool, i) {
-  const usable = FP_POOLS[pool].filter(e => canRun(e.needs));
-  const list = usable.length ? usable : FP_POOLS[pool].filter(e => e.needs === 'bodyweight');
+/* Which marker leads the day.
+
+   This used to be order[dayIdx % 3], so only the weakest three markers ever
+   led a session — and with twelve protocols mapped to six markers that meant
+   seven of them could never appear at all. The point of naming the sessions is
+   lost if you only ever see five of them.
+
+   The weakest three still lead three times as often as the rest; the
+   difference is that the rest now lead at all. Derived from order and dayIdx
+   only, so fpFocusPlan's cache key still covers it. */
+function fpLeadCycle(order) {
+  if (!order.length) return [];
+  const weak = order.slice(0, 3);
+  const rest = order.slice(3);
+  const cyc = [];
+  const rounds = Math.max(1, rest.length);
+  for (let i = 0; i < rounds; i++) {
+    weak.forEach(k => cyc.push(k));
+    if (rest[i]) cyc.push(rest[i]);
+  }
+  return cyc;
+}
+
+function fpPickFrom(pool, i, bias) {
+  const all = FP_POOLS[pool] || [];
+  const usable = all.filter(e => canRun(e.needs));
+  let list = usable.length ? usable : all.filter(e => e.needs === 'bodyweight');
   if (!list.length) return null;
+  /* A session prefers its own movements, but only among the ones this
+     equipment can actually run — so the bias never reintroduces a barbell on a
+     bodyweight setup. If none of them survive that filter, fall back to the
+     whole pool rather than returning nothing. */
+  if (bias && bias.length) {
+    const pref = list.filter(e => bias.indexOf(e.key) !== -1);
+    if (pref.length) list = pref;
+  }
   return list[((i % list.length) + list.length) % list.length];
 }
 
@@ -568,14 +655,19 @@ function fpFocusDay(dayIdx) {
   const order = fpWeakestOrder();
   /* rotate which of the weak markers leads, so four weeks is not one session
      repeated — the first two are always drawn from the weakest half */
-  const lead  = order[dayIdx % Math.max(1, Math.min(3, order.length))];
+  const cyc   = fpLeadCycle(order);
+  const lead  = cyc.length ? cyc[dayIdx % cyc.length] : order[0];
   const second = order[(dayIdx + 1) % Math.max(1, Math.min(4, order.length))];
   const third  = order[(dayIdx + 2) % order.length];
+  const sess = fpSessionFor(lead, dayIdx);
+  const bias = sess ? sess.bias : null;
+  /* only the leading marker's movements are steered by the session; the
+     supporting two stay free so the day is not three variations of one idea */
   const picks = [lead, second, third]
-    .map((p, n) => fpPickFrom(p, dayIdx + n))
+    .map((p, n) => fpPickFrom(p, dayIdx + n, n === 0 ? bias : null))
     .filter(Boolean);
   /* a second movement from the leading weakness — it is the priority */
-  const extra = fpPickFrom(lead, dayIdx + 4);
+  const extra = fpPickFrom(lead, dayIdx + 4, bias);
   const week = Math.floor(dayIdx / 6);          /* 6 training days per block */
   const exercises = fpFocusWarmup()
     .concat(picks.map(e => fpProgress(e, week)));
@@ -583,11 +675,15 @@ function fpFocusDay(dayIdx) {
 
   const nice = k => (FP_AXES.find(a => a.key === k) || { name: k }).name;
   const e = fpGet(lead);
+  const where = e ? ' — currently ' + e.score + '%, your weakest assessed marker.'
+                  : ' — not yet assessed, so it is being trained on the assumption it needs work.';
+  const basis = sess
+    ? sess.name + ' is built on ' + nice(lead) + where +
+      (sess.open ? '' : ' This one is locked on The Standard, so the name and the marker are theirs and the session is ours in that spirit.')
+    : 'Today leads on ' + nice(lead) + where;
   return {
-    title: 'Focus · ' + nice(lead),
-    note: 'Built from your Fingerprint. Today leads on ' + nice(lead) +
-          (e ? ' — currently ' + e.score + '%, your weakest assessed marker.'
-             : ' — not yet assessed, so it is being trained on the assumption it needs work.') +
+    title: sess ? sess.name : 'Focus · ' + nice(lead),
+    note: 'Built from your Fingerprint. ' + basis +
           ' Assess more markers in the Fingerprint tab and this plan re-orders itself.' +
           fpNonPhysicalNote(),
     exercises
