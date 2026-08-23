@@ -38,6 +38,7 @@ const DEFAULTS = {
   age: 45,            /* Fingerprint scoring is age-normed — see FP_ASSESS */
   equipment: 'gym',   /* gym | dumbbells | bodyweight — see EQUIP_RANK */
   weeklyGoal: 4,      /* sessions per week — the week strip counts toward this */
+  dbMax: 25,          /* heaviest dumbbell/kettlebell owned, per hand — see capHand */
   bodyweight: 165,
   barWeight: 45,
   plates: [45, 35, 25, 10, 5, 2.5],
@@ -484,10 +485,10 @@ const FP_POOLS = {
     fpx('kbswing', 'Light KB Swing', '🔔', 12, 'Hinge and snap — arms are ropes', 'dumbbells')
   ],
   peripheral_strength: [
-    fpxT('deadhang', 'Dead Hang', '🪢', 30, 3, 'Shoulders active, no straps', 'gym'),
+    fpxT('deadhang', 'Dead Hang', '🪢', 30, 3, 'Shoulders active, no straps', 'bodyweight'),
     fpxT('farmcarry', 'Farmer Carry', '🧳', 40, 3, 'Heavy, tall, no shrugging', 'dumbbells'),
     fpx('dbrow', 'DB Bent-Over Row', '💪', 10, 'Squeeze the blades, no swing', 'dumbbells'),
-    fpxT('towelhang', 'Towel Hang', '🧻', 20, 2, 'Over the bar — brutal on the grip', 'gym'),
+    fpxT('towelhang', 'Towel Hang', '🧻', 20, 2, 'Over the bar — brutal on the grip', 'bodyweight'),
     fpx('pushups', 'Pushups', '💪', 12, 'One straight line, no sagging', 'bodyweight'),
     fpxT('frontrackcarry', 'Front Rack Carry', '🧱', 40, 2, 'Elbows up, ribs down', 'dumbbells'),
     fpxT('trapcarry', 'Trap Bar Carry', '🧳', 45, 2, 'Short even steps, shoulders back', 'gym'),
@@ -609,6 +610,61 @@ const PROTOCOL_EX = {
     pex(fpxT('farmcarry',  'Farmer Carry',           '🧳', 25, 2, '20-30 s — heavy, tall, no shrugging',   'dumbbells'), 2),
     pex(fpx('gobletsquat', 'Goblet Squat',           '🏋️', 10, 'Up to 10 — elbows inside the knees',      'dumbbells'), 2)
   ],
+  /* ------------------------------------------------------------------
+     The seven locked protocols.
+
+     Their contents cannot be read — they are paywalled, the page payload is
+     not extractable, and Super Age publishes no exercise lists for them. So
+     these are NOT transcripts. Each is built from the three things that ARE
+     known — the protocol's name, the longevity marker the Protocols page
+     lists it against, and its stated duration — laid out in the template the
+     five readable protocols all share: four or five movements, two to four
+     sets, a carry or a hang wherever grip is the marker.
+
+     The session note keys off sess.open, not off whether a list exists here,
+     so these days still say the session is ours rather than theirs. That is
+     deliberate: filling in the exercises must not quietly upgrade the claim.
+     ------------------------------------------------------------------ */
+  thirty_thirty: () => [
+    pex(fpxT('bike',      'Bike 30/30',       '🚴', 30, 8, '30 s hard / 30 s easy — the name is the protocol', 'bodyweight'), 8),
+    pex(fpxT('jumprope',  'Jump Rope 30/30',  '🪢', 30, 6, '30 s on / 30 s off',                               'bodyweight'), 6),
+    pex(fpxT('highknees', 'High Knees',       '🏃', 30, 4, '30 s quick feet, tall posture',                    'bodyweight'), 4),
+    pex(fpxT('mtnclimb',  'Mountain Climbers','🧗', 30, 4, '30 s — hips low, quick feet',                      'bodyweight'), 4)
+  ],
+  slow_burn: () => [
+    pex(fpxT('bike',  'Long Ride',   '🚴', 2400, 1, '40 min steady — you can still hold a conversation', 'bodyweight'), 1),
+    pex(fpxT('brisk', 'Cool-Down Walk', '🚶', 600, 1, '10 min easy, nose breathing',                     'bodyweight'), 1)
+  ],
+  vertical_output: () => [
+    pex(fpx('boxjump',    'Box Jump',            '📦', 5, 'Land soft, step down — never jump down', 'bodyweight'), 3),
+    pex(fpx('squatjump',  'Squat Jumps',         '🔥', 6, 'Explosive, land soft',                    'bodyweight'), 3),
+    pex(fpx('broadjump',  'Standing Broad Jump', '➡️', 5, 'Max distance, reset every rep',           'bodyweight'), 3),
+    pex(fpx('pushpress',  'Dumbbell Push Press', '🙌', 8, 'Legs start it, shoulders finish it',      'dumbbells'), 3)
+  ],
+  elastic_engine: () => [
+    pex(fpxT('hops',      'Pogo Hops',   '🦘', 45, 3, 'Stiff ankles, minimal ground time', 'bodyweight'), 3),
+    pex(fpxT('skaters',   'Skater Bounds','⛸️', 30, 3, 'Side to side, stick the landing',  'bodyweight'), 3),
+    pex(fpxT('carioca',   'Carioca',     '🔀', 30, 2, 'Grapevine, both directions',        'bodyweight'), 2),
+    pex(fpxT('plankjack', 'Plank Jacks', '🧘', 30, 3, 'Hips still, feet quick',            'bodyweight'), 3)
+  ],
+  sprint_repeat: () => [
+    pex(fpxT('bike',      'Bike Sprints',   '🚴', 20, 6, '20 s max / 90 s easy — full recovery between', 'bodyweight'), 6),
+    pex(fpx('shuffle',    'Lateral Shuffle','↔️', 10, '5 m out and back, stay low',                      'bodyweight'), 4),
+    pex(fpxT('buttkick',  'Butt Kicks',     '🦵', 20, 3, '20 s quick turnover',                           'bodyweight'), 3),
+    pex(fpxT('highknees', 'High Knees',     '🏃', 20, 3, '20 s, tall posture',                            'bodyweight'), 3)
+  ],
+  loaded_flow: () => [
+    pex(fpxT('marchcarry',  'March Carry',    '🧳', 40, 3, 'Knees to hip height, weights still', 'dumbbells'), 3),
+    pex(fpx('slrdl',        'Single-Leg RDL', '🦩',  8, 'Slow — the wobble is the work',         'bodyweight', true), 3),
+    pex(fpx('crosscrawl',   'Cross Crawl March','🚶',12, 'Opposite elbow to knee, deliberate',   'bodyweight'), 3),
+    pex(fpxT('suitcase',    'Suitcase Carry', '🧳', 30, 3, 'One side loaded — do not lean',       'dumbbells', true), 3)
+  ],
+  loaded_power: () => [
+    pex(fpxT('trapcarry',      'Trap Bar Carry',  '🧳', 45, 3, 'Short even steps, shoulders back', 'gym'), 3),
+    pex(fpxT('farmcarry',      'Farmer Carry',    '🧳', 40, 3, 'Heavy, tall, no shrugging',        'dumbbells'), 3),
+    pex(fpxT('deadhang',       'Dead Hang',       '🪢', 30, 3, 'Shoulders active, no straps',      'bodyweight'), 3),
+    pex(fpxT('frontrackcarry', 'Front Rack Carry','🧱', 40, 2, 'Elbows up, ribs down',             'dumbbells'), 2)
+  ],
   foot_health: () => [
     pex(fpx('toeyoga',   'Toe Yoga and Toe Spread', '🦶', 10, '10 each way per foot — slow and deliberate', 'bodyweight', true), 1),
     pex(fpx('shortfoot', 'Short Foot',              '🦶',  8, '8 holds of 5 s per foot',                    'bodyweight', true), 1),
@@ -627,7 +683,12 @@ function fpSessionExercises(sess, dayIdx) {
   const seen = new Set();
   const out = [];
   make().forEach((e, n) => {
-    let pick = canRun(e.needs) ? e : null;
+    /* Runnable is not enough: an earlier swap may already have taken this
+       exact movement (a bodyweight Loaded Power substitutes Dead Hang for the
+       trap bar carry, and then meets Dead Hang again as its own third item).
+       Treat that as needing a substitute too, or it is accepted and then
+       dropped as a duplicate, costing the session an exercise. */
+    let pick = (canRun(e.needs) && !seen.has(e.key)) ? e : null;
     if (!pick) {
       /* the first substitute is often one already used by an earlier swap;
          walk the pool until an unused movement turns up, so a bodyweight day
@@ -998,6 +1059,13 @@ function migrate(st) {
   st.mob     = st.mob     || { day: 1, log: {} };
   if (st.mob.day == null) st.mob.day = 1;
   if (!st.mob.log) st.mob.log = {};
+  /* The old middle equipment tier is gone. It has to be migrated HERE rather
+     than in the Setup screen: applyBundle writes tm_state_* straight from the
+     cloud bundle, so an old value can arrive at any time from another device
+     or a restore, and a one-off fix in the UI would not catch it. Left alone,
+     EQUIP_SHORT['dumbbells'] is undefined and the header pill reads
+     "undefined". */
+  if (st.settings && st.settings.equipment === 'dumbbells') st.settings.equipment = 'gym';
   ['core', 'db', 'pil', 'hiit', 'bjj', 'sa2', 'sa4', 'sahyb'].forEach(k => { st[k] = st[k] || { day: 1, log: {} }; if (st[k].day == null) st[k].day = 1; if (!st[k].log) st[k].log = {}; });
   if (!st.achievements) st.achievements = [];
   if (!st.prs) st.prs = {};
@@ -1908,7 +1976,8 @@ function hasLoadProgression() {
 function saEstimate(m) {
   const L = S.settings.lifts[m.src]; if (!L || !L.weight) return null;
   const est = oneRM(L.weight, L.reps) * m.pct;
-  return m.type === 'bar' ? snapWeight(est, bar(), getPlates()) : Math.max(5, round(est, 5));
+  return m.type === 'bar' ? snapWeight(est, bar(), getPlates())
+                         : capHand(Math.max(5, round(est, 5)), m.type);
 }
 function saHint(key) {
   if (!hasLoadProgression()) return null;
@@ -1950,9 +2019,19 @@ function saApplyProgression(d, log) {
     const inc = S.settings.units === 'lb' ? 5 : 2.5;
     let next = cur;
     if (met) {
-      next = m.type === 'bar' ? snapWeight(cur + inc, bar(), getPlates()) : cur + inc;
-      if (next <= cur) next = cur + inc;
-      msgs.push(`${ex.name} +${fmt(next - cur)} ${unit()} next time 💪`);
+      /* Clamping only the displayed suggestion would let the STORED working
+         weight climb past the rack forever while the screen still read 25 —
+         the number you are told to lift and the number being progressed would
+         silently diverge. Clamp here too. */
+      next = m.type === 'bar' ? snapWeight(cur + inc, bar(), getPlates())
+                              : capHand(cur + inc, m.type);
+      /* This guard exists because snapWeight can land back on the current
+         weight when the next plate jump is out of reach. It must NOT apply to
+         hand weights, or it would step straight over the ceiling the line
+         above just imposed. */
+      if (next <= cur && m.type === 'bar') next = cur + inc;
+      if (next > cur) msgs.push(`${ex.name} +${fmt(next - cur)} ${unit()} next time 💪`);
+      else msgs.push(`${ex.name} stays at ${fmt(cur)} ${unit()} — that is the heaviest you own. Add reps or slow the lowering instead.`);
     } else {
       msgs.push(`${ex.name} holds at ${fmt(cur)} ${unit()} — hit ${ex.reps}+ to move up`);
     }
@@ -2812,9 +2891,13 @@ function renderSetup() {
         </div>
         <div class="hint">The week strip on Roadmap counts toward this rather than toward seven days — train on whichever days suit you.</div>
       </div>
+      <div class="field"><label>Heaviest dumbbell / kettlebell (per hand)</label>
+        <input type="number" inputmode="numeric" id="dbMax" value="${s.dbMax ?? 25}" />
+        <div class="hint">Dumbbell and kettlebell suggestions stop here instead of climbing past what is on the rack. Barbell and trap bar are loaded from plates, so they are not capped.</div>
+      </div>
       <div class="field"><label>Equipment available</label>
         <div class="seg" id="segEquip">
-          ${['gym','dumbbells','bodyweight'].map(k =>
+          ${['gym','bodyweight'].map(k =>
             `<button data-eq="${k}" class="${(s.equipment || 'gym') === k ? 'on' : ''}">${EQUIP_LABEL[k]}</button>`).join('')}
         </div>
         <div class="hint">Protocols you cannot run today are marked in the library, and barbell movements show a stand-in in their How-to.</div>
@@ -2997,6 +3080,8 @@ function wireSetup() {
   view.querySelectorAll('#segMode button').forEach(b => b.onclick = () => { s.mode = b.dataset.m; save(); render(); });
 
   document.getElementById('bw').onchange  = e => { s.bodyweight = +e.target.value || 0; save(); };
+  const dbm = document.getElementById('dbMax');
+  if (dbm) dbm.onchange = () => { s.dbMax = Math.max(5, +dbm.value || 25); save(); render(); };
   view.querySelectorAll('#segGoal button').forEach(b => b.onclick = () => {
     s.weeklyGoal = +b.dataset.goal; save(); render();
   });
@@ -4779,9 +4864,22 @@ setInterval(updateSessionUI, 1000);
    barbell movement carries a documented stand-in in its How-to.
    --------------------------------------------------------------------- */
 const EQUIP_RANK  = { bodyweight: 0, dumbbells: 1, gym: 2 };
-const EQUIP_LABEL = { bodyweight: 'Bodyweight only', dumbbells: 'Dumbbells', gym: 'Full gym' };
+/* Two modes, not three. "Dumbbells" as a separate middle tier described a
+   kit she does not have — hers is a full rack or nothing, so the choice is
+   only ever "am I training with weights today". Exercises still DECLARE
+   needs:'dumbbells'; EQUIP_RANK keeps resolving those under gym. Only the
+   selectable modes changed. */
+const EQUIP_LABEL = { bodyweight: 'Bodyweight only', gym: 'Gym' };
 /* The header pill has room for a word, not a phrase. */
-const EQUIP_SHORT = { bodyweight: 'Bodyweight', dumbbells: 'Free weights', gym: 'Gym' };
+const EQUIP_SHORT = { bodyweight: 'Bodyweight', gym: 'Gym' };
+const EQUIP_MODES = ['bodyweight', 'gym'];
+
+/* Dumbbells and kettlebells stop at what is on the rack. Barbell and trap bar
+   are loaded from plates and are deliberately NOT capped here. */
+function dbCap() { const n = +(S.settings.dbMax); return n > 0 ? n : 25; }
+function capHand(w, type) {
+  return (type === 'db' || type === 'hand') ? Math.min(w, dbCap()) : w;
+}
 
 /* ---------------------------------------------------------------------
    Equipment lives in the workout header, not only in Setup.
@@ -4816,7 +4914,7 @@ function equipMenu() {
   pop.id = 'equipPop';
   pop.className = 'equip-pop';
   const cur = haveEquip();
-  pop.innerHTML = ['bodyweight', 'dumbbells', 'gym'].map(k =>
+  pop.innerHTML = EQUIP_MODES.map(k =>
     `<button data-eq="${k}" class="${k === cur ? 'on' : ''}">
        <span class="equip-dot"></span>${EQUIP_SHORT[k]}
      </button>`).join('');
