@@ -464,39 +464,63 @@ const FP_POOLS = {
     fpxT('deepsquat', 'Deep Squat Hold', '🧘', 45, 2, 'Sink in, heels down, breathe', 'bodyweight'),
     fpx('slrdl', 'Single-Leg RDL', '🦵', 8, 'Slow — the wobble is the work', 'bodyweight', true),
     fpx('tibraise', 'Tibialis Raises', '🦶', 15, 'Back to a wall, toes up slow', 'bodyweight'),
-    fpxT('tandem', 'Tandem Walk', '➡️', 40, 1, 'Heel to toe, arms folded', 'bodyweight')
+    fpxT('tandem', 'Tandem Walk', '➡️', 40, 1, 'Heel to toe, arms folded', 'bodyweight'),
+    fpx('birddog', 'Bird Dog', '🐕', 8, 'Slow — hips stay square', 'bodyweight', true),
+    fpx('slrdlreach', 'Single-Leg RDL Reach', '🦩', 8, 'Reach only as far as the hips allow', 'bodyweight', true),
+    fpx('crosscrawl', 'Cross Crawl March', '🚶', 12, 'Opposite elbow to knee, deliberate', 'bodyweight'),
+    fpx('pushuptap', 'Push-Up Shoulder Tap', '🤚', 8, 'Hips dead still', 'bodyweight')
   ],
   functional_strength: [
     fpx('squatjump', 'Squat Jumps', '🔥', 6, 'Explosive — full effort, land soft', 'bodyweight'),
     fpx('broadjump', 'Standing Broad Jump', '➡️', 5, 'Max distance, reset every rep', 'bodyweight'),
     fpx('stepup', 'Weighted Step-Ups', '🪜', 8, 'Drive through the heel', 'dumbbells', true),
     fpx('atgsplit', 'ATG Split Squat', '🦵', 8, 'Deep, controlled, knee travels forward', 'bodyweight', true),
-    fpx('gobletsquat', 'Goblet Squat', '🏋️', 10, 'Chest tall, elbows inside knees', 'dumbbells')
+    fpx('gobletsquat', 'Goblet Squat', '🏋️', 10, 'Chest tall, elbows inside knees', 'dumbbells'),
+    fpx('boxjump', 'Box Jump', '📦', 5, 'Land soft, step down — never jump down', 'bodyweight'),
+    fpx('airsquattempo', 'Air Squat (3-2-1)', '⏱️', 8, '3 s down, 2 s pause, 1 s up', 'bodyweight'),
+    fpx('frontsquat', 'Barbell Front Squat', '🏋️', 6, 'Elbows high, torso vertical', 'gym'),
+    fpx('pushpress', 'Dumbbell Push Press', '🙌', 8, 'Legs start it, shoulders finish it', 'dumbbells'),
+    fpx('kbswing', 'Light KB Swing', '🔔', 12, 'Hinge and snap — arms are ropes', 'dumbbells')
   ],
   peripheral_strength: [
     fpxT('deadhang', 'Dead Hang', '🪢', 30, 3, 'Shoulders active, no straps', 'gym'),
     fpxT('farmcarry', 'Farmer Carry', '🧳', 40, 3, 'Heavy, tall, no shrugging', 'dumbbells'),
     fpx('dbrow', 'DB Bent-Over Row', '💪', 10, 'Squeeze the blades, no swing', 'dumbbells'),
     fpxT('towelhang', 'Towel Hang', '🧻', 20, 2, 'Over the bar — brutal on the grip', 'gym'),
-    fpx('pushups', 'Pushups', '💪', 12, 'One straight line, no sagging', 'bodyweight')
+    fpx('pushups', 'Pushups', '💪', 12, 'One straight line, no sagging', 'bodyweight'),
+    fpxT('frontrackcarry', 'Front Rack Carry', '🧱', 40, 2, 'Elbows up, ribs down', 'dumbbells'),
+    fpxT('trapcarry', 'Trap Bar Carry', '🧳', 45, 2, 'Short even steps, shoulders back', 'gym'),
+    fpx('sadbpress', 'Single-Arm DB Press', '🙌', 8, 'Do not lean away from the weight', 'dumbbells', true),
+    fpx('declinepushup', 'Decline Push-Up', '📐', 8, 'Feet raised, hips level', 'bodyweight')
   ],
   vo2_max: [
     fpxT('zone2', 'Zone 2 Effort', '🚴', 1200, 1, '20 min steady — you can still hold a conversation', 'bodyweight'),
     fpxT('intervals', '4x4 Intervals', '⚡', 960, 1, '4 min hard / 3 min easy, four rounds', 'bodyweight'),
     fpxT('jumprope', 'Jump Rope', '🪢', 180, 3, '3 min on, 1 min off', 'bodyweight'),
-    fpxT('brisk', 'Brisk Walk', '🚶', 900, 1, '15 min, fast enough to be slightly breathless', 'bodyweight')
+    fpxT('brisk', 'Brisk Walk', '🚶', 900, 1, '15 min, fast enough to be slightly breathless', 'bodyweight'),
+    fpxT('bike', 'Bike', '🚴', 1500, 1, '25 min conversational', 'bodyweight'),
+    fpxT('inclinewalk', 'Incline Treadmill Walk', '⛰️', 1200, 1, 'Raise the incline, not the speed — hands off the rails', 'bodyweight'),
+    fpxT('briskmarch', 'Brisk March', '🚶', 600, 1, '10 min, talking should be effortful', 'bodyweight'),
+    fpxT('shadowbox', 'Shadow Boxing', '🥊', 180, 3, 'Light feet, relaxed hands', 'bodyweight')
   ],
   agility: [
     fpx('sidestep', 'Banded Side-Steps', '↔️', 12, '12 steps each way, knees out', 'bodyweight'),
     fpxT('carioca', 'Carioca', '🔀', 30, 2, 'Grapevine, both directions', 'bodyweight'),
     fpx('shuffle', 'Lateral Shuffle', '↔️', 10, '5 m out and back, stay low', 'bodyweight'),
-    fpxT('highknees', 'High Knees', '🏃', 30, 2, 'Quick feet, tall posture', 'bodyweight')
+    fpxT('highknees', 'High Knees', '🏃', 30, 2, 'Quick feet, tall posture', 'bodyweight'),
+    fpx('woodchop', 'DB Wood Chopper', '🪓', 10, 'Rotate from the ribs', 'dumbbells', true),
+    fpxT('plankdrag', 'Plank Drag', '🧻', 30, 2, 'Feet wide, hips locked', 'bodyweight')
   ],
   endurance_under_load: [
     fpxT('suitcase', 'Suitcase Carry', '🧳', 40, 2, 'One side at a time, do not lean', 'dumbbells', true),
     fpx('lunge', 'Reverse Lunge', '🦵', 10, 'Long steps, torso tall', 'bodyweight', true),
     fpxT('plank', 'Plank', '🧘', 45, 3, 'Ribs down, glutes on', 'bodyweight'),
-    fpx('dblunge', 'DB Reverse Lunge', '💪', 8, 'Weight at your sides', 'dumbbells', true)
+    fpx('dblunge', 'DB Reverse Lunge', '💪', 8, 'Weight at your sides', 'dumbbells', true),
+    fpx('walkinglunge', 'Walking Lunge', '🚶', 10, 'Long steps load the glutes', 'dumbbells', true),
+    fpx('trapdeadlift', 'Trap Bar Deadlift', '🏋️', 6, 'Hinge, flat back, push the floor away', 'gym'),
+    fpx('splitsquatecc', 'Split Squat (3-s down)', '⏱️', 8, 'Three seconds lowering, normal speed up', 'dumbbells', true),
+    fpxT('marchcarry', 'March Carry', '🧳', 40, 2, 'Knees to hip height, weights still', 'dumbbells'),
+    fpxT('carryintervals', 'Carry Intervals', '🧳', 40, 3, 'Posture is the stop signal', 'dumbbells')
   ]
 };
 
@@ -1505,7 +1529,21 @@ const SA_WEIGHT = {
 
   /* Fingerprint Focus loaded movements */
   stepup:      { src: 'squat',    pct: 0.15, type: 'hand' },
-  farmcarry:   { src: 'deadlift', pct: 0.30, type: 'hand' }
+  farmcarry:   { src: 'deadlift', pct: 0.30, type: 'hand' },
+
+  /* movements added to broaden the Fingerprint Focus pools */
+  frontsquat:     { src: 'squat',    pct: 0.55, type: 'bar' },
+  trapdeadlift:   { src: 'deadlift', pct: 0.70, type: 'bar' },
+  walkinglunge:   { src: 'squat',    pct: 0.20, type: 'hand' },
+  pushpress:      { src: 'press',    pct: 0.45, type: 'hand' },
+  sadbpress:      { src: 'press',    pct: 0.30, type: 'hand' },
+  kbswing:        { src: 'deadlift', pct: 0.25, type: 'db' },
+  splitsquatecc:  { src: 'squat',    pct: 0.15, type: 'hand' },
+  woodchop:       { src: 'press',    pct: 0.20, type: 'db' },
+  frontrackcarry: { src: 'squat',    pct: 0.25, type: 'db' },
+  trapcarry:      { src: 'deadlift', pct: 0.35, type: 'hand' },
+  marchcarry:     { src: 'deadlift', pct: 0.25, type: 'hand' },
+  carryintervals: { src: 'deadlift', pct: 0.25, type: 'hand' }
 };
 function isSAProgram() { return S.program === 'sa2' || S.program === 'sa4' || S.program === 'sahyb'; }
 /* Which programmes run the reps-hit double progression. Texas has its own
@@ -1537,7 +1575,9 @@ const SA_PROGRESS = [
   'dbpress', 'dbrow', 'dbrdl', 'dbohp', 'dbcurl', 'dbrenrow', 'dbhinge',
   'dblatraise', 'dbhammer', 'dbwindmill',
   /* fingerprint focus */
-  'stepup', 'farmcarry'
+  'stepup', 'farmcarry',
+  'frontsquat', 'trapdeadlift', 'walkinglunge', 'pushpress', 'sadbpress',
+  'kbswing', 'splitsquatecc', 'woodchop'
 ];
 function saApplyProgression(d, log) {
   if (!hasLoadProgression() || !d || d.rest || log.progressed) return [];
@@ -1828,6 +1868,45 @@ const FORM_TIPS = {
   bicycle:   { title: 'Bicycle Crunches', body: 'On your back, hands by your ears, shoulders off the floor. Bring one knee in and rotate the opposite elbow toward it while the other leg extends. Alternate sides in a smooth pedaling motion. Twist from your torso, not your neck. Count every elbow-to-knee as a rep.' },
   rtwist:    { title: 'Russian Twists', body: 'Sit with knees bent, heels down (or feet up for harder), lean back to ~45°. Brace your core and rotate your hands side to side, tapping near each hip. Move from the ribs, not just the arms. Each tap is a rep.' },
   hollow:    { title: 'Hollow Body Hold', body: 'Lie on your back, press your lower back into the floor. Lift your shoulders and legs a few inches, arms reaching overhead — your body forms a shallow banana. Keep that lower back glued down the whole time. Lower the limbs higher to make it easier.' },
+  slstance: { title: 'Single-Leg Stance', body: 'Stand on one leg, other foot clear of the floor and not resting against the standing leg. Arms folded across the chest. Close the eyes to make it a real test of proprioception rather than vision. Stand near a counter you can grab but do not lean on. Both sides.' },
+  slrdl: { title: 'Single-Leg RDL', body: 'Stand on one leg with a soft knee. Hinge at the hip, letting the free leg extend straight behind you as your torso lowers, until body and rear leg form one line. Keep the hips square to the floor. Drive the standing heel down to return. Slow and controlled — the wobble is the training effect.' },
+  tandem: { title: 'Tandem Walk', body: 'Walk a straight line placing each heel directly in front of the opposite toe, like a tightrope. Arms folded, eyes forward rather than down. Short deliberate steps; if you wobble, pause and rebalance rather than rushing through it.' },
+  broadjump: { title: 'Standing Broad Jump', body: 'Feet hip-width behind a line. Full countermovement — bend the knees, swing the arms back, then drive them forward and jump for distance. Land on both feet with knees bent and absorb it quietly. Reset fully between reps; this is a max-effort movement, not a conditioning one.' },
+  stepup: { title: 'Weighted Step-Up', body: 'Dumbbell in each hand, one foot flat on a box at about knee height. Drive through that heel to stand fully upright, letting the trailing leg do as little as possible. Lower under control — do not drop. The height matters more than the weight; if you cannot control the descent, use a lower box.' },
+  deadhang: { title: 'Dead Hang', body: 'Overhand grip a little wider than the shoulders, arms straight, feet clear of the floor. Keep the shoulders active — pulled slightly down away from the ears — rather than hanging fully slack. No straps; straps turn this into a shoulder exercise. Stop when the grip goes, not before.' },
+  towelhang: { title: 'Towel Hang', body: 'Drape a towel over the bar and grip an end in each hand. Same rules as a dead hang: straight arms, active shoulders, feet clear. The thicker, less forgiving grip makes this far harder than a bar hang, so expect a fraction of the time.' },
+  farmcarry: { title: 'Farmer Carry', body: 'A heavy weight in each hand, shoulders back, ribs stacked over the hips. Walk in short even steps without letting the weights swing or the torso list to one side. Breathe normally. Set them down by hinging, not stooping. Stop when posture fails, not when the hands hurt.' },
+  intervals: { title: '4x4 Intervals', body: 'Four minutes hard, three minutes easy, four rounds. Hard means roughly eight out of ten — breathing heavily, only a few words at a time, but a pace you could hold for the full four minutes. If the fourth interval matches the first, you paced it correctly. Warm up ten minutes first.' },
+  jumprope: { title: 'Jump Rope', body: 'Small quiet bounces from the ankles, elbows close to the body, wrists turning the rope. Stay on the balls of the feet and barely leave the floor. If you are landing hard you are jumping far too high. Mistakes are fine — pick it straight back up.' },
+  brisk: { title: 'Brisk Walk', body: 'Fast enough that holding a conversation takes noticeable effort, but not so fast that it becomes a jog. Tall posture, arms swinging naturally. Unglamorous and effective — the aerobic base only cares about consistency.' },
+  sidestep: { title: 'Banded Side-Steps', body: 'Loop a band just above the knees and sink into a quarter squat. Step sideways keeping constant tension on the band, knees pushed out and toes forward. Do not let the trailing foot snap in. Ten steps one way, ten back.' },
+  carioca: { title: 'Carioca', body: 'Moving sideways, cross one foot in front of the other, then behind, alternating in a grapevine pattern. Stay light on the balls of the feet and let the hips rotate freely. Start slowly — the coordination is the point, speed comes later. Both directions.' },
+  shuffle: { title: 'Lateral Shuffle', body: 'Athletic stance, hips low, chest up. Push off the outside foot to move sideways without letting the feet click together. Five metres out, decelerate under control, and shuffle back. The stopping is as much of the exercise as the moving.' },
+  lunge: { title: 'Reverse Lunge', body: 'Step one foot back and lower until both knees reach roughly ninety degrees, front heel planted, torso tall. Drive through the front heel to stand. Stepping backwards rather than forwards is easier on the knees. Complete the reps on one side, then switch.' },
+  birddog: { title: 'Bird Dog', body: 'On hands and knees, wrists under shoulders, knees under hips. Reach one arm forward and the opposite leg back until both are level with your spine — no higher. Keep your hips square to the floor; if they rotate you have gone too far. Pause, return under control, then switch. Slow beats long reach.' },
+  slrdlreach: { title: 'Single-Leg RDL Reach', body: 'Stand on one leg, soft knee. Hinge at the hip and reach the opposite hand toward the floor while the free leg extends behind you, body forming a straight line. Reach only as far as you can without the hips opening. Drive the standing heel down to return. The wobble is the point — do not fight it, control it.' },
+  crosscrawl: { title: 'Cross Crawl March', body: 'Stand tall and march in place, bringing the opposite elbow toward the lifted knee. Keep it slow and deliberate rather than bouncy — the coordination between opposite limbs is what is being trained, not the heart rate. Stay tall through the spine throughout.' },
+  pushuptap: { title: 'Push-Up Shoulder Tap', body: 'Start in a high plank, hands under shoulders, feet a little wider than usual for stability. Perform a push-up, then at the top tap one hand to the opposite shoulder. Keep the hips completely still — any rocking means the feet need to be wider or the reps need to be slower.' },
+  boxjump: { title: 'Box Jump', body: 'Stand a short step from a stable box. Dip, swing the arms and jump, landing soft and quiet with hips back and knees tracking over the toes. Stand fully upright on the box, then STEP down — never jump down. Quality over height; if the landing is loud, the box is too tall.' },
+  frontsquat: { title: 'Barbell Front Squat', body: 'Bar rests on the front delts with elbows high — the hands only stop it rolling. Big breath, brace, then sit straight down keeping the elbows up and the torso vertical. If the elbows drop the bar follows. Drive up through the whole foot. Lighter than a back squat by design.' },
+  pushpress: { title: 'Dumbbell Push Press', body: 'Dumbbells at the shoulders, feet hip-width. Dip a few inches by bending the knees, then drive hard through the legs and let that momentum carry the weight overhead, finishing with the arms locked. The legs start it, the shoulders finish it. Lower under control to the shoulders.' },
+  airsquattempo: { title: 'Air Squat (3-2-1 tempo)', body: 'Bodyweight squat with the clock doing the work: three seconds down, two seconds paused at the bottom, one second up. Heels stay down, chest tall. The pause is where this earns its keep — no bouncing out of the hole.' },
+  splitsquatecc: { title: 'Split Squat (3-sec eccentric)', body: 'Split stance, torso tall. Take three full seconds lowering the back knee toward the floor, then drive up at normal speed. Front heel stays planted throughout. The slow lowering is the entire exercise; rushing it wastes the set.' },
+  kbswing: { title: 'Light Kettlebell Swing', body: 'Hinge at the hips, not the knees — the bell travels back between the legs like a rugby pass. Snap the hips forward hard and let the bell float to chest height; the arms are ropes, not levers. Squeeze the glutes at the top, stay braced. This is a hinge, not a squat, and not a front raise.' },
+  frontrackcarry: { title: 'Front Rack Carry', body: 'Hold a dumbbell or kettlebell at each shoulder, elbows up, ribs down. Walk with short controlled steps and normal breathing. The front load will try to pull you into extension — resist it by keeping the ribs stacked over the hips. Stop when posture goes, not when the arms tire.' },
+  marchcarry: { title: 'March Carry', body: 'Carry a weight in each hand and march on the spot, driving each knee to hip height. Torso stays absolutely upright and the weights must not swing. Slow, tall and deliberate; this is a core exercise disguised as a carry.' },
+  trapcarry: { title: 'Trap Bar Carry', body: 'Load a trap bar, stand inside it, brace and stand up with a flat back. Walk in short even steps with the bar hanging at arm’s length, shoulders back, eyes forward. Set it down the way you picked it up — hinge, do not stoop.' },
+  carryintervals: { title: 'Carry Intervals', body: 'Alternate a loaded carry with a short rest, repeatedly. Pick a weight you could hold comfortably for twice the interval, because the last round is the one that counts. Posture is the stop signal: when the shoulders round or the ribs flare, the set is over.' },
+  walkinglunge: { title: 'Walking Lunge', body: 'Step forward into a lunge until both knees reach about ninety degrees, front heel planted, torso tall. Drive through the front heel to bring the back foot through into the next step. Long steps load the glutes, short steps load the quads. Keep the path straight.' },
+  plankdrag: { title: 'Plank Drag', body: 'High plank with a towel or light weight beside one hand. Reach under your body with the opposite hand, drag it across to the other side, then repeat back. Feet wide for stability. The hips must not rotate — if they do, slow down or widen the feet.' },
+  trapdeadlift: { title: 'Trap Bar Deadlift', body: 'Stand inside the bar, feet hip-width, handles beside your mid-foot. Hinge down, flat back, chest proud, take the slack out, then push the floor away and stand tall. More forgiving on the lower back than a straight bar because the load sits in line with you. Lock out hips and knees together.' },
+  bike: { title: 'Bike', body: 'Steady seated effort at a pace you could hold a conversation through — that is the whole target for zone 2 work. Cadence around eighty to ninety, resistance high enough that your legs are working but your breathing stays conversational. If you cannot speak a full sentence, ease off.' },
+  briskmarch: { title: 'Brisk March', body: 'Walk fast enough that talking becomes slightly effortful but not impossible. Arms swinging, posture tall. This is deliberately unglamorous: the aerobic base does not care how it is built, only that it is built consistently.' },
+  inclinewalk: { title: 'Incline Treadmill Walk', body: 'Raise the incline rather than the speed. Walk tall without hanging onto the handrails — holding on removes most of the work. Aim for a gradient that makes conversation slightly effortful and hold it steady.' },
+  shadowbox: { title: 'Shadow Boxing', body: 'Light on the feet, hands up, throw relaxed combinations while moving in every direction. Keep the shoulders loose and breathe out on each strike. This is coordination and footwork under fatigue, not a punching contest — speed over force.' },
+  declinepushup: { title: 'Decline Push-Up', body: 'Feet elevated on a box or step, hands under the shoulders, body in one straight line. Lower until the chest is just above the floor, elbows about forty-five degrees from the body, then press up. Raising the feet shifts load onto the shoulders and upper chest — go higher only when the hips stay level.' },
+  sadbpress: { title: 'Single-Arm Dumbbell Press', body: 'One dumbbell at the shoulder, feet hip-width, glutes and abs braced. Press straight overhead without letting the torso lean away from the weight. The anti-rotation demand is the point of doing it one side at a time; if you are leaning, go lighter.' },
+  woodchop: { title: 'Dumbbell Wood Chopper', body: 'Hold one dumbbell in both hands. Start high on one side and drive it diagonally down across the body toward the opposite hip, pivoting the back foot and rotating through the trunk rather than the lower back. Control it back to the start. Rotate from the ribs, not the spine.' },
   glutestep: { title: 'Glute Step Down', body: 'Stand on a step or low box on one leg, toes pointing forward. Push your hips back and bend the standing knee to lower the other heel slowly toward the floor — tap it lightly, do not land on it — then drive back up through the standing heel. The knee tracks over the toes, hips stay level. Slow on the way down is the whole exercise; if you drop fast you have skipped the part that works. Do all reps one side, then switch.' },
   gobletsquat:{ title: 'Goblet Squat', body: 'Hold one dumbbell (or your kettlebell by the horns) vertically against your chest. Feet shoulder-width, sit hips down between your knees keeping your chest tall and heels down. Drive up through your whole foot. The dumbbell at your chest helps you stay upright.' },
   dbpress:   { title: 'DB Floor Press', body: 'Lie on the floor (or bench), dumbbells over your chest. Lower until your upper arms touch the floor (elbows ~45° from your body), pause, then press back up. The floor caps the range and protects your shoulders.' },
