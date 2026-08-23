@@ -2628,7 +2628,7 @@ function renderSetup() {
     <div class="card">
       <p class="tiny muted" style="margin:0 0 12px">Wipes everything — all logs, settings, and body weight data. App returns to defaults. Export a backup first.</p>
       <button class="btn danger" id="factoryReset">⚠ Factory reset — erase everything</button>
-      <div class="hint">Clears every profile, all logged data, achievements, personal records, pinned videos and settings on this device, and disconnects cloud sync. Your cloud backup itself is not deleted — sign in again to pull it back.</div>
+      <div class="hint">Clears every profile, all logged data, achievements, personal records, pinned videos and settings on this device, and disconnects cloud sync. <b>Your cloud backup is not deleted</b> — if you sign back into sync afterwards the app will ask whether to restore it or replace it with this empty device.</div>
     </div>
 
     <div class="center tiny muted" style="margin:18px 0 6px">Texas Method Trainer · works offline · add to Home Screen</div>
@@ -3275,6 +3275,59 @@ async function cloudLoadSDK() {
 }
 
 /* load the SDK and start listening for auth state (resumes prior sign-in) */
+/* ---------------------------------------------------------------------
+   Signing in used to restore the cloud bundle unconditionally, which quietly
+   undid a factory reset: the device was wiped and signed out correctly, then
+   the next sign-in pulled the whole old bundle straight back down. The reset
+   looked like it had done nothing but log you out.
+
+   So when the device is factory-fresh AND the cloud holds data, ask which way
+   the sync should go instead of assuming. Nothing is deleted without a choice.
+   --------------------------------------------------------------------- */
+function localLooksFresh() {
+  const profiles = loadProfiles();
+  if (!profiles || !profiles.list || profiles.list.length !== 1) return false;
+  for (const p of profiles.list) {
+    try {
+      const st = JSON.parse(localStorage.getItem('tm_state_' + p.id) || '{}');
+      if ((st.history || []).length) return false;
+      if (Object.keys(st.prs || {}).length) return false;
+      if (st.sessions) return false;
+      /* Counting log KEYS is wrong: simply opening a workout creates an empty
+         record for that day, so a freshly reset device already has one. Ask
+         whether anything was actually ticked instead. */
+      if (progHasActivity(st.logs || {})) return false;
+      for (const cfg of Object.values(DAY_PROGRAMS)) {
+        const sub = st[cfg.stateKey];
+        if (sub && progHasActivity(sub.log || {})) return false;
+      }
+    } catch { /* unreadable counts as fresh */ }
+  }
+  return true;
+}
+
+function cloudDirectionChoice(who) {
+  return new Promise(resolve => {
+    const el = document.createElement('div');
+    el.className = 'fp-sheet';
+    el.innerHTML = `<div class="fp-panel">
+      <div class="fp-kicker">Cloud backup found</div>
+      <div class="fp-title">Which one is right?</div>
+      <div class="fp-lede">This device has no training data, but there is a backup in the cloud for
+        ${who}. If you have just factory reset, restoring will bring all of it back.</div>
+      <button class="btn primary" data-dir="restore">Restore my backup to this device</button>
+      <button class="btn danger" data-dir="overwrite">Keep this device empty and replace the backup</button>
+      <div class="tiny muted center" style="margin-top:10px">Replacing overwrites the cloud copy with this empty device. It cannot be undone.</div>
+    </div>`;
+    document.body.appendChild(el);
+    el.querySelectorAll('[data-dir]').forEach(b => b.onclick = () => {
+      const d = b.dataset.dir;
+      el.remove();
+      resolve(d);
+    });
+  });
+}
+
 async function cloudInit() {
   try {
     const { appMod, fsMod, authMod } = await cloudLoadSDK();
@@ -3335,9 +3388,16 @@ async function cloudStartSync(user) {
     cloudStatus('Syncing as ' + who + '…');
     const snap = await fsMod.getDoc(ref);
     if (snap.exists() && snap.data() && snap.data().bundle) {
-      cloudApplying = true; applyBundle(snap.data().bundle); cloudApplying = false;
-      cloudLastApplied = snap.data().updatedAt || Date.now();
-      cloudStatus('Synced ✓ as ' + who);
+      let dir = 'restore';
+      if (localLooksFresh()) dir = await cloudDirectionChoice(who);
+      if (dir === 'overwrite') {
+        await cloudPush(true);
+        cloudStatus('Synced ✓ as ' + who + ' — backup replaced with this device');
+      } else {
+        cloudApplying = true; applyBundle(snap.data().bundle); cloudApplying = false;
+        cloudLastApplied = snap.data().updatedAt || Date.now();
+        cloudStatus('Synced ✓ as ' + who);
+      }
     } else {
       await cloudPush(true);
       cloudStatus('Synced ✓ as ' + who + ' — uploaded your data');
