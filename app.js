@@ -3074,6 +3074,7 @@ function renderSetup() {
       <div class="prog-grid" id="segProgram">
         ${[
           ['fpfocus','🧬','Fingerprint Focus','targets your weakest'],
+          ['gen','🎲','Random Generator','a fresh workout on demand'],
           ['prep30','🗓️','30-Day Prep','bodyweight ramp-up'],
           ['mobility','🧘','Mobility','joint mobility'],
           ['core','🔥','Core & Abs','core builder'],
@@ -5226,6 +5227,7 @@ function equipSwapFor(key) {
 
 const PROTOCOLS = [
   { key: 'fpfocus',  ico: '\u{1F9EC}', name: 'Fingerprint Focus', tag: 'Adaptive', grp: 'workout', needs: 'bodyweight', sub: 'Built from your markers' },
+  { key: 'gen', needs: 'bodyweight', ico: '\u{1F3B2}', name: 'Random Generator', tag: 'Adaptive', grp: 'workout', sub: '110 exercises, never the same twice' },
   { key: 'texas', needs: 'gym',     ico: '🏋️', name: 'Texas Method',      tag: 'Strength',     grp: 'workout', sub: 'Barbell' },
   { key: 'dumbbell', needs: 'dumbbells',  ico: '💪',         name: 'Dumbbell A/B',      tag: 'Strength',     grp: 'workout', sub: 'Dumbbells only' },
   { key: 'prep30', needs: 'bodyweight',    ico: '🗓️', name: '30-Day Prep',       tag: 'Strength',     grp: 'workout', sub: 'Bodyweight ramp-up' },
@@ -5242,6 +5244,9 @@ const PROTOCOLS = [
 /* length in days, so every card carries a duration the way The Standard's do */
 function protoLen(key) {
   if (key === 'texas') return PROGRAM_RULES.totalWeeks + ' weeks';
+  /* Reading .data on the generator would build a workout as a side effect
+     of drawing a library card. It has no fixed length anyway. */
+  if (key === 'gen') return 'on demand';
   const cfg = DAY_PROGRAMS[key];
   return cfg ? cfg.data.length + ' days' : '';
 }
