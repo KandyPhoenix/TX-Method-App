@@ -1281,3 +1281,17 @@ table.prog td { padding: 6px 4px; }
   background: var(--panel); border: 2px solid var(--border); color: var(--text);
 }
 .dig-input:focus { outline: none; border-color: var(--primary); }
+
+/* every exercise starts closed, so the header has to carry enough to scan:
+   keep the scheme line visible and only mute a card that is actually finished */
+.card.lift.collapsed .lift-head .scheme { display: block; }
+.card.lift.collapsed:not(.is-done) .lift-head .name { color: var(--text); }
+.card.lift.collapsed { background: var(--panel); }
+.card.lift.collapsed.is-done { background: transparent; }
+.card.lift.collapsed.is-done .lift-head .name { color: var(--muted); }
+
+.tip-vid-swap > summary {
+  list-style: none; cursor: pointer; padding: 4px 0 8px;
+  font-size: 11px; color: var(--dim); text-decoration: underline;
+}
+.tip-vid-swap > summary::-webkit-details-marker { display: none; }

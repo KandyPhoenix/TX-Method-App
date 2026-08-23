@@ -166,7 +166,9 @@ for (let d = 1; d <= 28; d++) CORE.push(d % 7 === 0 ? PREP_REST : coreDay(Math.f
 /* =====================================================================
    DUMBBELL FULL-BODY  (alternating A/B sessions — do ~3x/week)
    ===================================================================== */
-function db(key, name, icon, reps, scheme, side) { return { key, name, icon, reps, scheme, side: !!side }; }
+/* sets is what saApplyProgression() counts reps-hit against — without it the
+   dumbbell work was invisible to the progression pass */
+function db(key, name, icon, reps, scheme, side, sets) { return { key, name, icon, reps, scheme, sets: sets || 3, side: !!side }; }
 const DB_A = { exercises: [
   db('gobletsquat', 'Goblet Squat',         '🏋️', 12, '3 × 12'),
   db('dbpress',     'DB Floor Press',        '💪', 12, '3 × 12'),
@@ -437,7 +439,20 @@ for (let w = 0; w < 12; w++) SUPERAGEH.push(...saHybridWeek(w));
        always something you can actually do today.
    ===================================================================== */
 function fpx(key, name, icon, reps, scheme, needs, side) {
-  return { key, name, icon, reps, scheme, needs: needs || 'bodyweight', side: !!side };
+  return { key, name, icon, reps, scheme, sets: 3, needs: needs || 'bodyweight', side: !!side };
+}
+/* Bodyweight movements cannot add plates, so they progress by volume instead:
+   reps and holds climb each week of the 4-week block. Loaded movements are
+   left alone here — they go up through the reps-hit rule like everything else,
+   and doing both would double-dip. */
+function fpProgress(ex, week) {
+  if (!week) return ex;
+  const loaded = !!SA_WEIGHT[ex.key];
+  if (loaded) return ex;
+  const out = Object.assign({}, ex);
+  if (out.reps) out.reps = out.reps + week;
+  if (out.sec)  out.sec  = out.sec + week * (out.sec >= 300 ? 60 : 5);
+  return out;
 }
 function fpxT(key, name, icon, sec, sets, scheme, needs, side) {
   return { key, name, icon, sets: sets || 1, sec, scheme, needs: needs || 'bodyweight', side: !!side };
@@ -536,8 +551,10 @@ function fpFocusDay(dayIdx) {
     .filter(Boolean);
   /* a second movement from the leading weakness — it is the priority */
   const extra = fpPickFrom(lead, dayIdx + 4);
-  const exercises = fpFocusWarmup().concat(picks);
-  if (extra && !picks.includes(extra)) exercises.push(extra);
+  const week = Math.floor(dayIdx / 6);          /* 6 training days per block */
+  const exercises = fpFocusWarmup()
+    .concat(picks.map(e => fpProgress(e, week)));
+  if (extra && !picks.includes(extra)) exercises.push(fpProgress(extra, week));
 
   const nice = k => (FP_AXES.find(a => a.key === k) || { name: k }).name;
   const e = fpGet(lead);
@@ -1471,16 +1488,40 @@ const SA_WEIGHT = {
   carry:       { src: 'deadlift', pct: 0.25, type: 'hand' },
   suitcase:    { src: 'deadlift', pct: 0.25, type: 'hand' },
   rackhold:    { src: 'squat',    pct: 0.30, type: 'db' },
-  ohhold:      { src: 'press',    pct: 0.40, type: 'hand' }
+  ohhold:      { src: 'press',    pct: 0.40, type: 'hand' },
+
+  /* Dumbbell A/B — it had no progression at all before: the same two sessions
+     at the same reps for 24 days. Anchored off the Setup lifts like the rest. */
+  dbpress:     { src: 'bench',    pct: 0.35, type: 'hand' },
+  dbrow:       { src: 'bench',    pct: 0.35, type: 'hand' },
+  dbrdl:       { src: 'deadlift', pct: 0.30, type: 'hand' },
+  dbohp:       { src: 'press',    pct: 0.35, type: 'hand' },
+  dbcurl:      { src: 'press',    pct: 0.20, type: 'hand' },
+  dbrenrow:    { src: 'bench',    pct: 0.30, type: 'hand' },
+  dbhinge:     { src: 'deadlift', pct: 0.35, type: 'hand' },
+  dblatraise:  { src: 'press',    pct: 0.12, type: 'hand' },
+  dbhammer:    { src: 'press',    pct: 0.20, type: 'hand' },
+  dbwindmill:  { src: 'press',    pct: 0.15, type: 'hand' },
+
+  /* Fingerprint Focus loaded movements */
+  stepup:      { src: 'squat',    pct: 0.15, type: 'hand' },
+  farmcarry:   { src: 'deadlift', pct: 0.30, type: 'hand' }
 };
 function isSAProgram() { return S.program === 'sa2' || S.program === 'sa4' || S.program === 'sahyb'; }
+/* Which programmes run the reps-hit double progression. Texas has its own
+   linear scheme in generateProgram(); the bodyweight plans progress by volume
+   inside their own arrays. These are the ones that carry a load and need a
+   rule for when it goes up. */
+function hasLoadProgression() {
+  return isSAProgram() || S.program === 'dumbbell' || S.program === 'fpfocus';
+}
 function saEstimate(m) {
   const L = S.settings.lifts[m.src]; if (!L || !L.weight) return null;
   const est = oneRM(L.weight, L.reps) * m.pct;
   return m.type === 'bar' ? snapWeight(est, bar(), getPlates()) : Math.max(5, round(est, 5));
 }
 function saHint(key) {
-  if (!isSAProgram()) return null;
+  if (!hasLoadProgression()) return null;
   const m = SA_WEIGHT[key]; if (!m) return null;
   const stored = S.saWeights && S.saWeights[key] != null;
   const w = stored ? S.saWeights[key] : saEstimate(m);
@@ -1490,9 +1531,16 @@ function saHint(key) {
 }
 /* rep-based lifts that auto-progress: hit the target reps on the hardest
    set and the weight goes up next session; miss it and it holds. */
-const SA_PROGRESS = ['gobletsquat', 'dblunge', 'sidelunge', 'sabench', 'sarow', 'sardl', 'deadlift'];
+const SA_PROGRESS = [
+  'gobletsquat', 'dblunge', 'sidelunge', 'sabench', 'sarow', 'sardl', 'deadlift',
+  /* dumbbell programme */
+  'dbpress', 'dbrow', 'dbrdl', 'dbohp', 'dbcurl', 'dbrenrow', 'dbhinge',
+  'dblatraise', 'dbhammer', 'dbwindmill',
+  /* fingerprint focus */
+  'stepup', 'farmcarry'
+];
 function saApplyProgression(d, log) {
-  if (!isSAProgram() || !d || d.rest || log.progressed) return [];
+  if (!hasLoadProgression() || !d || d.rest || log.progressed) return [];
   if (!S.saWeights) S.saWeights = {};
   const msgs = [], seen = new Set();
   d.exercises.forEach(ex => {
@@ -1780,6 +1828,7 @@ const FORM_TIPS = {
   bicycle:   { title: 'Bicycle Crunches', body: 'On your back, hands by your ears, shoulders off the floor. Bring one knee in and rotate the opposite elbow toward it while the other leg extends. Alternate sides in a smooth pedaling motion. Twist from your torso, not your neck. Count every elbow-to-knee as a rep.' },
   rtwist:    { title: 'Russian Twists', body: 'Sit with knees bent, heels down (or feet up for harder), lean back to ~45°. Brace your core and rotate your hands side to side, tapping near each hip. Move from the ribs, not just the arms. Each tap is a rep.' },
   hollow:    { title: 'Hollow Body Hold', body: 'Lie on your back, press your lower back into the floor. Lift your shoulders and legs a few inches, arms reaching overhead — your body forms a shallow banana. Keep that lower back glued down the whole time. Lower the limbs higher to make it easier.' },
+  glutestep: { title: 'Glute Step Down', body: 'Stand on a step or low box on one leg, toes pointing forward. Push your hips back and bend the standing knee to lower the other heel slowly toward the floor — tap it lightly, do not land on it — then drive back up through the standing heel. The knee tracks over the toes, hips stay level. Slow on the way down is the whole exercise; if you drop fast you have skipped the part that works. Do all reps one side, then switch.' },
   gobletsquat:{ title: 'Goblet Squat', body: 'Hold one dumbbell (or your kettlebell by the horns) vertically against your chest. Feet shoulder-width, sit hips down between your knees keeping your chest tall and heels down. Drive up through your whole foot. The dumbbell at your chest helps you stay upright.' },
   dbpress:   { title: 'DB Floor Press', body: 'Lie on the floor (or bench), dumbbells over your chest. Lower until your upper arms touch the floor (elbows ~45° from your body), pause, then press back up. The floor caps the range and protects your shoulders.' },
   dbrow:     { title: 'DB Bent-Over Row', body: 'Hinge at the hips with a flat back, dumbbells hanging. Pull them to your waistline, driving your elbows back and squeezing your shoulder blades. Lower under control. Keep your torso still.' },
@@ -1857,6 +1906,25 @@ const FORM_TIPS = {
    YouTube link) and it plays inline from then on, keyed to the exercise and
    kept in localStorage. The search link stays as the way to go find one.
    --------------------------------------------------------------------- */
+/* Demo videos shipped with the app. Every id here was checked against
+   YouTube's oEmbed endpoint and the returned title recorded, so none of these
+   is a guess — a wrong id would silently teach the wrong movement. Coverage is
+   the compound lifts plus the movements that matter most here; everything else
+   still falls back to the pin-your-own field. */
+const FORM_VIDEOS = {
+  squat:       'SbgHegC6lEs',   // How to Back Squat |#AskSquatU Show Ep. 10| — Squat University
+  bench:       'A9MM-XkoWcw',   // How to: Barbell Bench Press – Proper Form Tutorial — BarbarianBody
+  deadlift:    'XxWcirHIwVo',   // How to PROPERLY Deadlift for Growth — Jeremy Ethier
+  press:       'eNFXEEdfQp4',   // How To Press (Overhead…) — Alan Thrall, Untamed Strength
+  clean:       'lI35socHJ4k',   // How To Power Clean: Step by Step Beginner's Tutorial — Barbell Logic
+  gobletsquat: '6mf0oa2GGUc',   // Goblet Squat Tutorial - Proper Form and Technique — Runna
+  plank:       'zDjiVB-8kOs',   // The Proper form for the Plank & Side Plank — Gaston Webbe Fitness
+  glutestep:   '3sRrVvxwaUw'    // How to Perform Step Downs | Glute Exercise Tutorial — Buff Dudes
+};
+/* a pinned video always beats the bundled one */
+function videoFor(key) { return loadVideos()[key] || FORM_VIDEOS[key] || null; }
+function isPinned(key) { return !!loadVideos()[key]; }
+
 const VID_KEY = 'tm_videos';
 function loadVideos() {
   try { return JSON.parse(localStorage.getItem(VID_KEY)) || {}; } catch { return {}; }
@@ -1886,13 +1954,20 @@ function showFormTip(key) {
     }, true);
   }
   const q = encodeURIComponent(info.title + ' exercise how to');
-  const vid = loadVideos()[key];
+  const vid = videoFor(key);
+  const pinned = isPinned(key);
   const player = vid
     ? `<div class="tip-video">
          <iframe src="https://www.youtube-nocookie.com/embed/${vid}?rel=0" title="${info.title} demo"
            allow="accelerometer; encrypted-media; gyroscope; picture-in-picture" allowfullscreen loading="lazy"></iframe>
        </div>
-       <button class="tip-vid-clear" data-vidclear="${key}">Remove video</button>`
+       ${pinned
+         ? `<button class="tip-vid-clear" data-vidclear="${key}">Use the built-in demo instead</button>`
+         : `<details class="tip-vid-swap"><summary>Pin a different video</summary>
+              <div class="tip-vid-add">
+                <input type="url" class="tip-vid-input" data-vidfor="${key}" placeholder="Paste a YouTube link" />
+                <button class="btn primary small" data-vidsave="${key}">Pin</button>
+              </div></details>`}`
     : `<div class="tip-vid-add">
          <input type="url" class="tip-vid-input" data-vidfor="${key}" placeholder="Paste a YouTube link to pin a demo here" />
          <button class="btn primary small" data-vidsave="${key}">Pin</button>
@@ -2375,6 +2450,7 @@ function renderSetup() {
     <div class="card">
       <p class="tiny muted" style="margin:0 0 12px">Wipes everything — all logs, settings, and body weight data. App returns to defaults. Export a backup first.</p>
       <button class="btn danger" id="factoryReset">⚠ Factory reset — erase everything</button>
+      <div class="hint">Clears every profile, all logged data, achievements, personal records, pinned videos and settings on this device, and disconnects cloud sync. Your cloud backup itself is not deleted — sign in again to pull it back.</div>
     </div>
 
     <div class="center tiny muted" style="margin:18px 0 6px">Texas Method Trainer · works offline · add to Home Screen</div>
@@ -2589,13 +2665,41 @@ function wireSetup() {
       }, 3000);
     } else {
       confirmState.factory = false;
-      // Wipe active profile's data AND the profile registry — full factory reset
-      localStorage.removeItem(activeStateKey());
-      localStorage.removeItem('tm_profiles');
+      factoryWipe();
       toast('App reset — reloading…');
       setTimeout(() => location.reload(), 1000);
     }
   };
+}
+
+/* =====================================================================
+   FACTORY WIPE
+   ---------------------------------------------------------------------
+   The old reset removed exactly two keys: the ACTIVE profile's state and the
+   profile registry. Everything else survived — every other profile's state
+   (achievements, PRs, history all live in there), the pinned videos, the
+   session clock, theme and zoom.
+
+   Worse, it left tm_cloud behind. With sync enabled the reload immediately
+   signed back in, pulled the bundle down from Firebase and restored the very
+   data that was just erased — which is why achievements kept coming back.
+
+   So: enumerate the keys rather than naming two, and drop the cloud link too.
+   The remote copy is deliberately NOT deleted — erasing someone's backup from
+   a device-local button is not a decision this button gets to make — but the
+   device forgets it, so nothing re-downloads.
+   ===================================================================== */
+function factoryWipe() {
+  try {
+    const doomed = [];
+    for (let i = 0; i < localStorage.length; i++) {
+      const k = localStorage.key(i);
+      if (k && k.indexOf('tm_') === 0) doomed.push(k);   // every profile, every setting
+    }
+    doomed.forEach(k => localStorage.removeItem(k));
+  } catch { /* storage blocked — nothing persisted to clear */ }
+  /* drop anything held only in memory so the reload starts genuinely clean */
+  try { if (typeof fb === 'object' && fb && fb.unsub) fb.unsub(); } catch {}
 }
 
 /* =====================================================================
@@ -3520,7 +3624,7 @@ function afterStep() {
   if (sess.i >= sess.steps.length - 1) { finishSession(); return; }
   /* supersets provide the rest: SuperAge moves straight to the partner
      exercise while the last muscle group recovers */
-  if (isSAProgram()) { nextStep(); return; }
+  if (hasLoadProgression()) { nextStep(); return; }
   startSessRest();
 }
 function nextStep() {
@@ -3833,8 +3937,11 @@ function applyCollapse() {
     let done = 0;
     checks.forEach(c => { if (c.classList.contains('on')) done++; });
     const finished = done === checks.length;
+    /* Closed is the default state for every exercise, not just finished ones —
+       you open the one you are working on. A card you open by hand stays open
+       until you close it or the day changes. */
     const forcedOpen = collapseChoice.get(i);
-    card.classList.toggle('collapsed', forcedOpen === true ? false : finished);
+    card.classList.toggle('collapsed', forcedOpen !== true);
     card.classList.toggle('is-done', finished);
   });
 }
