@@ -1147,3 +1147,48 @@ table.prog { font-size: 13px; }
   background: var(--primary); color: var(--on-primary); border-color: var(--primary);
 }
 .badge { font-variant-numeric: tabular-nums; }
+
+/* ---- collapsed exercise cards ---- */
+.card.lift .lift-head { cursor: pointer; user-select: none; }
+.card.lift.collapsed .set-row,
+.card.lift.collapsed .log-row,
+.card.lift.collapsed .sets-divider { display: none; }
+.card.lift.collapsed .lift-head { border-bottom: none; }
+.card.lift.collapsed .lift-head .name { color: var(--muted); }
+.card.lift.collapsed .lift-head .scheme { display: none; }
+.card.lift.collapsed { background: transparent; }
+
+/* a finished exercise reads as settled rather than shouting */
+.card.lift.is-done.collapsed .lift-head { padding-top: 8px; padding-bottom: 8px; }
+
+/* chevron so it is obvious the row opens */
+.lift-head .name::after {
+  content: '';
+  display: inline-block; width: 0; height: 0; margin-left: 7px;
+  vertical-align: middle; opacity: .45;
+  border-left: 4px solid transparent; border-right: 4px solid transparent;
+  border-top: 5px solid currentColor;
+}
+.card.lift.collapsed .lift-head .name::after { transform: rotate(-90deg); }
+
+/* ---- effort rating ---- */
+.rpe-card { text-align: center; padding: 18px 16px 20px; margin-top: 4px; }
+.rpe-kicker {
+  font-family: var(--display); font-size: 10px; font-weight: 700;
+  letter-spacing: 1.5px; text-transform: uppercase; color: var(--muted);
+}
+.rpe-scale { display: flex; align-items: center; justify-content: center; gap: 12px; margin-top: 14px; }
+.rpe-end { font-size: 10.5px; color: var(--dim); white-space: nowrap; }
+.rpe-dots { display: flex; align-items: center; gap: 10px; }
+.rpe-dot {
+  width: 20px; height: 20px; border-radius: 50%; cursor: pointer;
+  background: var(--bg2); border: 2px solid var(--border); padding: 0;
+  transition: transform .12s, background .12s, border-color .12s;
+}
+.rpe-dot:hover { transform: scale(1.14); border-color: var(--accent-ink); }
+.rpe-dot.on { background: var(--primary); border-color: var(--primary); transform: scale(1.14); }
+.rpe-value {
+  margin-top: 12px; font-family: var(--display); font-size: 12px;
+  font-weight: 700; letter-spacing: 1px; text-transform: uppercase; color: var(--dim);
+}
+.rpe-value.set { color: var(--accent-ink); }

@@ -3534,6 +3534,114 @@ function railExtrasHTML() {
    content is sets. Turn it into that exercise's own progress where there is
    more than one set to track, keep TIMED/HOLD because those change how you use
    the row, and drop it when it would say nothing at all. */
+/* ---------------------------------------------------------------------
+   Collapse finished exercises.
+
+   Note what this deliberately does NOT do: it does not group sets under their
+   exercise. prepDayItems() interleaves superset sets round-robin on purpose
+   (squat s1 -> hinge s1 -> squat s2) so the superset runs the way it is meant
+   to be performed, and regrouping would silently destroy that ordering.
+   Collapsing finished cards gets the same "less to read" result while leaving
+   the sequence exactly as programmed.
+   --------------------------------------------------------------------- */
+let collapseChoice = new Map();   // card index -> true = user forced open
+let collapseDayKey = null;
+
+/* ---------------------------------------------------------------------
+   Effort rating for the session ("how did that feel?").
+
+   Stored on the same per-day log the checkboxes use, so it rides to Firebase
+   with everything else and survives a profile switch. Placed at the END of the
+   workout rather than per-exercise: our day-programs render one card per SET,
+   so a per-exercise control would repeat a dozen times down the page.
+   --------------------------------------------------------------------- */
+const RPE_STEPS = [
+  [1, 'Too hard'],
+  [2, 'Hard'],
+  [3, 'Just right'],
+  [4, 'Easy'],
+  [5, 'Too easy']
+];
+
+function sessionLogRef() {
+  if (isDayProgram()) {
+    const st = pstate(), d = st.day;
+    if (!st.log[d]) st.log[d] = { checks: {} };
+    return st.log[d];
+  }
+  const k = S.cursor.week + '-' + S.cursor.day;
+  if (!S.logs[k]) S.logs[k] = { checks: {}, reps: {} };
+  return S.logs[k];
+}
+
+function rpeHTML() {
+  const cur = sessionLogRef().rpe || 0;
+  const dots = RPE_STEPS.map(([v, label]) =>
+    `<button class="rpe-dot ${cur === v ? 'on' : ''}" data-rpe="${v}" title="${label}"
+       aria-label="${label}"></button>`).join('');
+  const label = cur ? (RPE_STEPS.find(r => r[0] === cur) || [, ''])[1] : 'Not rated';
+  return `<div class="card rpe-card">
+    <div class="rpe-kicker">How did that feel?</div>
+    <div class="rpe-scale">
+      <span class="rpe-end">Too hard</span>
+      <div class="rpe-dots">${dots}</div>
+      <span class="rpe-end">Too easy</span>
+    </div>
+    <div class="rpe-value ${cur ? 'set' : ''}">${label}</div>
+  </div>`;
+}
+
+function mountRpe() {
+  const main = view.querySelector('.session-main');
+  if (!main || main.querySelector('.rpe-card')) return;
+  main.insertAdjacentHTML('beforeend', rpeHTML());
+}
+
+/* delegated so it survives every re-render and reconcile */
+view.addEventListener('click', e => {
+  const b = e.target.closest('[data-rpe]');
+  if (!b) return;
+  const v = +b.dataset.rpe;
+  const log = sessionLogRef();
+  log.rpe = (log.rpe === v) ? 0 : v;   // tapping the same dot clears it
+  save();
+  const card = view.querySelector('.rpe-card');
+  if (card) card.outerHTML = rpeHTML();
+});
+
+function applyCollapse() {
+  /* a new day means the old per-card choices no longer refer to anything */
+  const key = sessionDayKey();
+  if (collapseDayKey !== key) { collapseDayKey = key; collapseChoice = new Map(); }
+
+  const cards = view.querySelectorAll('.card.lift');
+  cards.forEach((card, i) => {
+    const checks = card.querySelectorAll('.check');
+    if (!checks.length) return;
+    let done = 0;
+    checks.forEach(c => { if (c.classList.contains('on')) done++; });
+    const finished = done === checks.length;
+    const forcedOpen = collapseChoice.get(i);
+    card.classList.toggle('collapsed', forcedOpen === true ? false : finished);
+    card.classList.toggle('is-done', finished);
+  });
+}
+
+/* tapping the header opens or closes that exercise; the How-to button and any
+   control inside the header keep their own behaviour */
+view.addEventListener('click', e => {
+  const head = e.target.closest('.lift-head');
+  if (!head || e.target.closest('button')) return;
+  const card = head.closest('.card.lift');
+  if (!card) return;
+  const cards = [...view.querySelectorAll('.card.lift')];
+  const i = cards.indexOf(card);
+  if (i < 0) return;
+  const nowCollapsed = card.classList.contains('collapsed');
+  collapseChoice.set(i, nowCollapsed);        // opening it = forced open
+  card.classList.toggle('collapsed', !nowCollapsed);
+});
+
 function annotateBadges() {
   view.querySelectorAll('.card.lift').forEach(card => {
     const badge = card.querySelector('.badge');
@@ -3555,6 +3663,7 @@ function mountSessionRail() {
   const screen = view.querySelector('.screen');
   if (!screen || screen.querySelector('.session-grid')) return;
   annotateBadges();
+  applyCollapse();
   const grid = document.createElement('div'); grid.className = 'session-grid';
   const main = document.createElement('div'); main.className = 'session-main';
   while (screen.firstChild) main.appendChild(screen.firstChild);
@@ -3564,6 +3673,7 @@ function mountSessionRail() {
   /* fill the rail only AFTER the grid is in the document — sessionCounts()
      queries `view`, and a detached main would report zero sets */
   rail.innerHTML = railHTML();
+  mountRpe();
 }
 
 /* Ticking a set toggles the checkbox class in place — it does NOT re-render —
@@ -3596,6 +3706,7 @@ function updateSessionUI() {
      self-heals rather than silently going stale. The rail is only rebuilt when
      the count actually moves, so it is not thrashed every tick. */
   annotateBadges();
+  applyCollapse();
   if (updateSessionUI._last !== done) {
     updateSessionUI._last = done;
     const rail = view.querySelector('.session-rail');
