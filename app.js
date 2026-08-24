@@ -39,6 +39,8 @@ const DEFAULTS = {
   equipment: 'gym',   /* gym | dumbbells | bodyweight — see EQUIP_RANK */
   weeklyGoal: 4,      /* sessions per week — the week strip counts toward this */
   dbMax: 25,          /* heaviest dumbbell/kettlebell owned, per hand — see capHand */
+  readiness: null,    /* 1-4 how you slept / feel today; suggests a tier, never sets one */
+  readinessDay: null,
   waveLoad: true,     /* ramp into a top set, back off, repeat — see waveFactors */
   autoDeload: true,   /* drop 10% after 3 straight failed sessions — see STALL_LIMIT.
                          Weight NEVER rises on a miss either way; this only controls
@@ -1682,12 +1684,34 @@ const subEl   = document.getElementById('screenSub');
 let TAB = 'today', PROGRAM = generateProgram(), progCycle = 0;
 
 function rebuild() { PROGRAM = generateProgram(); }
+function renderLibrary() {
+  titleEl.textContent = 'Library';
+  subEl.textContent = Object.keys(FORM_TIPS).length + ' movements';
+  view.innerHTML = libraryHTML();
+  const inp = document.getElementById('libSearch');
+  if (inp) {
+    /* Re-rendering on every keystroke would blur the field, so the list is
+       replaced in place and the input is left alone. */
+    inp.oninput = () => {
+      libQuery = inp.value;
+      const listEl = view.querySelector('.lib-list');
+      const cntEl = view.querySelector('.lib-count');
+      const tmp = document.createElement('div');
+      tmp.innerHTML = libraryHTML();
+      if (listEl) listEl.innerHTML = tmp.querySelector('.lib-list').innerHTML;
+      if (cntEl) cntEl.textContent = tmp.querySelector('.lib-count').textContent;
+    };
+    if (libQuery) { inp.focus(); inp.setSelectionRange(inp.value.length, inp.value.length); }
+  }
+}
+
 function render() {
   rebuild();
   document.querySelectorAll('.tab').forEach(t => t.classList.toggle('active', t.dataset.tab === TAB));
   const prep = isDayProgram();
   if (TAB === 'today') { prep ? renderPrepToday() : renderToday(); mountSessionRail(); }
   if (TAB === 'program') { prep ? renderPrepProgram() : renderProgram(); mountProtocols(); }
+  if (TAB === 'lib')     renderLibrary();
   if (TAB === 'stats')   renderStats();
   if (TAB === 'fp')      renderFingerprint();
   if (TAB === 'setup')   renderSetup();
@@ -1965,6 +1989,7 @@ function renderPrepToday() {
   } else {
     const log = pstate().log[dayNum] || { checks: {} };
     if (d.note) html += `<details class="card note-fold"><summary>How this session works</summary><div class="note-body">${d.note}</div></details>`;
+    html += readinessHTML();
     html += tierBarHTML();
     if (S.program === 'gen') html += genBarHTML();
     html += `<div class="spacer"></div>`;
@@ -2215,6 +2240,45 @@ function genBarHTML() {
   </div>`;
 }
 
+/* ---------------------------------------------------------------------
+   Readiness.
+
+   A tier chosen from how you actually slept beats a tier chosen from habit.
+   This asks once a day and SUGGESTS — it never changes the tier on its own,
+   because a bad night is a reason to consider less work, not an instruction
+   to do less, and having the app quietly reprogramme the session would be
+   worse than not asking.
+   --------------------------------------------------------------------- */
+const READY = [
+  { v: 1, label: 'Rough', tier: 'foundation', why: 'Slept badly or still sore — Foundation keeps the habit without digging a hole.' },
+  { v: 2, label: 'OK',    tier: 'core',       why: 'Core: the session as programmed.' },
+  { v: 3, label: 'Good',  tier: 'core',       why: 'Core, and push the top sets.' },
+  { v: 4, label: 'Great', tier: 'advanced',   why: 'Advanced if you have the time — this is the day to take it.' }
+];
+function readyToday() {
+  const key = isoDate(new Date());
+  if (S.settings.readinessDay !== key) return null;
+  return S.settings.readiness || null;
+}
+function setReadiness(v) {
+  S.settings.readinessDay = isoDate(new Date());
+  S.settings.readiness = v;
+  save(); render();
+}
+function readinessHTML() {
+  const cur = readyToday();
+  const rec = cur ? READY.find(r => r.v === cur) : null;
+  return `<div class="ready-bar">
+    <div class="ready-row">
+      <span class="ready-q">How did you sleep?</span>
+      <div class="seg ready-seg" id="segReady">
+        ${READY.map(r => `<button data-ready="${r.v}" class="${cur === r.v ? 'on' : ''}">${r.label}</button>`).join('')}
+      </div>
+    </div>
+    ${rec ? `<div class="tiny muted ready-why">${rec.why}${rec.tier !== currentTier() ? ` <button class="ready-apply" data-applytier="${rec.tier}">Use ${tierBy(rec.tier).name}</button>` : ''}</div>` : ''}
+  </div>`;
+}
+
 function tierBarHTML() {
   const cur = currentTier();
   return `<div class="tier-bar">
@@ -2461,6 +2525,12 @@ function saApplyProgression(d, log) {
       const hit = v != null ? v : (log.reps && log.reps[ex.key] != null ? log.reps[ex.key] : ex.reps);
       if (hit < ex.reps + repBonus(ex.key)) { met = false; break; }
     }
+    /* Record what was actually lifted. Nothing has ever stored this: the day
+       log holds reps and ticks, and saWeights holds only the CURRENT weight,
+       so past sessions were unrecoverable. This is written from here on;
+       days logged before it simply have no weight and say so. */
+    if (!log.w) log.w = {};
+    log.w[ex.key] = cur;
     const inc = S.settings.units === 'lb' ? 5 : 2.5;
     let next = cur;
     if (met) {
@@ -5078,6 +5148,172 @@ function currentRailKey() {
   return (t.focused ? 'focus:' : '') + (nm ? nm.textContent.trim() : 'unknown');
 }
 
+/* ---------------------------------------------------------------------
+   "Last time you did this".
+
+   Reads the most recent EARLIER day in the current programme's log that has
+   this movement. With wave loading on, a session has several weights, so what
+   is reported is the TOP set — the number the progression actually tracks and
+   the one worth beating.
+
+   Days recorded before v133 have no weight stored, so those report reps only
+   rather than inventing a number from the current working weight, which she
+   may never have lifted.
+   --------------------------------------------------------------------- */
+function lastTimeFor(key) {
+  if (!isDayProgram()) return null;
+  const st = pstate();
+  const today = st.day;
+  const days = Object.keys(st.log || {}).map(Number)
+    .filter(d => d < today).sort((a2, b2) => b2 - a2);
+  for (const d of days) {
+    const L = st.log[d];
+    if (!L) continue;
+    const reps = [];
+    Object.keys(L.reps || {}).forEach(k => {
+      if (k === key || k.indexOf(key + '_') === 0) reps.push(L.reps[k]);
+    });
+    const ticked = Object.keys(L.checks || {}).some(k => k === key || k.indexOf(key + '_') === 0);
+    if (!reps.length && !ticked) continue;
+    return {
+      day: d,
+      w: L.w ? L.w[key] : null,
+      reps: reps,
+      best: reps.length ? Math.max.apply(null, reps) : null,
+      sets: reps.length
+    };
+  }
+  return null;
+}
+
+function lastTimeHTML(key, name) {
+  const L = lastTimeFor(key);
+  if (!L) return '';
+  const when = 'day ' + L.day;
+  let line;
+  if (L.w != null && L.best != null) line = fmt(L.w) + ' ' + unit() + ' \u00d7 ' + L.best + ' reps';
+  else if (L.best != null) line = L.best + ' reps';
+  else line = 'completed';
+  const sub = L.w == null && L.best != null
+    ? 'Weight was not recorded on that day \u2014 it is from here on.'
+    : (L.sets > 1 ? 'Top set of ' + L.sets + ' \u00b7 ' + when : when);
+  return `<div class="card rail-card">
+      <div class="rail-kicker">Last time</div>
+      <div class="rail-next">${line}</div>
+      <div class="rail-next-sub">${sub}</div>
+    </div>`;
+}
+
+/* ---------------------------------------------------------------------
+   Warm-up ramp for barbell work.
+
+   The plate maths already existed; what was missing was telling you what to
+   put on the bar on the way up. Percentages of the top set, snapped to real
+   plates, stopping once a rung is not meaningfully lighter than the one
+   before. Bodyweight and dumbbell movements get nothing — there is nothing to
+   ramp.
+   --------------------------------------------------------------------- */
+const WARMUP_RUNGS = [
+  { pct: 0,    reps: 8, label: 'Empty bar' },
+  { pct: 0.45, reps: 5 },
+  { pct: 0.65, reps: 3 },
+  { pct: 0.85, reps: 2 }
+];
+function warmupRamp(key) {
+  const h = saHint(key);
+  if (!h || h.type !== 'bar') return null;
+  const top = h.w, b0 = bar();
+  const out = [];
+  let prev = -1;
+  WARMUP_RUNGS.forEach(r => {
+    const w = r.pct === 0 ? b0 : snapWeight(top * r.pct, b0, getPlates());
+    if (w >= top) return;             /* never warm up at or above the work set */
+    if (w <= prev) return;            /* a rung that adds nothing */
+    prev = w;
+    out.push({ w: w, reps: r.reps, label: r.label });
+  });
+  return out.length ? out : null;
+}
+function warmupHTML(key) {
+  const r = warmupRamp(key);
+  if (!r) return '';
+  return `<div class="card rail-card">
+      <div class="rail-kicker">Warm-up</div>
+      ${r.map(x => `<div class="warm-row"><span class="warm-w">${fmt(x.w)} <small>${unit()}</small></span><span class="warm-r">\u00d7 ${x.reps}</span></div>`).join('')}
+      <div class="rail-next-sub">Then your first working set. Ramp only \u2014 stop short of failure.</div>
+    </div>`;
+}
+
+/* =====================================================================
+   Exercise library.
+
+   497 movements now carry a written how-to and there has been no way to reach
+   any of them except by waiting for a programme to serve it up. This is a
+   flat, searchable index of everything the app knows.
+
+   It reads FORM_TIPS rather than a list of its own. That table is where
+   genRegisterTips() and synRegisterTips() fold the generator's 110 and the
+   imported programmes' 201 at boot, so the library is complete by
+   construction and cannot drift as movements are added.
+   ===================================================================== */
+let libQuery = '';
+
+function libSource(key) {
+  if (key.indexOf('gen_') === 0) return 'Generator';
+  if (key.indexOf('syn_') === 0) return 'Programmes';
+  if (key.indexOf('gw_') === 0 || key.indexOf('gc_') === 0) return 'Warm-up / cool-down';
+  return 'Core';
+}
+
+function libEntries() {
+  return Object.keys(FORM_TIPS).map(k => ({
+    key: k,
+    title: (FORM_TIPS[k] && FORM_TIPS[k].title) || k,
+    body: (FORM_TIPS[k] && FORM_TIPS[k].body) || '',
+    src: libSource(k)
+  })).sort((a2, b2) => a2.title.localeCompare(b2.title));
+}
+
+function libMatches() {
+  const q = libQuery.trim().toLowerCase();
+  const all = libEntries();
+  if (!q) return all;
+  /* match the name first, then anything in the how-to text, so searching
+     "knee" finds movements that only mention knees in their cues */
+  const byName = all.filter(e => e.title.toLowerCase().indexOf(q) !== -1);
+  const seen = new Set(byName.map(e => e.key));
+  const byBody = all.filter(e => !seen.has(e.key) && e.body.toLowerCase().indexOf(q) !== -1);
+  return byName.concat(byBody);
+}
+
+function libraryHTML() {
+  const all = libEntries();
+  const hits = libMatches();
+  const rows = hits.slice(0, 120).map(e => {
+    const vid = videoFor(e.key);
+    return `<details class="lib-item">
+      <summary>
+        <span class="lib-name">${e.title}</span>
+        <span class="lib-tags">${vid ? '<span class="lib-vid">video</span>' : ''}<span class="lib-src">${e.src}</span></span>
+      </summary>
+      <div class="lib-body">${e.body || 'No how-to written for this one yet.'}</div>
+      ${vid ? `<div class="tip-video rail-video"><iframe src="https://www.youtube-nocookie.com/embed/${vid}?rel=0" title="${e.title} demo" allow="accelerometer; encrypted-media; gyroscope; picture-in-picture" allowfullscreen loading="lazy"></iframe></div>`
+            : `<a class="rail-vid-search" href="https://www.youtube.com/results?search_query=${encodeURIComponent(e.title + ' exercise how to')}" target="_blank" rel="noopener">Find a demo on YouTube \u2197</a>`}
+    </details>`;
+  }).join('');
+  const more = hits.length > 120 ? `<div class="tiny muted center" style="margin-top:10px">Showing 120 of ${hits.length} \u2014 keep typing to narrow it.</div>` : '';
+  return `<div class="screen">
+    <h2 class="section">Exercise library</h2>
+    <div class="card">
+      <input id="libSearch" class="lib-search" type="search" placeholder="Search ${all.length} movements \u2014 name, muscle, or cue" value="${libQuery.replace(/"/g, '&quot;')}" />
+      <div class="hint">Every movement the app knows, from all programmes and the generator. Tap one to read the how-to.</div>
+    </div>
+    <div class="lib-count tiny muted">${hits.length} of ${all.length} movements</div>
+    <div class="card lib-list">${rows || '<div class="tiny muted center">Nothing matches that.</div>'}</div>
+    ${more}
+  </div>`;
+}
+
 function railExtrasHTML() {
   const [quote, by] = railLine();
   const quoteCard = `<div class="card rail-card rail-quote-card">
@@ -5130,8 +5366,12 @@ function railExtrasHTML() {
       <div class="rail-tip-body">${tip.body}</div>
     </div>`;
   }
-  /* How-to first: it is what you read while you are doing the set. */
-  return howTo + upNext + quoteCard;
+  /* How-to first: it is what you read while you are doing the set. Then the
+     two facts you want before touching the bar \u2014 what you lifted last time,
+     and what to put on the way up. */
+  const exKey = btn && btn.dataset.tip;
+  const extras = exKey ? (lastTimeHTML(exKey, tip && tip.title) + warmupHTML(exKey)) : '';
+  return howTo + extras + upNext + quoteCard;
 }
 
 /* The type pill on an exercise card said "SETS" — on a card whose entire
@@ -5302,6 +5542,8 @@ function updateSessionUI() {
   if (!bar) return;
   /* the rail sticks below the whole sticky header, whose height changes with
      the session bar showing or hiding — measure it rather than hard-coding */
+  view.querySelectorAll('#segReady button').forEach(b => b.onclick = () => setReadiness(+b.dataset.ready));
+  view.querySelectorAll('[data-applytier]').forEach(b => b.onclick = () => setSessionTier(b.dataset.applytier));
   view.querySelectorAll('#segTier button').forEach(b => b.onclick = () => setSessionTier(b.dataset.tier));
   const gt = document.getElementById('genType'), gd = document.getElementById('genDiff'),
         gb = document.getElementById('genRoll');

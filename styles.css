@@ -1513,3 +1513,53 @@ table.prog td.w { color: var(--text); }
    a glance, not something you have to compare numbers to see. */
 .set-row .wt.wt-back { color: var(--muted); }
 .set-row .wt.wt-back .plate-math { opacity: .72; }
+
+/* ---- warm-up ramp rows on the rail ---- */
+.warm-row {
+  display: flex; align-items: baseline; justify-content: space-between;
+  padding: 7px 0; border-bottom: 1px solid var(--border);
+}
+.warm-row:last-of-type { border-bottom: 0; }
+.warm-w { font-family: var(--display); font-size: 15px; font-weight: 800; color: var(--text); }
+.warm-w small { font-size: 11px; font-weight: 700; color: var(--muted); }
+.warm-r { font-size: 12.5px; font-weight: 700; color: var(--muted); }
+
+/* ---- exercise library ---- */
+.lib-search {
+  width: 100%; height: 42px; padding: 0 13px;
+  background: var(--panel2); color: var(--text);
+  border: 1px solid var(--border); border-radius: var(--r-btn);
+  font: inherit; font-size: 15px;
+}
+.lib-search:focus { outline: 2px solid var(--accent-line); outline-offset: 1px; }
+.lib-count { margin: 0 2px 6px; }
+.lib-list { padding: 4px 6px; }
+.lib-item { border-bottom: 1px solid var(--border); }
+.lib-item:last-child { border-bottom: 0; }
+.lib-item > summary {
+  display: flex; align-items: center; justify-content: space-between; gap: 10px;
+  padding: 12px 8px; cursor: pointer; list-style: none;
+}
+.lib-item > summary::-webkit-details-marker { display: none; }
+.lib-name { font-weight: 700; font-size: 14.5px; color: var(--text); }
+.lib-tags { display: flex; gap: 6px; flex: none; }
+.lib-src, .lib-vid {
+  font-size: 10px; font-weight: 800; letter-spacing: .5px; text-transform: uppercase;
+  padding: 3px 7px; border-radius: 999px; color: var(--muted); background: var(--panel2);
+}
+.lib-vid { color: var(--on-hl); background: var(--hl); }
+.lib-body { padding: 0 8px 12px; font-size: 13.5px; line-height: 1.6; color: var(--text-soft); }
+.lib-item .rail-video, .lib-item .rail-vid-search { margin: 0 8px 12px; }
+
+/* ---- readiness ---- */
+.ready-bar { margin: 10px 0 2px; }
+.ready-row { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+.ready-q { font-size: 12.5px; font-weight: 700; color: var(--muted); flex: none; }
+.ready-seg { flex: 1 1 220px; }
+.ready-seg button { flex: 1; font-size: 11.5px; padding: 7px 4px; }
+.ready-why { margin-top: 7px; line-height: 1.5; }
+.ready-apply {
+  border: 0; background: var(--accent); color: var(--on-accent); cursor: pointer;
+  font: inherit; font-size: 11.5px; font-weight: 800; padding: 3px 9px;
+  border-radius: 999px; margin-left: 4px;
+}
