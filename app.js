@@ -3014,7 +3014,71 @@ const FORM_VIDEOS = {
   sarow:       'G8l_8chR5BE',   // "How To" Barbell Row — Alan Thrall, Untamed Strength
   sardl:       'uhghy9pFIPY',   // How To Perform PERFECT Romanian Deadlifts | RDLs — E3 Rehab
   slrdl:       'Zfr6wizR8rs',   // The BEST Single-Leg RDL Tutorial — Squat University
-  dbrdl:       'ZEnWV4kguKc'    // How to do romanian deadlifts safely — Jack Hanrahan Fitness
+  dbrdl:       'ZEnWV4kguKc',   // How to do romanian deadlifts safely — Jack Hanrahan Fitness
+
+  /* Added v137. Sourced by reading YouTube's own results page for each
+     movement and then confirming every id against oEmbed — the title
+     beside each entry is what oEmbed returned, not what the search said.
+     Candidates that came back untitled or unavailable were dropped, and
+     each key was checked to exist in FORM_TIPS before being written, so
+     a demo cannot be attached to a movement the app does not have.
+
+     Several movements appear under more than one key — the generator and
+     the imported programmes each have their own Bird Dog — so the same id
+     is registered against each. The library merges them into one row and
+     prefers whichever key carries a video. */
+  bicycle:                           'HWX93vAoLvw',   // How to Do Bicycle Crunches — Hinge Health
+  birddog:                           'QABW99qPiNM',   // Bird Dog Exercise | Improve Your Core and Balance — Muscle & Motion
+  calfraise:                         'CtyIVeJH6lI',   // You're Doing Calf Raises WRONG — Rehab and Revive
+  dbcurl:                            'QZEqB6wUPxQ',   // How To: Barbell Bicep Curl | 3 GOLDEN RULES — ScottHermanFitness
+  dbhammer:                          'BRVDS6HVR9Q',   // How To Perform HAMMER CURLS — Buff Dudes
+  dblatraise:                        'XPPfnSEATJA',   // How to do a Dumbbell Lateral Raise — NASM
+  dbrow:                             'gfUg6qWohTk',   // STOP F*cking Up Dumbbell Rows (PROPER FORM!) — ATHLEAN-X
+  deadbug:                           'GbSC02oU3To',   // How to Do a Dead Bug: A Guide from Physical Therapists — Hinge Health
+  deadhang:                          'GwMTIwfOPQE',   // Dead Hang VS Active Hang - CHOOSE WISELY — GoPrimate
+  frontsquat:                        '7pyxT5hqmQY',   // How To Front Squat (WAYS TO KEEP YOUR CHEST UP!) — Squat University
+  'gen_bicycle-crunches':            'HWX93vAoLvw',   // How to Do Bicycle Crunches — Hinge Health
+  'gen_bird-dog':                    'QABW99qPiNM',   // Bird Dog Exercise | Improve Your Core and Balance — Muscle & Motion
+  'gen_chin-ups':                    'e1YSApl-QcM',   // PERFECT CHIN-UPS — Simonster Strength
+  'gen_dead-bug':                    'GbSC02oU3To',   // How to Do a Dead Bug: A Guide from Physical Therapists — Hinge Health
+  'gen_good-mornings':               'f23vXjoG2e8',   // HOW TO DO THE GOOD MORNING EXERCISE — Jeff Nippard
+  'gen_hammer-curls':                'BRVDS6HVR9Q',   // How To Perform HAMMER CURLS — Buff Dudes
+  'gen_hip-thrust':                  'xDmFkJxPzeM',   // How To Build Great Glutes with Perfect Hip Thrust Technique — Jeff Nippard
+  'gen_incline-db-press':            'IP4oeKh1Sd4',   // How to do the INCLINE DUMBBELL BENCH PRESS! — Max Euceda
+  'gen_pull-ups':                    'eGo4IYlbE5g',   // The Perfect Pull Up - Do it right! — Calisthenicmovement
+  'gen_tib-raises':                  'VzIcGAgBiaM',   // Tibialis Wall Raises (Exercise Demo) — The Barefoot Sprinter
+  shouldercars:                      'wVFHnG2flJ4',   // Daily Mobility Exercise: Shoulder CARS — Pippin Performance
+  syn_active_hang:                   '0_YZc2yuKkE',   // How To Do Active Hang — Calixpert
+  syn_arnold_press:                  '6Z15_WdXmVw',   // Arnold Press - Shoulder Exercise - Proper Form Tutorial — Buff Dudes
+  syn_barbell_curls:                 'QZEqB6wUPxQ',   // How To: Barbell Bicep Curl | 3 GOLDEN RULES — ScottHermanFitness
+  syn_barbell_hip_thrust:            'xDmFkJxPzeM',   // How To Build Great Glutes with Perfect Hip Thrust Technique — Jeff Nippard
+  syn_barbell_rows:                  'T3N-TO4reLQ',   // How to do Barbell Rows PROPERLY for a Big Back — ATHLEAN-X
+  syn_bear_crawl:                    'U3Y58Kyw7Xw',   // Bear Crawl Tutorial - Proper Form and Technique — Runna
+  syn_bent_over_reverse_flyes:       '4Xr7bKE_fxE',   // How To Perform Bent Over Reverse Flys — Buff Dudes
+  syn_bicycle_crunches:              'HWX93vAoLvw',   // How to Do Bicycle Crunches — Hinge Health
+  syn_bird_dog:                      'QABW99qPiNM',   // Bird Dog Exercise | Improve Your Core and Balance — Muscle & Motion
+  syn_bulgarian_split_squats:        'SkNsa3eBwLA',   // How to do the BULGARIAN SPLIT SQUAT! — Max Euceda
+  syn_calf_raises:                   'CtyIVeJH6lI',   // You're Doing Calf Raises WRONG — Rehab and Revive
+  syn_chin_ups:                      'e1YSApl-QcM',   // PERFECT CHIN-UPS — Simonster Strength
+  syn_controlled_glute_step_down:    'wGoKb6mPJzU',   // Step-Ups for Glutes (w/ Common Mistakes) — Physique Development
+  syn_dead_bug:                      'GbSC02oU3To',   // How to Do a Dead Bug: A Guide from Physical Therapists — Hinge Health
+  syn_dips:                          'vi1-BOcj3cQ',   // Are You Doing Dips Properly? (AVOID MISTAKES!) — ATHLEAN-X
+  syn_dumbbell_rows:                 'gfUg6qWohTk',   // STOP F*cking Up Dumbbell Rows (PROPER FORM!) — ATHLEAN-X
+  syn_front_squats:                  '7pyxT5hqmQY',   // How To Front Squat (WAYS TO KEEP YOUR CHEST UP!) — Squat University
+  syn_good_mornings:                 'f23vXjoG2e8',   // HOW TO DO THE GOOD MORNING EXERCISE — Jeff Nippard
+  syn_hammer_curls:                  'BRVDS6HVR9Q',   // How To Perform HAMMER CURLS — Buff Dudes
+  syn_hip_thrusts:                   'xDmFkJxPzeM',   // How To Build Great Glutes with Perfect Hip Thrust Technique — Jeff Nippard
+  syn_incline_dumbbell_press:        'IP4oeKh1Sd4',   // How to do the INCLINE DUMBBELL BENCH PRESS! — Max Euceda
+  syn_lateral_raises:                'XPPfnSEATJA',   // How to do a Dumbbell Lateral Raise — NASM
+  syn_neck_cars:                     'BsZmSx34hvQ',   // Neck CAR (Controlled Articular Rotation) — Precision Movement
+  syn_pull_ups:                      'eGo4IYlbE5g',   // The Perfect Pull Up - Do it right! — Calisthenicmovement
+  syn_shoulder_cars:                 'wVFHnG2flJ4',   // Daily Mobility Exercise: Shoulder CARS — Pippin Performance
+  syn_skull_crushers:                'S0fmDR60X-o',   // How to do the SKULLCRUSHER! — Max Euceda
+  syn_thread_the_needle:             'SkQhKf74nZk',   // How to Do a Thread the Needle Stretch — Hinge Health
+  syn_tibialis_raises:               'VzIcGAgBiaM',   // Tibialis Wall Raises (Exercise Demo) — The Barefoot Sprinter
+  syn_walking_lunges:                'Pbmj6xPo-Hw',   // Walking Lunges Exercise Tutorial — Buff Dudes
+  tibraise:                          'VzIcGAgBiaM',   // Tibialis Wall Raises (Exercise Demo) — The Barefoot Sprinter
+  walkinglunge:                      'Pbmj6xPo-Hw'   // Walking Lunges Exercise Tutorial — Buff Dudes
 };
 /* a pinned video always beats the bundled one */
 function videoFor(key) { return loadVideos()[key] || FORM_VIDEOS[key] || null; }
