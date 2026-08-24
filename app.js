@@ -39,6 +39,10 @@ const DEFAULTS = {
   equipment: 'gym',   /* gym | dumbbells | bodyweight — see EQUIP_RANK */
   weeklyGoal: 4,      /* sessions per week — the week strip counts toward this */
   dbMax: 25,          /* heaviest dumbbell/kettlebell owned, per hand — see capHand */
+  waveLoad: true,     /* ramp into a top set, back off, repeat — see waveFactors */
+  autoDeload: true,   /* drop 10% after 3 straight failed sessions — see STALL_LIMIT.
+                         Weight NEVER rises on a miss either way; this only controls
+                         whether a repeated stall drops it. */
   /* What is actually in the room. The generator's exercises carry their own
      equipment lists, so this is a set of things owned rather than a tier.
      Punching bag and treadmill are off by default: one is disliked, the other
@@ -1396,6 +1400,10 @@ function migrate(st) {
   if (!st.history) st.history = [];
   if (!st.liftLog) st.liftLog = {};
   if (!st.saWeights) st.saWeights = {};
+  /* consecutive missed sessions per movement, and the extra reps earned by
+     a movement stuck at the heaviest weight in the room */
+  if (!st.stalls) st.stalls = {};
+  if (!st.repBonus) st.repBonus = {};
   ['squat', 'deadlift', 'bench', 'glutestep'].forEach(k => { if (!st.liftLog[k]) st.liftLog[k] = []; });
   return st;
 }
@@ -2022,16 +2030,16 @@ function itemRow(item, log, showName) {
       <div class="set-end"><button class="check ${on}" data-pcheck="${id}">✓</button></div></div>`;
   }
 
-  const hint = saHint(ex.key);
+  const hint = saHintSet(ex.key, item.setIndex, item.total);
   let row = hint
     ? `<div class="set-row workset ${showName ? 'named ' : ''}${on ? 'done' : ''}">
         <div class="lbl">${label}</div>
-        <div class="wt">${fmt(hint.w)} <small>${hint.suffix}</small>${hint.type === 'bar' ? `<div class="plate-math">${plateStripHTML(hint.w)}</div>` : ''}</div>
-        <div class="set-end"><div class="reps">${ex.reps} reps${ex.side ? '/side' : ''}</div>
+        <div class="wt${hint.top === false ? ' wt-back' : ''}">${fmt(hint.w)} <small>${hint.suffix}${hint.top === true ? ' · top set' : ''}</small>${hint.type === 'bar' ? `<div class="plate-math">${plateStripHTML(hint.w)}</div>` : ''}</div>
+        <div class="set-end"><div class="reps">${repTarget(ex)} reps${ex.side ? '/side' : ''}</div>
         <button class="check ${on}" data-pcheck="${id}">✓</button></div></div>`
     : `<div class="set-row workset ${showName ? 'named ' : ''}${on ? 'done' : ''}">
         <div class="lbl">${label}</div>
-        <div class="wt">${ex.reps}<small> reps${ex.side ? '/side' : ''}</small></div>
+        <div class="wt">${repTarget(ex)}<small> reps${ex.side ? '/side' : ''}</small></div>
         <div class="set-end"><button class="check ${on}" data-pcheck="${id}">✓</button></div></div>`;
 
   if (hasLoadProgression() && SA_PROGRESS.includes(ex.key) && many) {
@@ -2044,7 +2052,7 @@ function itemRow(item, log, showName) {
         <div class="val" id="sarep_${rid}">${cur}</div>
         <button data-sarep="${rid}" data-d="1">+</button>
       </div>
-      <span class="tiny muted">all sets ${ex.reps}+ → weight up</span>
+      <span class="tiny muted">all sets ${repTarget(ex)}+ → ${repBonus(ex.key) ? 'reps up again' : 'weight up'}</span>
     </div>`;
   }
   return row;
@@ -2097,12 +2105,12 @@ function prepExerciseCard(ex, setIndex, total, log) {
   rows = hint
     ? `<div class="set-row workset ${on ? 'done' : ''}">
         <div class="lbl">${many ? `Set ${setIndex + 1}/${total}` : 'Target'}</div>
-        <div class="wt">${fmt(hint.w)} <small>${hint.suffix}</small>${hint.type === 'bar' ? `<div class="plate-math">${plateStripHTML(hint.w)}</div>` : ''}</div>
-        <div class="set-end"><div class="reps">${ex.reps} reps${ex.side ? '/side' : ''}</div>
+        <div class="wt${hint.top === false ? ' wt-back' : ''}">${fmt(hint.w)} <small>${hint.suffix}${hint.top === true ? ' · top set' : ''}</small>${hint.type === 'bar' ? `<div class="plate-math">${plateStripHTML(hint.w)}</div>` : ''}</div>
+        <div class="set-end"><div class="reps">${repTarget(ex)} reps${ex.side ? '/side' : ''}</div>
         <button class="check ${on}" data-pcheck="${id}">✓</button></div></div>`
     : `<div class="set-row workset ${on ? 'done' : ''}">
         <div class="lbl">${many ? `Set ${setIndex + 1}/${total}` : 'Target'}</div>
-        <div class="wt">${ex.reps}<small> reps${ex.side ? '/side' : ''}</small></div>
+        <div class="wt">${repTarget(ex)}<small> reps${ex.side ? '/side' : ''}</small></div>
         <div class="set-end"><button class="check ${on}" data-pcheck="${id}">✓</button></div></div>`;
   if (isSAProgram() && SA_PROGRESS.includes(ex.key) && many) {
     const rid = `${ex.key}_${setIndex}`;
@@ -2114,7 +2122,7 @@ function prepExerciseCard(ex, setIndex, total, log) {
         <div class="val" id="sarep_${rid}">${cur}</div>
         <button data-sarep="${rid}" data-d="1">+</button>
       </div>
-      <span class="tiny muted">all sets ${ex.reps}+ → weight up</span>
+      <span class="tiny muted">all sets ${repTarget(ex)}+ → ${repBonus(ex.key) ? 'reps up again' : 'weight up'}</span>
     </div>`;
   }
   return `<div class="card lift">
@@ -2318,6 +2326,58 @@ function saEstimate(m) {
   return m.type === 'bar' ? snapWeight(est, bar(), getPlates())
                          : capHand(Math.max(5, round(est, 5)), m.type);
 }
+/* A movement holding at the ceiling is chasing more reps than it was written
+   with. Say so where the reps are shown, or the card and the progression would
+   disagree about what counts as a good set. */
+function repTarget(ex) { return (ex.reps || 0) + repBonus(ex.key); }
+
+/* ---------------------------------------------------------------------
+   Wave loading across the sets of one exercise.
+
+   Flat sets — every set at the same weight — waste the first set and make the
+   last one the hardest, which is the wrong way round. A wave ramps into the
+   top set, drops back for one, then goes to the top again. You earn the top
+   weight rather than starting there, and the back-off set lets you repeat it.
+
+   The factors are of the WORKING weight, which is still the number the
+   session-to-session progression moves. Nothing here changes when the weight
+   goes up: that still needs every set to hit its target, so one good set
+   never moves anything. */
+const WAVE = {
+  1: [1],
+  2: [0.92, 1],
+  3: [0.88, 1, 0.94],
+  4: [0.85, 0.94, 1, 0.94],
+  5: [0.82, 0.90, 1, 0.92, 1],
+  6: [0.80, 0.88, 0.95, 1, 0.92, 1]
+};
+function waveFactors(sets) {
+  if (WAVE[sets]) return WAVE[sets];
+  /* longer than the table: ramp over the first half, then alternate top and
+     back-off for the rest */
+  const out = [];
+  const ramp = Math.max(2, Math.floor(sets / 2));
+  for (let i = 0; i < sets; i++) {
+    if (i < ramp) out.push(+(0.80 + (0.20 * (i / (ramp - 1 || 1)))).toFixed(3));
+    else out.push(i % 2 === ramp % 2 ? 0.92 : 1);
+  }
+  return out;
+}
+function waveOn() { return S.settings.waveLoad !== false; }
+
+/* A per-set view of the exercise's working weight. Returns the same shape
+   saHint does so the row rendering does not have to care. */
+function saHintSet(key, i, total) {
+  const h = saHint(key);
+  if (!h || !waveOn() || !(total > 1)) return h;
+  const f = waveFactors(total)[i];
+  if (f == null || f === 1) return Object.assign({}, h, { top: true });
+  const raw = h.w * f;
+  const w = h.type === 'bar' ? snapWeight(raw, bar(), getPlates())
+                             : capHand(Math.max(5, round(raw, 5)), h.type);
+  return Object.assign({}, h, { w: w, top: false, txt: fmt(w) + ' ' + h.suffix });
+}
+
 function saHint(key) {
   if (!hasLoadProgression()) return null;
   const m = SA_WEIGHT[key]; if (!m) return null;
@@ -2339,6 +2399,52 @@ const SA_PROGRESS = [
   'frontsquat', 'trapdeadlift', 'walkinglunge', 'pushpress', 'sadbpress',
   'kbswing', 'splitsquatecc', 'woodchop'
 ];
+/* ---------------------------------------------------------------------
+   Stalling.
+
+   The progression rule was: hit every set and the weight goes up, miss any set
+   and it holds. Holds — and then holds again, and again, for ever. An app that
+   answers three failed sessions in a row with "same weight, try harder" is
+   giving bad advice: repeating a weight you cannot lift is how you stay stuck
+   and how you get hurt.
+
+   Three consecutive misses now trigger a response, and which response depends
+   on why you are stuck:
+
+   - A barbell or trap-bar lift DELOADS ten per cent, rounded to real plates.
+     You rebuild through the same reps-hit rule, which usually carries you
+     past the old sticking point. This is the standard answer and it is what
+     Texas Method itself prescribes.
+
+   - A dumbbell or kettlebell lift ALREADY AT THE RACK CEILING cannot deload
+     its way out, because the problem is not that the weight is too heavy —
+     it is that the next weight up does not exist in the room. Dropping to
+     20lb to climb back to a 25lb you already own solves nothing. So it holds
+     the weight and moves the target: reps go up instead, which is exactly how
+     the bodyweight movements in this app already progress.
+
+   - Anything else deloads ten per cent like the barbell.
+   --------------------------------------------------------------------- */
+const STALL_LIMIT = 3;
+
+function stallCount(key) { return (S.stalls && S.stalls[key]) || 0; }
+function stallBump(key, n) {
+  if (!S.stalls) S.stalls = {};
+  if (n === 0) delete S.stalls[key]; else S.stalls[key] = n;
+}
+/* Extra reps earned by holding a capped weight. Read by the renderer so the
+   target you see is the target you are held to. */
+function repBonus(key) { return (S.repBonus && S.repBonus[key]) || 0; }
+function repBonusAdd(key, n) {
+  if (!S.repBonus) S.repBonus = {};
+  S.repBonus[key] = repBonus(key) + n;
+}
+function atCeiling(key, w) {
+  const m = SA_WEIGHT[key];
+  if (!m || (m.type !== 'db' && m.type !== 'hand')) return false;
+  return w >= dbCap();
+}
+
 function saApplyProgression(d, log) {
   if (!hasLoadProgression() || !d || d.rest || log.progressed) return [];
   if (!S.saWeights) S.saWeights = {};
@@ -2353,7 +2459,7 @@ function saApplyProgression(d, log) {
     for (let i = 0; i < ex.sets; i++) {
       const v = log.reps && log.reps[`${ex.key}_${i}`];
       const hit = v != null ? v : (log.reps && log.reps[ex.key] != null ? log.reps[ex.key] : ex.reps);
-      if (hit < ex.reps) { met = false; break; }
+      if (hit < ex.reps + repBonus(ex.key)) { met = false; break; }
     }
     const inc = S.settings.units === 'lb' ? 5 : 2.5;
     let next = cur;
@@ -2369,10 +2475,48 @@ function saApplyProgression(d, log) {
          hand weights, or it would step straight over the ceiling the line
          above just imposed. */
       if (next <= cur && m.type === 'bar') next = cur + inc;
+      stallBump(ex.key, 0);
+      /* a weight increase resets the earned reps — the new load starts from
+         the written target again */
+      if (next > cur && S.repBonus) delete S.repBonus[ex.key];
       if (next > cur) msgs.push(`${ex.name} +${fmt(next - cur)} ${unit()} next time 💪`);
-      else msgs.push(`${ex.name} stays at ${fmt(cur)} ${unit()} — that is the heaviest you own. Add reps or slow the lowering instead.`);
+      else {
+        /* At the rack ceiling the weight cannot be the progression, so the
+           rep target is: clear every set and you owe one more rep next time.
+           Same volume progression the bodyweight movements already use. */
+        repBonusAdd(ex.key, 1);
+        msgs.push(`${ex.name} stays at ${fmt(cur)} ${unit()} — heaviest you own, so the target rises to ${ex.reps + repBonus(ex.key)} reps 🎯`);
+      }
     } else {
-      msgs.push(`${ex.name} holds at ${fmt(cur)} ${unit()} — hit ${ex.reps}+ to move up`);
+      const n = stallCount(ex.key) + 1;
+      if (n < STALL_LIMIT) {
+        stallBump(ex.key, n);
+        msgs.push(`${ex.name} holds at ${fmt(cur)} ${unit()} — hit ${ex.reps + repBonus(ex.key)}+ on every set to move up (${n} of ${STALL_LIMIT} before a reset)`);
+      } else if (atCeiling(ex.key, cur)) {
+        /* Nothing heavier to drop back from, so the rep target is what backs
+           off. Raising it here would answer three failed sessions by making
+           the set harder, which is the opposite of a deload. */
+        stallBump(ex.key, 0);
+        const had = repBonus(ex.key);
+        if (had > 0) {
+          S.repBonus[ex.key] = had - 1;
+          msgs.push(`${ex.name} stalled three times at your heaviest weight — target eases back to ${ex.reps + repBonus(ex.key)} reps 📉`);
+        } else {
+          msgs.push(`${ex.name} is stuck at ${fmt(cur)} ${unit()} for ${STALL_LIMIT} sessions and there is nothing lighter to drop to. Slow the lowering, or rest longer between sets.`);
+        }
+      } else if (S.settings.autoDeload === false) {
+        /* Deload turned off: hold the weight and keep counting, so the message
+           still tells the truth about how long this has been stuck. */
+        stallBump(ex.key, n);
+        msgs.push(`${ex.name} holds at ${fmt(cur)} ${unit()} — stuck for ${n} sessions. Turn on auto-deload in Setup if you want it to drop back.`);
+      } else {
+        stallBump(ex.key, 0);
+        const dropped = m.type === 'bar'
+          ? snapWeight(cur * 0.9, bar(), getPlates())
+          : Math.max(5, round(cur * 0.9, 5));
+        next = dropped < cur ? dropped : Math.max(5, cur - inc);
+        msgs.push(`${ex.name} stalled three times — dropping to ${fmt(next)} ${unit()} to build back up 📉`);
+      }
     }
     S.saWeights[ex.key] = next;
   });
@@ -3235,6 +3379,20 @@ function renderSetup() {
         </div>
         <div class="hint">The week strip on Roadmap counts toward this rather than toward seven days — train on whichever days suit you.</div>
       </div>
+      <div class="field"><label>Set loading</label>
+        <div class="seg" id="segWave">
+          <button data-wave="1" class="${s.waveLoad === false ? '' : 'on'}">Wave</button>
+          <button data-wave="0" class="${s.waveLoad === false ? 'on' : ''}">Flat</button>
+        </div>
+        <div class="hint">Wave ramps into a top set, drops back for one, then goes to the top again — you earn the heaviest set instead of starting there. Flat puts every set at the working weight. Either way the weight only rises when every set hits its target.</div>
+      </div>
+      <div class="field"><label>After 3 failed sessions</label>
+        <div class="seg" id="segDeload">
+          <button data-deload="1" class="${s.autoDeload === false ? '' : 'on'}">Drop 10%</button>
+          <button data-deload="0" class="${s.autoDeload === false ? 'on' : ''}">Hold the weight</button>
+        </div>
+        <div class="hint">Weight never goes up unless you hit every set — that does not change. This is only what happens when a lift has stalled three sessions running: drop back and rebuild, or sit at the same weight until you clear it.</div>
+      </div>
       <div class="field"><label>Heaviest dumbbell / kettlebell (per hand)</label>
         <input type="number" inputmode="numeric" id="dbMax" value="${s.dbMax ?? 25}" />
         <div class="hint">Dumbbell and kettlebell suggestions stop here instead of climbing past what is on the rack. Barbell and trap bar are loaded from plates, so they are not capped.</div>
@@ -3424,6 +3582,12 @@ function wireSetup() {
   view.querySelectorAll('#segMode button').forEach(b => b.onclick = () => { s.mode = b.dataset.m; save(); render(); });
 
   document.getElementById('bw').onchange  = e => { s.bodyweight = +e.target.value || 0; save(); };
+  view.querySelectorAll('#segWave button').forEach(b2 => b2.onclick = () => {
+    s.waveLoad = b2.dataset.wave === '1'; save(); render();
+  });
+  view.querySelectorAll('#segDeload button').forEach(b2 => b2.onclick = () => {
+    s.autoDeload = b2.dataset.deload === '1'; save(); render();
+  });
   const dbm = document.getElementById('dbMax');
   if (dbm) dbm.onchange = () => { s.dbMax = Math.max(5, +dbm.value || 25); save(); render(); };
   view.querySelectorAll('#segGoal button').forEach(b => b.onclick = () => {

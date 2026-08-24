@@ -1508,3 +1508,8 @@ table.prog td.w { color: var(--text); }
 .session-main .card.lift .setrow, .session-main .card.lift .item-row {
   padding-top: 12px; padding-bottom: 12px;
 }
+
+/* A back-off set reads quieter than a top set — the wave should be visible at
+   a glance, not something you have to compare numbers to see. */
+.set-row .wt.wt-back { color: var(--muted); }
+.set-row .wt.wt-back .plate-math { opacity: .72; }
