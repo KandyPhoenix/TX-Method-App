@@ -5275,13 +5275,42 @@ function libSource(key) {
   return 'Core';
 }
 
+/* The same movement often exists in more than one source — a Barbell Hip
+   Thrust is in both the generator and the imported programmes, under different
+   keys. The keys must stay distinct, because logs and progression are keyed by
+   them, but showing the reader the same exercise twice is just noise. The
+   library therefore groups by name and keeps the entry with the fullest
+   how-to, listing every source it came from. */
 function libEntries() {
-  return Object.keys(FORM_TIPS).map(k => ({
-    key: k,
-    title: (FORM_TIPS[k] && FORM_TIPS[k].title) || k,
-    body: (FORM_TIPS[k] && FORM_TIPS[k].body) || '',
-    src: libSource(k)
-  })).sort((a2, b2) => a2.title.localeCompare(b2.title));
+  const norm = t => String(t).toLowerCase().replace(/[^a-z0-9]+/g, ' ').trim();
+  const byName = new Map();
+  Object.keys(FORM_TIPS).forEach(k => {
+    const tip = FORM_TIPS[k] || {};
+    const title = tip.title || k;
+    const body = tip.body || '';
+    const src = libSource(k);
+    const n = norm(title);
+    const hit = byName.get(n);
+    if (!hit) {
+      byName.set(n, { key: k, bodyKey: k, keys: [k], title: title, body: body, src: src, srcs: [src] });
+      return;
+    }
+    if (hit.srcs.indexOf(src) === -1) hit.srcs.push(src);
+    hit.keys.push(k);
+    /* keep the richest text, and the title that goes with it */
+    if (body.length > hit.body.length) { hit.body = body; hit.bodyKey = k; hit.title = title; }
+  });
+  /* Choose the key LAST, over all the merged keys, rather than as each
+     duplicate arrives. Deciding it incrementally loses the demo whenever the
+     movement with the video is seen before one with a longer paragraph — the
+     key had already been reassigned by the time the video was considered. */
+  byName.forEach(e => {
+    const withVideo = e.keys.filter(k => videoFor(k));
+    e.key = withVideo.length ? withVideo[0] : (e.bodyKey || e.keys[0]);
+  });
+  return [...byName.values()]
+    .map(e => Object.assign(e, { src: e.srcs.length > 1 ? e.srcs.length + ' sources' : e.src }))
+    .sort((a2, b2) => a2.title.localeCompare(b2.title));
 }
 
 function libMatches() {
