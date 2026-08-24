@@ -438,7 +438,7 @@ for (let w = 0; w < 12; w++) SUPERAGEH.push(...saHybridWeek(w));
 /* =====================================================================
    FINGERPRINT FOCUS
    ---------------------------------------------------------------------
-   The programme that actually consumes the Fingerprint. Every other plan
+   The program that actually consumes the Fingerprint. Every other plan
    here is a fixed array; this one is generated from your current marker
    scores, weakest first, and re-generated whenever those scores or your
    available equipment change.
@@ -870,7 +870,7 @@ function fpFocusPlan() {
    have not done lately, roughly 60/40 basic to creative. What is new here is
    everything around it — the workout has to survive being rendered, ticked,
    progressed, tier-scaled and equipment-filtered by machinery that already
-   exists, so a generated session is turned into an ordinary day-programme day
+   exists, so a generated session is turned into an ordinary day-program day
    and nothing downstream needs to know where it came from.
 
    The one genuinely dangerous part is randomness. pdata() is read on every
@@ -964,7 +964,7 @@ function genWeightedDraw(pool, count, out, seen) {
 
 function genPickOne(list) { return list[Math.floor(Math.random() * list.length)]; }
 
-/* Turn a generator record into the shape a day-programme exercise has. The
+/* Turn a generator record into the shape a day-program exercise has. The
    key is namespaced so a generated Push-Up can never collide with the
    Fingerprint pools' own pushups entry in logs or progression. */
 function genEx(e, n) {
@@ -1092,7 +1092,7 @@ function genRegisterTips() {
 }
 
 /* =====================================================================
-   The nine complete programmes from Synthesis's fitness tracker.
+   The nine complete programs from Synthesis's fitness tracker.
 
    These are fixed splits, not generated: Push Pull Legs, Upper/Lower, Full
    Body 3x, Knee-Friendly, Asian Pilates, Military Calisthenics & Pelvic
@@ -1138,7 +1138,7 @@ function synRegisterTips() {
   Object.keys(SYN_TIPS).forEach(k => { if (!FORM_TIPS[k]) FORM_TIPS[k] = SYN_TIPS[k]; });
 }
 
-/* Icons and grouping per programme, so the library reads at a glance. */
+/* Icons and grouping per program, so the library reads at a glance. */
 const SYN_ICO = {
   'ppl': '\u{1F3CB}\u{FE0F}', 'upper-lower': '\u{2696}\u{FE0F}', 'full-body': '\u{1F525}',
   'knee-friendly-2x': '\u{1F9BF}', 'asian-pilates-3x': '\u{1F338}',
@@ -1171,7 +1171,7 @@ const DAY_PROGRAMS = {
   gen:      { get data() { return genPlan(); }, stateKey: 'gen', label: 'Random Generator', sub: 'a fresh workout on demand', holdLabel: 'Timed work' }
 };
 /* Registered from the data file rather than written out one by one, so
-   adding a programme there is enough to make it appear everywhere. */
+   adding a program there is enough to make it appear everywhere. */
 if (typeof SYN_PLANS !== 'undefined') {
   SYN_PLANS.forEach(p => {
     DAY_PROGRAMS['syn-' + p.id] = {
@@ -1386,7 +1386,7 @@ function migrate(st) {
      EQUIP_SHORT['dumbbells'] is undefined and the header pill reads
      "undefined". */
   if (st.settings && st.settings.equipment === 'dumbbells') st.settings.equipment = 'gym';
-  /* one slot per imported programme, same shape as the built-in ones */
+  /* one slot per imported program, same shape as the built-in ones */
   if (typeof SYN_PLANS !== 'undefined') {
     SYN_PLANS.forEach(p => {
       const k = 'syn_' + p.id.replace(/-/g, '_');
@@ -2172,7 +2172,7 @@ function exItems(ex) {
    The Standard puts a Foundation / Core / Advanced / Elite selector at the top
    of a session and labels it "session only — your next workout uses your
    algorithm tier". That last part is the whole point: it is a dial for how you
-   feel today, not a change to your programme. Turning it up because you slept
+   feel today, not a change to your program. Turning it up because you slept
    well should not permanently raise your targets, and turning it down on a bad
    day should not cost you the progress you have already earned.
 
@@ -2206,7 +2206,7 @@ function setSessionTier(k) {
   toast(tierBy(k).name + ' — this session only');
 }
 
-/* Returns a NEW day object; never mutates the programme data, which for the
+/* Returns a NEW day object; never mutates the program data, which for the
    generated Focus plan is a memoised array shared across renders. */
 function tierDay(d) {
   const t = tierBy(currentTier());
@@ -2246,7 +2246,7 @@ function genBarHTML() {
    A tier chosen from how you actually slept beats a tier chosen from habit.
    This asks once a day and SUGGESTS — it never changes the tier on its own,
    because a bad night is a reason to consider less work, not an instruction
-   to do less, and having the app quietly reprogramme the session would be
+   to do less, and having the app quietly reprogram the session would be
    worse than not asking.
    --------------------------------------------------------------------- */
 const READY = [
@@ -2377,7 +2377,7 @@ const SA_WEIGHT = {
   carryintervals: { src: 'deadlift', pct: 0.25, type: 'hand' }
 };
 function isSAProgram() { return S.program === 'sa2' || S.program === 'sa4' || S.program === 'sahyb'; }
-/* Which programmes run the reps-hit double progression. Texas has its own
+/* Which programs run the reps-hit double progression. Texas has its own
    linear scheme in generateProgram(); the bodyweight plans progress by volume
    inside their own arrays. These are the ones that carry a load and need a
    rule for when it goes up. */
@@ -2455,7 +2455,7 @@ function saHint(key) {
    set and the weight goes up next session; miss it and it holds. */
 const SA_PROGRESS = [
   'gobletsquat', 'dblunge', 'sidelunge', 'sabench', 'sarow', 'sardl', 'deadlift',
-  /* dumbbell programme */
+  /* dumbbell program */
   'dbpress', 'dbrow', 'dbrdl', 'dbohp', 'dbcurl', 'dbrenrow', 'dbhinge',
   'dblatraise', 'dbhammer', 'dbwindmill',
   /* fingerprint focus */
@@ -2532,7 +2532,7 @@ function saApplyProgression(d, log) {
     if (!log.w) log.w = {};
     log.w[ex.key] = cur;
     /* and when. Day logs are keyed by day NUMBER, which orders a single
-       programme but cannot order points gathered from several. */
+       program but cannot order points gathered from several. */
     if (!log.date) log.date = isoDate(new Date());
     const inc = S.settings.units === 'lb' ? 5 : 2.5;
     let next = cur;
@@ -3024,7 +3024,7 @@ const FORM_VIDEOS = {
      a demo cannot be attached to a movement the app does not have.
 
      Several movements appear under more than one key — the generator and
-     the imported programmes each have their own Bird Dog — so the same id
+     the imported programs each have their own Bird Dog — so the same id
      is registered against each. The library merges them into one row and
      prefers whichever key carries a video. */
   bicycle:                           'HWX93vAoLvw',   // How to Do Bicycle Crunches — Hinge Health
@@ -3340,12 +3340,12 @@ function renderPrepStats() {
    Strength progression, per movement, from what was actually lifted.
 
    The two charts that already existed do not answer this. ch1/ch2 plot the
-   Texas Method's PLANNED intensity — a projection of what the programme
+   Texas Method's PLANNED intensity — a projection of what the program
    intends, drawn whether or not you did it — and the lift-tracker charts only
    cover the four lifts you log by hand.
 
    This reads real session history: the working weight written into each day
-   log as a session is completed, across every programme, plus the manual log.
+   log as a session is completed, across every program, plus the manual log.
    Sessions recorded before v133 have no weight stored and simply are not
    points; that is why a chart fills in from the day you start rather than
    showing a history it cannot know.
@@ -3736,7 +3736,7 @@ function renderSetup() {
       <button class="btn secondary" id="resetCursor">${resetCursorLabel()}</button>
       <div class="spacer"></div>
       <button class="btn danger" id="wipe">Erase all logged data</button>
-      <div class="hint">Clears every set you have ticked, your workout history, personal records, streaks and progression weights — and with them the achievements, which are earned from that data rather than stored separately. Your settings, programmes and Fingerprint scores are kept.</div>
+      <div class="hint">Clears every set you have ticked, your workout history, personal records, streaks and progression weights — and with them the achievements, which are earned from that data rather than stored separately. Your settings, programs and Fingerprint scores are kept.</div>
     </div>
 
     <h2 class="section">Backup &amp; Restore</h2>
@@ -3996,7 +3996,7 @@ function wireSetup() {
    clearing S.achievements does nothing; it repopulates immediately.
 
    The old wipe cleared S.logs, bodyLog and cursor — none of which are what
-   achievements are derived from. S.history, S.prs and the per-programme day
+   achievements are derived from. S.history, S.prs and the per-program day
    logs all survived, so every badge came straight back and the reset looked
    broken. This clears the inputs, which is the only thing that actually
    resets them.
@@ -4011,7 +4011,7 @@ function wipeLoggedData() {
   S.saWeights = {};        /* progression starts from the Setup lifts again */
   S.achievements = [];
   S.achieveBaseline = null;   /* raw counts go to zero, so the origin must too */
-  /* every day-programme's cursor and log — prep days and streaks live here */
+  /* every day-program's cursor and log — prep days and streaks live here */
   Object.values(DAY_PROGRAMS).forEach(cfg => { S[cfg.stateKey] = { day: 1, log: {} }; });
   if (S.liftLog) Object.keys(S.liftLog).forEach(k => { S.liftLog[k] = []; });
   save();
@@ -5282,7 +5282,7 @@ const RAIL_LINES = [
   ['Stack it onto something you already do without thinking. After the morning coffee, the kit goes on. The existing habit becomes the cue.', 'Habit'],
   ['Cut the friction to almost nothing. Clothes out the night before, bag by the door. Most missed sessions are lost at the getting-ready stage, not the training stage.', 'Habit'],
   ['On a bad day, do two minutes. The point is not the training effect — it is refusing to break the chain. Two minutes usually turns into the session anyway.', 'Habit'],
-  ['You are not trying to finish a programme, you are becoming someone who trains. Every session is a vote for that, and the votes compound.', 'Habit'],
+  ['You are not trying to finish a program, you are becoming someone who trains. Every session is a vote for that, and the votes compound.', 'Habit'],
   ['Make the streak visible. A row of completed days is a surprisingly stubborn thing to break, and this app already draws you one.', 'Habit'],
   ['Reduce the decision. Same time, same place, same first exercise. Willpower spent deciding is willpower not spent lifting.', 'Habit'],
   ['Type II muscle fibres shrink at roughly twice the rate of Type I after forty. Something explosive each week — a jump, a throw, a fast step-up — is what defends them.', 'Longevity'],
@@ -5291,10 +5291,10 @@ const RAIL_LINES = [
   ['Eyes-closed balance drops from about ten seconds in your thirties to three by your sixties — and it comes back fast when trained. Practise it while the kettle boils.', 'Longevity'],
   ['Weak social ties carry a mortality risk comparable to smoking. Of everything here, that is the one most likely to be neglected by someone who trains seriously.', 'Longevity'],
   ['Almost no fall happens standing still — it happens mid-transition, rising or turning. Train the transitions, not just the strength.', 'Longevity'],
-  ['Recovery is not time off from the programme, it is part of it. Adaptation happens between sessions, not during them.', 'Training'],
+  ['Recovery is not time off from the program, it is part of it. Adaptation happens between sessions, not during them.', 'Training'],
   ['Add a little, recover well, repeat. Progressive overload is not complicated; it is just hard to stay patient with.', 'Training'],
   ['Leave two or three reps in reserve on most sets. Training to failure every session buys fatigue, not progress.', 'Training'],
-  ['Consistency beats intensity across a year. The programme you actually follow outperforms the better one you abandon in March.', 'Training'],
+  ['Consistency beats intensity across a year. The program you actually follow outperforms the better one you abandon in March.', 'Training'],
   ['Slow the lowering phase. Most of the strength you are building is in the part everyone rushes.', 'Training'],
   ['Progress is boring up close and obvious from a distance. Judge it in months, not sessions.', 'Training']
 ];
@@ -5345,7 +5345,7 @@ function currentRailKey() {
 /* ---------------------------------------------------------------------
    "Last time you did this".
 
-   Reads the most recent EARLIER day in the current programme's log that has
+   Reads the most recent EARLIER day in the current program's log that has
    this movement. With wave loading on, a session has several weights, so what
    is reported is the TOP set — the number the progression actually tracks and
    the one worth beating.
@@ -5442,25 +5442,25 @@ function warmupHTML(key) {
    Exercise library.
 
    497 movements now carry a written how-to and there has been no way to reach
-   any of them except by waiting for a programme to serve it up. This is a
+   any of them except by waiting for a program to serve it up. This is a
    flat, searchable index of everything the app knows.
 
    It reads FORM_TIPS rather than a list of its own. That table is where
    genRegisterTips() and synRegisterTips() fold the generator's 110 and the
-   imported programmes' 201 at boot, so the library is complete by
+   imported programs' 201 at boot, so the library is complete by
    construction and cannot drift as movements are added.
    ===================================================================== */
 let libQuery = '';
 
 function libSource(key) {
   if (key.indexOf('gen_') === 0) return 'Generator';
-  if (key.indexOf('syn_') === 0) return 'Programmes';
+  if (key.indexOf('syn_') === 0) return 'Programs';
   if (key.indexOf('gw_') === 0 || key.indexOf('gc_') === 0) return 'Warm-up / cool-down';
   return 'Core';
 }
 
 /* The same movement often exists in more than one source — a Barbell Hip
-   Thrust is in both the generator and the imported programmes, under different
+   Thrust is in both the generator and the imported programs, under different
    keys. The keys must stay distinct, because logs and progression are keyed by
    them, but showing the reader the same exercise twice is just noise. The
    library therefore groups by name and keeps the entry with the fullest
@@ -5529,7 +5529,7 @@ function libraryHTML() {
     <h2 class="section">Exercise library</h2>
     <div class="card">
       <input id="libSearch" class="lib-search" type="search" placeholder="Search ${all.length} movements \u2014 name, muscle, or cue" value="${libQuery.replace(/"/g, '&quot;')}" />
-      <div class="hint">Every movement the app knows, from all programmes and the generator. Tap one to read the how-to.</div>
+      <div class="hint">Every movement the app knows, from all programs and the generator. Tap one to read the how-to.</div>
     </div>
     <div class="lib-count tiny muted">${hits.length} of ${all.length} movements</div>
     <div class="card lib-list">${rows || '<div class="tiny muted center">Nothing matches that.</div>'}</div>
@@ -5835,7 +5835,7 @@ setInterval(updateSessionUI, 1000);
    comparison decides whether a protocol is available.
 
    Note what this does NOT do: silently swap exercises inside a running
-   programme. Texas Method prescribes 110lb because of what you squatted last
+   program. Texas Method prescribes 110lb because of what you squatted last
    week — quietly turning that into a goblet squat would keep the number and
    make it meaningless, and the same applies to every SuperAge progression.
    Instead the library tells you what you can actually run today, and each
@@ -5958,7 +5958,7 @@ const PROTOCOLS = [
   { key: 'pilates', needs: 'bodyweight',   ico: '🤸',         name: 'Pilates Mat',       tag: 'Mobility',     grp: 'recovery', sub: 'Classical Pilates' }
 ];
 
-/* The imported programmes join the library from their data file, so adding one
+/* The imported programs join the library from their data file, so adding one
    there is enough to make it appear here too. */
 if (typeof SYN_PLANS !== 'undefined') {
   SYN_PLANS.forEach(p => PROTOCOLS.push({
