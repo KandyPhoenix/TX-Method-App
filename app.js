@@ -2531,6 +2531,9 @@ function saApplyProgression(d, log) {
        days logged before it simply have no weight and say so. */
     if (!log.w) log.w = {};
     log.w[ex.key] = cur;
+    /* and when. Day logs are keyed by day NUMBER, which orders a single
+       programme but cannot order points gathered from several. */
+    if (!log.date) log.date = isoDate(new Date());
     const inc = S.settings.units === 'lb' ? 5 : 2.5;
     let next = cur;
     if (met) {
@@ -3158,12 +3161,14 @@ function renderStats() {
     <h2 class="section">Strength-to-weight ratio ${ib('swr')}</h2>
     <div class="card">${ratios}</div>
     ${prCardHTML()}
+    ${strengthChartsHTML()}
     ${liftTrackerHTML()}
     ${calendarHTML()}
     ${achievementsCardHTML()}
     <button class="btn secondary" id="shareBtn">📤 Share my progress</button>
   </div>`;
   drawProjectionCharts();
+  drawStrengthCharts();
   const sb = document.getElementById('shareBtn'); if (sb) sb.onclick = shareCard;
   wireLiftTracker();
   wireCalendar();
@@ -3255,14 +3260,129 @@ function renderPrepStats() {
           : `${workoutDays - done} day${workoutDays-done===1?'':'s'} to go.`}
       </div>
     </div>
+    ${strengthChartsHTML()}
     ${liftTrackerHTML()}
     ${calendarHTML()}
     ${achievementsCardHTML()}
     <button class="btn secondary" id="shareBtn">📤 Share my progress</button>
   </div>`;
+  drawStrengthCharts();
   const sb = document.getElementById('shareBtn'); if (sb) sb.onclick = shareCard;
   wireLiftTracker();
   wireCalendar();
+}
+
+/* =====================================================================
+   Strength progression, per movement, from what was actually lifted.
+
+   The two charts that already existed do not answer this. ch1/ch2 plot the
+   Texas Method's PLANNED intensity — a projection of what the programme
+   intends, drawn whether or not you did it — and the lift-tracker charts only
+   cover the four lifts you log by hand.
+
+   This reads real session history: the working weight written into each day
+   log as a session is completed, across every programme, plus the manual log.
+   Sessions recorded before v133 have no weight stored and simply are not
+   points; that is why a chart fills in from the day you start rather than
+   showing a history it cannot know.
+   ===================================================================== */
+function strengthSeries(key) {
+  const pts = [];
+  (S.liftLog && S.liftLog[key] ? S.liftLog[key] : []).forEach(e => {
+    if (e && e.w) pts.push({ date: e.d, w: e.w, r: e.r || null });
+  });
+  Object.keys(DAY_PROGRAMS).forEach(pk => {
+    const cfg = DAY_PROGRAMS[pk];
+    const st = S[cfg.stateKey];
+    if (!st || !st.log) return;
+    Object.keys(st.log).forEach(d => {
+      const L = st.log[d];
+      if (!L || !L.w || L.w[key] == null) return;
+      const reps = [];
+      Object.keys(L.reps || {}).forEach(k => {
+        if (k === key || k.indexOf(key + '_') === 0) reps.push(L.reps[k]);
+      });
+      pts.push({
+        date: L.date || null,
+        day: +d,
+        w: L.w[key],
+        r: reps.length ? Math.max.apply(null, reps) : null
+      });
+    });
+  });
+  /* dated points first in date order, then any undated ones by day number —
+     an undated point cannot be interleaved honestly, so it trails */
+  const dated = pts.filter(p => p.date).sort((a2, b2) => a2.date < b2.date ? -1 : 1);
+  const undated = pts.filter(p => !p.date).sort((a2, b2) => (a2.day || 0) - (b2.day || 0));
+  return dated.concat(undated);
+}
+
+/* Every loaded movement the app can progress, plus the four hand-logged
+   lifts. Built from SA_WEIGHT so a movement added later appears here without
+   being listed twice. */
+function strengthLifts() {
+  const seen = new Set(), out = [];
+  LIFT_TRACK.forEach(t => { seen.add(t.key); out.push({ key: t.key, name: t.name }); });
+  Object.keys(SA_WEIGHT).forEach(k => {
+    if (seen.has(k)) return;
+    seen.add(k);
+    const tip = FORM_TIPS[k];
+    out.push({ key: k, name: (tip && tip.title) || k });
+  });
+  return out;
+}
+
+function strengthChartsHTML() {
+  const lifts = strengthLifts().map(l => Object.assign({}, l, { pts: strengthSeries(l.key) }));
+  const withData = lifts.filter(l => l.pts.length >= 1);
+  const waiting = lifts.filter(l => l.pts.length === 0);
+  if (!withData.length) {
+    return `<h2 class="section">Strength progression</h2>
+      <div class="card"><div class="tiny muted">
+        No lifts recorded yet. Complete a session with a loaded movement and its chart starts here \u2014 one per exercise, filling in as you train.
+      </div></div>`;
+  }
+  const cards = withData.map(l => {
+    const last = l.pts[l.pts.length - 1];
+    const first = l.pts[0];
+    const delta = l.pts.length > 1 ? last.w - first.w : 0;
+    const sign = delta > 0 ? '+' : '';
+    return `<div class="card str-card">
+      <div class="str-head">
+        <div class="str-name">${l.name}</div>
+        <div class="str-now">${fmt(last.w)} <small>${unit()}</small>${
+          l.pts.length > 1 ? `<span class="str-delta ${delta > 0 ? 'up' : delta < 0 ? 'down' : ''}">${sign}${fmt(delta)}</span>` : ''
+        }</div>
+      </div>
+      ${l.pts.length > 1
+        ? `<canvas id="str_${l.key}" class="str-chart"></canvas>`
+        : `<div class="tiny muted">One session recorded. The chart appears once there are two points to draw a line between.</div>`}
+      <div class="tiny muted str-sub">${l.pts.length} session${l.pts.length === 1 ? '' : 's'} recorded${
+        last.r ? ' \u00b7 last set ' + last.r + ' reps' : ''}</div>
+    </div>`;
+  }).join('');
+  const waitingLine = waiting.length
+    ? `<div class="tiny muted" style="margin-top:8px">${waiting.length} more movement${waiting.length === 1 ? '' : 's'} will chart here once you train ${waiting.length === 1 ? 'it' : 'them'}.</div>`
+    : '';
+  return `<h2 class="section">Strength progression</h2>${cards}${waitingLine}`;
+}
+
+/* Drawn after the markup is in the document — a canvas has no width until it
+   is laid out, and lineChart reads clientWidth. */
+function drawStrengthCharts() {
+  strengthLifts().forEach(l => {
+    const pts = strengthSeries(l.key);
+    if (pts.length < 2) return;
+    const cv = document.getElementById('str_' + l.key);
+    if (!cv) return;
+    const pal = chartPalette();
+    const series = [{ name: l.name, color: pal[0], data: pts.map(p => p.w) }];
+    /* an estimated one-rep max only means anything where reps were recorded */
+    if (pts.every(p => p.r)) {
+      series.push({ name: 'Est. 1RM', color: pal[2], data: pts.map(p => Math.round(oneRM(p.w, p.r))) });
+    }
+    lineChart(cv, series, pts.map((p, i) => p.date ? p.date.slice(5) : String(i + 1)));
+  });
 }
 
 function drawProjectionCharts() {
