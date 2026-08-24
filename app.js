@@ -3001,7 +3001,17 @@ const FORM_VIDEOS = {
   burpees:     'qLBImHhCXSw',   // How To Do A Burpee | The Right Way — Well+Good
   atgsplit:    'bHoCPnoHVLk',   // How To ATG Split Squat: In Depth Tutorial — Gymless Fitness
   carry:       'lLAw6fUccKA',   // Farmer's Carry Tutorial - Proper Form and Technique — Runna
-  suitcase:    'lLAw6fUccKA'    // same carry mechanics, one side loaded
+  suitcase:    'lLAw6fUccKA',   // same carry mechanics, one side loaded
+
+  /* Added v134. Same rule as the originals: each id was fetched from
+     YouTube's oEmbed endpoint and the returned title recorded here, so a
+     wrong id shows up as a mismatched title rather than silently teaching
+     the wrong movement. Candidates that came back as Shorts, playlists or
+     multi-exercise videos were dropped — a gap beats a bad demo. */
+  sarow:       'G8l_8chR5BE',   // "How To" Barbell Row — Alan Thrall, Untamed Strength
+  sardl:       'uhghy9pFIPY',   // How To Perform PERFECT Romanian Deadlifts | RDLs — E3 Rehab
+  slrdl:       'Zfr6wizR8rs',   // The BEST Single-Leg RDL Tutorial — Squat University
+  dbrdl:       'ZEnWV4kguKc'    // How to do romanian deadlifts safely — Jack Hanrahan Fitness
 };
 /* a pinned video always beats the bundled one */
 function videoFor(key) { return loadVideos()[key] || FORM_VIDEOS[key] || null; }
