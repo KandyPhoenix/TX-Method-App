@@ -4450,23 +4450,46 @@ function authWhy(err) {
 function localLooksFresh() {
   const profiles = loadProfiles();
   if (!profiles || !profiles.list || profiles.list.length !== 1) return false;
+  /* Deliberately the same test that is applied to the backup, so the device
+     and the cloud copy cannot disagree about what counts as empty. Note what
+     it does NOT do: counting log KEYS is wrong, because simply opening a
+     workout creates an empty record for that day, so a freshly reset device
+     already has one. It asks whether anything was actually ticked. */
   for (const p of profiles.list) {
-    try {
-      const st = JSON.parse(localStorage.getItem('tm_state_' + p.id) || '{}');
-      if ((st.history || []).length) return false;
-      if (Object.keys(st.prs || {}).length) return false;
-      if (st.sessions) return false;
-      /* Counting log KEYS is wrong: simply opening a workout creates an empty
-         record for that day, so a freshly reset device already has one. Ask
-         whether anything was actually ticked instead. */
-      if (progHasActivity(st.logs || {})) return false;
-      for (const cfg of Object.values(DAY_PROGRAMS)) {
-        const sub = st[cfg.stateKey];
-        if (sub && progHasActivity(sub.log || {})) return false;
-      }
-    } catch { /* unreadable counts as fresh */ }
+    let st = null;
+    try { st = JSON.parse(localStorage.getItem('tm_state_' + p.id) || '{}'); }
+    catch { continue; }                       /* unreadable counts as fresh */
+    if (stateHasActivity(st)) return false;
   }
   return true;
+}
+
+/* Does one profile's saved state contain any actual training?
+   Used for BOTH sides of the sync question — the device and the backup — so
+   "empty" means the same thing in both places. */
+function stateHasActivity(st) {
+  if (!st) return false;
+  try {
+    if ((st.history || []).length) return true;
+    if (Object.keys(st.prs || {}).length) return true;
+    if (st.sessions) return true;
+    if (progHasActivity(st.logs || {})) return true;
+    for (const cfg of Object.values(DAY_PROGRAMS)) {
+      const sub = st[cfg.stateKey];
+      if (sub && progHasActivity(sub.log || {})) return true;
+    }
+  } catch { /* unreadable counts as empty */ }
+  return false;
+}
+
+/* A backup that exists but holds no training is not a competing copy — there
+   is nothing to choose between it and an empty device. Asking anyway produced
+   a loop: whichever button was pressed, both sides stayed empty and the
+   question came back on the next load, because cloudStartSync runs on every
+   auth state change. */
+function bundleHasActivity(bundle) {
+  if (!bundle || !bundle.states) return false;
+  return Object.values(bundle.states).some(stateHasActivity);
 }
 
 function cloudDirectionChoice(who) {
@@ -4569,7 +4592,11 @@ async function cloudStartSync(user) {
     const snap = await fsMod.getDoc(ref);
     if (snap.exists() && snap.data() && snap.data().bundle) {
       let dir = 'restore';
-      if (localLooksFresh()) dir = await cloudDirectionChoice(who);
+      /* Only a device with nothing on it AND a backup with something on it is
+         a real conflict. Two empties are not a question worth asking. */
+      if (localLooksFresh() && bundleHasActivity(snap.data().bundle)) {
+        dir = await cloudDirectionChoice(who);
+      }
       if (dir === 'overwrite') {
         await cloudPush(true);
         cloudStatus('Synced ✓ as ' + who + ' — backup replaced with this device');

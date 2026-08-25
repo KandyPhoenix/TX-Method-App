@@ -1049,7 +1049,19 @@ h2.section::after { content: ''; flex: 1; height: 1px; background: var(--border)
     gap: 26px;
     justify-content: center; align-items: start;
   }
-  .session-rail { position: sticky; top: calc(var(--sticky-h, 84px) + 10px); }
+  .session-rail {
+    position: sticky; top: calc(var(--sticky-h, 84px) + 10px);
+    /* Unclamping the text means a card can now be taller than the viewport.
+       A sticky element does not scroll with the page once it is pinned, so
+       without this the overflow would simply be unreachable — the same cut
+       off text, in a different place. */
+    max-height: calc(100vh - var(--sticky-h, 84px) - 26px);
+    overflow-y: auto;
+    scrollbar-width: thin;
+  }
+  .session-rail::-webkit-scrollbar { width: 8px; }
+  .session-rail::-webkit-scrollbar-thumb { background: var(--border); border-radius: 999px; }
+  .session-rail::-webkit-scrollbar-track { background: transparent; }
 }
 @media (max-width: 899px) {
   /* On a phone the rail goes BELOW the workout. The sticky bar already carries
@@ -1165,8 +1177,11 @@ table.prog { font-size: 13px; }
 .rail-next-sub { font-size: 12.5px; line-height: 1.6; margin-top: 9px; }
 .rail-tip-body {
   font-size: 13px; line-height: 1.75; margin-top: 11px;
-  /* keep the longest cues from turning the card into a wall of text */
-  display: -webkit-box; -webkit-line-clamp: 6; -webkit-box-orient: vertical; overflow: hidden;
+  /* No clamp. This used to cut the body at six lines to stop long cues
+     becoming a wall of text, which was reasonable when a how-to was two
+     sentences. The imported coaching text is instructions PLUS a cue list PLUS
+     an anatomy note, so the clamp was hiding exactly the part worth reading.
+     The rail scrolls instead — see .session-rail below. */
 }
 
 /* the quote is the one card that gets to feel like a pause */
@@ -1339,7 +1354,7 @@ table.prog td { padding: 6px 4px; }
 
 /* the how-to demo sitting in the rail */
 .rail-video { margin: 11px 0 4px; border-radius: var(--r-btn); }
-.session-rail .rail-tip-body { -webkit-line-clamp: 8; }
+/* (the session rail's own clamp is gone with it) */
 
 /* a superset row names its own exercise, so the label needs room to breathe */
 .set-row .lbl .form-btn { margin-left: 5px; }
