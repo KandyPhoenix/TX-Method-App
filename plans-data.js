@@ -2438,6 +2438,748 @@ const SYN_PLANS = [
    }
   ]
  }
+,
+ /* Added from the @wellnessuncensored dumbbell carousel (49 movements across
+    8 body-part lists). Exercise names and body parts are theirs; the superset
+    pairing, 4-day split, sets/reps and form cues are ours. Exercises sharing an
+    `ss` value are performed back to back with no rest - partners are chosen so
+    they never compete for the same muscle. */
+{
+  "id": "dumbbell-49-supersets",
+  "name": "Dumbbell 49 Supersets",
+  "desc": "4-day paired split — no rest between partners",
+  "kneeSafe": false,
+  "days": [
+   {
+    "title": "Chest & Lats",
+    "focus": "Chest, Lats & Core — press paired with pull, so nothing competes",
+    "exercises": [
+     {
+      "key": "syn_dumbbell_bench_press",
+      "name": "Flat DB Press",
+      "sets": 3,
+      "scheme": "8-10 · Chest · A1",
+      "needs": "dumbbells",
+      "reps": 8,
+      "ss": 1
+     },
+     {
+      "key": "syn_pull_ups",
+      "name": "Pull-Ups (doorway bar)",
+      "sets": 3,
+      "scheme": "max reps · Back/Lats · A2 · no rest — straight from partner",
+      "needs": "bodyweight",
+      "reps": 5,
+      "ss": 1
+     },
+     {
+      "key": "syn_incline_dumbbell_press",
+      "name": "Incline DB Press",
+      "sets": 3,
+      "scheme": "10-12 · Upper Chest · B1",
+      "needs": "dumbbells",
+      "reps": 10,
+      "ss": 2
+     },
+     {
+      "key": "wu_single_arm_lat_row",
+      "name": "Single-Arm Lat-Biased Row",
+      "sets": 3,
+      "scheme": "10-12 each · Back/Lats · B2 · no rest — straight from partner",
+      "needs": "dumbbells",
+      "reps": 10,
+      "side": true,
+      "ss": 2
+     },
+     {
+      "key": "wu_db_floor_press",
+      "name": "DB Floor Press",
+      "sets": 3,
+      "scheme": "10 · Chest/Triceps · C1",
+      "needs": "dumbbells",
+      "reps": 10,
+      "ss": 3
+     },
+     {
+      "key": "wu_db_pullover",
+      "name": "DB Pull-Overs",
+      "sets": 3,
+      "scheme": "12 · Back/Lats · C2 · no rest — straight from partner",
+      "needs": "dumbbells",
+      "reps": 12,
+      "ss": 3
+     },
+     {
+      "key": "syn_dumbbell_flyes",
+      "name": "DB Flyes",
+      "sets": 3,
+      "scheme": "12 · Chest · D1",
+      "needs": "dumbbells",
+      "reps": 12,
+      "ss": 4
+     },
+     {
+      "key": "wu_incline_dual_pullover",
+      "name": "Incline Dual DB Pull-Overs",
+      "sets": 3,
+      "scheme": "12 · Back/Lats · D2 · no rest — straight from partner",
+      "needs": "dumbbells",
+      "reps": 12,
+      "ss": 4
+     },
+     {
+      "key": "wu_weighted_pushup",
+      "name": "Weighted Push-Ups",
+      "sets": 3,
+      "scheme": "8-12 · Chest/Triceps · E1",
+      "needs": "dumbbells",
+      "reps": 10,
+      "ss": 5
+     },
+     {
+      "key": "wu_weighted_deadbug",
+      "name": "Weighted Deadbug",
+      "sets": 3,
+      "scheme": "8 each side · Core · E2 · no rest — straight from partner",
+      "needs": "dumbbells",
+      "reps": 8,
+      "side": true,
+      "ss": 5
+     },
+     {
+      "key": "wu_incline_decline_pushup",
+      "name": "Incline/Decline Push-Ups",
+      "sets": 3,
+      "scheme": "12-15 · Chest · F1",
+      "needs": "bodyweight",
+      "reps": 12,
+      "ss": 6
+     },
+     {
+      "key": "wu_plank_db_transfer",
+      "name": "Plank with DB Transfer",
+      "sets": 3,
+      "scheme": "10 each side · Core · F2 · no rest — straight from partner",
+      "needs": "dumbbells",
+      "reps": 10,
+      "side": true,
+      "ss": 6
+     }
+    ]
+   },
+   {
+    "title": "Quads, Hams & Glutes",
+    "focus": "Legs — knee-dominant paired with hip-dominant, six for six",
+    "exercises": [
+     {
+      "key": "syn_goblet_squats",
+      "name": "Goblet Squats",
+      "sets": 3,
+      "scheme": "10-12 · Quads/Glutes · A1",
+      "needs": "dumbbells",
+      "reps": 10,
+      "ss": 1
+     },
+     {
+      "key": "syn_romanian_deadlift",
+      "name": "DB RDLs",
+      "sets": 3,
+      "scheme": "10-12 · Hamstrings/Glutes · A2 · no rest — straight from partner",
+      "needs": "dumbbells",
+      "reps": 10,
+      "ss": 1
+     },
+     {
+      "key": "syn_bulgarian_split_squats",
+      "name": "Bulgarian Split Squats",
+      "sets": 3,
+      "scheme": "8-10 each · Quads/Glutes · B1",
+      "needs": "dumbbells",
+      "reps": 8,
+      "side": true,
+      "ss": 2
+     },
+     {
+      "key": "wu_single_leg_rdl",
+      "name": "Single-Leg RDLs",
+      "sets": 3,
+      "scheme": "8 each · Hamstrings/Balance · B2 · no rest — straight from partner",
+      "needs": "dumbbells",
+      "reps": 8,
+      "side": true,
+      "ss": 2
+     },
+     {
+      "key": "syn_walking_lunges",
+      "name": "Walking Lunges",
+      "sets": 3,
+      "scheme": "10 each leg · Quads/Glutes · C1",
+      "needs": "dumbbells",
+      "reps": 10,
+      "side": true,
+      "ss": 3
+     },
+     {
+      "key": "syn_hip_thrusts",
+      "name": "DB Hip Thrusts",
+      "sets": 3,
+      "scheme": "12-15 · Glutes · C2 · no rest — straight from partner",
+      "needs": "dumbbells",
+      "reps": 12,
+      "ss": 3
+     },
+     {
+      "key": "wu_step_up",
+      "name": "Step-Ups",
+      "sets": 3,
+      "scheme": "10 each leg · Quads/Glutes · D1",
+      "needs": "dumbbells",
+      "reps": 10,
+      "side": true,
+      "ss": 4
+     },
+     {
+      "key": "wu_db_glute_bridge",
+      "name": "DB Glute Bridges",
+      "sets": 3,
+      "scheme": "15 · Glutes · D2 · no rest — straight from partner",
+      "needs": "dumbbells",
+      "reps": 15,
+      "ss": 4
+     },
+     {
+      "key": "wu_heel_elevated_squat",
+      "name": "Heel-Elevated Squats",
+      "sets": 3,
+      "scheme": "10-12 · Quads · E1",
+      "needs": "dumbbells",
+      "reps": 10,
+      "ss": 5
+     },
+     {
+      "key": "wu_weighted_step_up_glute",
+      "name": "Weighted Step-Ups (glute-biased)",
+      "sets": 3,
+      "scheme": "10 each leg · Glutes · E2 · no rest — straight from partner",
+      "needs": "dumbbells",
+      "reps": 10,
+      "side": true,
+      "ss": 5
+     },
+     {
+      "key": "wu_sissy_squat",
+      "name": "Sissy Squats",
+      "sets": 3,
+      "scheme": "8-12 · Quads · F1",
+      "needs": "bodyweight",
+      "reps": 8,
+      "ss": 6
+     },
+     {
+      "key": "wu_db_leg_curl",
+      "name": "DB Leg Curls",
+      "sets": 3,
+      "scheme": "12-15 · Hamstrings · F2 · no rest — straight from partner",
+      "needs": "dumbbells",
+      "reps": 12,
+      "ss": 6
+     }
+    ]
+   },
+   {
+    "title": "Shoulders & Biceps",
+    "focus": "Shoulders paired with biceps, never triceps — both press, so they would clash",
+    "exercises": [
+     {
+      "key": "wu_seated_db_press",
+      "name": "Seated DB Press",
+      "sets": 3,
+      "scheme": "8-10 · Shoulders · A1",
+      "needs": "dumbbells",
+      "reps": 8,
+      "ss": 1
+     },
+     {
+      "key": "syn_incline_curls",
+      "name": "Incline Bench Curls",
+      "sets": 3,
+      "scheme": "10-12 · Biceps · A2 · no rest — straight from partner",
+      "needs": "dumbbells",
+      "reps": 10,
+      "ss": 1
+     },
+     {
+      "key": "wu_standing_db_press",
+      "name": "Standing DB Press",
+      "sets": 3,
+      "scheme": "8-10 · Shoulders/Core · B1",
+      "needs": "dumbbells",
+      "reps": 8,
+      "ss": 2
+     },
+     {
+      "key": "syn_hammer_curls",
+      "name": "Standing Hammer Curls",
+      "sets": 3,
+      "scheme": "10-12 · Biceps/Brachialis · B2 · no rest — straight from partner",
+      "needs": "dumbbells",
+      "reps": 10,
+      "ss": 2
+     },
+     {
+      "key": "syn_arnold_press",
+      "name": "Arnold Press",
+      "sets": 3,
+      "scheme": "10 · Shoulders · C1",
+      "needs": "dumbbells",
+      "reps": 10,
+      "ss": 3
+     },
+     {
+      "key": "syn_concentration_curls",
+      "name": "Concentration Curls",
+      "sets": 3,
+      "scheme": "10 each · Biceps · C2 · no rest — straight from partner",
+      "needs": "dumbbells",
+      "reps": 10,
+      "side": true,
+      "ss": 3
+     },
+     {
+      "key": "syn_lateral_raises",
+      "name": "Lateral Raises",
+      "sets": 3,
+      "scheme": "12-15 · Side Delts · D1",
+      "needs": "dumbbells",
+      "reps": 12,
+      "ss": 4
+     },
+     {
+      "key": "wu_db_spider_curl",
+      "name": "DB Spider Curls",
+      "sets": 3,
+      "scheme": "12 · Biceps · D2 · no rest — straight from partner",
+      "needs": "dumbbells",
+      "reps": 12,
+      "ss": 4
+     },
+     {
+      "key": "syn_front_raises",
+      "name": "Front Raises",
+      "sets": 3,
+      "scheme": "12 · Front Delts · E1",
+      "needs": "dumbbells",
+      "reps": 12,
+      "ss": 5
+     },
+     {
+      "key": "wu_cs_rear_delt_fly",
+      "name": "Chest-Supported Rear Delt Flyes",
+      "sets": 3,
+      "scheme": "12-15 · Rear Delts · E2 · no rest — straight from partner",
+      "needs": "dumbbells",
+      "reps": 12,
+      "ss": 5
+     },
+     {
+      "key": "wu_upright_row",
+      "name": "Upright Rows",
+      "sets": 3,
+      "scheme": "12 · Traps/Side Delts · F1",
+      "needs": "dumbbells",
+      "reps": 12,
+      "ss": 6
+     },
+     {
+      "key": "wu_weighted_leg_raise",
+      "name": "Weighted Leg Raises",
+      "sets": 3,
+      "scheme": "12-15 · Lower Abs · F2 · no rest — straight from partner",
+      "needs": "dumbbells",
+      "reps": 12,
+      "ss": 6
+     }
+    ]
+   },
+   {
+    "title": "Back, Triceps & Calves",
+    "focus": "Rows paired with triceps, then calves and a core finisher",
+    "exercises": [
+     {
+      "key": "wu_bent_over_dual_row",
+      "name": "Bent-Over Dual DB Rows",
+      "sets": 3,
+      "scheme": "8-10 · Back/Rhomboids · A1",
+      "needs": "dumbbells",
+      "reps": 8,
+      "ss": 1
+     },
+     {
+      "key": "syn_dumbbell_overhead_extensions",
+      "name": "Overhead DB Extension",
+      "sets": 3,
+      "scheme": "10-12 · Triceps · A2 · no rest — straight from partner",
+      "needs": "dumbbells",
+      "reps": 10,
+      "ss": 1
+     },
+     {
+      "key": "syn_single_arm_dumbbell_row",
+      "name": "Single-Arm DB Row",
+      "sets": 3,
+      "scheme": "10-12 each · Back/Rhomboids · B1",
+      "needs": "dumbbells",
+      "reps": 10,
+      "side": true,
+      "ss": 2
+     },
+     {
+      "key": "syn_dumbbell_skull_crushers",
+      "name": "DB Skull Crushers",
+      "sets": 3,
+      "scheme": "10-12 · Triceps · B2 · no rest — straight from partner",
+      "needs": "dumbbells",
+      "reps": 10,
+      "ss": 2
+     },
+     {
+      "key": "wu_cs_db_row",
+      "name": "Chest-Supported DB Rows",
+      "sets": 3,
+      "scheme": "10-12 · Mid Back · C1",
+      "needs": "dumbbells",
+      "reps": 10,
+      "ss": 3
+     },
+     {
+      "key": "syn_dumbbell_kickbacks",
+      "name": "DB Kickbacks",
+      "sets": 3,
+      "scheme": "12-15 · Triceps · C2 · no rest — straight from partner",
+      "needs": "dumbbells",
+      "reps": 12,
+      "ss": 3
+     },
+     {
+      "key": "wu_batwing_row",
+      "name": "DB Batwing Rows",
+      "sets": 3,
+      "scheme": "8 with 3-5s hold · Rhomboids · D1",
+      "needs": "dumbbells",
+      "reps": 8,
+      "ss": 4
+     },
+     {
+      "key": "wu_bench_dip",
+      "name": "Bench Dips",
+      "sets": 3,
+      "scheme": "12-15 · Triceps · D2 · no rest — straight from partner",
+      "needs": "bodyweight",
+      "reps": 12,
+      "ss": 4
+     },
+     {
+      "key": "wu_reacher_row",
+      "name": "Reacher Row",
+      "sets": 3,
+      "scheme": "10 each · Back/Lats · E1",
+      "needs": "dumbbells",
+      "reps": 10,
+      "side": true,
+      "ss": 5
+     },
+     {
+      "key": "syn_single_leg_calf_raises",
+      "name": "Single-Leg Calf Raises",
+      "sets": 3,
+      "scheme": "15-20 each · Calves · E2 · no rest — straight from partner",
+      "needs": "dumbbells",
+      "reps": 15,
+      "side": true,
+      "ss": 5
+     },
+     {
+      "key": "wu_db_shrug",
+      "name": "DB Shrugs",
+      "sets": 3,
+      "scheme": "12-15 · Upper Traps · F1",
+      "needs": "dumbbells",
+      "reps": 12,
+      "ss": 6
+     },
+     {
+      "key": "syn_seated_dumbbell_calf_raises",
+      "name": "Seated DB Calf Raises",
+      "sets": 3,
+      "scheme": "15-20 · Calves · F2 · no rest — straight from partner",
+      "needs": "dumbbells",
+      "reps": 15,
+      "ss": 6
+     },
+     {
+      "key": "wu_db_russian_twist",
+      "name": "DB Russian Twists",
+      "sets": 3,
+      "scheme": "20 total · Obliques · finisher, on its own",
+      "needs": "dumbbells",
+      "reps": 20
+     }
+    ]
+   }
+  ]
+ }
+,
+ /* Dr Stacy Sims' published prescriptions: 3 resistance sessions plus 1-2 sprint
+    sessions, everything else walking. Deliberately has NO `ss` fields - full rest
+    between heavy sets is the mechanism, so this must never be supersetted. The
+    walk days are prescribed work, not padding: the hard days only produce results
+    if the easy days stay easy. Sets/reps follow her own written guidance (3-5 sets
+    of <=6 reps, 2-5 min rest; sprints <=30 s, min 2 min recovery, max five). */
+{
+  "id": "sims-lift-heavy-sprint-short",
+  "name": "Lift Heavy, Sprint Short",
+  "desc": "3 gym days, 4 walk days — Dr Stacy Sims",
+  "kneeSafe": false,
+  "days": [
+   {
+    "title": "Lower Body Heavy",
+    "focus": "Jumps then heavy squats and hinges. NO supersets here — full rest between sets is the mechanism, not laziness.",
+    "exercises": [
+     {
+      "key": "sims_squat_jump",
+      "name": "Squat Jump",
+      "sets": 2,
+      "scheme": "8-10 · Plyometric/Bone · land soft",
+      "needs": "bodyweight",
+      "reps": 8
+     },
+     {
+      "key": "sims_back_squat",
+      "name": "Back Squat",
+      "sets": 4,
+      "scheme": "5 reps · Quads/Glutes · heavy, 2-3 in reserve · 3 min rest",
+      "needs": "gym",
+      "reps": 5
+     },
+     {
+      "key": "syn_romanian_deadlift",
+      "name": "Romanian Deadlift",
+      "sets": 4,
+      "scheme": "5 reps · Hamstrings/Glutes · heavy · 3 min rest",
+      "needs": "gym",
+      "reps": 5
+     },
+     {
+      "key": "syn_bulgarian_split_squats",
+      "name": "Bulgarian Split Squat",
+      "sets": 3,
+      "scheme": "6 each · Quads/Glutes · 2 min rest",
+      "needs": "dumbbells",
+      "reps": 6,
+      "side": true
+     },
+     {
+      "key": "syn_barbell_hip_thrust",
+      "name": "Barbell Hip Thrust",
+      "sets": 3,
+      "scheme": "6 reps · Glutes · 2 min rest",
+      "needs": "gym",
+      "reps": 6
+     },
+     {
+      "key": "sims_suitcase_carry",
+      "name": "Suitcase Carry",
+      "sets": 3,
+      "scheme": "30s each side · Core/Grip",
+      "needs": "dumbbells",
+      "sec": 30,
+      "side": true
+     }
+    ]
+   },
+   {
+    "title": "Easy Walk",
+    "focus": "The low end of the polarized model, doing real work. Not a gap in the programme",
+    "exercises": [
+     {
+      "key": "sims_walk",
+      "name": "Easy Walk",
+      "sets": 1,
+      "scheme": "30-60 min · conversational pace · this is prescribed work",
+      "needs": "bodyweight",
+      "sec": 1800
+     }
+    ]
+   },
+   {
+    "title": "Upper Heavy + Sprints",
+    "focus": "The sprint session that matters — legs are fresh because nothing above touches them. NO supersets here — full rest between sets is the mechanism, not laziness.",
+    "exercises": [
+     {
+      "key": "sims_pogo_hop",
+      "name": "Pogo Hops",
+      "sets": 2,
+      "scheme": "20 reps · Plyometric/Bone · quiet landings",
+      "needs": "bodyweight",
+      "reps": 20
+     },
+     {
+      "key": "syn_overhead_press",
+      "name": "Overhead Press",
+      "sets": 4,
+      "scheme": "5 reps · Shoulders · heavy · 3 min rest",
+      "needs": "gym",
+      "reps": 5
+     },
+     {
+      "key": "syn_pull_ups",
+      "name": "Weighted Pull-Up",
+      "sets": 4,
+      "scheme": "5-6 reps · Back/Lats · add load · 3 min rest",
+      "needs": "bodyweight",
+      "reps": 5
+     },
+     {
+      "key": "syn_bench_press",
+      "name": "Bench Press",
+      "sets": 4,
+      "scheme": "5 reps · Chest · heavy · 3 min rest",
+      "needs": "gym",
+      "reps": 5
+     },
+     {
+      "key": "wu_cs_db_row",
+      "name": "Chest-Supported Row",
+      "sets": 3,
+      "scheme": "6 reps · Mid Back · 2 min rest",
+      "needs": "dumbbells",
+      "reps": 6
+     },
+     {
+      "key": "sims_pallof_press",
+      "name": "Pallof Press",
+      "sets": 2,
+      "scheme": "10 each · Core/Anti-rotation",
+      "needs": "bodyweight",
+      "reps": 10,
+      "side": true
+     },
+     {
+      "key": "sims_sprint30",
+      "name": "Sprint Intervals",
+      "sets": 5,
+      "scheme": "30s ALL-OUT · 2-3 min full recovery between",
+      "needs": "bodyweight",
+      "sec": 30
+     }
+    ]
+   },
+   {
+    "title": "Easy Walk",
+    "focus": "Easy means easy. If you finish breathing hard it was the wrong day",
+    "exercises": [
+     {
+      "key": "sims_walk",
+      "name": "Easy Walk",
+      "sets": 1,
+      "scheme": "30-60 min · conversational pace · or nothing at all",
+      "needs": "bodyweight",
+      "sec": 1800
+     }
+    ]
+   },
+   {
+    "title": "Full Body Heavy",
+    "focus": "Deadlift day, lowest reps of the week. The sprint finisher is optional. NO supersets here — full rest between sets is the mechanism, not laziness.",
+    "exercises": [
+     {
+      "key": "sims_box_jump",
+      "name": "Box Jump",
+      "sets": 2,
+      "scheme": "6 reps · Plyometric/Bone · STEP down, never jump down",
+      "needs": "bodyweight",
+      "reps": 6
+     },
+     {
+      "key": "syn_deadlift",
+      "name": "Deadlift",
+      "sets": 4,
+      "scheme": "4 reps · Posterior Chain · heaviest of the week · 3-5 min rest",
+      "needs": "gym",
+      "reps": 4
+     },
+     {
+      "key": "syn_front_squats",
+      "name": "Front Squat",
+      "sets": 3,
+      "scheme": "6 reps · Quads · 2-3 min rest",
+      "needs": "gym",
+      "reps": 6
+     },
+     {
+      "key": "sims_push_press",
+      "name": "Push Press",
+      "sets": 3,
+      "scheme": "5 reps · Shoulders/Power · 2-3 min rest",
+      "needs": "gym",
+      "reps": 5
+     },
+     {
+      "key": "syn_chin_ups",
+      "name": "Chin-Up",
+      "sets": 3,
+      "scheme": "leave 2 in reserve · Back/Biceps · 2 min rest",
+      "needs": "bodyweight",
+      "reps": 5
+     },
+     {
+      "key": "sims_farmer_carry",
+      "name": "Farmer Carry",
+      "sets": 3,
+      "scheme": "40 m heavy · Grip/Traps/Core",
+      "needs": "dumbbells",
+      "sec": 45
+     },
+     {
+      "key": "sims_sprint20",
+      "name": "Sprint Intervals (optional)",
+      "sets": 4,
+      "scheme": "20s all-out · 2 min recovery · skip freely",
+      "needs": "bodyweight",
+      "sec": 20
+     }
+    ]
+   },
+   {
+    "title": "Walk or Hike",
+    "focus": "Longer and still easy. Swap in the second sprint session only if recovery is good",
+    "exercises": [
+     {
+      "key": "sims_hike",
+      "name": "Walk or Hike",
+      "sets": 1,
+      "scheme": "45-90 min · easy and conversational",
+      "needs": "bodyweight",
+      "sec": 2700
+     }
+    ]
+   },
+   {
+    "title": "Rest",
+    "focus": "Take it. Adaptation happens here, not in the gym",
+    "exercises": [
+     {
+      "key": "sims_walk_short",
+      "name": "Optional Easy Walk",
+      "sets": 1,
+      "scheme": "20-30 min · or a genuine day off",
+      "needs": "bodyweight",
+      "sec": 1200
+     }
+    ]
+   }
+  ]
+ }
 ];
 
 const SYN_TIPS = {
@@ -3244,5 +3986,171 @@ const SYN_TIPS = {
  "syn_deep_squat_walk_around": {
   "title": "Deep Squat Walk-Around",
   "body": "PLAIN ENGLISH: Get into the deepest squat your knees allow (use a door for help). From the bottom of the squat, take 5 tiny steps - rotate yourself in a small circle while staying in the squat. Then stand up. HOW TO DO IT: Hold a door for assistance. Squat down as deep as comfortable. From the bottom, take small foot-steps to rotate in place (or shuffle in a small circle). 5 steps total. Stand up with control. Cues: USE THE DOOR for support; Stay only as deep as comfortable; Tiny shuffling steps; Breathe through it; Skip if knees hurt. Loaded movement in a deep squat - builds hip and ankle adaptability at end range. Skip if knees are unhappy.."
+ }
+,
+"wu_single_arm_lat_row": {
+  "title": "Single-Arm Lat-Biased Row",
+  "body": "PLAIN ENGLISH: A one-arm row aimed at the lats rather than the middle of the back. The difference is where you pull to: the HIP, not the armpit. HOW TO DO IT: Knee and hand on a bench, spine neutral, dumbbell hanging. Let the shoulder blade reach forward at the bottom. Pull the dumbbell back toward your hip pocket, elbow close to the body, with a slight lean away from the working arm. Lower all the way. Cues: Pull to the HIP, not the armpit; Elbow stays close; Slight lean away from the working side; Let the shoulder blade reach at the bottom; No torso twist to finish the rep. That low pulling angle is what makes it lat-biased instead of a mid-back row."
+ },
+ "wu_db_floor_press": {
+  "title": "DB Floor Press",
+  "body": "PLAIN ENGLISH: A bench press done lying on the floor. The floor stops your upper arms, so the range is shorter and the shoulder is spared. HOW TO DO IT: Lie on the floor, knees bent, dumbbells at chest height, elbows about 45 degrees from the torso. Press up until the arms lock. Lower until the backs of the upper arms touch the floor, pause for a beat, press again. Cues: Elbows at 45 degrees, not flared wide; Pause when the arms touch down; Do not bounce off the floor; Wrists stacked over elbows. Useful when full-range pressing bothers the shoulder, and it lets you press heavier than you could on a bench."
+ },
+ "wu_db_pullover": {
+  "title": "DB Pull-Overs",
+  "body": "PLAIN ENGLISH: Lie on a bench holding one dumbbell over your chest and lower it back behind your head. You will feel a big stretch down the sides of the back. HOW TO DO IT: Lie along a bench, both hands cupping one dumbbell head, arms almost straight above the chest. Lower it in an arc behind your head until you feel the lats stretch. Pull it back over the chest using the back, not the arms. Cues: Arms nearly straight, elbows barely bent; Ribs DOWN - do not arch to get more range; Feel it in the lats, not the lower back; Slow on the way back. Ribs down is the whole safety cue - arching turns a lat stretch into a lower-back stretch."
+ },
+ "wu_incline_dual_pullover": {
+  "title": "Incline Dual DB Pull-Overs",
+  "body": "PLAIN ENGLISH: The same pull-over, but lying on an incline bench with two dumbbells instead of one. HOW TO DO IT: Lie back on a bench set to about 45 degrees, a dumbbell in each hand held above the chest, palms facing each other. Lower both back past the head with almost straight arms. Pull back over the chest. Cues: Two dumbbells, palms facing each other; Almost straight arms; Ribs down; Control the lowering. The incline changes the resistance curve so the lats stay loaded in the stretched position, where the flat version goes light."
+ },
+ "wu_weighted_pushup": {
+  "title": "Weighted Push-Ups",
+  "body": "PLAIN ENGLISH: A normal push-up with a dumbbell or plate resting on your upper back. HOW TO DO IT: Set up in a push-up position and have the weight placed across the upper back, above the shoulder blades. Body in one straight line from head to heels. Lower until the chest touches the floor, elbows tucked to about 45 degrees. Press back up. Cues: Weight sits HIGH on the back, not the lower back; Body in one line - no sagging hips; Elbows tucked, not flared; Chest to the floor every rep. If the weight slides, it is too low or you are not braced - fix the position rather than shortening the range."
+ },
+ "wu_weighted_deadbug": {
+  "title": "Weighted Deadbug",
+  "body": "PLAIN ENGLISH: On your back, holding a dumbbell up toward the ceiling, you slowly lower one arm and the opposite leg. The job is to stop your lower back lifting off the floor. HOW TO DO IT: Lie on your back, knees over hips at 90 degrees, one dumbbell pressed straight up. Press the lower back FLAT into the floor. Slowly lower the opposite arm overhead and extend the other leg toward the floor. Stop before the back lifts. Return and switch sides. Cues: Lower back stays FLAT on the floor throughout; Move slowly - speed hides the cheat; If the back lifts, shorten the range; Breathe out as you extend. The lower back staying down IS the exercise. Range means nothing if you lose it."
+ },
+ "wu_incline_decline_pushup": {
+  "title": "Incline/Decline Push-Ups",
+  "body": "PLAIN ENGLISH: Push-ups with either your hands raised or your feet raised. Hands up is easier and hits the lower chest; feet up is harder and hits the upper chest. HOW TO DO IT: INCLINE - hands on a bench or step, feet on the floor. Easier. DECLINE - hands on the floor, feet up on a bench. Harder. Either way, body in one line, elbows at about 45 degrees, chest to the surface. Cues: Body straight from head to heels; Elbows tucked to 45 degrees; Full range - all the way down; Use the angle to set difficulty, not to cut range. This is how you adjust difficulty when you have no more weight to add."
+ },
+ "wu_plank_db_transfer": {
+  "title": "Plank with DB Transfer",
+  "body": "PLAIN ENGLISH: Hold a plank with a dumbbell on the floor beside one hand. Reach under with the other hand, drag it across to the other side, then repeat. HOW TO DO IT: High plank, feet wider than normal for stability. Dumbbell on the floor just outside one hand. Reach the opposite hand under your chest, grab it, drag it across to the other side. Alternate. Cues: Feet WIDE - it makes the anti-rotation possible; Hips absolutely still - no rocking; Move slowly; Brace the whole time. If the hips rock, the exercise is not happening. Go lighter or widen the feet."
+ },
+ "wu_single_leg_rdl": {
+  "title": "Single-Leg RDLs",
+  "body": "PLAIN ENGLISH: Standing on one leg, hinge forward at the hip while the other leg extends behind you like a counterweight. HOW TO DO IT: Stand on one leg with a soft knee, dumbbell in the opposite hand. Hinge at the hip, pushing the hips back, letting the free leg extend straight behind. Lower until you feel the hamstring stretch. Return by driving the hip forward. Cues: HIPS SQUARE to the floor - do not let the free hip open up; Soft knee on the standing leg; Flat back; Go slow - it is a balance drill too; Touch a wall for balance if needed. Hips square is the cue that separates a real single-leg RDL from a twisted hinge."
+ },
+ "wu_step_up": {
+  "title": "Step-Ups",
+  "body": "PLAIN ENGLISH: Step up onto a box holding dumbbells, then step back down under control. HOW TO DO IT: Box at about knee height, dumbbells at your sides. Place one whole foot on the box. Drive up through THAT foot only - do not push off the bottom foot. Stand tall on top. Lower back down slowly. Complete all reps on one leg, then switch. Cues: Push through the TOP foot only; No bouncing off the bottom foot; Whole foot on the box, not just the toes; Control the way down; Stand fully tall at the top. Most people cheat by pushing off the trailing leg, which removes the exercise entirely."
+ },
+ "wu_db_glute_bridge": {
+  "title": "DB Glute Bridges",
+  "body": "PLAIN ENGLISH: Lying on your back with a dumbbell across your hips, drive the hips up and squeeze the glutes. HOW TO DO IT: Lie on the floor, knees bent, feet flat and close to your backside. Dumbbell across the hips, held with both hands. Drive through the heels and lift the hips until your body is straight from knee to shoulder. Squeeze hard. Lower slowly. Cues: Drive through the HEELS; Squeeze the glutes at the top; Ribs down - do not arch the lower back to get higher; Chin slightly tucked. Shorter range and easier to set up than the hip thrust, and much easier on the back."
+ },
+ "wu_heel_elevated_squat": {
+  "title": "Heel-Elevated Squats",
+  "body": "PLAIN ENGLISH: A squat with your heels raised on a plate, wedge or folded towel. Raising the heels lets the knees travel further forward, which puts far more work on the quads. HOW TO DO IT: Heels on a plate or wedge about an inch or two high, toes on the floor. Dumbbells at the sides or one at the chest. Squat straight down with an upright torso, letting the knees travel forward over the toes. Drive up. Cues: Upright torso - this is not a hinge; Let the knees travel forward, that is the point; Full depth if the knees allow; Heels stay on the wedge. Knees travelling forward is correct here and is exactly what makes it a quad exercise. Stop if the knees complain."
+ },
+ "wu_weighted_step_up_glute": {
+  "title": "Weighted Step-Ups (glute-biased)",
+  "body": "PLAIN ENGLISH: The same step-up, but on a HIGHER box with a slight forward lean of the torso. That combination shifts the work from the quads to the glutes. HOW TO DO IT: Box higher than knee height. Dumbbells at the sides. Place the whole foot on the box, lean the torso forward slightly from the hips, and drive up through the heel of the top foot. Lower slowly. Cues: HIGHER box than the quad version; Slight forward torso lean - this is the whole difference; Drive through the HEEL, not the ball of the foot; No push-off from the bottom leg. Same movement as the quad step-up, different intent - the lean and the box height are what change the target."
+ },
+ "wu_sissy_squat": {
+  "title": "Sissy Squats",
+  "body": "PLAIN ENGLISH: Holding a support, you rise onto your toes and lean back while driving the knees forward, keeping a straight line from knee to shoulder. It isolates the quads hard. HOW TO DO IT: Hold a door frame or upright with one hand. Rise onto the balls of the feet. Drive the knees forward and lean the torso back, keeping hips, torso and head in ONE straight line from the knees up. Lower as far as the knees allow. Squeeze the quads to come up. Cues: BODYWEIGHT ONLY until this is easy; Straight line from knee to shoulder - no hip bend; Hold the support; Only as deep as the knees allow with zero pain; Stop immediately if the knees hurt. This is the most knee-intensive movement in the programme. Skip it entirely if you have any knee history - the heel-elevated squat covers the same job far more safely."
+ },
+ "wu_db_leg_curl": {
+  "title": "DB Leg Curls",
+  "body": "PLAIN ENGLISH: Lying face down, you grip a dumbbell between your feet and curl your heels toward your backside. HOW TO DO IT: Lie face down on a bench or the floor. Have the dumbbell placed vertically between your feet and squeeze the feet together hard to hold it. Curl the heels toward the glutes, squeeze, then lower slowly. Cues: SQUEEZE the feet together the entire set or the weight drops; Hips stay pressed down; Slow on the lowering; Light weight - grip is the limit here, not the hamstrings. Set up on the floor first so a dropped dumbbell has nowhere to fall."
+ },
+ "wu_seated_db_press": {
+  "title": "Seated DB Press",
+  "body": "PLAIN ENGLISH: An overhead press done sitting with your back supported, so your legs cannot help. HOW TO DO IT: Sit on an upright bench, back against the pad, dumbbells at shoulder height with palms forward. Press straight up until the arms lock overhead. Lower under control to ear height. Cues: Back stays on the pad; Ribs DOWN - do not arch to press; Press UP, not forward; Full lockout overhead. Removing leg drive is the point - the shoulders do all the work, so expect less weight than the standing version."
+ },
+ "wu_standing_db_press": {
+  "title": "Standing DB Press",
+  "body": "PLAIN ENGLISH: The same overhead press, standing up. Less weight, but the whole body has to hold you steady. HOW TO DO IT: Stand tall, feet hip-width, dumbbells at shoulder height. Squeeze the glutes and brace the trunk. Press straight overhead without leaning back. Lower to ear height. Cues: GLUTES TIGHT - this stops you pressing from the lower back; Ribs down; Press up, not forward; No leg drive - that would make it a push press. If you find yourself leaning back to finish reps, the weight is too heavy."
+ },
+ "wu_db_spider_curl": {
+  "title": "DB Spider Curls",
+  "body": "PLAIN ENGLISH: Lying chest-down on an incline bench with your arms hanging straight down, you curl the dumbbells up. There is no way to swing. HOW TO DO IT: Set a bench to about 45 degrees and lie chest-down on it. Let the arms hang straight down, dumbbells in hand, palms forward. Curl up without moving the upper arms. Squeeze at the top, lower slowly. Cues: Upper arms stay still and vertical; Zero body English - the bench makes cheating impossible; Squeeze hard at the top; Full stretch at the bottom. Hits the short head of the biceps with constant tension throughout the range."
+ },
+ "wu_cs_rear_delt_fly": {
+  "title": "Chest-Supported Rear Delt Flyes",
+  "body": "PLAIN ENGLISH: Lying chest-down on an incline bench, you raise the dumbbells out wide to the sides. It targets the back of the shoulders. HOW TO DO IT: Chest-down on a bench set to about 30-45 degrees, dumbbells hanging below. Soft bend in the elbows, locked there. Raise out wide to shoulder height, leading with the pinkies. Lower slowly. Cues: LEAD WITH THE PINKIES; Elbows softly bent and locked there; Do not shrug the shoulders up; Light weight - this is a small muscle; Squeeze the shoulder blades at the top. The chest support removes momentum completely, which is why this beats the bent-over version."
+ },
+ "wu_upright_row": {
+  "title": "Upright Rows",
+  "body": "PLAIN ENGLISH: Standing, you pull the dumbbells straight up the front of your body toward chest height, elbows leading. HOW TO DO IT: Stand with dumbbells in front of the thighs, hands about shoulder-width apart - NOT narrow. Pull up the front of the body, elbows leading and flaring out, to lower-chest height. Lower slowly. Cues: Wider grip, not narrow - narrow is what causes the pinch; Stop at LOWER CHEST height, not the chin; Elbows lead; Slow on the way down. If your shoulders pinch at all, skip this one entirely and do an extra set of lateral raises instead - it is not a movement worth fighting for."
+ },
+ "wu_weighted_leg_raise": {
+  "title": "Weighted Leg Raises",
+  "body": "PLAIN ENGLISH: Lying on your back, you raise your legs up and lower them slowly, with a dumbbell held either between your feet or overhead. HOW TO DO IT: Lie on your back, hands under the hips or holding a dumbbell overhead as a counterweight. Legs straight or slightly bent. Raise them to vertical, then lower slowly toward the floor. Stop before the lower back arches off the floor. Cues: Lower back stays pressed DOWN; Lower slowly - the descent is the work; Stop the range where the back would lift; Bend the knees to make it easier. As with the deadbug, the flat back is the exercise. Range that costs you a flat back is not range worth having."
+ },
+ "wu_bent_over_dual_row": {
+  "title": "Bent-Over Dual DB Rows",
+  "body": "PLAIN ENGLISH: Hinged forward with a dumbbell in each hand, you row both up at once, driving the elbows BACK rather than up. HOW TO DO IT: Hinge at the hips to about 45 degrees, flat back, dumbbells hanging under the shoulders. Row both up by driving the elbows back past the ribs. Squeeze the shoulder blades together at the top. Lower fully. Cues: Elbows drive BACK, not up and out; Squeeze the shoulder blades together; Flat back - no rounding; Do not jerk with the lower back; Full stretch at the bottom. Elbows back rather than up is exactly the correction this movement exists for - up turns it into a rear-delt raise."
+ },
+ "wu_cs_db_row": {
+  "title": "Chest-Supported DB Rows",
+  "body": "PLAIN ENGLISH: A row done lying chest-down on an incline bench, so your lower back does nothing at all. HOW TO DO IT: Set a bench to about 30-45 degrees, lie chest-down with the dumbbells hanging. Row up by driving the elbows back, squeezing the shoulder blades. Lower to a full stretch. Cues: Chest stays ON the bench - no lifting off to cheat; Elbows drive back; Full stretch at the bottom; Go heavier than the bent-over version, the back is protected. Taking the lower back out is the entire point, so keep the chest down even on the last hard rep."
+ },
+ "wu_batwing_row": {
+  "title": "DB Batwing Rows",
+  "body": "PLAIN ENGLISH: A chest-supported row where you row up and HOLD at the top for three to five seconds on every single rep. HOW TO DO IT: Chest-down on an incline bench, dumbbells hanging. Row up to the top position with the shoulder blades fully squeezed. HOLD there for a full 3-5 seconds. Lower slowly. Repeat. Cues: The HOLD is the exercise, not the lift; Count the seconds out loud; Shoulder blades fully squeezed during the hold; Much lighter weight than a normal row; Do not let the top position sag. Expect to use roughly half the weight of a normal row. If you can hold five seconds easily, it is too light."
+ },
+ "wu_bench_dip": {
+  "title": "Bench Dips",
+  "body": "PLAIN ENGLISH: Hands on a bench behind you, feet out in front, you lower your body by bending the elbows and press back up. HOW TO DO IT: Sit on the edge of a bench, hands gripping the edge beside your hips. Slide the hips off the front. Legs out in front - bent knees is easier, straight legs harder. Lower until the upper arms are about parallel to the floor. Press back up. Cues: Keep the body CLOSE to the bench; Elbows point straight back, not out; Lower to parallel - no deeper; STOP if the front of the shoulder pinches; Bend the knees to reduce difficulty. Going below parallel is where shoulders get hurt on this movement. Parallel is deep enough."
+ },
+ "wu_reacher_row": {
+  "title": "Reacher Row",
+  "body": "PLAIN ENGLISH: A one-arm row where you deliberately let the arm reach all the way forward at the bottom, letting the shoulder blade slide forward, before rowing back. HOW TO DO IT: Brace a hand and knee on a bench. At the bottom, let the working arm reach fully forward and allow the shoulder blade to travel with it - a bigger stretch than a normal row. Then row back, pulling the shoulder blade back first, then the elbow. Cues: REACH at the bottom - let the shoulder blade move; Shoulder blade leads the pull, then the elbow; Slow through the stretched position; Lighter weight than a strict row. That extra reach at the front is the entire point of the variation - a normal row keeps the shoulder blade locked."
+ },
+ "wu_db_shrug": {
+  "title": "DB Shrugs",
+  "body": "PLAIN ENGLISH: Standing with dumbbells at your sides, you lift your shoulders straight up toward your ears and hold. HOW TO DO IT: Stand tall, dumbbells at the sides, arms straight. Lift the shoulders straight UP toward the ears as high as you can. Hold for a full second at the top. Lower all the way down. Cues: Straight UP - do not roll the shoulders; Hold ONE FULL SECOND at the top; Arms stay straight - do not bend and turn it into a row; Full range down. Rolling shrugs add nothing and load the shoulder joint in a bad position. Straight up and down."
+ },
+ "wu_db_russian_twist": {
+  "title": "DB Russian Twists",
+  "body": "PLAIN ENGLISH: Sitting leaning back with a dumbbell held at your chest, you rotate side to side, touching the weight down each side. HOW TO DO IT: Sit on the floor, knees bent, lean back to about 45 degrees. Feet up off the floor if you can hold it, down if not. Hold the dumbbell at the chest. Rotate the SHOULDERS to touch the weight down beside one hip, then the other. Cues: Rotate the SHOULDERS and torso, not just the arms; Chest stays lifted - do not slump; Touch down each side; Feet down if the lower back complains. Twenty total means ten each side. Moving only the arms is the most common way to make this exercise do nothing."
+ }
+,
+"sims_squat_jump": {
+  "title": "Squat Jump",
+  "body": "PLAIN ENGLISH: A squat that you explode out of, jumping off the floor. Done for bone density, not for burning calories - so the reps are low and every one is maximal. HOW TO DO IT: Feet a little wider than shoulders, toes turned slightly out. Squat down until the hips drop below the knees if you can. Explode straight up. Land SOFT, absorbing through the hips and knees, and reset fully before the next rep. Cues: Every rep maximal - this is not a conditioning drill; Land soft and quiet; Reset fully between reps, do not bounce; Stop the set if jump height drops; Bodyweight only. Dr Sims prescribes jump training for bone mineral density. Low volume, high quality - eight to ten good reps beat thirty tired ones."
+ },
+ "sims_back_squat": {
+  "title": "Back Squat (heavy)",
+  "body": "PLAIN ENGLISH: A barbell squat done HEAVY for five reps, with long rests. The load is the point - this is not a burn-out set. HOW TO DO IT: Bar on the upper back, feet shoulder-width, toes slightly out. Brace hard. Sit down and slightly back, knees tracking over the toes, to at least parallel. Drive up through the whole foot. Rest a full three minutes before the next set. Cues: Stop with 2-3 reps still in reserve - never grind to failure; Brace before every rep; Knees track over toes; FULL three minute rest - the rest is what lets the next set be heavy; Form perfect on every rep or the set is over. Dr Sims' written prescription is 3-5 sets of six or fewer reps with 2-5 minutes rest. Cutting the rest short defeats the entire purpose."
+ },
+ "sims_pogo_hop": {
+  "title": "Pogo Hops",
+  "body": "PLAIN ENGLISH: Small fast bounces on the balls of your feet with stiff ankles, barely bending the knees. Looks trivial, loads the shins and ankles well. HOW TO DO IT: Stand tall, weight on the balls of the feet. Bounce continuously using mostly the ankles, keeping the knees almost straight and stiff. Minimal ground contact time - imagine the floor is hot. Cues: Stiff ankles, minimal knee bend; FAST ground contact - in and out; Quiet landings; Stay tall, do not fold at the hips. A bone and tendon stimulus for the lower leg that costs almost nothing in fatigue, which is why it opens the session."
+ },
+ "sims_box_jump": {
+  "title": "Box Jump",
+  "body": "PLAIN ENGLISH: Jump up onto a box, then STEP back down. Never jump down. HOW TO DO IT: Stand a short distance from a sturdy box. Dip and swing the arms, jump up, and land softly on the box with both feet, knees soft. Stand tall. Then STEP down one foot at a time. Reset and repeat. Cues: STEP DOWN, never jump down - jumping down is where achilles injuries happen; Land soft and quiet on the box; Maximum intent on every rep; STOP the set if you cannot make the height cleanly; Lower the box rather than scraping your shins. Height is not the goal - intent is. A clean jump onto a low box beats a scrambled one onto a high box."
+ },
+ "sims_push_press": {
+  "title": "Push Press",
+  "body": "PLAIN ENGLISH: An overhead press where you dip with the legs and drive the bar up, so you can handle more weight than a strict press. HOW TO DO IT: Bar at the shoulders, feet hip-width. Dip a few inches by bending the knees, keeping the torso upright. Drive up explosively through the legs and let that momentum launch the press. Lock out overhead. Lower to the shoulders. Cues: The dip is SHALLOW - a few inches, not a squat; Torso stays vertical through the dip; Drive with the legs, then press; Full lockout overhead. This is a power movement, so keep the reps low and crisp. If it turns into a grind, the weight is too heavy."
+ },
+ "sims_suitcase_carry": {
+  "title": "Suitcase Carry",
+  "body": "PLAIN ENGLISH: Walk carrying a heavy weight in ONE hand only, resisting the pull to lean sideways. HOW TO DO IT: One heavy dumbbell or kettlebell in one hand, nothing in the other. Stand tall, shoulders level, ribs down. Walk with short controlled steps for the time, then swap sides. Cues: ONE weight only - two cancels the whole effect; Shoulders stay LEVEL - do not lean away or toward; Ribs down, brace the trunk; Walk as if you are carrying nothing. The core work is in refusing to bend. If you are visibly tilting, go lighter."
+ },
+ "sims_farmer_carry": {
+  "title": "Farmer Carry",
+  "body": "PLAIN ENGLISH: Walk carrying heavy weights in BOTH hands, standing tall. HOW TO DO IT: A heavy dumbbell in each hand at your sides. Stand tall with the chest up and shoulders back. Walk with short, quick, controlled steps for the distance or time. Set the weights down under control. Cues: Tall posture - do not hunch; Short quick steps, not long strides; Shoulders back and down; Grip is usually the limit - that is fine, it is part of the exercise. Trains grip, traps and trunk all at once, and grip strength is one of the better-evidenced markers of healthy ageing."
+ },
+ "sims_pallof_press": {
+  "title": "Pallof Press",
+  "body": "PLAIN ENGLISH: Standing side-on to a band or cable, you press your hands straight out in front while refusing to let your torso twist. HOW TO DO IT: Anchor a band at chest height. Stand side-on, feet shoulder-width, hands holding the band at the chest. Press straight out until the arms are extended. The band will try to rotate you - do not let it. Hold a beat, return to the chest. Cues: Do NOT let the torso rotate - that is the whole exercise; Press straight out from the chest; Hips and shoulders stay square to the front; Step further from the anchor to make it harder. Anti-rotation work. If you are twisting, move closer to the anchor rather than fighting it badly."
+ },
+ "sims_sprint30": {
+  "title": "Sprint Intervals (30 seconds)",
+  "body": "PLAIN ENGLISH: Thirty seconds as hard as you physically can, then two to three minutes of genuine recovery. Bike, rower, ski erg, hill or flat run - the machine matters far less than the effort. HOW TO DO IT: Warm up 8-10 minutes easy with two or three short accelerations. Then go ALL OUT for 30 seconds. Recover completely for 2-3 minutes. Repeat. Build from three sprints up to a maximum of five. Cool down 5 minutes easy. Cues: ALL-OUT means all-out - if the last sprint matches the first, you were pacing; Take MORE rest, not less - full recovery is the point; Never extend past 60 seconds; Build to a maximum of five, then stop adding. Dr Sims specifies efforts of 30 seconds or less with a minimum two minutes recovery, up to five sprints. Past 60 seconds the cortisol cost climbs and the benefit does not."
+ },
+ "sims_sprint20": {
+  "title": "Sprint Intervals (20 seconds)",
+  "body": "PLAIN ENGLISH: The shorter version - twenty seconds flat out, two minutes recovery. This session is OPTIONAL. HOW TO DO IT: Warm up 8-10 minutes easy. Twenty seconds maximum effort, two minutes full recovery, repeated four times. Cool down 5 minutes. Cues: Optional - skip it freely if the week has been heavy or sleep has been poor; Shorter effort, so it should be even faster than the 30s version; Full recovery between; Swap for an easy hike instead if you are flat. Dr Sims prescribes one TO two sprint sessions a week, so one good session already satisfies the programme. Skipping this is a legitimate choice, not a failure."
+ },
+ "sims_walk": {
+  "title": "Easy Walk",
+  "body": "PLAIN ENGLISH: A genuinely easy walk at a pace where you could hold a full conversation. This is prescribed work, not a rest day with a label. HOW TO DO IT: Walk 30-60 minutes at a conversational pace. Outdoors if possible. No hills hard enough to make you breathe heavily, no jogging intervals, no weighted vest. Cues: You should be able to talk in full sentences the WHOLE time; If you finish breathing hard, it was the wrong session; Do not upgrade this into a workout; A shorter easy walk beats a longer hard one. Dr Sims' model is polarized: the hard days only work if the easy days are genuinely easy. Replacing this with a spin or bootcamp class is the single most common way people break the programme."
+ },
+ "sims_hike": {
+  "title": "Walk or Hike",
+  "body": "PLAIN ENGLISH: A longer easy walk or hike. Still conversational, just more of it. HOW TO DO IT: 45-90 minutes outdoors at an easy pace. Hills are fine as long as you can still talk. Take it as long or short as suits the day. Cues: Conversational the whole way; Hills fine, but ease the pace on them; No time target - this is not a session to beat; Swap in the optional second sprint session ONLY if recovery and sleep are good. Time on feet at low intensity is the base the whole polarized model sits on."
+ },
+ "sims_walk_short": {
+  "title": "Optional Easy Walk",
+  "body": "PLAIN ENGLISH: A short easy walk, or nothing at all. A genuine day off is the correct choice here more often than not. HOW TO DO IT: 20-30 minutes of gentle walking, or take the day completely off. Cues: Take at least one fully rest day a week; Adaptation happens during recovery, not during the session; If you are sore, tired or sleeping badly, take the full day; Doing nothing is a valid completion of this day. Strength is built when you recover from training, not while you do it."
  }
 };
