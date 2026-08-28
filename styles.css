@@ -1005,7 +1005,7 @@ h2.section::after { content: ''; flex: 1; height: 1px; background: var(--border)
   .hero-title { font-size: 21px; }
   .day-chip .n { font-size: 12px; }
 }
-/* ---- programme guide ----
+/* ---- program guide ----
    The coaching that is not an exercise. Rail cards on the session screen,
    and a Guide tab for the whole lot. Accented down the left edge so a
    guide card never reads as another set to tick. */
@@ -1037,6 +1037,28 @@ h2.section::after { content: ''; flex: 1; height: 1px; background: var(--border)
   text-transform: uppercase; letter-spacing: .4px; margin-bottom: 5px;
 }
 .guide-item-body { font-size: 13px; line-height: 1.55; color: var(--muted); margin: 0; }
+/* Doses lifted out of the sentence. The guide is mostly numbers, and a
+   figure buried mid-paragraph is a figure you scroll past. Accent-ink
+   rather than the fill accent: this is text, and lime on cream is ~1.4:1. */
+.g-dose {
+  color: var(--accent-ink); font-weight: 800;
+  font-variant-numeric: tabular-nums; white-space: nowrap;
+}
+/* group headings carry an icon so the five read apart at a glance */
+.guide-head { gap: 8px; }
+.guide-ico { font-size: 15px; line-height: 1; }
+/* the cautions group is the only one that is a warning rather than an
+   instruction, so it is the only one tinted */
+.guide-group-warn .guide-item { border-left: 3px solid var(--hl); }
+.guide-group-warn .guide-item-title { color: var(--hl-ink); }
+/* roomier than the default card text — this is read, not scanned for a number
+   only, and the previous 13px at 1.55 ran as an undifferentiated block */
+.guide-item-body, .guide-card-body { font-size: 13.5px; line-height: 1.62; }
+.guide-item-title { font-size: 14px; letter-spacing: .3px; margin-bottom: 6px; }
+.guide-item { padding: 15px 16px 16px; }
+.guide-items { gap: 10px; }
+.guide-group + .guide-group { margin-top: 18px; }
+
 .guide-sources { padding: 14px 16px; margin-top: 14px; }
 .guide-sources p { font-size: 12px; line-height: 1.5; color: var(--dim); margin: 4px 0 0; }
 .guide-empty p { font-size: 13.5px; line-height: 1.55; color: var(--muted); margin: 6px 0 0; }
