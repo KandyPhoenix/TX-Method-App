@@ -2752,7 +2752,7 @@ const SA_PROGRESS = [
    Three consecutive misses now trigger a response, and which response depends
    on why you are stuck:
 
-   - A barbell or trap-bar lift DELOADS ten per cent, rounded to real plates.
+   - A barbell or trap-bar lift DELOADS ten percent, rounded to real plates.
      You rebuild through the same reps-hit rule, which usually carries you
      past the old sticking point. This is the standard answer and it is what
      Texas Method itself prescribes.
@@ -2764,7 +2764,7 @@ const SA_PROGRESS = [
      the weight and moves the target: reps go up instead, which is exactly how
      the bodyweight movements in this app already progress.
 
-   - Anything else deloads ten per cent like the barbell.
+   - Anything else deloads ten percent like the barbell.
    --------------------------------------------------------------------- */
 const STALL_LIMIT = 3;
 
@@ -5984,7 +5984,7 @@ const RAIL_LINES = [
   ['You are not trying to finish a program, you are becoming someone who trains. Every session is a vote for that, and the votes compound.', 'Habit'],
   ['Make the streak visible. A row of completed days is a surprisingly stubborn thing to break, and this app already draws you one.', 'Habit'],
   ['Reduce the decision. Same time, same place, same first exercise. Willpower spent deciding is willpower not spent lifting.', 'Habit'],
-  ['Type II muscle fibres shrink at roughly twice the rate of Type I after forty. Something explosive each week — a jump, a throw, a fast step-up — is what defends them.', 'Longevity'],
+  ['Type II muscle fibers shrink at roughly twice the rate of Type I after forty. Something explosive each week — a jump, a throw, a fast step-up — is what defends them.', 'Longevity'],
   ['VO2 max falls about ten percent a decade once it goes unchallenged, and it is the most reversible marker here. Two easy aerobic sessions a week move it more than one hard one.', 'Longevity'],
   ['Grip strength tracks with all-cause mortality more tightly than blood pressure does. Hang from something. It costs thirty seconds.', 'Longevity'],
   ['Eyes-closed balance drops from about ten seconds in your thirties to three by your sixties — and it comes back fast when trained. Practise it while the kettle boils.', 'Longevity'],
@@ -6100,7 +6100,7 @@ function lastTimeHTML(key, name) {
 /* ---------------------------------------------------------------------
    Warm-up ramp for barbell work.
 
-   The plate maths already existed; what was missing was telling you what to
+   The plate math already existed; what was missing was telling you what to
    put on the bar on the way up. Percentages of the top set, snapped to real
    plates, stopping once a rung is not meaningfully lighter than the one
    before. Bodyweight and dumbbell movements get nothing — there is nothing to
@@ -6279,11 +6279,11 @@ function railExtrasHTML() {
   const t = railTargetCard();
   const guide = guideRail();
   if (!t) {
-    return guide.top + `<div class="card rail-card">
+    return quoteCard + guide.top + `<div class="card rail-card">
       <div class="rail-kicker">Session</div>
       <div class="rail-next">All sets done</div>
       <div class="rail-next-sub">Everything on this day is ticked — mark the day complete to bank it.</div>
-    </div>` + quoteCard + guide.bottom;
+    </div>` + guide.bottom;
   }
   const card = t.card;
   const row  = railTargetRow(t);
@@ -6332,7 +6332,11 @@ function railExtrasHTML() {
      rail before, and since its kicker is a category that is often literally
      "Habit", the bottom of the rail read "After training, Habit" — the exact
      reverse of the order it is meant to show. */
-  return guide.top + howTo + extras + upNext + quoteCard + guide.bottom;
+  /* the quote card leads the rail: its kicker is the line's own category
+     (Habit / Longevity), so it is the habit card, and it belongs above the
+     pre-session guidance rather than buried between Up next and After
+     training. After training stays last. */
+  return quoteCard + guide.top + howTo + extras + upNext + guide.bottom;
 }
 
 /* The type pill on an exercise card said "SETS" — on a card whose entire
@@ -6880,7 +6884,7 @@ const FP_ASSESS = {
       ['Landing and measurement', 'Measure from the start line to the back of the nearest heel. If you lose balance on landing — step, stumble or fall back — the attempt is void. Up to 3 attempts, 60-90 seconds rest between. Your best valid jump is the score.'],
       ['Contraindications', 'Do not attempt this with an acute lower-limb injury, post-surgical restrictions on loaded jumping, or significant balance impairment.']
     ],
-    why: 'Type II (fast-twitch) fibres atrophy at roughly twice the rate of Type I after 40. By the seventh decade power output can be 30-40% below peak even in people who stay aerobically active. That decline underlies fall risk, stair-climbing capacity, and the ability to recover from a stumble.',
+    why: 'Type II (fast-twitch) fibers atrophy at roughly twice the rate of Type I after 40. By the seventh decade power output can be 30-40% below peak even in people who stay aerobically active. That decline underlies fall risk, stair-climbing capacity, and the ability to recover from a stumble.',
     input: { label: 'Best valid jump', units: [['in', 1], ['cm', 0.3937008]], hint: 'Scored against research norms for your age and sex.' },
     /* Median standing broad jump in inches by age band, from field-test
        population data. Roughly normal within a band. */
