@@ -1138,19 +1138,24 @@ h2.section::after { content: ''; flex: 1; height: 1px; background: var(--border)
     gap: 26px;
     justify-content: center; align-items: start;
   }
-  .session-rail {
-    position: sticky; top: calc(var(--sticky-h, 84px) + 10px);
-    /* Unclamping the text means a card can now be taller than the viewport.
-       A sticky element does not scroll with the page once it is pinned, so
-       without this the overflow would simply be unreachable — the same cut
-       off text, in a different place. */
-    max-height: calc(100vh - var(--sticky-h, 84px) - 26px);
-    overflow-y: auto;
-    scrollbar-width: thin;
+  /* The rail used to be sticky with its own overflow, which gave it a second
+     scrollbar inside the page — and the Progress card, the one card worth
+     having in view for the whole session, scrolled away up it.
+
+     So the rail is a normal column in the page flow now, and only Progress
+     is pinned. It stays put while the cards below it scroll past, and there
+     is no inner scrollbar to hunt for.
+
+     This also settles the warning the old comment left from the other side:
+     an unclamped card can be taller than the viewport, and with no inner
+     scroll region nothing in the rail can end up unreachable, because the
+     page scroll reaches all of it. */
+  .session-rail { align-self: start; }
+  .session-rail .rail-card:first-child {
+    position: sticky;
+    top: calc(var(--sticky-h, 84px) + 10px);
+    z-index: 2;   /* cards scroll UNDER it — .card is opaque, so this reads clean */
   }
-  .session-rail::-webkit-scrollbar { width: 8px; }
-  .session-rail::-webkit-scrollbar-thumb { background: var(--border); border-radius: 999px; }
-  .session-rail::-webkit-scrollbar-track { background: transparent; }
 }
 @media (max-width: 899px) {
   /* On a phone the rail goes BELOW the workout. The sticky bar already carries
@@ -1266,12 +1271,27 @@ table.prog { font-size: 13px; }
 .rail-next-sub { font-size: 12.5px; line-height: 1.6; margin-top: 9px; }
 .rail-tip-body {
   font-size: 13px; line-height: 1.75; margin-top: 11px;
-  /* No clamp. This used to cut the body at six lines to stop long cues
-     becoming a wall of text, which was reasonable when a how-to was two
-     sentences. The imported coaching text is instructions PLUS a cue list PLUS
-     an anatomy note, so the clamp was hiding exactly the part worth reading.
-     The rail scrolls instead — see .session-rail below. */
+  /* Not clamped — a clamp cut the text off, and the imported coaching text is
+     instructions PLUS a cue list PLUS an anatomy note, so a six-line cut hid
+     exactly the part worth reading.
+
+     It scrolls instead, and it scrolls HERE rather than making the whole rail
+     scroll. This is the one card long enough to push everything below it out
+     of reach, so the overflow belongs to it: the how-to stays fully readable
+     while Up next and After training stay where you can see them. The video
+     above sits outside this box, so it never scrolls away from its own text. */
+  max-height: 15em;
+  overflow-y: auto;
+  scrollbar-width: thin;
+  /* a rule you can see, so it reads as a box with more in it rather than text
+     that mysteriously stops */
+  border-top: 1px solid var(--border);
+  padding-top: 10px;
+  overscroll-behavior: contain;   /* don't hand the scroll to the page mid-read */
 }
+.rail-tip-body::-webkit-scrollbar { width: 6px; }
+.rail-tip-body::-webkit-scrollbar-thumb { background: var(--border); border-radius: 999px; }
+.rail-tip-body::-webkit-scrollbar-track { background: transparent; }
 
 /* the quote is the one card that gets to feel like a pause */
 .rail-quote-card { border-left: 3px solid var(--hl); }
