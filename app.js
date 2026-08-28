@@ -3753,7 +3753,7 @@ function renderGuide() {
   const groups = (g.groups || []).map(gr => {
     const warn = /watch/i.test(gr.title) ? ' guide-group-warn' : '';
     return `
-    <section class="guide-group${warn}">
+    <section class="guide-group${warn}" data-tone="${gr.tone || ''}">
       <h2 class="section guide-head">${gr.icon ? `<span class="guide-ico" aria-hidden="true">${gr.icon}</span>` : ''}${gr.title}</h2>
       <div class="guide-items">${gr.items.map(it => `<div class="card guide-item">
           <div class="guide-item-title">${it.title}</div>
@@ -6261,7 +6261,7 @@ function railExtrasHTML() {
       <div class="rail-kicker">Session</div>
       <div class="rail-next">All sets done</div>
       <div class="rail-next-sub">Everything on this day is ticked — mark the day complete to bank it.</div>
-    </div>` + guide.bottom + quoteCard;
+    </div>` + quoteCard + guide.bottom;
   }
   const card = t.card;
   const row  = railTargetRow(t);
@@ -6304,8 +6304,13 @@ function railExtrasHTML() {
      and what to put on the way up. */
   const exKey = btn && btn.dataset.tip;
   const extras = exKey ? (lastTimeHTML(exKey, tip && tip.title) + warmupHTML(exKey)) : '';
-  /* habit · today · how-to · (last time, warm-up) · up next · after training */
-  return guide.top + howTo + extras + upNext + guide.bottom + quoteCard;
+  /* habit · today · how-to · (last time, warm-up) · up next · after training.
+     After training is LAST on purpose — it is the card you want when you
+     finish. The quote sits above it rather than below: it was trailing the
+     rail before, and since its kicker is a category that is often literally
+     "Habit", the bottom of the rail read "After training, Habit" — the exact
+     reverse of the order it is meant to show. */
+  return guide.top + howTo + extras + upNext + quoteCard + guide.bottom;
 }
 
 /* The type pill on an exercise card said "SETS" — on a card whose entire
