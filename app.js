@@ -67,7 +67,12 @@ const DEFAULTS = {
   },
   increment:     { squat: 2.5, bench: 2.5, deadlift: 5, press: 2.5, clean: 2.5 },
   pace2wk:       { squat: 5,   bench: 5,   deadlift: 10, press: 5,   clean: 5   },
-  incPerSession: { squat: 2.5, bench: 5,   deadlift: 5,  press: 5,   clean: 2.5 }
+  incPerSession: { squat: 2.5, bench: 5,   deadlift: 5,  press: 5,   clean: 2.5 },
+  /* Footprint — constraints that should follow you between programs rather
+     than being baked into one. Empty by default: with no cautions set the
+     substitution pass hands back the very same array, so nothing changes for
+     anyone who has not asked for it. See KNEE_SWAP and footprintDay(). */
+  footprint: { jointCautions: [] }    /* 'knees' */
 };
 
 /* =====================================================================
@@ -1186,9 +1191,114 @@ if (typeof SYN_PLANS !== 'undefined') {
   });
 }
 
+/* =====================================================================
+   FOOTPRINT — constraints that follow you from program to program
+
+   The knee-protection rules were previously baked into individual
+   programs: the glute step-down is a first-class tracked lift, and ATG
+   split squats and ankle work are seeded through MOBILITY and SA_POOL.
+   That holds right up until you switch program, at which point the
+   guarantee silently disappears, because nothing in the code knows it is
+   a rule. This makes it a rule.
+
+   One substitution pass, applied in pdata() rather than in the session
+   renderer, so the month calendar, the day card, the check-row ids and
+   the session itself all agree about what you are doing.
+   ===================================================================== */
+
+/* Knee-safe stand-ins, in rotation order. Every one is already used by the
+   knee-friendly-2x program, so nothing here invents a movement.
+
+   A day never gets the same stand-in twice. Check-row ids are
+   `key_setIndex` (see prepCheckIds), and no shipped day has ever had a
+   repeated key — two copies of one movement would make a single tick
+   check both. When the rotation runs out the movement is dropped rather
+   than duplicated: if a day holds more knee-intensive work than there are
+   safe movements to stand in for it, doing fewer things is the honest
+   answer, not doing the same shallow split squat four times. */
+const KNEE_POOL = [
+  { key: 'syn_split_squat_shallow',           name: 'Split Squat (Shallow)',         needs: 'bodyweight', side: true,  part: 'Quads/Glutes' },
+  { key: 'syn_controlled_glute_step_down',    name: 'Controlled Glute Step Down',    needs: 'bodyweight', side: true,  part: 'Glutes/Quads' },
+  { key: 'syn_b_stance_rdl',                  name: 'B-Stance RDL',                  needs: 'bodyweight', side: true,  part: 'Hamstrings/Glutes' },
+  { key: 'syn_lateral_band_walk',             name: 'Lateral Band Walk',             needs: 'dumbbells',  side: true,  part: 'Glute Medius' },
+  { key: 'syn_stability_ball_hamstring_curl', name: 'Stability Ball Hamstring Curl', needs: 'dumbbells',  side: false, part: 'Hamstrings' }
+];
+
+/* deep knee flexion, heavy load through a bent knee, or impact */
+const KNEE_AVOID = [
+  'syn_squats', 'syn_goblet_squats', 'syn_front_squats', 'syn_bulgarian_split_squats',
+  'sims_back_squat', 'wu_heel_elevated_squat', 'wu_sissy_squat',
+  'syn_walking_lunges', 'wu_step_up', 'wu_weighted_step_up_glute',
+  'sims_squat_jump', 'sims_box_jump'
+];
+
+/* the cautions currently switched on, as a stable cache key ('' when none) */
+function fpCautions() {
+  const f = (S.settings && S.settings.footprint) || DEFAULTS.footprint;
+  return ((f && f.jointCautions) || []).slice().sort().join(',');
+}
+function kneeCare() { return fpCautions().split(',').indexOf('knees') >= 0; }
+
+/* Reps-for-reps only: a timed movement is never turned into a rep one, and
+   sets/reps/ss carry over untouched so tier scaling and the reps-hit
+   progression keep working across a swap. A stand-in can only ever lower
+   the kit you need, never raise it. */
+function footprintDay(d) {
+  if (!d || !d.exercises || !kneeCare()) return d;
+  if (!d.exercises.some(e => KNEE_AVOID.indexOf(e.key) >= 0)) return d;
+
+  /* seed with everything already in the day, so a stand-in is never chosen
+     onto a movement the day is doing anyway */
+  const used = {};
+  d.exercises.forEach(e => { used[e.key] = true; });
+
+  let swapped = 0, dropped = 0;
+  const exercises = [];
+  d.exercises.forEach(ex => {
+    const risky = KNEE_AVOID.indexOf(ex.key) >= 0 && ex.sec == null && ex.reps != null;
+    if (!risky) { exercises.push(ex); return; }
+    const rank = EQUIP_RANK[ex.needs || 'bodyweight'];
+    let sub = null;
+    for (let i = 0; i < KNEE_POOL.length; i++) {
+      const t = KNEE_POOL[i];
+      if (!used[t.key] && EQUIP_RANK[t.needs] <= rank) { sub = t; break; }
+    }
+    if (!sub) { dropped++; return; }
+    used[sub.key] = true; swapped++;
+    exercises.push(Object.assign({}, ex, {
+      key: sub.key, name: sub.name, needs: sub.needs, side: !!sub.side,
+      scheme: ex.reps + (sub.side ? ' each' : '') + ' · ' + sub.part +
+              ' · swapped from ' + ex.name + ' to spare the knees',
+      fpSwapFrom: ex.name
+    }));
+  });
+
+  if (!exercises.length) return d;   /* never hand back an empty day */
+
+  const bits = [];
+  if (swapped) bits.push(swapped + (swapped > 1 ? ' movements' : ' movement') + ' swapped');
+  if (dropped) bits.push(dropped + ' dropped — no safe movement left to rotate to');
+  const note = (d.note ? d.note + ' ' : '') + 'Knee care: ' + bits.join(', ') + '.';
+  return Object.assign({}, d, { exercises, note });
+}
+
+/* Keyed on the source array so the static plans map once. fpFocusPlan caches
+   its own array; genPlan rebuilds one per call and simply re-maps, which is
+   the cost it already pays. */
+const fpSwapCache = new WeakMap();
+function footprintPlan(days) {
+  const c = fpCautions();
+  if (!c || !Array.isArray(days)) return days;
+  const hit = fpSwapCache.get(days);
+  if (hit && hit.k === c) return hit.v;
+  const out = days.map(footprintDay);
+  fpSwapCache.set(days, { k: c, v: out });
+  return out;
+}
+
 function isDayProgram() { return !!DAY_PROGRAMS[S.program]; }
 function pcfg()   { return DAY_PROGRAMS[S.program] || DAY_PROGRAMS.prep30; }
-function pdata()  { return pcfg().data; }
+function pdata()  { return footprintPlan(pcfg().data); }
 function ptotal() { return pdata().length; }
 function isoDate(d) { return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`; }
 /* true once any day has real recorded activity — a checked set, logged
@@ -3659,6 +3769,13 @@ function renderSetup() {
         </div>
         <div class="hint">Weight never goes up unless you hit every set — that does not change. This is only what happens when a lift has stalled three sessions running: drop back and rebuild, or sit at the same weight until you clear it.</div>
       </div>
+      <div class="field"><label>Knees</label>
+        <div class="seg" id="segKnee">
+          <button data-knee="0" class="${kneeCare() ? '' : 'on'}">No limits</button>
+          <button data-knee="1" class="${kneeCare() ? 'on' : ''}">Go easy on them</button>
+        </div>
+        <div class="hint">Follows you between programs instead of being tied to one. Deep squats, loaded lunges, step-ups and jumps are replaced by knee-safe movements — whichever program you are running. A stand-in can only lower the kit you need, never raise it, and swapped rows say what they were swapped from. A day never repeats a stand-in: if it runs out of safe movements the extra ones are dropped and the day says so, because doing fewer things beats doing the same shallow split squat four times. The cost is real: removing the jumps removes the bone-density stimulus, so raise it with whoever looks after your knees rather than leaving this on forever.</div>
+      </div>
       <div class="field"><label>Heaviest dumbbell / kettlebell (per hand)</label>
         <input type="number" inputmode="numeric" id="dbMax" value="${s.dbMax ?? 25}" />
         <div class="hint">Dumbbell and kettlebell suggestions stop here instead of climbing past what is on the rack. Barbell and trap bar are loaded from plates, so they are not capped.</div>
@@ -3853,6 +3970,13 @@ function wireSetup() {
   });
   view.querySelectorAll('#segDeload button').forEach(b2 => b2.onclick = () => {
     s.autoDeload = b2.dataset.deload === '1'; save(); render();
+  });
+  view.querySelectorAll('#segKnee button').forEach(b2 => b2.onclick = () => {
+    const fp = Object.assign({ jointCautions: [] }, s.footprint);
+    const set = (fp.jointCautions || []).filter(c => c !== 'knees');
+    if (b2.dataset.knee === '1') set.push('knees');
+    fp.jointCautions = set;
+    s.footprint = fp; save(); render();
   });
   const dbm = document.getElementById('dbMax');
   if (dbm) dbm.onchange = () => { s.dbMax = Math.max(5, +dbm.value || 25); save(); render(); };
@@ -6047,14 +6171,23 @@ function protocolsLibraryHTML() {
     </div>`;
   }).join('');
 
+  /* Each group is its own section so the three can be spaced apart. Run
+     together, a diagnostic test read as just another workout tile. */
   return `
-    <h2 class="section">Workouts</h2>
-    <div class="proto-grid">${workouts}</div>
-    <h2 class="section">Diagnostic tests</h2>
-    <div class="proto-grid">${diag}</div>
-    <h2 class="section">Recovery</h2>
-    <div class="proto-grid">${recovery}</div>
-    <h2 class="section">${pLabel()} · detail</h2>`;
+    <section class="proto-sec">
+      <h2 class="section">Workouts</h2>
+      <div class="proto-grid">${workouts}</div>
+    </section>
+    <section class="proto-sec proto-sec-diag">
+      <h2 class="section">Diagnostic tests</h2>
+      <p class="proto-sec-note">One-off measurements that score a Fingerprint marker. You take one — you do not run it as a program.</p>
+      <div class="proto-grid">${diag}</div>
+    </section>
+    <section class="proto-sec">
+      <h2 class="section">Recovery</h2>
+      <div class="proto-grid">${recovery}</div>
+    </section>
+    <h2 class="section proto-sec-after">${pLabel()} · detail</h2>`;
 }
 
 function mountProtocols() {

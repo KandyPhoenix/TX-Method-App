@@ -1008,6 +1008,33 @@ h2.section::after { content: ''; flex: 1; height: 1px; background: var(--border)
 .proto.locked-proto { opacity: .5; }
 .proto.locked-proto .proto-art { background: var(--bg2); }
 
+/* ---- protocol library groups ----
+   The three groups ran together with only the h2's 20px above it, so a
+   diagnostic test sat as close to the workouts as the workouts sat to each
+   other and read as a third shelf of programs. Space is scoped to this
+   library rather than to h2.section, which every other screen also uses. */
+.proto-sec + .proto-sec,
+.proto-sec + .proto-sec-after { margin-top: 38px; }
+.proto-sec > h2.section:first-child { margin-top: 0; }
+.proto-sec-note {
+  font-size: 11.5px; line-height: 1.45; color: var(--muted);
+  margin: -2px 2px 11px; max-width: 60ch;
+}
+/* Diagnostics are measurements, not programs. Their own surface and a gold
+   tag separate them at a glance. Gold TEXT needs --hl-ink: plain --hl is
+   unreadable on the light theme's cream (see the token comment at :root). */
+/* A gold wash over whatever surface is underneath, rather than a swap to a
+   named token: --bg2 and --ink-surface are the SAME colour in dark, so a
+   token swap is invisible there and dramatic in light. A translucent tint
+   lands the same way in both. #f59e0b is --hl, which the tag also uses. */
+.proto-sec-diag .proto-art {
+  background: linear-gradient(rgba(245, 158, 11, .12), rgba(245, 158, 11, .12)), var(--ink-surface);
+}
+.proto-sec-diag .proto-tag {
+  background: transparent; color: var(--hl-ink);
+  box-shadow: inset 0 0 0 1px var(--hl);
+}
+
 /* =====================================================================
    SESSION VIEW  (sticky progress bar + right-hand progress rail)
    After The Standard's workout player.
