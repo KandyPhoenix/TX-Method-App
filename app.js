@@ -1143,13 +1143,15 @@ const SYN_ICO = {
   'ppl': '\u{1F3CB}\u{FE0F}', 'upper-lower': '\u{2696}\u{FE0F}', 'full-body': '\u{1F525}',
   'knee-friendly-2x': '\u{1F9BF}', 'asian-pilates-3x': '\u{1F338}',
   'military-pelvic-4x': '\u{1F396}\u{FE0F}', 'mobility-snacks-4x': '\u{1F34E}',
-  'joint-mobility-mastery-7x': '\u{1F9B4}', 'movesmethod-workouts-3x': '\u{1F57A}'
+  'joint-mobility-mastery-7x': '\u{1F9B4}', 'movesmethod-workouts-3x': '\u{1F57A}',
+  'dumbbell-49-supersets': '\u{1F517}', 'sims-lift-heavy-sprint-short': '\u{26A1}'
 };
 const SYN_TAG = {
   'ppl': 'Strength', 'upper-lower': 'Strength', 'full-body': 'Strength',
   'knee-friendly-2x': 'Strength', 'asian-pilates-3x': 'Mobility',
   'military-pelvic-4x': 'Conditioning', 'mobility-snacks-4x': 'Mobility',
-  'joint-mobility-mastery-7x': 'Mobility', 'movesmethod-workouts-3x': 'Mobility'
+  'joint-mobility-mastery-7x': 'Mobility', 'movesmethod-workouts-3x': 'Mobility',
+  'dumbbell-49-supersets': 'Strength', 'sims-lift-heavy-sprint-short': 'Strength'
 };
 const SYN_GRP = {
   'asian-pilates-3x': 'recovery', 'mobility-snacks-4x': 'recovery',
