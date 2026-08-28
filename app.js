@@ -1296,6 +1296,36 @@ function footprintPlan(days) {
   return out;
 }
 
+/* =====================================================================
+   PROGRAM GUIDE — the coaching that is not an exercise
+
+   A programme is more than its sets. Sims prescribes when to eat, how much
+   protein, what to watch for; none of that fitted anywhere, so it lived in
+   a document nobody opens mid-session. A plan may now carry a `guide`:
+   `rotate` cycles a card day to day so it stays noticeable, `days` keys a
+   card on that day's title, and `groups` fills a Guide tab. Content is
+   per-programme — this is a place to put advice, not shared advice.
+   A plan without a guide simply has no Guide tab.
+   ===================================================================== */
+function programGuide() {
+  if (typeof SYN_PLANS === 'undefined') return null;
+  const key = String(S.program || '');
+  if (key.indexOf('syn-') !== 0) return null;
+  const p = SYN_PLANS.find(x => x.id === key.slice(4));
+  return (p && p.guide) || null;
+}
+function hasGuide() { return !!programGuide(); }
+
+/* the rotating card for a given day, plus that day's own card if it has one */
+function guideCardsFor(dayNum, dayTitle) {
+  const g = programGuide();
+  if (!g) return [];
+  const out = [];
+  if (g.rotate && g.rotate.length) out.push(g.rotate[(Math.max(1, dayNum) - 1) % g.rotate.length]);
+  if (g.days && dayTitle && g.days[dayTitle]) out.push(g.days[dayTitle]);
+  return out;
+}
+
 function isDayProgram() { return !!DAY_PROGRAMS[S.program]; }
 function pcfg()   { return DAY_PROGRAMS[S.program] || DAY_PROGRAMS.prep30; }
 function pdata()  { return footprintPlan(pcfg().data); }
@@ -1846,6 +1876,11 @@ function renderLibrary() {
 
 function render() {
   rebuild();
+  /* the Guide tab only exists for programmes that carry a guide — a seventh
+     tab is tight on a phone, and a permanently empty one is worse */
+  const gt = document.querySelector('.tab[data-tab="guide"]');
+  if (gt) gt.hidden = !hasGuide();
+  if (TAB === 'guide' && !hasGuide()) TAB = 'today';
   document.querySelectorAll('.tab').forEach(t => t.classList.toggle('active', t.dataset.tab === TAB));
   const prep = isDayProgram();
   if (TAB === 'today') { prep ? renderPrepToday() : renderToday(); mountSessionRail(); }
@@ -1853,6 +1888,7 @@ function render() {
   if (TAB === 'lib')     renderLibrary();
   if (TAB === 'stats')   renderStats();
   if (TAB === 'fp')      renderFingerprint();
+  if (TAB === 'guide')   renderGuide();
   if (TAB === 'setup')   renderSetup();
   updateSessionUI();   /* keeps the session bar in step with the current tab */
   if (typeof updateWakeLock === 'function') updateWakeLock();
@@ -2128,7 +2164,12 @@ function renderPrepToday() {
     <button class="btn primary" id="prepComplete">Next day ›</button>`;
   } else {
     const log = pstate().log[dayNum] || { checks: {} };
-    if (d.note) html += `<details class="card note-fold"><summary>How this session works</summary><div class="note-body">${d.note}</div></details>`;
+    const gc = guideCardsFor(dayNum, d.title);
+    if (d.note || gc.length) {
+      const guideBits = gc.map(c => `<p class="note-guide"><b>${c.title}.</b> ${c.body}</p>`).join('');
+      const more = hasGuide() ? `<button class="link-btn note-guide-more" data-goguide="1">Open the full guide</button>` : '';
+      html += `<details class="card note-fold"><summary>How this session works</summary><div class="note-body">${d.note || ''}${guideBits}${more}</div></details>`;
+    }
     html += readinessHTML();
     html += tierBarHTML();
     if (S.program === 'gen') html += genBarHTML();
@@ -3293,6 +3334,50 @@ function showFormTip(key) {
 }
 function formBtn(key) { return FORM_TIPS[key] ? `<button class="info-btn form-btn" data-tip="${key}" onclick="showFormTip('${key}')"><span class="fb-i">ⓘ</span> How-to</button>` : ''; }
 
+/* =====================================================================
+   GUIDE SCREEN
+   ===================================================================== */
+function renderGuide() {
+  const g = programGuide();
+  titleEl.textContent = 'Guide';
+  subEl.textContent   = pLabel();
+  if (!g) {
+    view.innerHTML = `<div class="screen"><div class="card guide-empty">
+      <div class="rail-kicker">Guide</div>
+      <p>This programme does not carry a guide yet. Programmes that do show their coaching here — what to eat and when, what to take, and what to watch for.</p>
+    </div></div>`;
+    return;
+  }
+  const st = pstate();
+  const dayNum = st && st.day ? st.day : 1;
+  const d = pdata()[dayNum - 1];
+  const today = guideCardsFor(dayNum, d && d.title);
+
+  const todayHTML = today.length ? `
+    <h2 class="section">For today</h2>
+    <div class="guide-today">${today.map(c => `<div class="card guide-card">
+        <div class="rail-kicker">${c.kicker}</div>
+        <div class="guide-card-title">${c.title}</div>
+        <p class="guide-card-body">${c.body}</p>
+      </div>`).join('')}</div>` : '';
+
+  const groups = (g.groups || []).map(gr => `
+    <section class="guide-group">
+      <h2 class="section">${gr.title}</h2>
+      <div class="guide-items">${gr.items.map(it => `<div class="card guide-item">
+          <div class="guide-item-title">${it.title}</div>
+          <p class="guide-item-body">${it.body}</p>
+        </div>`).join('')}</div>
+    </section>`).join('');
+
+  view.innerHTML = `<div class="screen">
+    ${g.blurb ? `<div class="card guide-blurb">${g.blurb}</div>` : ''}
+    ${todayHTML}
+    ${groups}
+    ${g.sources ? `<div class="card guide-sources"><div class="rail-kicker">Where this comes from</div><p>${g.sources}</p></div>` : ''}
+  </div>`;
+}
+
 function renderStats() {
   if (isDayProgram()) { renderPrepStats(); return; }
   titleEl.textContent = 'Stats';
@@ -4384,6 +4469,10 @@ function toast(msg) {
 }
 
 document.querySelectorAll('.tab').forEach(t => t.onclick = () => { TAB = t.dataset.tab; window.scrollTo(0,0); render(); });
+/* every "open the full guide" button, wherever it is rendered */
+document.addEventListener('click', e => {
+  if (e.target.closest('[data-goguide]')) { TAB = 'guide'; window.scrollTo(0, 0); render(); }
+});
 /* Roadmap's '+ Log a lift' jumps to the Stats lift tracker. Delegated, so it
    survives the re-render that replaces the button on every screen draw. */
 view.addEventListener('click', e => {
@@ -5719,6 +5808,21 @@ function libraryHTML() {
   </div>`;
 }
 
+/* guide cards ride at the top of the rail: on a wide screen that is the
+   right-hand column, on a phone the rail sits below the workout */
+function guideRailHTML() {
+  const st = pstate();
+  const d  = pdata()[(st && st.day ? st.day : 1) - 1];
+  const cards = guideCardsFor(st && st.day ? st.day : 1, d && d.title);
+  if (!cards.length) return '';
+  return cards.map(c => `<div class="card rail-card rail-guide-card">
+      <div class="rail-kicker">${c.kicker}</div>
+      <div class="rail-guide-title">${c.title}</div>
+      <div class="rail-guide-body">${c.body}</div>
+    </div>`).join('') +
+    `<button class="btn secondary rail-guide-more" data-goguide="1">Open the full guide</button>`;
+}
+
 function railExtrasHTML() {
   const [quote, by] = railLine();
   const quoteCard = `<div class="card rail-card rail-quote-card">
@@ -5728,8 +5832,9 @@ function railExtrasHTML() {
     </div>`;
 
   const t = railTargetCard();
+  const guide = guideRailHTML();
   if (!t) {
-    return `<div class="card rail-card">
+    return guide + `<div class="card rail-card">
       <div class="rail-kicker">Session</div>
       <div class="rail-next">All sets done</div>
       <div class="rail-next-sub">Everything on this day is ticked — mark the day complete to bank it.</div>
@@ -5776,7 +5881,7 @@ function railExtrasHTML() {
      and what to put on the way up. */
   const exKey = btn && btn.dataset.tip;
   const extras = exKey ? (lastTimeHTML(exKey, tip && tip.title) + warmupHTML(exKey)) : '';
-  return howTo + extras + upNext + quoteCard;
+  return guide + howTo + extras + upNext + quoteCard;
 }
 
 /* The type pill on an exercise card said "SETS" — on a card whose entire
