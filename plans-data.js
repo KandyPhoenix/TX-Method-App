@@ -2945,12 +2945,12 @@ const SYN_PLANS = [
      keyed on that day's title, and `groups` as the Guide tab. A plan without
      one simply has no Guide tab. */
   "guide": {
-   "blurb": "Dr Stacy Sims' published guidance for the women running this programme — what to eat and when, what to take, and what to watch for. The training is only half of it.",
+   "blurb": "Dr Stacy Sims' published guidance for the women running this program — what to eat and when, what to take, and what to watch for. The training is only half of it.",
    "rotate": [
     {
      "kicker": "Before you lift",
      "title": "About 15 g of protein",
-     "body": "Do not train fasted. Fasted work raises cortisol and stops you reaching the intensities this programme depends on. A coffee with a scoop of protein, Greek yoghurt or a couple of eggs is enough. Her own version is an espresso with almond milk and protein powder."
+     "body": "Do not train fasted. Fasted work raises cortisol and stops you reaching the intensities this program depends on. A coffee with a scoop of protein, Greek yoghurt or a couple of eggs is enough. Her own version is an espresso with almond milk and protein powder."
     },
     {
      "kicker": "Daily target",
@@ -2968,16 +2968,6 @@ const SYN_PLANS = [
      "body": "Creatine monohydrate, 3–5 g daily. No loading phase — that dose saturates the muscle in three to four weeks without the bloating bigger doses cause. Timing does not matter; consistency does."
     },
     {
-     "kicker": "After training",
-     "title": "30–40 g within 45 minutes",
-     "body": "Still cycling: about 30–35 g of good protein within 30–45 minutes. Perimenopausal or beyond: 40 g or more. This is the window that decides whether the session you just did turns into muscle."
-    },
-    {
-     "kicker": "After training",
-     "title": "Carbs too, 0.3 g per kg",
-     "body": "Around 0.3 g of carbohydrate per kilo of bodyweight within two hours of finishing. Protein rebuilds; carbohydrate refills."
-    },
-    {
      "kicker": "Watch for",
      "title": "Caffeine in perimenopause",
      "body": "Baseline cortisol is already elevated through perimenopause, and caffeine adds to it. It is not forbidden — but if sleep is fraying, this is one of the first things to look at."
@@ -2985,7 +2975,7 @@ const SYN_PLANS = [
     {
      "kicker": "Watch for",
      "title": "The moderate middle",
-     "body": "The daily spin or bootcamp class is the least productive place to spend your time on this programme. Hard days hard, easy days genuinely easy, and very little in between. That is the whole model."
+     "body": "The daily spin or bootcamp class is the least productive place to spend your time on this program. Hard days hard, easy days genuinely easy, and very little in between. That is the whole model."
     },
     {
      "kicker": "Sleep",
@@ -2996,6 +2986,21 @@ const SYN_PLANS = [
      "kicker": "If you still cycle",
      "title": "Schedule the heavy work early",
      "body": "The low-hormone phase, from day 1 through ovulation, is where heavy loads and PR attempts land best. Plan the big sessions there when you can."
+    }
+   ],
+
+  /* Post-session advice sits at the BOTTOM of the rail: you need it when
+     you finish, not while you are looking at your first set. */
+  "after": [
+    {
+     "kicker": "After training",
+     "title": "30–40 g within 45 minutes",
+     "body": "Still cycling: about 30–35 g of good protein within 30–45 minutes. Perimenopausal or beyond: 40 g or more. This is the window that decides whether the session you just did turns into muscle."
+    },
+    {
+     "kicker": "After training",
+     "title": "Carbs too, 0.3 g per kg",
+     "body": "Around 0.3 g of carbohydrate per kilo of bodyweight within two hours of finishing. Protein rebuilds; carbohydrate refills."
     }
    ],
    "days": {
@@ -3017,7 +3022,7 @@ const SYN_PLANS = [
     "Full Body Heavy": {
      "kicker": "Today",
      "title": "Deadlift day",
-     "body": "Lowest reps of the week and the most demanding session on your nervous system. The sprint finisher is optional and deliberately shorter — one good sprint session a week already satisfies the programme."
+     "body": "Lowest reps of the week and the most demanding session on your nervous system. The sprint finisher is optional and deliberately shorter — one good sprint session a week already satisfies the program."
     },
     "Walk or Hike": {
      "kicker": "Today",
@@ -3033,14 +3038,15 @@ const SYN_PLANS = [
    "groups": [
     {
      "title": "Fuelling",
+     "icon": "🍽",
      "items": [
       {
        "title": "Never train fasted",
-       "body": "This is her most repeated point. Training fasted raises cortisol and prevents women reaching the intensities that make the programme work. Roughly 15 g of protein before lifting, or about 30 g of carbohydrate before cardio of up to an hour. Her stated exception is people with obesity, inactivity, PCOS or another metabolic condition, for whom strategic fasted work may suit."
+       "body": "This is her most repeated point. Training fasted raises cortisol and prevents women reaching the intensities that make the program work. Roughly 15 g of protein before lifting, or about 30 g of carbohydrate before cardio of up to an hour. Her stated exception is people with obesity, inactivity, PCOS or another metabolic condition, for whom strategic fasted work may suit."
       },
       {
        "title": "Protein after training",
-       "body": "Still cycling: 30–35 g of high-quality, leucine-rich protein within 30–45 minutes. Perimenopausal and beyond: 40 g or more within 45 minutes — she has cited 40–60 g for this group."
+       "body": "Still cycling: 30–35 g of high-quality, leucine-rich protein within 30–45 minutes. Perimenopausal and beyond: 40 g or more within 45 minutes — 40–60 g cited."
       },
       {
        "title": "Protein across the day",
@@ -3054,6 +3060,7 @@ const SYN_PLANS = [
     },
     {
      "title": "Supplements",
+     "icon": "💊",
      "items": [
       {
        "title": "Creatine monohydrate",
@@ -3063,6 +3070,7 @@ const SYN_PLANS = [
     },
     {
      "title": "If you are still cycling",
+     "icon": "🌙",
      "items": [
       {
        "title": "Low-hormone phase",
@@ -3080,6 +3088,7 @@ const SYN_PLANS = [
     },
     {
      "title": "What to watch for",
+     "icon": "⚠️",
      "items": [
       {
        "title": "Caffeine in perimenopause",
@@ -3097,10 +3106,11 @@ const SYN_PLANS = [
     },
     {
      "title": "Why it is built this way",
+     "icon": "🧠",
      "items": [
       {
        "title": "Power replaces what oestrogen did",
-       "body": "As oestrogen falls, heavy and explosive work takes over the job it used to do. That is why the reps are low, the loads are heavy and there is jump training in a programme aimed at women over 40."
+       "body": "As oestrogen falls, heavy and explosive work takes over the job it used to do. That is why the reps are low, the loads are heavy and there is jump training in a program aimed at women over 40."
       },
       {
        "title": "Jumps are for your bones",

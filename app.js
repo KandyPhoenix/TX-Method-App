@@ -72,7 +72,7 @@ const DEFAULTS = {
      than being baked into one. Empty by default: with no cautions set the
      substitution pass hands back the very same array, so nothing changes for
      anyone who has not asked for it. See KNEE_SWAP and footprintDay(). */
-  footprint: { jointCautions: [] }    /* 'knees' */
+  footprint: { jointCautions: [], priorityMuscles: [] }   /* 'knees' · 'glutes' */
 };
 
 /* =====================================================================
@@ -1239,6 +1239,90 @@ function fpCautions() {
 }
 function kneeCare() { return fpCautions().split(',').indexOf('knees') >= 0; }
 
+/* ---- priority muscles ----
+   The glutes-first rule was the other half of the hardcoded footprint: the
+   glute step-down is a first-class tracked lift, but nothing in the code
+   knew that was a *rule*, so it evaporated the moment you changed program.
+
+   Priority work moves earlier in the day, where you are freshest — it does
+   not add or remove anything. Detection reads the body-part text the data
+   already carries in `scheme` ("10-12 · Quads/Glutes"), so no new field is
+   needed on any exercise. */
+const PRIORITY_MUSCLES = {
+  glutes: {
+    label: 'Glutes',
+    test: (e) => /glute/i.test(e.scheme || '') ||
+                 /glute|hip thrust|hip bridge|bridge/i.test(e.name || '')
+  }
+};
+function fpPriority() {
+  const f = (S.settings && S.settings.footprint) || DEFAULTS.footprint;
+  return ((f && f.priorityMuscles) || []).filter(m => PRIORITY_MUSCLES[m]);
+}
+
+/* Openers stay put. Warm-ups and explosive work lead a session for a
+   reason — jumps are a bone stimulus that wants a fresh nervous system —
+   so promoting glute work above them would break the thing it sits in.
+   A leading run of single-set timed work counts too: that is the shape of
+   breathwork and mobility openers, which carry no body-part text to spot
+   them by. */
+function isOpener(e) {
+  return /plyometric|warm|mobility/i.test(e.scheme || '') ||
+         /^wu/.test(e.key || '') ||
+         /warm|jump|hop/i.test(e.name || '') ||
+         (e.sec != null && (e.sets || 1) <= 1);
+}
+
+/* A recovery program is a flow: its order IS the exercise, and pulling a
+   bridge to the front of a breath-led sequence breaks the session it sits
+   in. Reordering only applies where the day is a list of work, not a
+   choreography. */
+function dayIsReorderable() {
+  const key = String(S.program || '');
+  if (key.indexOf('syn-') !== 0) return true;
+  return typeof SYN_GRP === 'undefined' || SYN_GRP[key.slice(4)] !== 'recovery';
+}
+
+/* Reorders whole superset groups, never individual exercises: a pair whose
+   members drifted apart would stop being a superset, since prepDayItems
+   groups on `ss` adjacency. */
+function priorityDay(d) {
+  const want = fpPriority();
+  if (!want.length || !d || !d.exercises || d.exercises.length < 2) return d;
+  if (!dayIsReorderable()) return d;
+  const tests = want.map(m => PRIORITY_MUSCLES[m].test);
+
+  const groups = [];
+  d.exercises.forEach(e => {
+    const last = groups[groups.length - 1];
+    if (last && e.ss != null && last.ss === e.ss) last.items.push(e);
+    else groups.push({ ss: e.ss, items: [e] });
+  });
+
+  const opener = g => g.items.some(isOpener);
+  const hit    = g => g.items.some(e => tests.some(t => t(e)));
+
+  const head = [], pri = [], rest = [];
+  let stillOpening = true;
+  groups.forEach(g => {
+    if (stillOpening && opener(g)) { head.push(g); return; }
+    stillOpening = false;
+    (hit(g) ? pri : rest).push(g);
+  });
+  if (!pri.length || !rest.length) return d;          /* nothing to move */
+
+  const out = [];
+  head.concat(pri, rest).forEach(g => out.push(...g.items));
+  if (out.length !== d.exercises.length) return d;    /* never lose an exercise */
+  if (out.every((e, i) => e === d.exercises[i])) return d;
+
+  const label = want.map(m => PRIORITY_MUSCLES[m].label).join(' and ');
+  return Object.assign({}, d, {
+    exercises: out,
+    note: (d.note ? d.note + ' ' : '') + label + ' first: that work moved earlier in the session, while you are fresh.'
+  });
+}
+
 /* Reps-for-reps only: a timed movement is never turned into a rep one, and
    sets/reps/ss carry over untouched so tier scaling and the reps-hit
    progression keep working across a swap. A stand-in can only ever lower
@@ -1287,24 +1371,27 @@ function footprintDay(d) {
    the cost it already pays. */
 const fpSwapCache = new WeakMap();
 function footprintPlan(days) {
-  const c = fpCautions();
-  if (!c || !Array.isArray(days)) return days;
+  const c = fpCautions(), p = fpPriority().join(',');
+  if ((!c && !p) || !Array.isArray(days)) return days;
+  const key = c + '|' + p;
   const hit = fpSwapCache.get(days);
-  if (hit && hit.k === c) return hit.v;
-  const out = days.map(footprintDay);
-  fpSwapCache.set(days, { k: c, v: out });
+  if (hit && hit.k === key) return hit.v;
+  /* swap first, then reorder — a stand-in should be judged on where the
+     movement it replaced belongs, not where the original one did */
+  const out = days.map(d => priorityDay(footprintDay(d)));
+  fpSwapCache.set(days, { k: key, v: out });
   return out;
 }
 
 /* =====================================================================
    PROGRAM GUIDE — the coaching that is not an exercise
 
-   A programme is more than its sets. Sims prescribes when to eat, how much
+   A program is more than its sets. Sims prescribes when to eat, how much
    protein, what to watch for; none of that fitted anywhere, so it lived in
    a document nobody opens mid-session. A plan may now carry a `guide`:
    `rotate` cycles a card day to day so it stays noticeable, `days` keys a
    card on that day's title, and `groups` fills a Guide tab. Content is
-   per-programme — this is a place to put advice, not shared advice.
+   per-program — this is a place to put advice, not shared advice.
    A plan without a guide simply has no Guide tab.
    ===================================================================== */
 function programGuide() {
@@ -1316,14 +1403,23 @@ function programGuide() {
 }
 function hasGuide() { return !!programGuide(); }
 
-/* the rotating card for a given day, plus that day's own card if it has one */
-function guideCardsFor(dayNum, dayTitle) {
+/* Three named slots rather than one list, because where a card belongs is
+   part of what it means: a habit you are meant to carry into the session
+   opens the rail, the day's own note follows it, and post-session advice
+   goes to the bottom where you will actually be when it applies. */
+function guideSlots(dayNum, dayTitle) {
   const g = programGuide();
-  if (!g) return [];
-  const out = [];
-  if (g.rotate && g.rotate.length) out.push(g.rotate[(Math.max(1, dayNum) - 1) % g.rotate.length]);
-  if (g.days && dayTitle && g.days[dayTitle]) out.push(g.days[dayTitle]);
-  return out;
+  if (!g) return { habit: null, today: null, after: null, any: false };
+  const pick = (arr) => (arr && arr.length) ? arr[(Math.max(1, dayNum) - 1) % arr.length] : null;
+  const habit = pick(g.rotate);
+  const today = (g.days && dayTitle && g.days[dayTitle]) || null;
+  const after = pick(g.after);
+  return { habit, today, after, any: !!(habit || today || after) };
+}
+/* flat list, for the Guide screen and the day note */
+function guideCardsFor(dayNum, dayTitle) {
+  const s = guideSlots(dayNum, dayTitle);
+  return [s.habit, s.today, s.after].filter(Boolean);
 }
 
 function isDayProgram() { return !!DAY_PROGRAMS[S.program]; }
@@ -1876,7 +1972,7 @@ function renderLibrary() {
 
 function render() {
   rebuild();
-  /* the Guide tab only exists for programmes that carry a guide — a seventh
+  /* the Guide tab only exists for programs that carry a guide — a seventh
      tab is tight on a phone, and a permanently empty one is worse */
   const gt = document.querySelector('.tab[data-tab="guide"]');
   if (gt) gt.hidden = !hasGuide();
@@ -2166,7 +2262,7 @@ function renderPrepToday() {
     const log = pstate().log[dayNum] || { checks: {} };
     const gc = guideCardsFor(dayNum, d.title);
     if (d.note || gc.length) {
-      const guideBits = gc.map(c => `<p class="note-guide"><b>${c.title}.</b> ${c.body}</p>`).join('');
+      const guideBits = gc.map(c => `<p class="note-guide"><b>${c.title}.</b> ${guideRich(c.body)}</p>`).join('');
       const more = hasGuide() ? `<button class="link-btn note-guide-more" data-goguide="1">Open the full guide</button>` : '';
       html += `<details class="card note-fold"><summary>How this session works</summary><div class="note-body">${d.note || ''}${guideBits}${more}</div></details>`;
     }
@@ -3635,7 +3731,7 @@ function renderGuide() {
   if (!g) {
     view.innerHTML = `<div class="screen"><div class="card guide-empty">
       <div class="rail-kicker">Guide</div>
-      <p>This programme does not carry a guide yet. Programmes that do show their coaching here — what to eat and when, what to take, and what to watch for.</p>
+      <p>This program does not carry a guide yet. Programs that do show their coaching here — what to eat and when, what to take, and what to watch for.</p>
     </div></div>`;
     return;
   }
@@ -3649,17 +3745,22 @@ function renderGuide() {
     <div class="guide-today">${today.map(c => `<div class="card guide-card">
         <div class="rail-kicker">${c.kicker}</div>
         <div class="guide-card-title">${c.title}</div>
-        <p class="guide-card-body">${c.body}</p>
+        <p class="guide-card-body">${guideRich(c.body)}</p>
       </div>`).join('')}</div>` : '';
 
-  const groups = (g.groups || []).map(gr => `
-    <section class="guide-group">
-      <h2 class="section">${gr.title}</h2>
+  /* the "watch for" group is the only one that is a caution rather than an
+     instruction, so it is the only one that gets a warning tint */
+  const groups = (g.groups || []).map(gr => {
+    const warn = /watch/i.test(gr.title) ? ' guide-group-warn' : '';
+    return `
+    <section class="guide-group${warn}">
+      <h2 class="section guide-head">${gr.icon ? `<span class="guide-ico" aria-hidden="true">${gr.icon}</span>` : ''}${gr.title}</h2>
       <div class="guide-items">${gr.items.map(it => `<div class="card guide-item">
           <div class="guide-item-title">${it.title}</div>
-          <p class="guide-item-body">${it.body}</p>
+          <p class="guide-item-body">${guideRich(it.body)}</p>
         </div>`).join('')}</div>
-    </section>`).join('');
+    </section>`;
+  }).join('');
 
   view.innerHTML = `<div class="screen">
     ${g.blurb ? `<div class="card guide-blurb">${g.blurb}</div>` : ''}
@@ -4174,6 +4275,13 @@ function renderSetup() {
         </div>
         <div class="hint">Weight never goes up unless you hit every set — that does not change. This is only what happens when a lift has stalled three sessions running: drop back and rebuild, or sit at the same weight until you clear it.</div>
       </div>
+      <div class="field"><label>Glutes first</label>
+        <div class="seg" id="segGlutes">
+          <button data-glutes="0" class="${fpPriority().indexOf('glutes') < 0 ? 'on' : ''}">Leave the order</button>
+          <button data-glutes="1" class="${fpPriority().indexOf('glutes') >= 0 ? 'on' : ''}">Glutes first</button>
+        </div>
+        <div class="hint">Follows you between programs. Glute work moves earlier in the session, where you are freshest, whichever program you are running. Warm-ups and jumps stay where they are — jumps lead a session because they want a fresh nervous system, so promoting anything above them would break the thing it sits in. Nothing is added or removed and supersets stay paired; only the order changes, and the day says when it did.</div>
+      </div>
       <div class="field"><label>Knees</label>
         <div class="seg" id="segKnee">
           <button data-knee="0" class="${kneeCare() ? '' : 'on'}">No limits</button>
@@ -4376,8 +4484,15 @@ function wireSetup() {
   view.querySelectorAll('#segDeload button').forEach(b2 => b2.onclick = () => {
     s.autoDeload = b2.dataset.deload === '1'; save(); render();
   });
+  view.querySelectorAll('#segGlutes button').forEach(b2 => b2.onclick = () => {
+    const fp = Object.assign({ jointCautions: [], priorityMuscles: [] }, s.footprint);
+    const set = (fp.priorityMuscles || []).filter(m => m !== 'glutes');
+    if (b2.dataset.glutes === '1') set.push('glutes');
+    fp.priorityMuscles = set;
+    s.footprint = fp; save(); render();
+  });
   view.querySelectorAll('#segKnee button').forEach(b2 => b2.onclick = () => {
-    const fp = Object.assign({ jointCautions: [] }, s.footprint);
+    const fp = Object.assign({ jointCautions: [], priorityMuscles: [] }, s.footprint);
     const set = (fp.jointCautions || []).filter(c => c !== 'knees');
     if (b2.dataset.knee === '1') set.push('knees');
     fp.jointCautions = set;
@@ -6099,19 +6214,36 @@ function libraryHTML() {
   </div>`;
 }
 
-/* guide cards ride at the top of the rail: on a wide screen that is the
-   right-hand column, on a phone the rail sits below the workout */
-function guideRailHTML() {
-  const st = pstate();
-  const d  = pdata()[(st && st.day ? st.day : 1) - 1];
-  const cards = guideCardsFor(st && st.day ? st.day : 1, d && d.title);
-  if (!cards.length) return '';
-  return cards.map(c => `<div class="card rail-card rail-guide-card">
+/* Rail order, top to bottom: habit, today, how-to, up next, after training.
+   On a wide screen the rail is the right-hand column; on a phone it sits
+   below the workout, so "bottom" is genuinely the end of the session. */
+/* The guide is mostly numbers — 15 g, 2.2–2.4 g/kg, 30–45 minutes — and a
+   dose buried mid-sentence is a dose you scroll past. Lifting them out
+   turns each card into something you can scan for the figure you came for
+   and read the sentence around it only if you need to. Matches a quantity
+   followed by a unit, so "day 1 through ovulation" and "ten-minute rule"
+   are left alone. */
+const GUIDE_DOSE = /(\d+(?:\.\d+)?(?:\s*[–—-]\s*\d+(?:\.\d+)?)?\s*(?:g\/kg|g|kg|%|minutes|minute|min|hours|hour|seconds|second)\b)/g;
+function guideRich(t) { return String(t == null ? '' : t).replace(GUIDE_DOSE, '<b class="g-dose">$1</b>'); }
+
+function guideCardHTML(c) {
+  return c ? `<div class="card rail-card rail-guide-card">
       <div class="rail-kicker">${c.kicker}</div>
       <div class="rail-guide-title">${c.title}</div>
-      <div class="rail-guide-body">${c.body}</div>
-    </div>`).join('') +
-    `<button class="btn secondary rail-guide-more" data-goguide="1">Open the full guide</button>`;
+      <div class="rail-guide-body">${guideRich(c.body)}</div>
+    </div>` : '';
+}
+function guideRail() {
+  const st = pstate();
+  const day = (st && st.day) ? st.day : 1;
+  const d = pdata()[day - 1];
+  const s = guideSlots(day, d && d.title);
+  if (!s.any) return { top: '', bottom: '' };
+  return {
+    top: guideCardHTML(s.habit) + guideCardHTML(s.today),
+    bottom: guideCardHTML(s.after) +
+      `<button class="btn secondary rail-guide-more" data-goguide="1">Open the full guide</button>`
+  };
 }
 
 function railExtrasHTML() {
@@ -6123,13 +6255,13 @@ function railExtrasHTML() {
     </div>`;
 
   const t = railTargetCard();
-  const guide = guideRailHTML();
+  const guide = guideRail();
   if (!t) {
-    return guide + `<div class="card rail-card">
+    return guide.top + `<div class="card rail-card">
       <div class="rail-kicker">Session</div>
       <div class="rail-next">All sets done</div>
       <div class="rail-next-sub">Everything on this day is ticked — mark the day complete to bank it.</div>
-    </div>` + quoteCard;
+    </div>` + guide.bottom + quoteCard;
   }
   const card = t.card;
   const row  = railTargetRow(t);
@@ -6172,7 +6304,8 @@ function railExtrasHTML() {
      and what to put on the way up. */
   const exKey = btn && btn.dataset.tip;
   const extras = exKey ? (lastTimeHTML(exKey, tip && tip.title) + warmupHTML(exKey)) : '';
-  return guide + howTo + extras + upNext + quoteCard;
+  /* habit · today · how-to · (last time, warm-up) · up next · after training */
+  return guide.top + howTo + extras + upNext + guide.bottom + quoteCard;
 }
 
 /* The type pill on an exercise card said "SETS" — on a card whose entire
