@@ -2999,7 +2999,7 @@ const SYN_PLANS = [
    },
    {
     "title": "Easy Walk",
-    "focus": "The low end of the polarized model, doing real work. Not a gap in the programme",
+    "focus": "The low end of the polarized model, doing real work. Not a gap in the program",
     "exercises": [
      {
       "key": "sims_walk",
@@ -4042,7 +4042,7 @@ const SYN_TIPS = {
  },
  "wu_sissy_squat": {
   "title": "Sissy Squats",
-  "body": "PLAIN ENGLISH: Holding a support, you rise onto your toes and lean back while driving the knees forward, keeping a straight line from knee to shoulder. It isolates the quads hard. HOW TO DO IT: Hold a door frame or upright with one hand. Rise onto the balls of the feet. Drive the knees forward and lean the torso back, keeping hips, torso and head in ONE straight line from the knees up. Lower as far as the knees allow. Squeeze the quads to come up. Cues: BODYWEIGHT ONLY until this is easy; Straight line from knee to shoulder - no hip bend; Hold the support; Only as deep as the knees allow with zero pain; Stop immediately if the knees hurt. This is the most knee-intensive movement in the programme. Skip it entirely if you have any knee history - the heel-elevated squat covers the same job far more safely."
+  "body": "PLAIN ENGLISH: Holding a support, you rise onto your toes and lean back while driving the knees forward, keeping a straight line from knee to shoulder. It isolates the quads hard. HOW TO DO IT: Hold a door frame or upright with one hand. Rise onto the balls of the feet. Drive the knees forward and lean the torso back, keeping hips, torso and head in ONE straight line from the knees up. Lower as far as the knees allow. Squeeze the quads to come up. Cues: BODYWEIGHT ONLY until this is easy; Straight line from knee to shoulder - no hip bend; Hold the support; Only as deep as the knees allow with zero pain; Stop immediately if the knees hurt. This is the most knee-intensive movement in the program. Skip it entirely if you have any knee history - the heel-elevated squat covers the same job far more safely."
  },
  "wu_db_leg_curl": {
   "title": "DB Leg Curls",
@@ -4139,11 +4139,11 @@ const SYN_TIPS = {
  },
  "sims_sprint20": {
   "title": "Sprint Intervals (20 seconds)",
-  "body": "PLAIN ENGLISH: The shorter version - twenty seconds flat out, two minutes recovery. This session is OPTIONAL. HOW TO DO IT: Warm up 8-10 minutes easy. Twenty seconds maximum effort, two minutes full recovery, repeated four times. Cool down 5 minutes. Cues: Optional - skip it freely if the week has been heavy or sleep has been poor; Shorter effort, so it should be even faster than the 30s version; Full recovery between; Swap for an easy hike instead if you are flat. Dr Sims prescribes one TO two sprint sessions a week, so one good session already satisfies the programme. Skipping this is a legitimate choice, not a failure."
+  "body": "PLAIN ENGLISH: The shorter version - twenty seconds flat out, two minutes recovery. This session is OPTIONAL. HOW TO DO IT: Warm up 8-10 minutes easy. Twenty seconds maximum effort, two minutes full recovery, repeated four times. Cool down 5 minutes. Cues: Optional - skip it freely if the week has been heavy or sleep has been poor; Shorter effort, so it should be even faster than the 30s version; Full recovery between; Swap for an easy hike instead if you are flat. Dr Sims prescribes one TO two sprint sessions a week, so one good session already satisfies the program. Skipping this is a legitimate choice, not a failure."
  },
  "sims_walk": {
   "title": "Easy Walk",
-  "body": "PLAIN ENGLISH: A genuinely easy walk at a pace where you could hold a full conversation. This is prescribed work, not a rest day with a label. HOW TO DO IT: Walk 30-60 minutes at a conversational pace. Outdoors if possible. No hills hard enough to make you breathe heavily, no jogging intervals, no weighted vest. Cues: You should be able to talk in full sentences the WHOLE time; If you finish breathing hard, it was the wrong session; Do not upgrade this into a workout; A shorter easy walk beats a longer hard one. Dr Sims' model is polarized: the hard days only work if the easy days are genuinely easy. Replacing this with a spin or bootcamp class is the single most common way people break the programme."
+  "body": "PLAIN ENGLISH: A genuinely easy walk at a pace where you could hold a full conversation. This is prescribed work, not a rest day with a label. HOW TO DO IT: Walk 30-60 minutes at a conversational pace. Outdoors if possible. No hills hard enough to make you breathe heavily, no jogging intervals, no weighted vest. Cues: You should be able to talk in full sentences the WHOLE time; If you finish breathing hard, it was the wrong session; Do not upgrade this into a workout; A shorter easy walk beats a longer hard one. Dr Sims' model is polarized: the hard days only work if the easy days are genuinely easy. Replacing this with a spin or bootcamp class is the single most common way people break the program."
  },
  "sims_hike": {
   "title": "Walk or Hike",
