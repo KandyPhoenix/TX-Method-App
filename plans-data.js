@@ -19,6 +19,168 @@ const SYN_PLANS = [
   "name": "Push Pull Legs",
   "desc": "6-day split for muscle building",
   "kneeSafe": false,
+  "guide": {
+   "blurb": "How to run a six-day push/pull/legs split so the volume actually turns into muscle — what to eat, how long to rest, and how to know when to add weight.",
+   "rotate": [
+    {
+     "kicker": "Before you lift",
+     "title": "Warm up the pattern, not the body",
+     "body": "Two or three ramping sets of the first lift beats 5 minutes on a bike. Empty bar, then roughly 50% and 75% of your working weight, low reps, no fatigue. The point is to rehearse the movement, not to tire yourself."
+    },
+    {
+     "kicker": "Between sets",
+     "title": "Rest 2-3 minutes on the compounds",
+     "body": "Schoenfeld's 2016 rest-interval trial found longer rest produced greater gains in both strength and size in trained men than short rest. Take the full 2-3 minutes on presses, rows, squats and deadlifts. 60-90 seconds is enough on curls and raises."
+    },
+    {
+     "kicker": "Daily target",
+     "title": "1.4-2.0 g of protein per kg",
+     "body": "The ISSN range for building and maintaining muscle. Six training days a week is a lot of repair work; this is the single input that most often turns out to be missing."
+    },
+    {
+     "kicker": "Every session",
+     "title": "Log the weight and the reps",
+     "body": "Progressive overload is a comparison, and you cannot make it from memory. The number you beat this week is the number you wrote down last week."
+    },
+    {
+     "kicker": "Twice a week",
+     "title": "Every muscle, twice — that is the whole point of six days",
+     "body": "Schoenfeld, Ogborn and Krieger found training a muscle twice a week beat once a week for growth. Push/pull/legs run twice gives you exactly that. A missed day costs half a muscle's week, so move it rather than drop it."
+    },
+    {
+     "kicker": "Watch for",
+     "title": "Six days is a schedule, not a badge",
+     "body": "If sleep, appetite or joints are going backwards for more than a week, drop to five days for a fortnight. The split still works at five; it stops working if you are too beaten up to push."
+    }
+   ],
+   "after": [
+    {
+     "kicker": "After training",
+     "title": "20-40 g of protein",
+     "body": "The ISSN stand puts a serving at 0.25 g/kg or an absolute 20-40 g, with 700-3000 mg of leucine. A shake, Greek yogurt, eggs or a chicken wrap all get you there."
+    },
+    {
+     "kicker": "After training",
+     "title": "Write the session down before you leave",
+     "body": "Weight, reps, and one word on how it felt. 30 seconds now saves you guessing next week."
+    }
+   ],
+   "days": {
+    "Push A": {
+     "kicker": "Today",
+     "title": "Bench and press are the session",
+     "body": "Everything after the two barbell lifts is accessory work. Take the full 2-3 minutes on those two, then let the rest run at 60-90 seconds — the lateral raises and kickbacks are not where the day is won."
+    },
+    "Pull A": {
+     "kicker": "Today",
+     "title": "Deadlift first, and only while it is clean",
+     "body": "Pull sets stop the moment your lower back rounds, whether that is rep five or rep two. The rows and curls behind it will still be there; a tweaked back means no pull day at all next week."
+    },
+    "Legs A": {
+     "kicker": "Today",
+     "title": "Squat depth beats squat weight",
+     "body": "Take each squat to the deepest position you can hold without your pelvis tucking, and keep that depth as the weight climbs. If depth shrinks when the load goes up, the load went up too soon."
+    },
+    "Push B": {
+     "kicker": "Today",
+     "title": "Volume day — lighter, and closer to failure",
+     "body": "Dumbbells and higher reps here. Leave 1-2 reps in reserve rather than the 2-3 you leave on Push A, and take the last set of the flyes and skull crushers to genuine failure."
+    },
+    "Pull B": {
+     "kicker": "Today",
+     "title": "Chin-ups first while you are fresh",
+     "body": "If you cannot get the prescribed reps yet, use a band or do slow negatives from the top — five controlled negatives beats ten swung reps, and it is the fastest route to the real thing."
+    },
+    "Legs B": {
+     "kicker": "Today",
+     "title": "Hips lead this one",
+     "body": "Hip thrusts and good mornings are the day; front squats and Bulgarians support them. Full lockout at the top of every thrust, and a two-second squeeze there — a short rep is a wasted rep."
+    }
+   },
+   "groups": [
+    {
+     "title": "Fueling",
+     "tone": "fuel",
+     "icon": "🍽",
+     "items": [
+      {
+       "title": "Daily protein: 1.4-2.0 g/kg",
+       "body": "The ISSN position stand puts the range for building and maintaining muscle at 1.4-2.0 g of protein per kg of bodyweight per day for most exercising people. At 68 kg that is roughly 95-135 g a day. If you are eating in a deficit the same stand raises it to 2.3-3.1 g/kg to hold on to lean mass while you lose fat."
+      },
+      {
+       "title": "Per meal: 0.25 g/kg, or 20-40 g",
+       "body": "The same stand recommends 0.25 g per kg per serving, or an absolute 20-40 g, aiming for 700-3000 mg of leucine in each dose. Dairy, eggs, meat, fish and soy all clear that easily; most plant sources need a bigger serving."
+      },
+      {
+       "title": "Every 3-4 hours, not all at dinner",
+       "body": "The stand asks for doses spread evenly every 3-4 hours across the day. Three meals and a snack does it. One large hit at night does not, however big it is."
+      },
+      {
+       "title": "The window is wider than you were told",
+       "body": "The ISSN stand says the anabolic effect of a session lasts at least 24 hours, though it fades as time passes. Eat reasonably soon after training because it is easy and it helps — not because a 30-minute door is closing."
+      }
+     ]
+    },
+    {
+     "title": "How to run it",
+     "tone": "cycle",
+     "icon": "🔁",
+     "items": [
+      {
+       "title": "Rest 2-3 minutes on compounds",
+       "body": "Schoenfeld's 2016 rest trial found longer rest gave greater strength and hypertrophy in trained men than short rest. Full rest on the barbell lifts, 60-90 seconds on isolation."
+      },
+      {
+       "title": "Add weight when every rep is clean",
+       "body": "When you hit the top of the rep range on all sets with good form, add the smallest increment available — 2.5 kg on the bar, one dumbbell step. Then work back up the range."
+      },
+      {
+       "title": "Two rotations a week is the design",
+       "body": "Push, pull, legs, push, pull, legs. Muscles trained twice a week grew more than muscles trained once in Schoenfeld's frequency meta-analysis. That is what the six days are buying you."
+      },
+      {
+       "title": "A and B days are not interchangeable",
+       "body": "A is barbell and heavier; B is dumbbell, higher rep and closer to failure. Running two A days in a row gives you the same stimulus twice and skips the other half."
+      }
+     ]
+    },
+    {
+     "title": "What to watch for",
+     "tone": "warn",
+     "icon": "⚠️",
+     "items": [
+      {
+       "title": "Adding weight before the reps are there",
+       "body": "Finish every prescribed rep of every set with clean form before you add load. A rep that ends in a shrug or a bounce is not a rep the next weight will forgive."
+      },
+      {
+       "title": "Grinding every set to failure",
+       "body": "Stopping with 1-3 reps still in reserve on most work sets is standard practice: it leaves you able to hit the same quality on the next set, and on the next session. Save true failure for the last set of an isolation lift."
+      },
+      {
+       "title": "Skipping the same session every week",
+       "body": "The one you keep missing is usually the one you need. If a day never happens, move it rather than losing it."
+      }
+     ]
+    },
+    {
+     "title": "Why it is built this way",
+     "tone": "why",
+     "icon": "🧠",
+     "items": [
+      {
+       "title": "Six days is about frequency, not extra work",
+       "body": "The same weekly volume split across six sessions hits each muscle twice instead of once. That frequency, not the number of days, is what the evidence supports."
+      },
+      {
+       "title": "Pushes and pulls alternate so nothing is pre-fatigued",
+       "body": "Your triceps are not tired when you bench because you rowed yesterday, not today. That is why the order is fixed rather than arbitrary."
+      }
+     ]
+    }
+   ],
+   "sources": "Protein numbers: International Society of Sports Nutrition Position Stand: protein and exercise (Jager et al., J Int Soc Sports Nutr, 2017;14:20). Training a muscle twice a week: Schoenfeld, Ogborn and Krieger, Effects of Resistance Training Frequency on Measures of Muscle Hypertrophy, Sports Med, 2016 — higher frequency gave a larger hypertrophy effect size than lower (0.49 vs 0.30, P = 0.002). Rest periods: Schoenfeld et al., Longer Interset Rest Periods Enhance Muscle Strength and Hypertrophy in Resistance-Trained Men, J Strength Cond Res, 2016;30(7):1805-1812. Set and rep prescriptions in this program are ordinary strength-training practice, not findings from these papers."
+  },
   "days": [
    {
     "title": "Push A",
@@ -372,6 +534,149 @@ const SYN_PLANS = [
   "name": "Upper Lower Split",
   "desc": "4-day balanced program",
   "kneeSafe": false,
+  "guide": {
+   "blurb": "Four days, every muscle twice a week — the frequency the evidence actually supports, with two heavy days and two lighter ones so you can recover enough to keep pushing.",
+   "rotate": [
+    {
+     "kicker": "Before you lift",
+     "title": "Ramp to the first working set",
+     "body": "Two or three progressively heavier sets of the day's first lift, low reps, stopping well short of fatigue. Skip the ramp and your first working set becomes the warm-up you did not do."
+    },
+    {
+     "kicker": "Between sets",
+     "title": "Rest 2-3 minutes on the barbell lifts",
+     "body": "Schoenfeld's 2016 rest-interval trial found longer rest beat short rest for both strength and size in trained men. Do not rush the bench, squat, row or press."
+    },
+    {
+     "kicker": "Daily target",
+     "title": "1.4-2.0 g of protein per kg",
+     "body": "The ISSN position stand range for building and maintaining muscle. Spread it every 3-4 hours rather than loading it onto one meal."
+    },
+    {
+     "kicker": "The whole design",
+     "title": "Twice a week, every muscle",
+     "body": "Two upper days and two lower days is the cleanest way to hit the twice-a-week frequency that outperformed once a week in Schoenfeld, Ogborn and Krieger's meta-analysis."
+    },
+    {
+     "kicker": "Watch for",
+     "title": "Treating B days as A days",
+     "body": "The B sessions are meant to be lighter and higher-rep. Turning both into maximum-effort days is the most common way this split stops working after a month."
+    }
+   ],
+   "after": [
+    {
+     "kicker": "After training",
+     "title": "20-40 g of protein",
+     "body": "0.25 g/kg per serving, or an absolute 20-40 g, per the ISSN stand. The exact timing matters less than people think — the same stand says the anabolic effect lasts at least 24 hours."
+    },
+    {
+     "kicker": "After training",
+     "title": "Log it while you are still standing there",
+     "body": "Weight and reps for every working set. Next week's progression is a comparison you cannot make from memory."
+    }
+   ],
+   "days": {
+    "Upper A": {
+     "kicker": "Today",
+     "title": "Heavy day — strength, not burn",
+     "body": "Lower reps, full 2-3 minute rest, 2-3 reps left in reserve. If you are chasing a pump on this day you are on the wrong session; that is what Upper B is for."
+    },
+    "Lower A": {
+     "kicker": "Today",
+     "title": "Squat and RDL carry the day",
+     "body": "Full rest on both. The step-down opener is deliberate — it wakes the glutes up so the squat is not the first thing asking them to work."
+    },
+    "Upper B": {
+     "kicker": "Today",
+     "title": "Higher reps, shorter rest, closer to failure",
+     "body": "60-90 seconds between sets here, and stop with about one rep in reserve rather than three. Same muscles as Monday, deliberately different stimulus."
+    },
+    "Lower B": {
+     "kicker": "Today",
+     "title": "Hip-dominant to balance the squatting",
+     "body": "Hip thrusts, good mornings and reverse lunges load the posterior chain that Lower A's squatting does less for. Lock out and squeeze at the top of every thrust rep."
+    }
+   },
+   "groups": [
+    {
+     "title": "Fueling",
+     "tone": "fuel",
+     "icon": "🍽",
+     "items": [
+      {
+       "title": "Daily protein: 1.4-2.0 g/kg",
+       "body": "The ISSN position stand puts the range for building and maintaining muscle at 1.4-2.0 g of protein per kg of bodyweight per day for most exercising people. At 68 kg that is roughly 95-135 g a day. If you are eating in a deficit the same stand raises it to 2.3-3.1 g/kg to hold on to lean mass while you lose fat."
+      },
+      {
+       "title": "Per meal: 0.25 g/kg, or 20-40 g",
+       "body": "The same stand recommends 0.25 g per kg per serving, or an absolute 20-40 g, aiming for 700-3000 mg of leucine in each dose. Dairy, eggs, meat, fish and soy all clear that easily; most plant sources need a bigger serving."
+      },
+      {
+       "title": "Every 3-4 hours, not all at dinner",
+       "body": "The stand asks for doses spread evenly every 3-4 hours across the day. Three meals and a snack does it. One large hit at night does not, however big it is."
+      },
+      {
+       "title": "The window is wider than you were told",
+       "body": "The ISSN stand says the anabolic effect of a session lasts at least 24 hours, though it fades as time passes. Eat reasonably soon after training because it is easy and it helps — not because a 30-minute door is closing."
+      }
+     ]
+    },
+    {
+     "title": "How to run it",
+     "tone": "cycle",
+     "icon": "🔁",
+     "items": [
+      {
+       "title": "A days heavy, B days lighter",
+       "body": "A is lower reps with full rest and 2-3 reps in reserve. B is higher reps, 60-90 seconds rest, about one rep in reserve. Both are needed; they are not the same session twice."
+      },
+      {
+       "title": "Rest 2-3 minutes on compounds",
+       "body": "Longer rest produced greater strength and hypertrophy than short rest in Schoenfeld's 2016 trial. Isolation work can run at 60-90 seconds."
+      },
+      {
+       "title": "Progress the A days first",
+       "body": "Add weight on the heavy days when every rep is clean at the top of the range. Let the B days follow, chasing reps before load."
+      }
+     ]
+    },
+    {
+     "title": "What to watch for",
+     "tone": "warn",
+     "icon": "⚠️",
+     "items": [
+      {
+       "title": "Adding weight before the reps are there",
+       "body": "Finish every prescribed rep of every set with clean form before you add load. A rep that ends in a shrug or a bounce is not a rep the next weight will forgive."
+      },
+      {
+       "title": "Grinding every set to failure",
+       "body": "Stopping with 1-3 reps still in reserve on most work sets is standard practice: it leaves you able to hit the same quality on the next set, and on the next session. Save true failure for the last set of an isolation lift."
+      },
+      {
+       "title": "Skipping the same session every week",
+       "body": "The one you keep missing is usually the one you need. If a day never happens, move it rather than losing it."
+      }
+     ]
+    },
+    {
+     "title": "Why it is built this way",
+     "tone": "why",
+     "icon": "🧠",
+     "items": [
+      {
+       "title": "Four days is the efficient version of twice a week",
+       "body": "Schoenfeld, Ogborn and Krieger's meta-analysis supports training each major muscle at least twice a week. Two upper and two lower days does that with three rest days left over."
+      },
+      {
+       "title": "Heavy and light do different jobs",
+       "body": "The heavy days drive strength; the lighter, higher-rep days add volume without the same recovery cost. Splitting them is what lets four hard sessions fit in one week."
+      }
+     ]
+    }
+   ],
+   "sources": "Protein numbers: International Society of Sports Nutrition Position Stand: protein and exercise (Jager et al., J Int Soc Sports Nutr, 2017;14:20). Training a muscle twice a week: Schoenfeld, Ogborn and Krieger, Effects of Resistance Training Frequency on Measures of Muscle Hypertrophy, Sports Med, 2016 — higher frequency gave a larger hypertrophy effect size than lower (0.49 vs 0.30, P = 0.002). Rest periods: Schoenfeld et al., Longer Interset Rest Periods Enhance Muscle Strength and Hypertrophy in Resistance-Trained Men, J Strength Cond Res, 2016;30(7):1805-1812. Set and rep prescriptions in this program are ordinary strength-training practice, not findings from these papers."
+  },
   "days": [
    {
     "title": "Upper A",
@@ -599,6 +904,144 @@ const SYN_PLANS = [
   "name": "Full Body 3x",
   "desc": "Efficient 3-day program",
   "kneeSafe": false,
+  "guide": {
+   "blurb": "Three sessions a week, every muscle in each one. The least time this can take and still work — and what has to be right for that to be true.",
+   "rotate": [
+    {
+     "kicker": "Before you lift",
+     "title": "Ramp the first compound, skip the rest",
+     "body": "Two or three ramping sets of the day's first big lift is the whole warm-up you need. On a full-body day the early sets warm up everything that follows."
+    },
+    {
+     "kicker": "Between sets",
+     "title": "Rest 2-3 minutes on the compounds",
+     "body": "Schoenfeld's 2016 rest-interval trial found longer rest gave greater strength and size in trained men than short rest. On three days a week you have the time — use it."
+    },
+    {
+     "kicker": "Daily target",
+     "title": "1.4-2.0 g of protein per kg",
+     "body": "The ISSN position stand range for building and maintaining muscle. Fewer sessions does not mean less protein; recovery still runs every day of the week."
+    },
+    {
+     "kicker": "The whole design",
+     "title": "Three days already clears the bar",
+     "body": "Schoenfeld, Ogborn and Krieger found muscles trained twice a week grew more than muscles trained once. A full-body session three times a week hits everything three times. This is not a compromise program."
+    },
+    {
+     "kicker": "Watch for",
+     "title": "Letting the last two lifts become filler",
+     "body": "Fatigue lands hardest on whatever is at the bottom of the list. Rotate which accessory goes last, or start the session from the bottom every third week."
+    }
+   ],
+   "after": [
+    {
+     "kicker": "After training",
+     "title": "20-40 g of protein",
+     "body": "0.25 g/kg per serving, or an absolute 20-40 g with 700-3000 mg of leucine, per the ISSN stand."
+    },
+    {
+     "kicker": "After training",
+     "title": "Two rest days is the design, not slack",
+     "body": "The gap between sessions is where the adaptation happens. Filling every off day with hard conditioning is the quickest way to make three good sessions feel like six mediocre ones."
+    }
+   ],
+   "days": {
+    "Day A": {
+     "kicker": "Today",
+     "title": "Squat and bench are the session",
+     "body": "Full rest on both, 2-3 reps in reserve, everything after them at 60-90 seconds. If you are short on time, cut the arms — never the first two."
+    },
+    "Day B": {
+     "kicker": "Today",
+     "title": "Deadlift day: stop when the back rounds",
+     "body": "Sets end the moment your lower back loses its position, whatever the rep count says. Everything else on this day depends on your back being fine on Friday."
+    },
+    "Day C": {
+     "kicker": "Today",
+     "title": "Volume day — lighter, more reps, less rest",
+     "body": "Front squats and dumbbells here rather than maximum loads. 60-90 seconds between sets and about one rep in reserve. Different stimulus from A and B on purpose."
+    }
+   },
+   "groups": [
+    {
+     "title": "Fueling",
+     "tone": "fuel",
+     "icon": "🍽",
+     "items": [
+      {
+       "title": "Daily protein: 1.4-2.0 g/kg",
+       "body": "The ISSN position stand puts the range for building and maintaining muscle at 1.4-2.0 g of protein per kg of bodyweight per day for most exercising people. At 68 kg that is roughly 95-135 g a day. If you are eating in a deficit the same stand raises it to 2.3-3.1 g/kg to hold on to lean mass while you lose fat."
+      },
+      {
+       "title": "Per meal: 0.25 g/kg, or 20-40 g",
+       "body": "The same stand recommends 0.25 g per kg per serving, or an absolute 20-40 g, aiming for 700-3000 mg of leucine in each dose. Dairy, eggs, meat, fish and soy all clear that easily; most plant sources need a bigger serving."
+      },
+      {
+       "title": "Every 3-4 hours, not all at dinner",
+       "body": "The stand asks for doses spread evenly every 3-4 hours across the day. Three meals and a snack does it. One large hit at night does not, however big it is."
+      },
+      {
+       "title": "The window is wider than you were told",
+       "body": "The ISSN stand says the anabolic effect of a session lasts at least 24 hours, though it fades as time passes. Eat reasonably soon after training because it is easy and it helps — not because a 30-minute door is closing."
+      }
+     ]
+    },
+    {
+     "title": "How to run it",
+     "tone": "cycle",
+     "icon": "🔁",
+     "items": [
+      {
+       "title": "Never skip the first two lifts",
+       "body": "The opening compounds are where most of the week's stimulus lives. If time runs short, cut from the bottom of the list up, never from the top down."
+      },
+      {
+       "title": "Rest 2-3 minutes on compounds",
+       "body": "Longer rest beat short rest for both strength and hypertrophy in Schoenfeld's 2016 trial. Accessories can run at 60-90 seconds."
+      },
+      {
+       "title": "Leave a day between sessions",
+       "body": "Monday, Wednesday, Friday, or any spacing that gives you a full day off between. Back-to-back full-body days means the second one runs on the first one's fatigue."
+      }
+     ]
+    },
+    {
+     "title": "What to watch for",
+     "tone": "warn",
+     "icon": "⚠️",
+     "items": [
+      {
+       "title": "Adding weight before the reps are there",
+       "body": "Finish every prescribed rep of every set with clean form before you add load. A rep that ends in a shrug or a bounce is not a rep the next weight will forgive."
+      },
+      {
+       "title": "Grinding every set to failure",
+       "body": "Stopping with 1-3 reps still in reserve on most work sets is standard practice: it leaves you able to hit the same quality on the next set, and on the next session. Save true failure for the last set of an isolation lift."
+      },
+      {
+       "title": "Skipping the same session every week",
+       "body": "The one you keep missing is usually the one you need. If a day never happens, move it rather than losing it."
+      }
+     ]
+    },
+    {
+     "title": "Why it is built this way",
+     "tone": "why",
+     "icon": "🧠",
+     "items": [
+      {
+       "title": "Three days is enough for the frequency that matters",
+       "body": "The evidence supports training a muscle at least twice a week. A full-body session done three times a week gets every muscle three exposures — more than most split programs manage."
+      },
+      {
+       "title": "Compounds first is not tradition, it is triage",
+       "body": "The lifts that build the most are the ones that suffer most from fatigue. Putting them first means they get your best effort every time."
+      }
+     ]
+    }
+   ],
+   "sources": "Protein numbers: International Society of Sports Nutrition Position Stand: protein and exercise (Jager et al., J Int Soc Sports Nutr, 2017;14:20). Training a muscle twice a week: Schoenfeld, Ogborn and Krieger, Effects of Resistance Training Frequency on Measures of Muscle Hypertrophy, Sports Med, 2016 — higher frequency gave a larger hypertrophy effect size than lower (0.49 vs 0.30, P = 0.002). Rest periods: Schoenfeld et al., Longer Interset Rest Periods Enhance Muscle Strength and Hypertrophy in Resistance-Trained Men, J Strength Cond Res, 2016;30(7):1805-1812. Set and rep prescriptions in this program are ordinary strength-training practice, not findings from these papers."
+  },
   "days": [
    {
     "title": "Day A",
@@ -797,6 +1240,148 @@ const SYN_PLANS = [
   "name": "Knee-Friendly 2x",
   "desc": "2-day split designed to build strength while protecting knees",
   "kneeSafe": true,
+  "guide": {
+   "blurb": "Building real strength without loading a knee through the range that hurts. What this program avoids, what it uses instead, and where the line is between sensible and stubborn.",
+   "rotate": [
+    {
+     "kicker": "Before you lift",
+     "title": "Warm the knee before you load it",
+     "body": "5 minutes of easy cycling, or twenty slow bodyweight range-of-motion reps through a pain-free range, before the first lower-body set. A cold knee gives you a smaller usable range than a warm one."
+    },
+    {
+     "kicker": "The rule",
+     "title": "Sharp, pinpoint or lingering means stop",
+     "body": "Working muscle burn is fine. Sharp pain, pain you can point at with one finger, swelling, or ache that outlasts the session by a day is the signal to stop that exercise — not to push through it."
+    },
+    {
+     "kicker": "Daily target",
+     "title": "1.4-2.0 g of protein per kg",
+     "body": "The ISSN range for building and maintaining muscle. Two sessions a week means each one has to count, and under-eating protein is the quiet way to waste them."
+    },
+    {
+     "kicker": "Between sets",
+     "title": "Rest 2-3 minutes",
+     "body": "Longer rest gave greater strength and hypertrophy than short rest in Schoenfeld's 2016 trial, and on this program it does something else too — a rushed set is where form slips, and form is the whole safety margin."
+    },
+    {
+     "kicker": "Watch for",
+     "title": "Chasing depth you have not earned",
+     "body": "The shallow split squat is shallow on purpose. Depth can grow over months if the knee stays quiet; adding it this week because it felt fine once is how people end up back at the start."
+    },
+    {
+     "kicker": "Every session",
+     "title": "Range before load, always",
+     "body": "Add a little depth or a little tempo before you add weight. Load applied to a range you do not yet control is the thing this whole program is built to avoid."
+    }
+   ],
+   "after": [
+    {
+     "kicker": "After training",
+     "title": "20-40 g of protein",
+     "body": "0.25 g/kg per serving, or an absolute 20-40 g, per the ISSN stand."
+    },
+    {
+     "kicker": "After training",
+     "title": "Check in tomorrow, not tonight",
+     "body": "A knee that is fine walking out of the gym and stiff the next morning is telling you the session was too much. Next-day feel is the honest reading; adjust the following session from it."
+    }
+   ],
+   "days": {
+    "Upper Body": {
+     "kicker": "Today",
+     "title": "Nothing here should reach your knees",
+     "body": "This is the day to push hard — none of it loads the joint. If you have been holding back on lower days, this is where the effort goes."
+    },
+    "Lower Body (Knee-Safe)": {
+     "kicker": "Today",
+     "title": "Hip-dominant by design",
+     "body": "Hip thrusts, RDLs and B-stance RDLs load the glutes and hamstrings with the knee barely bending. The shallow split squat and step-down are the only knee-flexion work, and they stay shallow."
+    }
+   },
+   "groups": [
+    {
+     "title": "Fueling",
+     "tone": "fuel",
+     "icon": "🍽",
+     "items": [
+      {
+       "title": "Daily protein: 1.4-2.0 g/kg",
+       "body": "The ISSN position stand puts the range for building and maintaining muscle at 1.4-2.0 g of protein per kg of bodyweight per day for most exercising people. At 68 kg that is roughly 95-135 g a day. If you are eating in a deficit the same stand raises it to 2.3-3.1 g/kg to hold on to lean mass while you lose fat."
+      },
+      {
+       "title": "Per meal: 0.25 g/kg, or 20-40 g",
+       "body": "The same stand recommends 0.25 g per kg per serving, or an absolute 20-40 g, aiming for 700-3000 mg of leucine in each dose. Dairy, eggs, meat, fish and soy all clear that easily; most plant sources need a bigger serving."
+      },
+      {
+       "title": "Every 3-4 hours, not all at dinner",
+       "body": "The stand asks for doses spread evenly every 3-4 hours across the day. Three meals and a snack does it. One large hit at night does not, however big it is."
+      },
+      {
+       "title": "The window is wider than you were told",
+       "body": "The ISSN stand says the anabolic effect of a session lasts at least 24 hours, though it fades as time passes. Eat reasonably soon after training because it is easy and it helps — not because a 30-minute door is closing."
+      }
+     ]
+    },
+    {
+     "title": "How to run it",
+     "tone": "cycle",
+     "icon": "🔁",
+     "items": [
+      {
+       "title": "Hip hinge over knee bend",
+       "body": "Thrusts, RDLs and B-stance RDLs put the work into the glutes and hamstrings while the knee stays close to straight. That is why they are the backbone of the lower day rather than squats."
+      },
+      {
+       "title": "Shallow means shallow",
+       "body": "The split squat and step-down run through a partial range on purpose. Control the range you have before you ask for more of it."
+      },
+      {
+       "title": "Slow down the lowering",
+       "body": "3 seconds down, 1 second up. Slower eccentrics let you build with less weight, which is exactly the trade this program wants to make."
+      },
+      {
+       "title": "Two days a week, spaced",
+       "body": "Leave at least two days between lower sessions. Joints take longer to settle than muscles do."
+      }
+     ]
+    },
+    {
+     "title": "What to watch for",
+     "tone": "warn",
+     "icon": "⚠️",
+     "items": [
+      {
+       "title": "This is training guidance, not medical advice",
+       "body": "A knee that swells, locks, gives way, or hurts at rest needs a clinician, not a program change. Nothing here substitutes for a diagnosis, and no app can tell you which of those you have."
+      },
+      {
+       "title": "Pain that outlasts the session",
+       "body": "Soreness that fades within a day is normal. Ache that is still there 48 hours later means the last session asked for more than the joint could absorb — cut the range or the load, not the frequency."
+      },
+      {
+       "title": "Loading a range you cannot control",
+       "body": "If the knee wobbles or drifts inward on the last two reps, that set was already over. Stop there rather than finishing the number."
+      }
+     ]
+    },
+    {
+     "title": "Why it is built this way",
+     "tone": "why",
+     "icon": "🧠",
+     "items": [
+      {
+       "title": "Glutes and hamstrings can be trained without deep knee bend",
+       "body": "Hip-dominant lifts load the same muscles a squat does, with far less demand on the knee joint. That is the whole reason this program looks the way it does."
+      },
+      {
+       "title": "Two days is enough to build",
+       "body": "Schoenfeld, Ogborn and Krieger's meta-analysis supports training a muscle at least twice a week. Both days here include lower-body work, so the frequency is there even at two sessions."
+      }
+     ]
+    }
+   ],
+   "sources": "Protein numbers: International Society of Sports Nutrition Position Stand: protein and exercise (Jager et al., J Int Soc Sports Nutr, 2017;14:20). Training a muscle twice a week: Schoenfeld, Ogborn and Krieger, Effects of Resistance Training Frequency on Measures of Muscle Hypertrophy, Sports Med, 2016 — higher frequency gave a larger hypertrophy effect size than lower (0.49 vs 0.30, P = 0.002). Rest periods: Schoenfeld et al., Longer Interset Rest Periods Enhance Muscle Strength and Hypertrophy in Resistance-Trained Men, J Strength Cond Res, 2016;30(7):1805-1812. Set and rep prescriptions in this program are ordinary strength-training practice, not findings from these papers. This program is not a rehabilitation protocol and is not a substitute for assessment by a physician or physical therapist."
+  },
   "days": [
    {
     "title": "Upper Body",
@@ -951,6 +1536,149 @@ const SYN_PLANS = [
   "name": "Asian Pilates 3x",
   "desc": "3-day Pilates program blending Eastern flow, breath-led movement, and knee-friendly exercises",
   "kneeSafe": true,
+  "guide": {
+   "blurb": "A breath-led program: Tai Chi and Qigong openings, Pilates through the middle, a long quiet close. The sequence is the method — how to run it so it does what it is shaped to do.",
+   "rotate": [
+    {
+     "kicker": "Before you start",
+     "title": "The opening is not a warm-up to rush",
+     "body": "The Tai Chi and Qigong sequences that open each day are two full minutes on purpose. They set the tempo for everything after. Hurrying them turns the whole session into ordinary floor work."
+    },
+    {
+     "kicker": "Every rep",
+     "title": "Breath sets the pace, not a count",
+     "body": "Exhale on the effort, inhale on the return, and let the movement take as long as the breath takes. If you are counting reps rather than breaths, you are moving faster than this program intends."
+    },
+    {
+     "kicker": "Every session",
+     "title": "Smaller and slower beats bigger and faster",
+     "body": "A small leg circle you control completely is doing more than a large one your hips are swinging through. Range is something you earn over months here."
+    },
+    {
+     "kicker": "Watch for",
+     "title": "Skipping the close",
+     "body": "Shavasana, Legs Up the Wall and the closing meditation are listed with real durations because they are part of the session. Leaving during the last 3 minutes takes out the part that settles everything before it."
+    },
+    {
+     "kicker": "Consistency",
+     "title": "Three times a week, spaced",
+     "body": "A day between sessions. This is not a program that rewards stacking — the point is regular, repeated, unhurried practice."
+    },
+    {
+     "kicker": "Watch for",
+     "title": "Holding your breath through the hard bit",
+     "body": "The moment you notice you have stopped breathing is the moment the exercise got too hard. Make it smaller until the breath comes back."
+    }
+   ],
+   "after": [
+    {
+     "kicker": "After the session",
+     "title": "Notice what changed, then leave it",
+     "body": "30 seconds standing still at the end. What moves more easily than it did? That noticing is part of the practice, not an add-on."
+    },
+    {
+     "kicker": "After the session",
+     "title": "Nothing needs to hurt tomorrow",
+     "body": "Soreness is not the marker here. Feeling looser and calmer, and being able to do the same sequence more smoothly next time, is what progress looks like."
+    }
+   ],
+   "days": {
+    "Core Awakening & Spinal Flow": {
+     "kicker": "Today",
+     "title": "The spine is the whole day",
+     "body": "Cat-Cow, the roll-down and the seated twist all ask the spine to move one segment at a time rather than as a block. Go slowly enough that you can feel where it stops moving segmentally and starts moving in one piece."
+    },
+    "Hip Stability & Lateral Strength": {
+     "kicker": "Today",
+     "title": "Sideways is the direction you never train",
+     "body": "Clam shells, side-lying work and the supported side plank load the lateral hip, which almost nothing else in a normal week does. 15 seconds of a good side plank beats a minute of a sagging one."
+    },
+    "Full-Body Integration & Balance": {
+     "kicker": "Today",
+     "title": "Balance is a skill, so treat it like one",
+     "body": "The standing work is where the day is won. If you wobble, that is the exercise working — stay near a wall, touch it when you need to, and take your hand off again as soon as you can."
+    }
+   },
+   "groups": [
+    {
+     "title": "How to run it",
+     "tone": "cycle",
+     "icon": "🔁",
+     "items": [
+      {
+       "title": "Let the breath set the tempo",
+       "body": "Exhale on effort, inhale on the return, and let each repetition last as long as the breath does. That is what makes this different from doing the same movements quickly."
+      },
+      {
+       "title": "Give the timed holds their full time",
+       "body": "The seconds listed on the holds and the closing postures are the exercise. Cutting a 180-second Shavasana to 30 seconds does not shorten the session, it removes part of it."
+      },
+      {
+       "title": "Work in the range you control",
+       "body": "Stop each movement where it is still smooth. The end of your smooth range moves outward on its own over weeks; forcing it does not speed that up."
+      },
+      {
+       "title": "A day between sessions",
+       "body": "Three times a week with rest days between. This is a practice, and practices reward regularity more than intensity."
+      }
+     ]
+    },
+    {
+     "title": "Breath",
+     "tone": "supp",
+     "icon": "🌬",
+     "items": [
+      {
+       "title": "Exhale on the effort",
+       "body": "Curling up, lifting a leg, pressing into a bridge — all on the out-breath. The exhale is what lets the deep abdominal wall engage without you bracing the whole trunk rigid."
+      },
+      {
+       "title": "Three-part breath, when it is listed",
+       "body": "Low into the belly, then the ribs, then the chest, and out in the same order. It closes day two because it slows everything down deliberately."
+      },
+      {
+       "title": "If you lose the breath, make it smaller",
+       "body": "Breath-holding is the reliable signal that a movement has exceeded what you currently control. Reduce the range until you can breathe through it."
+      }
+     ]
+    },
+    {
+     "title": "What to watch for",
+     "tone": "warn",
+     "icon": "⚠️",
+     "items": [
+      {
+       "title": "Pain is not a range you are pushing through",
+       "body": "Stretch sensation is broad and fades as you hold. Sharp, electrical or pinpoint pain is different and means stop. This is a movement program, not treatment for anything."
+      },
+      {
+       "title": "The neck doing the abdominals' job",
+       "body": "If your neck aches during the Hundred or the roll-up, your head is being pulled by neck muscles instead of lifted by the trunk. Put your head down and do fewer reps properly."
+      },
+      {
+       "title": "Speeding up when it gets hard",
+       "body": "Rushing is how the body avoids the part of the range it finds difficult. When you notice yourself speeding up, that is the exact place to slow down."
+      }
+     ]
+    },
+    {
+     "title": "Why it is built this way",
+     "tone": "why",
+     "icon": "🧠",
+     "items": [
+      {
+       "title": "The Eastern openings and closes are not decoration",
+       "body": "Tai Chi and Qigong sequences are built on continuous, unhurried movement tied to breath. Opening with them sets a tempo the Pilates work in the middle then inherits."
+      },
+      {
+       "title": "Knee-friendly throughout",
+       "body": "The kneeling and standing work in this program stays out of deep loaded knee flexion, which is why the wall sit is short and the squatting is supported."
+      }
+     ]
+    }
+   ],
+   "sources": "This guide describes how to run the sessions in this program. It is general movement practice, not a published protocol, and it makes no claims about outcomes. Nothing here is medical advice."
+  },
   "days": [
    {
     "title": "Core Awakening & Spinal Flow",
@@ -1315,6 +2043,158 @@ const SYN_PLANS = [
   "name": "Military Calisthenics & Pelvic Pilates",
   "desc": "4-day program combining military bodyweight conditioning with pelvic floor pilates and hip mobility",
   "kneeSafe": true,
+  "guide": {
+   "blurb": "Military bodyweight conditioning paired with pelvic floor and deep hip work. Two very different jobs in one program — how to run each without one undoing the other.",
+   "rotate": [
+    {
+     "kicker": "Before you start",
+     "title": "Warm the hips before the hard sets",
+     "body": "A minute of hip circles and a few slow bridges before the first push-up set. The pelvic and hip work later in each day goes far better if the area is not cold."
+    },
+    {
+     "kicker": "Every session",
+     "title": "Exhale on the lift, always",
+     "body": "Breathe out as you press, thrust or lift, and let the pelvic floor engage with that exhale rather than being clenched all session. Holding a brace through everything is the most common mistake in this kind of work."
+    },
+    {
+     "kicker": "Daily target",
+     "title": "1.4-2.0 g of protein per kg",
+     "body": "The ISSN position stand range for building and maintaining muscle. There is real strength work in every day of this program, and it needs feeding like any other."
+    },
+    {
+     "kicker": "Tempo",
+     "title": "Three down, one up means three down",
+     "body": "The tempo push-ups are prescribed slow for a reason — the lowering is where most of the work is. Six honest slow reps beat fifteen fast ones."
+    },
+    {
+     "kicker": "Watch for",
+     "title": "Clenching instead of coordinating",
+     "body": "The pelvic work asks for a lift on the exhale and a full release on the inhale. A floor that never releases is not a strong floor. The release is half the exercise."
+    },
+    {
+     "kicker": "Watch for",
+     "title": "Treating the flow days as rest days",
+     "body": "Day two and day four are lower in intensity, not optional. The hip work in them is what keeps the harder days available to you."
+    }
+   ],
+   "after": [
+    {
+     "kicker": "After training",
+     "title": "20-40 g of protein",
+     "body": "0.25 g/kg per serving, or an absolute 20-40 g, per the ISSN stand."
+    },
+    {
+     "kicker": "After training",
+     "title": "Release, do not hold",
+     "body": "Finish with a minute of easy breathing and a full release of everything you have been engaging. Ending a session still braced is how the tension carries into the rest of the day."
+    }
+   ],
+   "days": {
+    "Military Upper Body + Pelvic Power": {
+     "kicker": "Today",
+     "title": "Push hard up top, coordinate down below",
+     "body": "The push-up and plank work is the conditioning; the marching bridge and adductor work is coordination. Different intentions — do not bring the grind of the first half into the second."
+    },
+    "Sensual Flow + Deep Hip Work": {
+     "kicker": "Today",
+     "title": "The slow day, and it earns its place",
+     "body": "Continuous, unhurried, breath-led hip work. Nothing here should feel like effort in the way yesterday did. If you are straining, make the circles smaller."
+    },
+    "Military Core + Glute Strength": {
+     "kicker": "Today",
+     "title": "Holds are timed, so time them",
+     "body": "The plank and bear hold have real durations. Stop when the position breaks, not when the clock runs out — a shorter hold you did not sag through is the better set."
+    },
+    "Full Body Integration + Power Flow": {
+     "kicker": "Today",
+     "title": "Explosive, but only where it says so",
+     "body": "The explosive hip thrust is the one place speed is the point. Everything else, including the reverse lunges, stays controlled — and the lunges are step-back only, on purpose."
+    }
+   },
+   "groups": [
+    {
+     "title": "Fueling",
+     "tone": "fuel",
+     "icon": "🍽",
+     "items": [
+      {
+       "title": "Daily protein: 1.4-2.0 g/kg",
+       "body": "The ISSN position stand puts the range for building and maintaining muscle at 1.4-2.0 g of protein per kg of bodyweight per day for most exercising people. At 68 kg that is roughly 95-135 g a day. If you are eating in a deficit the same stand raises it to 2.3-3.1 g/kg to hold on to lean mass while you lose fat."
+      },
+      {
+       "title": "Per meal: 0.25 g/kg, or 20-40 g",
+       "body": "The same stand recommends 0.25 g per kg per serving, or an absolute 20-40 g, aiming for 700-3000 mg of leucine in each dose. Dairy, eggs, meat, fish and soy all clear that easily; most plant sources need a bigger serving."
+      },
+      {
+       "title": "Every 3-4 hours, not all at dinner",
+       "body": "The stand asks for doses spread evenly every 3-4 hours across the day. Three meals and a snack does it. One large hit at night does not, however big it is."
+      },
+      {
+       "title": "The window is wider than you were told",
+       "body": "The ISSN stand says the anabolic effect of a session lasts at least 24 hours, though it fades as time passes. Eat reasonably soon after training because it is easy and it helps — not because a 30-minute door is closing."
+      }
+     ]
+    },
+    {
+     "title": "How to run it",
+     "tone": "cycle",
+     "icon": "🔁",
+     "items": [
+      {
+       "title": "Exhale on the effort, release on the inhale",
+       "body": "Lift on the out-breath, let go completely on the in-breath. Applies to the pelvic work, the bridges and the presses alike."
+      },
+      {
+       "title": "Honor the tempos",
+       "body": "3 seconds down and one up on the tempo push-ups; slow on the dead bug progression. Where a tempo is written it is the exercise, not a suggestion."
+      },
+      {
+       "title": "Hard days and flow days alternate",
+       "body": "Days one and three are conditioning, days two and four are flow and hip work. Running four hard days instead removes the recovery the hard days depend on."
+      },
+      {
+       "title": "Step-back lunges only",
+       "body": "The reverse lunge is specified step-back rather than forward throughout, which keeps the load off the front knee as it bends. Keep it that way."
+      }
+     ]
+    },
+    {
+     "title": "What to watch for",
+     "tone": "warn",
+     "icon": "⚠️",
+     "items": [
+      {
+       "title": "Pelvic floor symptoms need a clinician",
+       "body": "Leaking, heaviness, pain with movement, or symptoms after childbirth or surgery need a pelvic health physical therapist who can actually assess you. This program is general exercise and cannot tell you what is going on."
+      },
+      {
+       "title": "A floor that never lets go",
+       "body": "Constant clenching is not strength. If you cannot fully release between reps, stop the pelvic work for that session and just breathe."
+      },
+      {
+       "title": "Holding your breath under load",
+       "body": "Bearing down while holding your breath puts pressure exactly where this program is trying to build control. If you cannot breathe through a hold, shorten it."
+      }
+     ]
+    },
+    {
+     "title": "Why it is built this way",
+     "tone": "why",
+     "icon": "🧠",
+     "items": [
+      {
+       "title": "Conditioning and control are trained differently",
+       "body": "Push-up volume and pelvic coordination do not respond to the same approach — one wants effort, the other wants precision. That is why they sit in the same day but not in the same mindset."
+      },
+      {
+       "title": "The hip work protects the hard days",
+       "body": "Deep hip mobility on days two and four is what keeps the range available for the bridges, thrusts and lunges on days one, three and four."
+      }
+     ]
+    }
+   ],
+   "sources": "This guide describes how to run the sessions in this program. It is general movement practice, not a published protocol, and it makes no claims about outcomes. Nothing here is medical advice. Protein numbers are from the International Society of Sports Nutrition Position Stand: protein and exercise (Jager et al., J Int Soc Sports Nutr, 2017;14:20)."
+  },
   "days": [
    {
     "title": "Military Upper Body + Pelvic Power",
@@ -1683,6 +2563,135 @@ const SYN_PLANS = [
   "name": "MovesMethod Mobility Snacks",
   "desc": "4 short mobility routines (10-12 min each). No equipment. Knee-modified. Use as desk breaks, morning snacks, pre-workout primers, or standalone sessions 3-5x/week.",
   "kneeSafe": true,
+  "guide": {
+   "blurb": "Four ten-minute routines you can drop into a working day. What a mobility snack is actually for, and how to get something out of 10 minutes rather than just filling them.",
+   "rotate": [
+    {
+     "kicker": "The whole idea",
+     "title": "Little and often beats long and rare",
+     "body": "10 minutes four or five times a week does more for how you move than one long session a fortnight. The point of a snack is that it is small enough that you actually do it."
+    },
+    {
+     "kicker": "Every rep",
+     "title": "Active beats passive, every time",
+     "body": "These are not stretches you sink into. You move yourself to the end of a range under your own power and hold yourself there. That is the difference between this and stretching."
+    },
+    {
+     "kicker": "CARs",
+     "title": "Slowest circle you can make",
+     "body": "A Controlled Articular Rotation is the largest circle that one joint can make while everything else stays completely still. 30-60 seconds per side, and if the rest of you is moving, make the circle smaller."
+    },
+    {
+     "kicker": "When to use them",
+     "title": "Desk break, morning, or before training",
+     "body": "All three work. Before a workout they prime the ranges you are about to use; at a desk they interrupt the position you have been stuck in. There is no wrong slot."
+    },
+    {
+     "kicker": "Watch for",
+     "title": "Rushing to fit it in 10 minutes",
+     "body": "If you speed up to finish the list, cut an exercise instead. Four movements done properly beat six done fast."
+    },
+    {
+     "kicker": "Consistency",
+     "title": "Three to five times a week",
+     "body": "Rotate through the four days in any order. Repeating the same one twice in a week is fine — doing none of them is the only way to get this wrong."
+    }
+   ],
+   "after": [
+    {
+     "kicker": "After the snack",
+     "title": "Use the range before it fades",
+     "body": "Do something with the range you just opened — stand up straight, reach overhead, take a proper deep squat. Range you never use is range that closes again."
+    },
+    {
+     "kicker": "After the snack",
+     "title": "You should feel better, not wrecked",
+     "body": "These are meant to leave you looser and more awake. If a snack leaves you sore or tired, it was too much or too fast for where you are."
+    }
+   ],
+   "days": {
+    "Spine & Thoracic": {
+     "kicker": "Today",
+     "title": "Rotation and side-bending, the two you never do",
+     "body": "Almost nothing in a normal day asks your mid-back to rotate or side-bend under control. That is exactly why this one is worth the 10 minutes. Move from the ribs, not the lower back."
+    },
+    "Hips & Pelvis": {
+     "kicker": "Today",
+     "title": "Rotation in both directions",
+     "body": "The 90/90 switches and hip CARs train internal and external rotation, which most hip work skips entirely. Go slowly enough that you can keep your ribs down and your pelvis quiet."
+    },
+    "Shoulders & Upper Body": {
+     "kicker": "Today",
+     "title": "Overhead is a skill you keep or lose",
+     "body": "Dislocates, CARs and wall slides all defend overhead range. Widen your grip on the dislocates until you can get around without your ribs flaring — then narrow it over weeks."
+    },
+    "Full Body Integration": {
+     "kicker": "Today",
+     "title": "Locomotion, not exercises",
+     "body": "Bear crawl, lateral crawl and the deep squat are whole-body coordination rather than isolated joints. Slow and quiet is the standard — if you are thudding, slow down."
+    }
+   },
+   "groups": [
+    {
+     "title": "How to run it",
+     "tone": "cycle",
+     "icon": "🔁",
+     "items": [
+      {
+       "title": "Active, not passive",
+       "body": "Move yourself to the end of the range and hold yourself there under your own power. Nothing here is a sink-into-it stretch."
+      },
+      {
+       "title": "Slow enough to be boring",
+       "body": "A CAR done in 10 seconds is a swing. Done in thirty to sixty, it is the exercise. Slow is the whole mechanism, not a style choice."
+      },
+      {
+       "title": "Keep everything else still",
+       "body": "The value of a joint circle is in what does not move. If your ribs, pelvis or lower back are joining in, reduce the size of the circle until they stop."
+      },
+      {
+       "title": "Any time of day",
+       "body": "Desk break, morning, or as a primer before training. 10 minutes is short enough that the best time is whenever you will actually do it."
+      }
+     ]
+    },
+    {
+     "title": "What to watch for",
+     "tone": "warn",
+     "icon": "⚠️",
+     "items": [
+      {
+       "title": "Stretching into pain",
+       "body": "Broad stretch sensation is fine. Sharp, pinpoint, electrical or radiating sensation is not, and means back out of that position now."
+      },
+      {
+       "title": "Borrowing range from the lower back",
+       "body": "The spine will happily give you the rotation your hips or mid-back are not providing. If a movement suddenly gets easier, check whether your lower back just took over."
+      },
+      {
+       "title": "Making it a workout",
+       "body": "These are ten-minute snacks. Adding load, reps or intensity turns them into training you then need to recover from, which defeats the purpose of something you do most days."
+      }
+     ]
+    },
+    {
+     "title": "Why it is built this way",
+     "tone": "why",
+     "icon": "🧠",
+     "items": [
+      {
+       "title": "Ranges you do not visit, you lose",
+       "body": "A joint keeps the range you regularly ask it for under control. Short, frequent visits to end range are the practical way to keep asking."
+      },
+      {
+       "title": "10 minutes is the design constraint",
+       "body": "Not a compromise — the length is what makes it repeatable most days, and repeatable most days is what this kind of work needs."
+      }
+     ]
+    }
+   ],
+   "sources": "This guide describes how to run the sessions in this program. It is general movement practice, not a published protocol, and it makes no claims about outcomes. Nothing here is medical advice."
+  },
   "days": [
    {
     "title": "Spine & Thoracic",
@@ -1922,6 +2931,150 @@ const SYN_PLANS = [
   "name": "Joint Mobility Mastery",
   "desc": "7 short joint-focused mini-workouts (8-12 min each). One joint per day: ankles, knees, hips, spine, shoulders, wrists, neck. Builds end-range strength and resilience at every joint.",
   "kneeSafe": true,
+  "guide": {
+   "blurb": "One joint a day, 8-12 minutes each: ankles, knees, hips, spine, shoulders, wrists, neck. Why end-range strength is the goal rather than flexibility, and how to build it without flaring anything.",
+   "rotate": [
+    {
+     "kicker": "The whole idea",
+     "title": "Strength at the end of the range, not just range",
+     "body": "Flexibility you cannot control is not much use. Every day here asks you to produce force at the far end of a joint's range, which is the part almost nothing else in a week trains."
+    },
+    {
+     "kicker": "CARs",
+     "title": "The slowest circle you can make",
+     "body": "Largest circle that one joint can make while everything else holds still. 30-60 seconds a side. If the rest of you starts moving, the circle is too big — shrink it."
+    },
+    {
+     "kicker": "Every session",
+     "title": "8 minutes done is worth more than twenty skipped",
+     "body": "These are short on purpose. The whole design assumes you will do one nearly every day, and that only happens if each one is genuinely small."
+    },
+    {
+     "kicker": "Watch for",
+     "title": "Chasing depth on the loaded days",
+     "body": "The Jefferson curl, reverse Nordic and Cossack squat all reward patience and punish enthusiasm. Add a little range every few weeks, never in one session."
+    },
+    {
+     "kicker": "Order",
+     "title": "Any order, but do not skip the awkward one",
+     "body": "Wrists and neck are the two people quietly drop. They are also the two that most reliably cause trouble when neglected for years."
+    },
+    {
+     "kicker": "Progress",
+     "title": "Smoother is progress",
+     "body": "Range is the obvious marker but not the first one. A circle that used to catch and now runs smoothly is the adaptation showing up before any extra range does."
+    }
+   ],
+   "after": [
+    {
+     "kicker": "After the session",
+     "title": "Stand up and use it",
+     "body": "Reach overhead, sink into a squat, turn your head fully both ways. Range that gets used immediately is range the nervous system keeps."
+    },
+    {
+     "kicker": "After the session",
+     "title": "Sore the next day means too much",
+     "body": "These should leave you moving better, not aching. Next-day soreness from a mobility session means the range or the load went beyond what the joint could take."
+    }
+   ],
+   "days": {
+    "Ankles": {
+     "kicker": "Today",
+     "title": "The joint that limits your squat",
+     "body": "Ankle dorsiflexion is the most common reason a squat cannot get deep. The wall knee drive is the money exercise here — heel down, knee past toes, no rolling inward."
+    },
+    "Knees": {
+     "kicker": "Today",
+     "title": "Knee-safe by design, and still hard",
+     "body": "The reverse Nordic is modified and the step-down is slow because loaded deep knee flexion is what this day deliberately avoids. Go only as far as you can come back from under control."
+    },
+    "Hips": {
+     "kicker": "Today",
+     "title": "Rotation is the range you are missing",
+     "body": "The 90/90 lift-off asks for active internal and external rotation, which almost no other training touches. Lifting the leg an inch off the floor under control is a real achievement here."
+    },
+    "Spine": {
+     "kicker": "Today",
+     "title": "One segment at a time",
+     "body": "The Jefferson curl is a segmental exercise, not a toe-touch. Roll down one vertebra at a time with no weight, and stack back up the same way. Bodyweight only, and no rush."
+    },
+    "Shoulders": {
+     "kicker": "Today",
+     "title": "Overhead, and hanging",
+     "body": "Wall angels and the active hang defend overhead range. Active hang means shoulders pulled down away from your ears, not a dead hang — that is the strength half of the exercise."
+    },
+    "Wrists": {
+     "kicker": "Today",
+     "title": "The day everyone skips",
+     "body": "Wrists take load in every push-up, plank and press and get trained directly almost never. Start with less weight through the hands than you think, especially on the backs of the hands."
+    },
+    "Neck": {
+     "kicker": "Today",
+     "title": "Gentle is the whole instruction",
+     "body": "Isometrics here are light pressure held for 5 seconds, not a contest. Any dizziness, tingling into the arms, or sharp pain means stop and see someone."
+    }
+   },
+   "groups": [
+    {
+     "title": "How to run it",
+     "tone": "cycle",
+     "icon": "🔁",
+     "items": [
+      {
+       "title": "Slow, active, and everything else still",
+       "body": "Every joint circle is done under your own power, as slowly as you can manage, with the rest of the body holding position. Speed and body English are how the range gets faked."
+      },
+      {
+       "title": "One joint a day, most days",
+       "body": "Seven short sessions covering seven joints. Missing one is fine; the cycle just picks up where you left off."
+      },
+      {
+       "title": "Range before load, always",
+       "body": "Earn the position with bodyweight before adding anything to it. This applies most to the Jefferson curl and the reverse Nordic."
+      },
+      {
+       "title": "Give the isometrics their seconds",
+       "body": "Where a hold is listed in seconds — the balance, the hang, the neck isometrics — those seconds are the exercise."
+      }
+     ]
+    },
+    {
+     "title": "What to watch for",
+     "tone": "warn",
+     "icon": "⚠️",
+     "items": [
+      {
+       "title": "Neck symptoms are different from neck stiffness",
+       "body": "Dizziness, visual changes, or tingling or numbness into the arms during neck work means stop and get seen. That is not a range problem."
+      },
+      {
+       "title": "Loading a spine you have not warmed",
+       "body": "The Jefferson curl goes after the segmental Cat-Cow, not before it, and stays at bodyweight. Adding weight to a rounded spine is a decision to make with a coach who can watch you, not from an app."
+      },
+      {
+       "title": "Soreness in the joint itself",
+       "body": "Muscle soreness after this work is ordinary. Ache inside the joint is not, and means the last session went past the range that joint currently tolerates."
+      }
+     ]
+    },
+    {
+     "title": "Why it is built this way",
+     "tone": "why",
+     "icon": "🧠",
+     "items": [
+      {
+       "title": "End-range strength is what makes range usable",
+       "body": "A range you can only reach passively is a range your body will guard. Producing force there is what turns it into range you can actually move through."
+      },
+      {
+       "title": "Short sessions, high frequency",
+       "body": "8-12 minutes is short enough to do nearly every day, and frequency is what this kind of adaptation responds to."
+      }
+     ]
+    }
+   ],
+   "sources": "This guide describes how to run the sessions in this program. It is general movement practice, not a published protocol, and it makes no claims about outcomes. Nothing here is medical advice."
+  },
   "days": [
    {
     "title": "Ankles",
@@ -2221,6 +3374,130 @@ const SYN_PLANS = [
   "name": "MovesMethod Workouts",
   "desc": "3 longer (20-30 min) full-body mobility sessions. Builds flexibility through full-range strength training - no endless stretching. Can be your primary training.",
   "kneeSafe": true,
+  "guide": {
+   "blurb": "Three longer sessions that build flexibility through full-range strength rather than endless stretching. How to run them, and what to expect them to feel like.",
+   "rotate": [
+    {
+     "kicker": "The whole idea",
+     "title": "Strength through range, not stretching",
+     "body": "You are asking muscles to produce force in positions they usually only get passively stretched into. That is why these feel like work rather than like a stretch class."
+    },
+    {
+     "kicker": "Every session",
+     "title": "Slow is the load",
+     "body": "There are no weights here, so tempo is what makes it hard. If a movement feels easy, do it more slowly before you do more of it."
+    },
+    {
+     "kicker": "Flows",
+     "title": "A flow is continuous, not a set of reps",
+     "body": "The flows are meant to run without stopping between positions. Moving between them is as much the exercise as arriving at them."
+    },
+    {
+     "kicker": "Watch for",
+     "title": "Bouncing at the bottom of a range",
+     "body": "Any bounce is the body borrowing momentum to avoid the hard part of the range. Stop where you can hold, and hold it."
+    },
+    {
+     "kicker": "Consistency",
+     "title": "Three a week, spaced out",
+     "body": "25 minutes, three times a week, with a day between. These can be your whole training — they are not designed as an add-on to something else."
+    },
+    {
+     "kicker": "Progress",
+     "title": "Smoother first, deeper later",
+     "body": "The first thing that changes is how cleanly you move between positions. Extra depth follows that, usually weeks later."
+    }
+   ],
+   "after": [
+    {
+     "kicker": "After the session",
+     "title": "Stand still for a minute",
+     "body": "Notice what moves more easily than it did at the start. It is the quickest honest read on whether the session was the right amount."
+    },
+    {
+     "kicker": "After the session",
+     "title": "Loose and warm, not wrecked",
+     "body": "These should leave you feeling better than you started. Wrecked means too fast or too deep, not too much commitment."
+    }
+   ],
+   "days": {
+    "Full Body Movement Flow": {
+     "kicker": "Today",
+     "title": "Head to toe, nothing skipped",
+     "body": "The broadest of the three. The active hang and deep squat hold at the end are the two that most people cut short — they are also the two doing the most."
+    },
+    "Posterior Chain Mobility": {
+     "kicker": "Today",
+     "title": "The whole back of you",
+     "body": "Spine, glutes and hamstrings. The single-leg RDL is assisted on purpose: use the support, and take it away gradually over weeks rather than in one session."
+    },
+    "Move Like a Human": {
+     "kicker": "Today",
+     "title": "Locomotion, and it is meant to be awkward",
+     "body": "Bear crawl, crab walk and the get-up are coordination as much as mobility. Feeling clumsy is the exercise working. Slow and quiet is the standard."
+    }
+   },
+   "groups": [
+    {
+     "title": "How to run it",
+     "tone": "cycle",
+     "icon": "🔁",
+     "items": [
+      {
+       "title": "Tempo is the only load you have",
+       "body": "No weights means slowness is what makes it demanding. Slow the movement down before you add range or reps."
+      },
+      {
+       "title": "Run the flows continuously",
+       "body": "Where the plan says flow, move from one position to the next without a pause. The transitions are part of it."
+      },
+      {
+       "title": "Use the assistance, then reduce it",
+       "body": "The assisted Cossack, single-leg RDL and squat-to-stand are meant to be supported at first. Reduce the support over weeks; removing it in one session is how a good position becomes a bad one."
+      },
+      {
+       "title": "Give the holds their seconds",
+       "body": "The active hang and deep squat hold have times on them. Those seconds are the exercise, not a cool-down."
+      }
+     ]
+    },
+    {
+     "title": "What to watch for",
+     "tone": "warn",
+     "icon": "⚠️",
+     "items": [
+      {
+       "title": "Bouncing to reach depth",
+       "body": "Momentum takes you past the range you control and gives nothing back. If you need a bounce to get there, that is not your range yet."
+      },
+      {
+       "title": "Pain rather than effort",
+       "body": "Working muscles at long lengths is uncomfortable in a broad, spread-out way. Sharp or pinpoint pain is different and means stop."
+      },
+      {
+       "title": "Adding load to a range you cannot hold",
+       "body": "Everything here is bodyweight for a reason. Range you can hold under control is the prerequisite for any load, not the other way around."
+      }
+     ]
+    },
+    {
+     "title": "Why it is built this way",
+     "tone": "why",
+     "icon": "🧠",
+     "items": [
+      {
+       "title": "Full-range strength is what keeps flexibility",
+       "body": "Range that is only ever stretched into tends not to stick. Producing force through it is what makes it available when you need it."
+      },
+      {
+       "title": "25 minutes, three times a week, can be the whole program",
+       "body": "These are complete sessions rather than a warm-up for something else. Run them that way."
+      }
+     ]
+    }
+   ],
+   "sources": "This guide describes how to run the sessions in this program. It is general movement practice, not a published protocol, and it makes no claims about outcomes. Nothing here is medical advice. The program name refers to the style of session, and this guide does not reproduce or paraphrase any published MovesMethod material."
+  },
   "days": [
    {
     "title": "Full Body Movement Flow",
@@ -2449,6 +3726,158 @@ const SYN_PLANS = [
   "name": "Dumbbell 49 Supersets",
   "desc": "4-day paired split — no rest between partners",
   "kneeSafe": false,
+  "guide": {
+   "blurb": "Forty-nine dumbbell exercises paired so one partner rests while the other works. How to run supersets without turning a strength session into cardio.",
+   "rotate": [
+    {
+     "kicker": "The whole idea",
+     "title": "Rest inside the pair, not after it",
+     "body": "Each pair works opposing jobs — a press against a pull, a knee-dominant lift against a hip-dominant one. While one is working the other is recovering, which is what lets you skip the sit-down rest without wrecking the quality of either lift."
+    },
+    {
+     "kicker": "Between pairs",
+     "title": "Still take 90 seconds",
+     "body": "No rest between the two partners; a real rest after the pair. Schoenfeld's 2016 trial found longer rest gave greater strength and hypertrophy than short rest — supersets save time by removing the gap in the middle, not by removing rest altogether."
+    },
+    {
+     "kicker": "Daily target",
+     "title": "1.4-2.0 g of protein per kg",
+     "body": "The ISSN position stand range for building and maintaining muscle. Four dense sessions a week is a lot of repair; this is the input that most often turns out to be short."
+    },
+    {
+     "kicker": "Set up first",
+     "title": "Both pairs of dumbbells out before you start",
+     "body": "The whole benefit disappears if you spend 40 seconds hunting for the second weight. Lay both out, then start. This is the single biggest practical difference between a superset that works and one that does not."
+    },
+    {
+     "kicker": "Watch for",
+     "title": "Letting the second lift become an afterthought",
+     "body": "The partner you do second gets whatever effort is left. Swap the order within each pair every second week so neither one lives permanently in the other's shadow."
+    },
+    {
+     "kicker": "Watch for",
+     "title": "Breathless is not the goal",
+     "body": "If you are gasping, the weights are too light and you are doing conditioning. These should still feel like hard sets of a strength exercise, just with less standing around."
+    }
+   ],
+   "after": [
+    {
+     "kicker": "After training",
+     "title": "20-40 g of protein",
+     "body": "0.25 g/kg per serving, or an absolute 20-40 g with 700-3000 mg of leucine, per the ISSN stand."
+    },
+    {
+     "kicker": "After training",
+     "title": "Note which pair fell apart",
+     "body": "One pair in each session usually degrades faster than the rest. Write down which — that is the one to lead with next time."
+    }
+   ],
+   "days": {
+    "Chest & Lats": {
+     "kicker": "Today",
+     "title": "Press against pull, six pairs",
+     "body": "Nothing in a pair competes: while you press, your lats rest, and vice versa. If a pair leaves you unable to do the second lift properly, the first one was too heavy."
+    },
+    "Quads, Hams & Glutes": {
+     "kicker": "Today",
+     "title": "Knee-dominant against hip-dominant",
+     "body": "Squats pair with RDLs, lunges with hip thrusts. Legs are where supersets get genuinely hard — if you need 30 seconds between partners today, take it."
+    },
+    "Shoulders & Biceps": {
+     "kicker": "Today",
+     "title": "Shoulders with biceps, never triceps",
+     "body": "Both shoulders and triceps press, so pairing them would leave both underdone. Curls give the delts a genuine rest, which is the entire reason the day is built this way."
+    },
+    "Back, Triceps & Calves": {
+     "kicker": "Today",
+     "title": "Rows with triceps, then calves to close",
+     "body": "Pulling rests the triceps and pressing rests the back. The calf and core work at the end is the least fatiguing part of the week — do not rush it just because it is last."
+    }
+   },
+   "groups": [
+    {
+     "title": "Fueling",
+     "tone": "fuel",
+     "icon": "🍽",
+     "items": [
+      {
+       "title": "Daily protein: 1.4-2.0 g/kg",
+       "body": "The ISSN position stand puts the range for building and maintaining muscle at 1.4-2.0 g of protein per kg of bodyweight per day for most exercising people. At 68 kg that is roughly 95-135 g a day. If you are eating in a deficit the same stand raises it to 2.3-3.1 g/kg to hold on to lean mass while you lose fat."
+      },
+      {
+       "title": "Per meal: 0.25 g/kg, or 20-40 g",
+       "body": "The same stand recommends 0.25 g per kg per serving, or an absolute 20-40 g, aiming for 700-3000 mg of leucine in each dose. Dairy, eggs, meat, fish and soy all clear that easily; most plant sources need a bigger serving."
+      },
+      {
+       "title": "Every 3-4 hours, not all at dinner",
+       "body": "The stand asks for doses spread evenly every 3-4 hours across the day. Three meals and a snack does it. One large hit at night does not, however big it is."
+      },
+      {
+       "title": "The window is wider than you were told",
+       "body": "The ISSN stand says the anabolic effect of a session lasts at least 24 hours, though it fades as time passes. Eat reasonably soon after training because it is easy and it helps — not because a 30-minute door is closing."
+      }
+     ]
+    },
+    {
+     "title": "How to run it",
+     "tone": "cycle",
+     "icon": "🔁",
+     "items": [
+      {
+       "title": "No rest inside the pair, 90 seconds after it",
+       "body": "Finish lift A, go straight into lift B, then rest properly before starting the pair again. That is the structure; removing the rest after the pair as well turns it into circuit training."
+      },
+      {
+       "title": "Both weights out before the first rep",
+       "body": "The whole time saving is lost hunting for dumbbells mid-pair. Set both up first, every time."
+      },
+      {
+       "title": "Pick weights you can finish the pair with",
+       "body": "Choose the load for lift B assuming you have just done lift A. Most people load the first partner as if it were a standalone set and then cannot complete the second."
+      },
+      {
+       "title": "Alternate the order every fortnight",
+       "body": "Whichever lift goes second gets less. Swapping the order every couple of weeks keeps them even."
+      }
+     ]
+    },
+    {
+     "title": "What to watch for",
+     "tone": "warn",
+     "icon": "⚠️",
+     "items": [
+      {
+       "title": "Turning strength work into conditioning",
+       "body": "If your breathing is the limiting factor rather than the muscle, the weights are too light. Add load and keep the rest after each pair."
+      },
+      {
+       "title": "Form slipping on the second lift",
+       "body": "The partner you do second is where technique goes first. If it is breaking down, drop that weight rather than grinding through the reps."
+      },
+      {
+       "title": "Adding load before the reps are clean",
+       "body": "Same rule as any strength program: every prescribed rep, clean, on every set, before the weight goes up."
+      }
+     ]
+    },
+    {
+     "title": "Why it is built this way",
+     "tone": "why",
+     "icon": "🧠",
+     "items": [
+      {
+       "title": "Opposing muscles let you skip the wait, not the work",
+       "body": "A pair only works if the two lifts do not compete. Press with pull, knee with hip, shoulders with biceps — that is why the pairings are fixed rather than convenient."
+      },
+      {
+       "title": "Four days covers every muscle twice",
+       "body": "Schoenfeld, Ogborn and Krieger's meta-analysis supports at least twice a week per muscle. Across the four days here, each area gets a direct session and an indirect one."
+      }
+     ]
+    }
+   ],
+   "sources": "Protein numbers: International Society of Sports Nutrition Position Stand: protein and exercise (Jager et al., J Int Soc Sports Nutr, 2017;14:20). Training a muscle twice a week: Schoenfeld, Ogborn and Krieger, Effects of Resistance Training Frequency on Measures of Muscle Hypertrophy, Sports Med, 2016 — higher frequency gave a larger hypertrophy effect size than lower (0.49 vs 0.30, P = 0.002). Rest periods: Schoenfeld et al., Longer Interset Rest Periods Enhance Muscle Strength and Hypertrophy in Resistance-Trained Men, J Strength Cond Res, 2016;30(7):1805-1812. Set and rep prescriptions in this program are ordinary strength-training practice, not findings from these papers. The exercise list is taken from the Instagram post this program was built from; the author of that post is not named in it and no claims from it are reproduced here."
+  },
   "days": [
    {
     "title": "Chest & Lats",
