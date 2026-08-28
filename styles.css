@@ -111,6 +111,12 @@
   --r-btn:       12px;
   --r-tag:       4px;
   --display: Archivo, "Archivo Expanded", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  /* Two stacks the guide screen uses and nothing else does. The guide is the
+     one screen in TX Method you read rather than scan, so its prose gets a
+     serif, and every figure in it gets a mono with tabular numerals — a dose
+     set in the body face disappears into the sentence around it. */
+  --f-read: "Source Serif 4", "Iowan Old Style", Georgia, "Times New Roman", serif;
+  --f-data: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, "Liberation Mono", monospace;
   --radius: 13px;
   --safe-top:    env(safe-area-inset-top, 0px);
   --safe-bottom: env(safe-area-inset-bottom, 0px);
@@ -1021,40 +1027,44 @@ h2.section::after { content: ''; flex: 1; height: 1px; background: var(--border)
 .note-guide b { color: var(--text); }
 .note-guide-more { margin-top: 10px; display: inline-block; }
 
-.guide-blurb { font-size: 13.5px; line-height: 1.55; color: var(--muted); padding: 15px 16px; }
-.guide-today { display: grid; gap: 10px; }
-.guide-card { border-left: 3px solid var(--accent); padding: 14px 16px 15px; }
-.guide-card-title {
-  font-family: var(--display); font-weight: 800; font-size: 16px;
-  line-height: 1.12; margin: 3px 0 6px;
+/* ---- the guide screen ----
+   Every other screen in the app is scanned: a number, a tick, the next set.
+   The guide is the one you actually sit and read, so it is set like a
+   document rather than a stack of cards — a masthead with real display type,
+   numbered sections, a serif for the prose and a mono for every figure.
+   All of it scoped to .guide-*, so no other screen changes shape. */
+
+/* masthead */
+.guide-mast { padding: 2px 2px 0; margin: 0 0 26px; }
+.guide-eyebrow {
+  font-family: var(--f-data); font-size: 10px; font-weight: 600;
+  letter-spacing: .18em; text-transform: uppercase; color: var(--dim);
 }
-.guide-card-body { font-size: 13.5px; line-height: 1.55; color: var(--muted); margin: 0; }
-.guide-group + .guide-group { margin-top: 4px; }
-.guide-items { display: grid; gap: 9px; }
-.guide-item { padding: 13px 15px 14px; }
-.guide-item-title {
-  font-family: var(--display); font-weight: 700; font-size: 13.5px;
-  text-transform: uppercase; letter-spacing: .4px; margin-bottom: 5px;
+.guide-title {
+  font-family: var(--display); font-weight: 900; text-transform: uppercase;
+  font-size: clamp(30px, 9.2vw, 52px); line-height: .94; letter-spacing: -.022em;
+  color: var(--text); margin: 11px 0 0; text-wrap: balance;
 }
-.guide-item-body { font-size: 13px; line-height: 1.55; color: var(--muted); margin: 0; }
-/* Doses lifted out of the sentence. The guide is mostly numbers, and a
-   figure buried mid-paragraph is a figure you scroll past. Accent-ink
-   rather than the fill accent: this is text, and lime on cream is ~1.4:1. */
-.g-dose {
-  color: var(--accent-ink); font-weight: 800;
-  font-variant-numeric: tabular-nums; white-space: nowrap;
+.guide-mast-rule { height: 2px; background: var(--text); opacity: .8; margin-top: 15px; }
+.guide-lead {
+  font-family: var(--f-read); font-size: 16px; line-height: 1.62;
+  color: var(--text-soft); margin: 15px 0 0; max-width: 62ch;
 }
+
 /* ---- a colour per section ----
    One accent across the whole guide made it read as a single unbroken wall.
-   Each section now carries its own hue, applied in four places at once —
-   heading, the rule beside it, the icon chip, and the card's leading edge —
-   so a section announces itself before you have read a word of it, and you
-   always know which one you are in.
+   Each section carries its own hue, applied in four places at once — the
+   numeral, the rule under the heading, the icon chip and the card's leading
+   edge — so a section announces itself before you have read a word of it.
 
    Base values are the DARK theme, matching :root; the light theme overrides
    below. Warnings are red-orange rather than the old gold: --hl-ink resolves
    to #8a5a00 on light, a muddy brown that read as neither bright nor urgent. */
-.guide-group { --gc: var(--accent); --gc-ink: var(--accent-ink); --gc-wash: rgba(129, 140, 248, .16); }
+/* the untoned default (used by "For today") takes --accent-ink for the fill
+   too, not --accent: the fill accent is #4f46e5, which at 40% on the dark
+   background is a numeral you cannot see. Every toned group already sets
+   --gc and --gc-ink to the same value, so this makes the default match. */
+.guide-group { --gc: var(--accent-ink); --gc-ink: var(--accent-ink); --gc-wash: rgba(129, 140, 248, .16); }
 .guide-group[data-tone="fuel"]  { --gc: #34d399; --gc-ink: #34d399; --gc-wash: rgba(52, 211, 153, .16); }
 .guide-group[data-tone="supp"]  { --gc: #c4b5fd; --gc-ink: #c4b5fd; --gc-wash: rgba(196, 181, 253, .16); }
 .guide-group[data-tone="cycle"] { --gc: #67e8f9; --gc-ink: #67e8f9; --gc-wash: rgba(103, 232, 249, .16); }
@@ -1066,34 +1076,96 @@ h2.section::after { content: ''; flex: 1; height: 1px; background: var(--border)
 :root[data-theme="light"] .guide-group[data-tone="warn"]  { --gc: #c2410c; --gc-ink: #c2410c; --gc-wash: rgba(194, 65, 12, .10); }
 :root[data-theme="light"] .guide-group[data-tone="why"]   { --gc: #4338ca; --gc-ink: #4338ca; --gc-wash: rgba(67, 56, 202, .10); }
 
-/* heading: the section's colour, a chip round the icon, and its own rule */
-.guide-head { gap: 9px; color: var(--gc-ink); font-size: 12px; }
-.guide-head::after { background: var(--gc); opacity: .35; }
-.guide-ico {
-  font-size: 13px; line-height: 1; flex: 0 0 auto;
-  background: var(--gc-wash); border-radius: 7px; padding: 5px 6px;
+.guide-group + .guide-group { margin-top: 34px; }
+
+/* section heading: a ghosted numeral, the icon, the title at a size worth
+   stopping for, and the section's own rule underneath */
+.guide-head {
+  position: relative; display: flex; align-items: baseline; gap: 11px;
+  margin: 0 2px 14px; padding: 0 0 12px;
+  font-family: var(--display); font-weight: 800; font-size: inherit;
+  text-transform: none; letter-spacing: normal; color: var(--text);
 }
-/* the leading edge is what your eye catches while scrolling past */
-.guide-item { border-left: 3px solid var(--gc); }
-.guide-item-title { color: var(--gc-ink); }
-/* doses take the section's colour too, so a card reads as one piece rather
-   than two competing highlights */
-.guide-group .g-dose { color: var(--gc-ink); }
+.guide-head::after {
+  content: ''; position: absolute; left: 0; right: 0; bottom: 0;
+  height: 2px; background: var(--gc); opacity: .5; border-radius: 2px; flex: none;
+}
+.guide-num {
+  font-family: var(--display); font-weight: 900;
+  font-size: clamp(23px, 6.4vw, 32px); line-height: .85;
+  letter-spacing: -.04em; font-variant-numeric: tabular-nums;
+  color: var(--gc); opacity: .4; flex: 0 0 auto;
+}
+.guide-head-t {
+  font-size: clamp(19px, 5.6vw, 27px); line-height: 1.04;
+  letter-spacing: -.012em; text-wrap: balance;
+}
+.guide-ico {
+  font-size: 13px; line-height: 1; flex: 0 0 auto; align-self: center;
+  background: var(--gc-wash); border-radius: 7px; padding: 6px 7px;
+}
+
+/* cards: the leading edge is what your eye catches while scrolling past */
+.guide-items { display: grid; gap: 10px; }
+.guide-item { padding: 16px 17px 17px; border-left: 3px solid var(--gc); }
+.guide-item-title {
+  font-family: var(--display); font-weight: 800; font-size: 16.5px;
+  line-height: 1.16; letter-spacing: -.006em; text-transform: none;
+  color: var(--text); margin: 0 0 8px;
+}
+.guide-item-body, .guide-card-body {
+  font-family: var(--f-read); font-size: 15px; line-height: 1.62;
+  color: var(--text-soft); margin: 0;
+}
 /* cautions get a tinted card as well — the one group that is a warning
    rather than an instruction, and worth spotting without reading */
 .guide-group-warn .guide-item { background: var(--gc-wash); }
-/* roomier than the default card text — this is read, not scanned for a number
-   only, and the previous 13px at 1.55 ran as an undifferentiated block */
-.guide-item-body, .guide-card-body { font-size: 13.5px; line-height: 1.62; }
-.guide-item-title { font-size: 14px; letter-spacing: .3px; margin-bottom: 6px; }
-.guide-item { padding: 15px 16px 16px; }
-.guide-items { gap: 10px; }
-.guide-group + .guide-group { margin-top: 18px; }
 
-.guide-sources { padding: 14px 16px; margin-top: 14px; }
-.guide-sources p { font-size: 12px; line-height: 1.5; color: var(--dim); margin: 4px 0 0; }
-.guide-empty p { font-size: 13.5px; line-height: 1.55; color: var(--muted); margin: 6px 0 0; }
-@media (min-width: 760px) { .guide-items { grid-template-columns: repeat(2, 1fr); } }
+/* today's three cards, above the reference sections */
+.guide-today { display: grid; gap: 10px; }
+.guide-card { border-left: 3px solid var(--gc); padding: 16px 17px 17px; }
+.guide-card .rail-kicker { color: var(--gc-ink); }
+.guide-card-title {
+  font-family: var(--display); font-weight: 800; font-size: 17px;
+  line-height: 1.14; letter-spacing: -.006em; color: var(--text); margin: 4px 0 8px;
+}
+
+/* Doses lifted out of the sentence. The guide is mostly numbers, and a
+   figure buried mid-paragraph is a figure you scroll past. Mono and
+   tabular so every dose in the column lines up, and accent-ink rather than
+   the fill accent: this is text, and lime on cream is ~1.4:1. */
+.g-dose {
+  font-family: var(--f-data); font-size: .93em; font-weight: 600;
+  letter-spacing: -.01em; color: var(--accent-ink);
+  font-variant-numeric: tabular-nums; white-space: nowrap;
+  /* a mono space carries a full character advance, so "15 g" set in mono
+     inside proportional prose reads as "15  g". Measured at this size the
+     mono space is 8.4px against the serif's 3.8px, so pull .3em back out of
+     it — the nowrap above already stops it breaking. */
+  word-spacing: -.3em;
+}
+/* doses take the section's colour, so a card reads as one piece rather than
+   two competing highlights */
+.guide-group .g-dose, .guide-card .g-dose { color: var(--gc-ink); }
+
+/* sources: a footer, not another card competing with the content */
+.guide-sources {
+  background: none; border: 0; border-top: 1px solid var(--border);
+  border-radius: 0; padding: 16px 2px 0; margin: 34px 0 0;
+}
+.guide-sources .rail-kicker { color: var(--dim); }
+.guide-sources p {
+  font-family: var(--f-read); font-size: 13px; line-height: 1.6;
+  color: var(--muted); margin: 6px 0 0; max-width: 62ch;
+}
+.guide-empty p {
+  font-family: var(--f-read); font-size: 15px; line-height: 1.6;
+  color: var(--text-soft); margin: 6px 0 0;
+}
+@media (min-width: 760px) {
+  .guide-items, .guide-today { grid-template-columns: repeat(2, 1fr); }
+  .guide-lead { font-size: 17px; }
+}
 
 .proto.locked-proto { opacity: .5; }
 .proto.locked-proto .proto-art { background: var(--bg2); }

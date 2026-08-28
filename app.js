@@ -3740,13 +3740,30 @@ function renderGuide() {
   const d = pdata()[dayNum - 1];
   const today = guideCardsFor(dayNum, d && d.title);
 
+  /* Sections are numbered in the order they actually render, so the numeral
+     means "third thing on this page" rather than "third entry in the data" —
+     which is what it looks like it means when you are scrolling. */
+  let n = 0;
+  const head = (title, icon) => {
+    n += 1;
+    return `<h2 class="guide-head">
+      <span class="guide-num">${String(n).padStart(2, '0')}</span>
+      ${icon ? `<span class="guide-ico" aria-hidden="true">${icon}</span>` : ''}
+      <span class="guide-head-t">${title}</span>
+    </h2>`;
+  };
+
+  /* the day's own three cards lead the page, in the app's accent rather than
+     a section colour — this is the live one, the rest are reference */
   const todayHTML = today.length ? `
-    <h2 class="section">For today</h2>
-    <div class="guide-today">${today.map(c => `<div class="card guide-card">
+    <section class="guide-group guide-now">
+      ${head('For today', '📌')}
+      <div class="guide-today">${today.map(c => `<div class="card guide-card">
         <div class="rail-kicker">${c.kicker}</div>
-        <div class="guide-card-title">${c.title}</div>
+        <div class="guide-card-title">${guideRich(c.title)}</div>
         <p class="guide-card-body">${guideRich(c.body)}</p>
-      </div>`).join('')}</div>` : '';
+      </div>`).join('')}</div>
+    </section>` : '';
 
   /* the "watch for" group is the only one that is a caution rather than an
      instruction, so it is the only one that gets a warning tint */
@@ -3754,16 +3771,21 @@ function renderGuide() {
     const warn = /watch/i.test(gr.title) ? ' guide-group-warn' : '';
     return `
     <section class="guide-group${warn}" data-tone="${gr.tone || ''}">
-      <h2 class="section guide-head">${gr.icon ? `<span class="guide-ico" aria-hidden="true">${gr.icon}</span>` : ''}${gr.title}</h2>
+      ${head(gr.title, gr.icon)}
       <div class="guide-items">${gr.items.map(it => `<div class="card guide-item">
-          <div class="guide-item-title">${it.title}</div>
+          <div class="guide-item-title">${guideRich(it.title)}</div>
           <p class="guide-item-body">${guideRich(it.body)}</p>
         </div>`).join('')}</div>
     </section>`;
   }).join('');
 
   view.innerHTML = `<div class="screen">
-    ${g.blurb ? `<div class="card guide-blurb">${g.blurb}</div>` : ''}
+    <header class="guide-mast">
+      <div class="guide-eyebrow">Program guide</div>
+      <h1 class="guide-title">${pLabel()}</h1>
+      <div class="guide-mast-rule"></div>
+      ${g.blurb ? `<p class="guide-lead">${g.blurb}</p>` : ''}
+    </header>
     ${todayHTML}
     ${groups}
     ${g.sources ? `<div class="card guide-sources"><div class="rail-kicker">Where this comes from</div><p>${g.sources}</p></div>` : ''}
