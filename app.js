@@ -3260,7 +3260,298 @@ const FORM_VIDEOS = {
   syn_walking_lunges:                'Pbmj6xPo-Hw',   // Walking Lunges Exercise Tutorial — Buff Dudes
   tibraise:                          'VzIcGAgBiaM',   // Tibialis Wall Raises (Exercise Demo) — The Barefoot Sprinter
   walkinglunge:                      'Pbmj6xPo-Hw',  // Walking Lunges Exercise Tutorial — Buff Dudes
-  wu_sissy_squat:                    'DOxGMy258rM'   // Sissy Squat Correct Form | Gareth Sapstead — Mirafit
+  wu_sissy_squat:                    'DOxGMy258rM',  // Sissy Squat Correct Form | Gareth Sapstead — Mirafit
+
+  /* Found by searching YouTube per movement, scoring each candidate title
+     against the exercise name, and confirming the winner resolves through
+     oEmbed. Anything with no confident match was left without a video
+     rather than given a plausible-looking wrong one — the How-to card
+     falls back to a search link, which cannot teach the wrong movement.
+     Every one of these is overridable in-app: the How-to popover pins
+     your own link over any of them. */
+  airsquattempo:                                  'Uk2ft1Ky7Fk',   // Tempo Squat 3-2-1 — Through Fire Fitness
+  anklerock:                                      'Gs4AyvJpG1M',   // Knee-to-Wall Ankle Rocks – Improve Ankle Mobility — Train With Cuz
+  backext:                                        'G6HG5VzJoNc',   // Form Tips: How to perform a back extension | Glute Bias 45° Extension Form — Alexandra Yaeger
+  bike:                                           'gWosN1CY4bg',   // Zero Healthcare™ Fitness Tips At Home | How To Use A Spin Bike Correctly — Zero Healthcare_Official
+  boxjump:                                        'kNIInK_Le8I',   // How to Do Beginner Box Jump Exercises — National Academy of Sports Medicine (NASM)
+  breakfall:                                      '52DcHM2VQxQ',   // 5 Baby Steps to Learn the Back Breakfall Technique — MovNat
+  bridge:                                         'B7kTkXDIMuE',   // How to Do a Supine Bridge Exercise | 30 Seconds | MedBridge — Medbridge
+  brisk:                                          'nmvVfgrExAg',   // How to do Brisk Walk - Warm Up Exercise — GetFitso
+  briskmarch:                                     'nmvVfgrExAg',   // How to do Brisk Walk - Warm Up Exercise — GetFitso
+  broadjump:                                      'BiaUluYAjNM',   // Testing Standing Broad Jump | Tips to Jump Farther — Simple Speed Coach
+  buttkick:                                       'vXVPvY1UbJI',   // How to Do：BUTT KICKS — Leap Fitness
+  carioca:                                        'R3__Q_SulyM',   // How To Do The CARIOCA EXERCISE | Exercise Demonstration Video and Guide — Live Lean TV Daily Exercises
+  carryintervals:                                 'z7E_YU9P1jU',   // How to Perform the Farmer’s Carry — Dr. Carl Baird
+  crosscrawl:                                     'Slw1dQrm4R4',   // Cross crawl March — SAPT Strength
+  crunches:                                       '9T4WQGlKCRk',   // How to Do Crunches Properly for Stronger Abs | Workout for Beginners | Abs — wearecult
+  dbhinge:                                        'Ipi8_vz8_z0',   // Dumbbell Deadlift Technique – Perfect Form Video Tutorial Guide — Fit Father Project - Fitness For Busy Fathers
+  dblunge:                                        'xrPteyQLGAo',   // How To Reverse Lunge — PureGym
+  dbohp:                                          'vlFGTI5JzjI',   // How To PROPERLY Dumbbell Shoulder Press (LEARN FAST) — Colossus Fitness
+  dbpress:                                        'T0Y3OBF1bNI',   // How To Do A Dumbbell Floor Press — PureGym
+  dbrenrow:                                       '4qEIChzM4ZA',   // Renegade Row Guide | Form Tips, Muscles Worked, and Variations — BarBend
+  dbwindmill:                                     'ogCw52FZlfM',   // How to Do the Windmill Exercise — Openfit on BODi
+  declinepushup:                                  'O7dVvwEK9J4',   // Decline Push-Up Tutorial True Form — The Health Alchemist
+  deepsquat:                                      'XujJTXZxaYs',   // How to Deep Squat Hold — Man Flow Yoga
+  doublestretch:                                  'FLQ78kIiaaI',   // How to do: Double leg stretch — P4P WORKOUTS
+  farmcarry:                                      'z7E_YU9P1jU',   // How to Perform the Farmer’s Carry — Dr. Carl Baird
+  frontrackcarry:                                 'NvzLYnME8_A',   // How to do the KB Front Rack Carry - Technique Tip Tuesday — Conquer Athlete
+  granby:                                         'exkwjkM0P7U',   // The Shoulder Roll (aka Granby Roll) Tutorial - 5 Easy Steps! (White Belt G — Grappling SMARTY
+  highknees:                                      'FvjmPRU3zn4',   // How to do High Knees | Forever Living UK & Ireland — Forever Living Products UK
+  hipcars:                                        'wz1GbxKLkKg',   // Hip CARs // For IT Band Syndrome, Piriformis Syndrome, Lateral Knee Pain a — Tom Morrison
+  hipheist:                                       '7Rm0CAFiXo4',   // Hip Heist Drill For Wrestling - The School of Wrestling Technique — The School of Wrestling
+  hollow:                                         'Gkh7ZF_lcGw',   // Hollow Body Hold — The Active Life
+  hops:                                           'u3zgHI8QnqE',   // How To Jump Rope | The Right Way | Well+Good — Well+Good
+  hundred:                                        'lFvSS82o_ZY',   // How To Perform The Hundred — Sports and Fitness
+  inclinewalk:                                    'NAsObfFJXvE',   // How To: Incline Treadmill Walk (12-3-30 Workout) — Live Lean TV Daily Exercises
+  intervals:                                      'lJNaHXWi4KY',   // The Perfect Norwegian 4x4 Pace: The Correct Speed for VO2 Max Intervals — VO2 Max Lab
+  invhold:                                        'Wjf_Hxn0EO8',   // How to Use an Inversion Table for Back Pain — Teeter
+  jacks:                                          'XR0xeuK5zBU',   // How to do Jumping Jacks exercise - Best Cardio Exercises video tutorial — P4P WORKOUTS
+  jumprope:                                       'u3zgHI8QnqE',   // How To Jump Rope | The Right Way | Well+Good — Well+Good
+  kbswing:                                        'bDCeXbMJVNs',   // How To Kettlebell Swing (in 3 minutes) — Zack Henderson
+  latpull:                                        'vw5Xmu5CIew',   // How to Perform Pull Ups - Proper Pull-Up Exercise Tutorial — Buff Dudes
+  legcircle:                                      'bVmm1XVgHfU',   // How to Do Single Leg Circles With Andrea Rogers — Openfit on BODi
+  legraises:                                      '3oIpxsn6FxQ',   // Perfect Lying Leg Raises Form to Strengthen Your Core & Avoid Back Pain — Mobility Doc
+  lunge:                                          'u_zSfK5ZFU4',   // Reverse Lunge Exercise: Proper Form — BuiltLean®
+  marchcarry:                                     'z7E_YU9P1jU',   // How to Perform the Farmer’s Carry — Dr. Carl Baird
+  mtnclimb:                                       'cnyTQDSE884',   // How to Do Mountain Climbers | The Right Way | Well+Good — Well+Good
+  n9090:                                          'YxECcOkUCEY',   // 90 90 Hip Switches — Advanced Therapy and Performance
+  ohhold:                                         'dN2mr1X82vA',   // How To Do A SINGLE ARM OVERHEAD DUMBBELL MARCH | Exercise Demonstration Vi — Live Lean TV Daily Exercises
+  plankdrag:                                      'uWn2uvYl-lY',   // How To Kettlebell Plank Drag Through — Third Space London
+  plankjack:                                      'Jo0LKx6c7XM',   // How to do Plank Jacks — Sunstone Fitness
+  pushpress:                                      'sElIkjcfyNY',   // Dumbbell Push Press - How To — Bobby Maximus
+  pushuptap:                                      'StCOnB6qHaY',   // How to do Shoulder Tap Push-Up | Joanna Soh — Joanna Soh
+  rackhold:                                       'ncS_REM-6MM',   // How To Load A Front Rack & Goblet Hold — Fit Code
+  revshrimp:                                      '8ZcHXERyuEQ',   // How to Do the Reverse Shrimp in Jiu Jitsu — 2nd Gear Jiu Jitsu
+  ridewarm:                                       'TWMzgPamY8U',   // 5 Minute Pre-Ride Warm Up to Make You a Better Cyclist — Dynamic Cyclist
+  rollball:                                       'ONTuOk-ji94',   // How to Perform 'Rolling Like A Ball' in Pilates | The Right Way | Well+Goo — Well+Good
+  rollup:                                         'PGnibcCcAUE',   // How to do a Pilates Roll Up | The Right Way | Well+Good — Well+Good
+  rtwist:                                         'fCHFQTBqm-U',   // How to PROPERLY Do Russian Twists For ABS (FIX THIS NOW!) — Colossus Fitness
+  sabench:                                        '4Y2ZdHCOXok',   // How to PROPERLY Bench Press for Growth (5 Easy Steps) — Jeremy Ethier
+  sadbpress:                                      '0Ckp4XpWGIc',   // How to PROPERLY Single Arm Dumbbell Chest Press (Fix Your Form Now) — Colossus Fitness
+  saw:                                            '5cv9yA24lks',   // How to Do Saw Exercise — Blind Athletes Exercise
+  scissorlunge:                                   'wrwwXE_x-pQ',   // How To Do A LUNGE | Lunges for BEGINNERS | FITNESS SPECIAL | WORKOUT VIDEO — Mind Body Soul
+  shadowbox:                                      'J4j3AOVWuHE',   // Quick Shadow Boxing Tutorial by Olympian — Tony Jeffries
+  shortfoot:                                      'iy1Qxt2mnsE',   // Performing The Short Foot Exercise Properly — CPCinfo
+  shrimp:                                         '_Pkeue2N-Gs',   // BJJ Fundamentals: How to Hip Escape (shrimp) — Ernest Chavez
+  shuffle:                                        'mziPKITnPeQ',   // How To Do a Lateral Shuffle — Get Healthy U - with Chris Freytag
+  sidekick:                                       '8TMu5t9AGfc',   // How to Do Side Kicks | Health — Health
+  sidelunge:                                      'liFeq7swKfc',   // Side (Lateral) Lunge Technique — Mind Pump TV
+  sideplank:                                      'NQsqPcarPXY',   // How to Perform a Proper Side Plank | San Diego Chiropractic and Functional — Peak Form Health Center
+  sidestep:                                       'X0jsl2ZrXug',   // How to Do Banded Side Steps Properly — [P]rehab
+  sims_back_squat:                                'my0tLDaWyDU',   // How To Squat Correctly (NO BACK PAIN) — Squat University
+  sims_box_jump:                                  'kNIInK_Le8I',   // How to Do Beginner Box Jump Exercises — National Academy of Sports Medicine (NASM)
+  sims_farmer_carry:                              'z7E_YU9P1jU',   // How to Perform the Farmer’s Carry — Dr. Carl Baird
+  sims_hike:                                      'tkqF1hRe3yY',   // Warm Up Stretches Before Walk or Hike - Prevent Injuries & Feel Energized! — VIGEO
+  sims_pallof_press:                              '_2xWmYNnFS8',   // How to Do the Pallof Press (Perfect Form for a Stronger Core) — Colossus Fitness
+  sims_pogo_hop:                                  'lz6BM6WyJ0k',   // How To Do Pogo Hops — Swift Movement Academy
+  sims_push_press:                                'gFmV302JErc',   // How To Push Press with Good Form — Peak Strength
+  sims_sprint30:                                  'YipJAsAj5Kc',   // 30 Second Sprint Intervals | 25 Minute Indoor Cycling Training Session — GCN Training
+  sims_squat_jump:                                'A-cFYWvaHr0',   // How To Do A Squat Jump | The Right Way | Well+Good — Well+Good
+  sims_suitcase_carry:                            'y-hn_Ha1-RE',   // How To Perform The Suitcase Carry — Dr. Carl Baird
+  sims_walk:                                      'FokKK-cV35w',   // Seniors: How to walk correctly to prevent falls: A Physical therapist Expl — Balance Builders by Doug Weiss
+  singlestretch:                                  'ATuKvmsjBwU',   // Technique Tutorials - The Single Leg Stretch — ReBalance Physiotherapy
+  sitout:                                         'uSiRmwHJaIg',   // Sit Outs | Core Strengthening Exercise — Dr. Carl Baird
+  skaters:                                        '9_jLW6VkU8A',   // Speed Skaters Exercise (Skater Hops): Proper Form — BuiltLean®
+  slrdlreach:                                     '3rawGylFPNs',   // Single Leg RDL (with reach) with Dr. Leo Kormanik [GLUTES, HAMSTRINGS] — Running Rehab
+  slstance:                                       'Wb68ze1oH5c',   // How to Do a Single Leg Stance Exercise | 30 Seconds | MedBridge — Medbridge
+  spinestretch:                                   'IAKURhFoODE',   // How to Do: FORWARD SPINE STRETCH PULSE — Leap Fitness
+  splitsquatecc:                                  'PMFnb-SG_HM',   // DB Split Squat w/ 3-sec Eccentric — Next Level Physical Therapy
+  sprawl:                                         'UFFODmd6RTc',   // How to Do Sprawls Correctly | Full Body Fat Burn Exercise | cult fit | @cu — wearecult
+  squatjump:                                      'A-cFYWvaHr0',   // How To Do A Squat Jump | The Right Way | Well+Good — Well+Good
+  squats:                                         'm0GcZ24pK6k',   // How to do a bodyweight squat | Bupa Health — Bupa Health
+  stepup:                                         'YcG-aMcGms0',   // How To PROPERLY Weighted Step Up | 3 Muscle Gain Variations Included — Colossus Fitness
+  swan:                                           'sas3F7QHAtg',   // How to Do Swan Exercise — Blind Athletes Exercise
+  syn_3_part_breath_qigong_close:                 'sc1uN1Asifk',   // 3 Breath Qigong Practice with Jeffrey Chand — Qigong For Vitality
+  syn_90_90_hip_lift_off:                         'sLWSmo0uk2E',   // 90:90 Hip Internal Rotation Active Range Lift Off Tutorial — Rafal Matuszewski
+  syn_90_90_hip_stretch_with_active_lift:         'VYvMMw8z3rE',   // How to do a 90/90 Hip Stretch properly - CORRECT FORM IS ESSENTIAL — Jack Hanrahan Fitness
+  syn_90_90_hip_switches:                         'YxECcOkUCEY',   // 90 90 Hip Switches — Advanced Therapy and Performance
+  syn_active_pancake_stretch:                     'w7i6W7rFqUw',   // Pancake Stretch - Active Flexibility Technique — Integral Movement
+  syn_ankle_cars:                                 'fyShbLKXMkY',   // How To Do Ankle CARs — Alex Murphy
+  syn_ankle_wrist_circles:                        '20Y-W5fHPEM',   // How To Do KNEELING WRIST CIRCLES | Exercise Demonstration Video and Guide — Live Lean TV Daily Exercises
+  syn_b_stance_rdl:                               'SwQtQvcrz-c',   // How To Properly B Stance RDL For More Glute Gains (Learn In 3 Minutes) — Colossus Fitness
+  syn_banded_clamshell_with_lift:                 'IgAH3_8kXqY',   // Banded Clamshell Glute Activation — Axistence Athletics
+  syn_banded_hip_thrust:                          '0XXUdRSTBxA',   // How to: Banded Hip Thrust (floor) — FitLife Gym
+  syn_bear_hold:                                  'hePvEr_iYRE',   // How To Do a Bear Hold — Swift Movement Academy
+  syn_bear_plank_hold_shoulder_tap:               'F99Lb0cx7_Y',   // Bear Hold to Shoulder Tap — Pathway Training
+  syn_bench_press:                                '4Y2ZdHCOXok',   // How to PROPERLY Bench Press for Growth (5 Easy Steps) — Jeremy Ethier
+  syn_bicep_curls:                                'XE_pHwbst04',   // Bicep Curls — (DUMBBELL FORM & TECHNIQUE) — Fit Father Project - Fitness For Busy Fathers
+  syn_cat_cow_breath_led:                         '1Y0YjXS9sKI',   // How to Do a Cat Cow Stretch: A Guide from Physical Therapists — Hinge Health
+  syn_cat_cow_flow:                               '1Y0YjXS9sKI',   // How to Do a Cat Cow Stretch: A Guide from Physical Therapists — Hinge Health
+  syn_cat_cow_hip_rocks:                          '1Y0YjXS9sKI',   // How to Do a Cat Cow Stretch: A Guide from Physical Therapists — Hinge Health
+  syn_cat_cow_lateral_bow:                        '1Y0YjXS9sKI',   // How to Do a Cat Cow Stretch: A Guide from Physical Therapists — Hinge Health
+  syn_child_s_pose_to_cobra_flow:                 'RnQmgpOzpkg',   // Child’s Pose to Cobra | Simple Spine Mobility Flow — WAVE Physical Therapy + Pilates
+  syn_child_s_pose_wide_knee:                     '1MB_XclBMhA',   // Yin yoga tutorial: Wide knee child's pose with a twist | Yinfluence — Yinfluence
+  syn_chin_tucks_isometric:                       'KqR1EoEmq9c',   // You're Doing Chin Tucks WRONG | Physical Therapist Teaches The Correct Way — Rehab and Revive
+  syn_closing_meditation:                         'DbDoBzGY3vo',   // Breathing Exercises with Guided Meditation | 5 Minutes | TAKE A DEEP BREAT — Mike Maher | TAKE A DEEP BREATH
+  syn_cobra_to_child_s_pose_flow:                 'RnQmgpOzpkg',   // Child’s Pose to Cobra | Simple Spine Mobility Flow — WAVE Physical Therapy + Pilates
+  syn_commando_plank:                             'hD0JzzfaXB4',   // How to setup, perform the Commando Plank — AlphaFitCity.com
+  syn_commando_plank_hold:                        'hD0JzzfaXB4',   // How to setup, perform the Commando Plank — AlphaFitCity.com
+  syn_concentration_curls:                        'ebqgIOiYGEY',   // Concentration Curls Aren't Working for You (HERE'S WHY!) — ATHLEAN-X™
+  syn_cossack_squat_assisted:                     'oQFqFije-BM',   // Assisted Cossack Squat — Somerset Fitness
+  syn_cossack_squat_flow_assisted:                'usfu415_0AI',   // Assisted Cossack Squat — OPEX Fitness
+  syn_couch_stretch_with_active_extension:        'XEBJCDY6hbM',   // Using & Exploring the Couch Stretch to IMPROVE your Hip Extension — Loco Motion New York
+  syn_crab_walk:                                  '42cYOwpwOIc',   // How to properly perform Banded Crab Walk..(Band position for best Muscle A — Performance Sport & Spine
+  syn_dead_bug_alternating:                       'GkosKAHcm58',   // How to do a Dead bug Alternating Leg Reach — TurnFit - Vancouver Personal Trainers
+  syn_dead_bug_progression_slow_tempo:            'mCSUBupA3yg',   // Dead Bug Exercise Progression — Inner Dynamics Physical Therapy
+  syn_deadlift:                                   'XxWcirHIwVo',   // How to PROPERLY Deadlift for Growth (5 Easy Steps) — Jeremy Ethier
+  syn_deep_squat_hold:                            'XujJTXZxaYs',   // How to Deep Squat Hold — Man Flow Yoga
+  syn_deep_squat_to_stand_assisted:               'IHApHfNA2Ag',   // How to Do a Deep Squat According to Physical Therapists — Hinge Health
+  syn_deep_squat_walk_around:                     'IHApHfNA2Ag',   // How to Do a Deep Squat According to Physical Therapists — Hinge Health
+  syn_donkey_kicks_with_band:                     'O4r7C5CxMw8',   // How To Do Resistance Band Donkey Kicks | Exercise Demonstration Video and  — Live Lean TV Daily Exercises
+  syn_dumbbell_flyes:                             'QENKPHhQVi4',   // How to Properly Do a DUMBBELL FLY | Mind Pump — Mind Pump TV
+  syn_dumbbell_kickbacks:                         'SaFWkVnGLPA',   // How to Perform Dumbbell Kickbacks - Proper Form for Maximum Tricep Growth — Cris Edmonds TV
+  syn_dumbbell_overhead_extensions:               '-X5il2vPwqU',   // How to Perfect Your Dumbbell Overhead Extensions with Krissy Cela — EvolveYou
+  syn_dumbbell_skull_crushers:                    '1BDGIcMTSXc',   // Dumbbell Triceps Skull Crusher — Onnit Academy
+  syn_elevated_frog_pumps_feet_on_block:          'NK4axZ_5xCc',   // Feet Elevated Frog Pumps — Laura Lucas
+  syn_explosive_hip_thrust:                       'da46ZUbxgjg',   // Explosive Hip Thrust — Ronan O Brien
+  syn_figure_4_stretch_supine:                    '--IEeqF8VTg',   // Stretch Figure 4 Supine — The Doctors of Physical Therapy
+  syn_finger_tendon_glides:                       'grbacaaEwjg',   // Finger Tendon Glides for Hand Injury or Surgery - Ask Doctor Jo — AskDoctorJo
+  syn_fire_hydrant_with_kegel_hold:               'IRkRgk2Gc1E',   // How to Do a Fire Hydrant Exercise: A Guide from Physical Therapists — Hinge Health
+  syn_frog_rocks:                                 'eSHUKW7eK2M',   // Frog Rocks — Chicago Chiropractic & Sports Medicine
+  syn_frog_stretch_with_pulses:                   'dUuZLrUOmhU',   // Loosen Tight Hips With the Frog Stretch with Sea Lark Chiropractic — Sea Lark Chiropractic
+  syn_front_raises:                               'CH9JzDStL3U',   // How to Do Dumbbell Front Raises | Proper Form & Tips — Colossus Fitness
+  syn_glute_bridge_isometric:                     'cmkMMjo0fRo',   // Isometric Glute Bridge Hold: How to — Mobility Doc
+  syn_glute_bridge_march:                         'rXAbcneAr3I',   // How to Do the Glute Bridge March | Abs Workout — Howcast
+  syn_goblet_squats:                              'Mu7aVOjEBdA',   // How To: Goblet Squats — Mobility Doc
+  syn_half_kneeling_hip_flexor_rotation:          'CkeaVh1sOjI',   // Half Kneeling Hip Flexor Stretch with Sidebend and Rotation — E3 Rehab Exercise Library
+  syn_heel_elevated_squat_pulse:                  'MT9PdMD6qsw',   // Heel elevated goblet pulse squat — Dangerfit Personal Training
+  syn_hip_cars_controlled_articular_rotations:    'xyFx3UeIjTk',   // Hip Mobility: Where to Start? CARs - Controlled Articular Rotations — B4 Fitness: BodyBUILDING B4 BodyBreaking
+  syn_hip_cars_standing:                          'qhBzUkehLe0',   // Standing Hip CARs | Correct Form Demo (No Talking) — Dubai Wala Coach
+  syn_hip_circles_on_all_fours_with_band:         '5HdkpRVr66E',   // All Fours Bent knee Hip Circles — Coach Alyssa Chang
+  syn_hip_thrust_with_band:                       '2OaqZ-QAiYw',   // Hip Thrust with Resistance Band — Luke Briggs
+  syn_incline_curls:                              'DCe8f6vMe9A',   // Stop Screwing Up Incline Dumbbell Curls (PROPER FORM!) — ATHLEAN-X™
+  syn_incline_press:                              'VesHgJR14E8',   // INCLINE CHEST PRESS | Exercise Form Guide — Max Euceda
+  syn_jefferson_curl_bodyweight:                  'nM747P0_OwM',   // Bodyweight Jefferson Curl — Functional Bodybuilding
+  syn_kneeling_hip_flexor_stretch:                'iZ1eZBY4fwM',   // How To Do Kneeling Lunge (Hip Flexor Stretch) — PureGym
+  syn_kneeling_hip_hinges_with_pelvic_tilt:       'K_SGYeZLWWU',   // Hip Hinge Pelvic Tilt — Cuirim Sports Recovery
+  syn_lateral_band_walk:                          'y_bqFDQZSHQ',   // Lateral Band Walk | Proper Form Tutorial for Hip Stability — FIT.nl
+  syn_lateral_bear_crawl:                         'he1k9F-P4DI',   // How to do a Lateral Bear Crawl | The Right Way | Well+Good — Well+Good
+  syn_lateral_lunge_flow:                         'liFeq7swKfc',   // Side (Lateral) Lunge Technique — Mind Pump TV
+  syn_lateral_neck_press_isometric:               'kwKq9n8ima4',   // How to Perform Neck Isometric Rehab Exercises for Neck Pain, Strength, and — Washington Park Chiropractic
+  syn_legs_up_the_wall:                           'h2UrHSo9Pdk',   // How to Do Legs Up the Wall Yoga Pose | Pregnancy Workout — Howcast
+  syn_lizard_lunge_rotation:                      'SSWWRQ87X2E',   // Lizard Lunge + Rotation | Thoracic Mobility | Tight Hips Relief — Commit To Life Fitness
+  syn_lizard_lunge_thoracic_rotation:             'SSWWRQ87X2E',   // Lizard Lunge + Rotation | Thoracic Mobility | Tight Hips Relief — Commit To Life Fitness
+  syn_lunges:                                     'ASdqJoDPMHA',   // HOW TO DO A LUNGE / LUNGES FOR BEGINNERS — Fitness For Transformation
+  syn_meridian_side_stretch:                      'QawhsBp5IB8',   // The Side Stretch You Should Be Doing! — Tom Morrison
+  syn_modified_hundred_feet_down:                 'sze_IgnsDK8',   // Flexing Feet During the Hundred | Teaching Tip — Balanced Body
+  syn_overhead_press:                             'QAQ64hK4Xxs',   // How To Overhead Press For Bigger Shoulders (5 Mistakes You're Probably Mak — Jeremy Ethier
+  syn_overhead_tricep_extension:                  'fYqswDVbJDg',   // HOW TO: Overhead Triceps Extension (BEST EXERCISE FOR HUGE TRICEPS) || PER — ScottHermanFitness
+  syn_pelvic_clocks:                              'Ie9MNEKXfTI',   // Pelvic Clocks — [P]rehab
+  syn_pelvic_curls_bridge_flow:                   'C0IsZDzR8Og',   // HOW TO PROPERLY BRIDGE - LEARN THE PELVIC CURL — alystacie
+  syn_pike_push_ups:                              '226O2XfevJ0',   // How To Do Pike Push Ups — Calixpert
+  syn_pilates_roll_up_modified:                   'PGnibcCcAUE',   // How to do a Pilates Roll Up | The Right Way | Well+Good — Well+Good
+  syn_pilates_swimming_modified:                  '34JojDmn94g',   // The modified Pilates Swimming - level 1 — Mountain Movement Fitness
+  syn_plank_hold:                                 '6LqqeBtFn9M',   // How to do the perfect PLANK: technique and common mistakes — Get Exercise Confident
+  syn_plank_up_downs:                             'OZjX3gyca3c',   // Plank Up/Downs Tutorial — Form First Fitness
+  syn_prone_back_extension_cobra:                 'j_55FmX9ZOk',   // Correct A Lower Back (Lumbar Spine) Shift With A Prone Cobra Exercise - Le — Online Physio Expert
+  syn_prone_y_t_w:                                'QdGTI4Lshg4',   // Prone Y T W — The Active Life
+  syn_push_up_to_side_plank:                      'pJUY83BsReY',   // How to do Push-Up To Side Plank | Joanna Soh — Joanna Soh
+  syn_qigong_arm_circles:                         '3STTSi_jdHk',   // How To Arm Circles | Nuffield Health — Nuffield Health
+  syn_qigong_shaking:                             'PacNJE1XOhc',   // Qigong for Beginners: Shaking the Body Qigong — Master Daniel Lee - Tai Chi & Qigong
+  syn_quadruped_hip_circles:                      'xke_FGQjMEM',   // Quadruped Hip Circles - Exercise Demonstration — The Barefoot Sprinter
+  syn_quadruped_hip_extension:                    '8C2wimwn3LI',   // Exercise Tutorial: Hip Extension Quadruped Position — Travis Tarrant
+  syn_reclined_spinal_twist:                      'ezyMaQEaVaI',   // How to do Supta Matsyendrasana - Supine Spinal Twist - Beginners Yoga — Yoga & You
+  syn_resistance_band_adductor_squeeze:           'LV10oi6ruUY',   // How To Properly Do An Adductor Ball Squeeze - Inner Thigh Strength Exercis — Wellen
+  syn_reverse_flyes:                              'dC7jhEk-29A',   // How to PROPERLY Reverse Pec Deck Fly (DO THIS) — Colossus Fitness
+  syn_reverse_lunge_to_knee_drive_step_back_only: 'ezhwJ0i1XYE',   // Step Back Lunge w Knee Drive — Incline Strength & Fitness
+  syn_reverse_lunges:                             'RZKXLMxPF_I',   // Dumbbell Reverse Lunges | How To | Proper Form & Technique — FITTR
+  syn_reverse_nordic_modified:                    '0OkyP-qFwlk',   // Reverse Nordic Technique — Gede Foster
+  syn_reverse_snow_angels:                        '0qLP2RNKX4A',   // How to Do：REVERSE SNOW ANGELS — Leap Fitness
+  syn_reverse_wrist_push_ups_backs_of_hands:      'H-Kp4VdZ8gQ',   // How to fix your wrist pain during push ups and wrist bending backward — All About Rehab
+  syn_romanian_deadlift:                          'fKWeeTI8jlQ',   // How to Romanian Deadlift Properly (Avoid Back Pain) — Sharelle Grant
+  syn_rotation_isometric:                         'WkOqC4LfSGA',   // Rotator Cuff Isometric Exercises (External and Internal Rotation) — Gordon Physical Therapy
+  syn_seated_dumbbell_calf_raises:                'fFWpWJy8ybU',   // How To: Dumbbell Seated Calf Raise — Live Lean TV Daily Exercises
+  syn_seated_forward_fold_yin_style:              'EyHTs9_-vKA',   // Seated Forward Fold with Modifications - Yin Yoga Pose for Tight Legs - Yo — The Moonflower Path
+  syn_segmental_cat_cow:                          'mSzU47-uPb4',   // How to do a Segmental Cat Cow — TurnFit - Vancouver Personal Trainers
+  syn_shavasana_with_body_scan:                   'rKBEGpzK25s',   // 10 Minute Guided Meditation for Relaxation - Savasana Body Scan — Yoga With Bird
+  syn_shoulder_dislocates:                        'SL8VAYpmpCQ',   // SHOULDER DISLOCATES — Atomic Athlete
+  syn_side_lying_adductor_lifts:                  'p-ShPzWxjzA',   // Side lying Adductor Lifts — Dr. Christy Lee
+  syn_side_lying_clamshell_hip_er:                'm7RyKQV4XhE',   // The Side Lying Clam Exercise for the Hip - Explained — www.sportsinjuryclinic.net
+  syn_side_lying_leg_lift_tai_chi_pace:           'VlwBJE1WtOQ',   // How to Do：SIDE-LYING LEG LIFT — Leap Fitness
+  syn_side_lying_thoracic_windmill:               '4ReGvUD-7iU',   // Thoracic Spine Mobility | Side Lying Windmill — Tangelo - Seattle Chiropractor + Rehab
+  syn_side_plank_thread_the_needle:               'TfLt8orAiiQ',   // Side Plank Thread the Needle — MoveMend Rehab and Training
+  syn_single_arm_dumbbell_row:                    'dFzUjzfih7k',   // How to do the SINGLE ARM DUMBBELL ROW! | 2 Minute Tutorial — Max Euceda
+  syn_single_leg_balance_eyes_closed:             'okRFJ_1GmqY',   // Single Leg Balance With Eyes Closed — altaTherapies
+  syn_single_leg_calf_raises:                     'crM3pHqjxSg',   // How To Do, Perform Single Leg Calf Raises Exercise With Dumbbells For Begi — Whats Up Dude
+  syn_single_leg_circle_small:                    'nlHrAwsal1w',   // How to do Single Leg Circle | Joanna Soh — Joanna Soh
+  syn_single_leg_rdl_assisted:                    'Zfr6wizR8rs',   // The BEST Single-Leg RDL Tutorial (Romanian Deadlift) — Squat University
+  syn_slow_step_down:                             '9fQnswyCZ0Y',   // Slow Step Downs — Inside Out Training
+  syn_snake_flow_prone_spinal_wave:               '2UAko2ErAyU',   // VenusFit: Wave Flow - how to create healthy spinal mobility and strength — VenusFit
+  syn_sphinx_to_seal_flow:                        'HFY2LS72ODk',   // Yin Yoga Tutorial: Sphinx & Seal — The Yin Method
+  syn_spine_flexion_extension_in_squat:           'E5kzsLcxLVw',   // How to Align YO SPINE During a Squat — MoveU
+  syn_spine_twist_seated:                         'XbQzj8rjBbw',   // How to Do the Spine Twist | Pilates Workout — Howcast
+  syn_split_squat_shallow:                        'hXpGSa5HYqY',   // How to do a SPLIT SQUAT — Atomic Athlete
+  syn_squats:                                     'xuf1czJv-XI',   // How to Do Squats Correctly [Exercise At Home] — Babylon
+  syn_stability_ball_hamstring_curl:              'sn9ljNil_F4',   // Stability Ball Hamstring Curl Tutorial | HNL Movement — HNL Movement | Optimizing Human Performance
+  syn_stability_ball_hamstring_curls:             '8Wagn999nhA',   // How To Do Stability Ball Hamstring Curls — Tangelo - Seattle Chiropractor + Rehab
+  syn_standing_calf_raises_wall_support:          'k8ipHzKeAkQ',   // Exercises with an Athletic Trainer: Standing Calf Raises — Children's Hospital Colorado
+  syn_standing_figure_8_hips:                     'q7GPVEDzVMw',   // How to do Latin Hip Action. Figure 8 exercises. — Ballroom with Alexey
+  syn_standing_hip_cars:                          'Z8RuMjxYKgk',   // Try This Hip Exercise for Stronger Mobility! Standing Hip CARs — Mobility Doc
+  syn_standing_hip_hinge_hip_internal_rotation:   'AnkBK38UNhA',   // Standing Hip Internal/External Rotation — Strive2Move
+  syn_standing_hip_isolations:                    'AXDy-GrK4Ww',   // Standing Hip Hike | RPI Physical Therapy — Rehabilitation Professionals, Inc.
+  syn_standing_knee_circles:                      'urrVyUcNdkY',   // How To: Standing Knee Circles — Live Lean TV Daily Exercises
+  syn_standing_pelvic_power_circles:              '1VQ5ITSDpaI',   // How to Do a Standing Pelvic Tilt | Back Workout — Howcast
+  syn_standing_roll_down:                         'ZbpwzA3AuI8',   // Standing Roll Down, How to do a Standing Roll Down exercise || healthspanM — Robert Todd Hurst, MD, FACC, FASE - HealthspanMD
+  syn_standing_spinal_roll_down:                  'tUDhqhLMXsU',   // Pilates Roll Down From Standing / Beginners Pilates / Spinal Flexion — Lucy Filce Pilates
+  syn_standing_spinal_twists:                     'UPGXfQZjcDw',   // Standing Spinal Twists | Exercise For Back Pain Relief | Full Body mobilit — O'Coach - HIIT Timer, Yoga, Tabata, Rehab App
+  syn_standing_thoracic_rotation:                 'PWmNVcs8rJY',   // Standing Thoracic Rotation — Garrett McLaughlin
+  syn_supine_butterfly:                           'C6IhNrbZHfA',   // Supine Butterfly Stretch — Pillar Kinetic
+  syn_supine_hip_circles_with_legs_extended:      '_5iz_drS2-g',   // Supine Hip Circles — Elevate Chiropractic and Rehab
+  syn_supine_leg_slides:                          'sju4rw5_jmI',   // Supine Leg Slides — CCEDseminars
+  syn_supported_side_plank_knee_down:             'ic40NXcsQ2M',   // How To Properly Do A Knee Plank - Strength Exercises - Wellen — Wellen
+  syn_swimmers_prone:                             'P_YdO_bLrwk',   // Prone Swimmers — The Active Life
+  syn_tai_chi_cloud_hands:                        'jGTFq5yaAwU',   // Cloud Hands Tai Chi Tutorial with English Instruction | Tai Chi Qigong | I — QIGONG TAICHI CENTRE | Yogalily Studio
+  syn_tai_chi_waving_hands:                       '9aT4oSvyHww',   // Learn Sun Style Tai Chi Waving Hands in Clouds Form - A Step-by-Step Guide — Internal Tai Chi
+  syn_terminal_knee_extension:                    'd5khkVKosUE',   // How to Do a Prone Terminal Knee Extension Exercise | 30 Seconds | MedBridg — Medbridge
+  syn_thread_the_needle_to_hip_circle:            'D1H-51sH-fI',   // Thread the Needle and Hip Circles for Shoulder and Hip Mobility — FitCity CrossFit
+  syn_toe_taps_lying:                             'yvoIdwwwCpE',   // How To Properly Do Supine Toe Taps - Strength and Posture Exercises - Well — Wellen
+  syn_toe_taps_supine:                            'yvoIdwwwCpE',   // How To Properly Do Supine Toe Taps - Strength and Posture Exercises - Well — Wellen
+  syn_tricep_dips:                                'oA8Sxv2WeOs',   // How to do Chest Dips vs Tricep Dips — nutritioneering
+  syn_tricep_dips_with_leg_extension:             'cQ4eqmpbkNM',   // How To: do a tricep dip with leg extension LIKE A BOSS — Katie Wygant
+  syn_wall_angels:                                'ywYi4rBhRBQ',   // How To Do Wall Angels - Tangelo Health — Tangelo - Seattle Chiropractor + Rehab
+  syn_wall_knee_drive_ankle_dorsiflexion:         'Clutk_VsgUY',   // How To Do The KNEE TO WALL ANKLE DORSIFLEXION TEST | Exercise Demonstratio — Live Lean TV Daily Exercises
+  syn_wall_sit_isometric:                         'JjWs0cwqxEk',   // Wall Sit - HASfit Squat Exercise Demonstration - Wall Squat Form - Isometr — HASfit
+  syn_wall_sit_qigong_breath:                     'cWTZ8Am1Ee0',   // How to Do a Wall Sit Exercise | 30 Seconds | MedBridge — Medbridge
+  syn_wall_slide_protraction:                     '4QqcbCjnnlw',   // How to Do a Shoulder Flexion Wall Slide with Towel Exercise | 30 Seconds | — Medbridge
+  syn_world_s_greatest_stretch_flow:              'T6j7BpxeqqU',   // World’s Greatest Stretch | Tutorial — FIT.nl
+  syn_wrist_cars:                                 'ZxdrkW_orFI',   // How To Do Wrist CARs — Alex Murphy
+  syn_wrist_push_ups_palms_down:                  'MSXslgJV9g0',   // Wrist Pain with Push Ups? (How To Help | Wrist Extension Mobility) — E3 Rehab
+  tandem:                                         'MuueTXaBJ3k',   // Tandem Walk — BSR Physical Therapy
+  teaser:                                         'UJ5gZQSqlXo',   // How to Do Teaser 1 | Pilates Workout — Howcast
+  techstand:                                      'W1z4rVOsGH4',   // Technical Stand Up : How to do it properly !!!! — Power Academy Tunisia
+  toeyoga:                                        'jXN7vflnH6c',   // How to Improve Toe Spread — Chulel-Corrective Bodywork & Pilates
+  towelhang:                                      'UpP-77-GeLA',   // How to Perform a Towel Dead Hang — Nottingham Physio
+  trapcarry:                                      'Zyiui0FXwns',   // Trap Bar Farmer Carry — Jason Brown
+  trapdeadlift:                                   'EsqwERaSTMI',   // How To Trap Bar Deadlift *Build Strength And Size* | Form Check | Men's He — Men’s Health Muscle
+  vo2max:                                         'ZNs2qTXlRfg',   // How to improve your VO₂ max as a beginner — Peter Attia MD
+  wallangel:                                      'ywYi4rBhRBQ',   // How To Do Wall Angels - Tangelo Health — Tangelo - Seattle Chiropractor + Rehab
+  woodchop:                                       '5ab5UQ468M0',   // Ripped Obliques w/ The Dumbbell Wood Chopper - Quick How To — MuscleWiki
+  wu_batwing_row:                                 'J531b8jwGc4',   // Batwing Rows — Somerset Fitness
+  wu_bench_dip:                                   'j_WpuVY3wbo',   // How To Do Bench Dips For Bigger Triceps - The Proper Form, Sets, Reps & Ro — Fit Father Project - Fitness For Busy Fathers
+  wu_cs_db_row:                                   'vmX58YYK3-8',   // Perfect Dumbbell Chest Supported Rows (KING of Back Exercises) — Seriously Strong Training
+  wu_cs_rear_delt_fly:                            'iCbVhDNpG-Y',   // DB Chest Supported Rear Delt Fly — Functional AF
+  wu_db_floor_press:                              'T0Y3OBF1bNI',   // How To Do A Dumbbell Floor Press — PureGym
+  wu_db_russian_twist:                            'TfTUk2AjV7g',   // Russian Twists with Dumbbell — Critical Bench Compound
+  wu_heel_elevated_squat:                         '7JWehDbcrnM',   // Why You Should Do Heel Elevated Squats - COMPLETE GUIDE (Benefits, Demonst — Chaplin Performance
+  wu_incline_decline_pushup:                      'QBlYp-EwHlo',   // How To Do A Decline Push Up — PureGym
+  wu_reacher_row:                                 'vDX7NG2KuGA',   // Reach and Row: Master the Reacher Row for Total Upper Body Strength! — TGRIP
+  wu_seated_db_press:                             'rO_iEImwHyo',   // How to do the SEATED DUMBBELL SHOULDER PRESS! | 2 Minute Tutorial — Max Euceda
+  wu_single_arm_lat_row:                          'zEFFP3B8WuA',   // Single Arm Lat Biased Cable Row | COMPLETE GUIDE | Target the middle lats  — ATLASTHETICS
+  wu_single_leg_rdl:                              'Oi40un_XoOw',   // Single Leg RDLs (You're Doing It WRONG!) — MOVE with Dr. Mike
+  wu_standing_db_press:                           'OOe_HrNnQWw',   // How to: Standing DB Shoulder Press for Physique Development — Physique Development
+  wu_step_up:                                     'aKj-6hgiViA',   // How To PROPERLY Perform Dumbbell Step Ups (GLUTE FOCUSED) — Colossus Fitness
+  wu_upright_row:                                 'K0dYqPCaO14',   // How-To Perform Upright Rows | Dumbbell Exercise Tutorial — Buff Dudes Workouts
+  wu_weighted_deadbug:                            'hUAROQHYJ64',   // Weighted Deadbug — Simone Sports Performance
+  wu_weighted_leg_raise:                          'mE19zgF7fFQ',   // How to do Leg Raises | Form, Tips & Mistakes — The Bodyweight Process
+  wu_weighted_pushup:                             'I9fsqKE5XHo',   // Do Push-Ups with Proper Form! — Upright Health
+  wu_weighted_step_up_glute:                      'aKj-6hgiViA',   // How To PROPERLY Perform Dumbbell Step Ups (GLUTE FOCUSED) — Colossus Fitness
+  wuankle:                                        'dV5opNYJvQE',   // Ankle Rolls — Kyle Norman
+  wuarm:                                          '3STTSi_jdHk',   // How To Arm Circles | Nuffield Health — Nuffield Health
+  wuband:                                         'X0jsl2ZrXug',   // How to Do Banded Side Steps Properly — [P]rehab
+  wucardio:                                       'u3zgHI8QnqE',   // How To Jump Rope | The Right Way | Well+Good — Well+Good
+  wuhip:                                          'D_kQzMB_HkY',   // How to do standing hip circles (Home training exercise) — Sporting Health Club
+  wuleg:                                          'difYoBtZi2s',   // How To Do Leg Swings — PureGym
+  zone2:                                          'AyMUWBUt3WY'   // How To Turbo Charge Zone 2 Training — Global Cycling Network
 };
 /* a pinned video always beats the bundled one */
 function videoFor(key) { return loadVideos()[key] || FORM_VIDEOS[key] || null; }
