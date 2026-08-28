@@ -3038,6 +3038,7 @@ const SYN_PLANS = [
    "groups": [
     {
      "title": "Fuelling",
+     "tone": "fuel",
      "icon": "🍽",
      "items": [
       {
@@ -3060,6 +3061,7 @@ const SYN_PLANS = [
     },
     {
      "title": "Supplements",
+     "tone": "supp",
      "icon": "💊",
      "items": [
       {
@@ -3070,6 +3072,7 @@ const SYN_PLANS = [
     },
     {
      "title": "If you are still cycling",
+     "tone": "cycle",
      "icon": "🌙",
      "items": [
       {
@@ -3088,6 +3091,7 @@ const SYN_PLANS = [
     },
     {
      "title": "What to watch for",
+     "tone": "warn",
      "icon": "⚠️",
      "items": [
       {
@@ -3106,6 +3110,7 @@ const SYN_PLANS = [
     },
     {
      "title": "Why it is built this way",
+     "tone": "why",
      "icon": "🧠",
      "items": [
       {

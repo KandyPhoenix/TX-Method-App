@@ -1044,13 +1044,44 @@ h2.section::after { content: ''; flex: 1; height: 1px; background: var(--border)
   color: var(--accent-ink); font-weight: 800;
   font-variant-numeric: tabular-nums; white-space: nowrap;
 }
-/* group headings carry an icon so the five read apart at a glance */
-.guide-head { gap: 8px; }
-.guide-ico { font-size: 15px; line-height: 1; }
-/* the cautions group is the only one that is a warning rather than an
-   instruction, so it is the only one tinted */
-.guide-group-warn .guide-item { border-left: 3px solid var(--hl); }
-.guide-group-warn .guide-item-title { color: var(--hl-ink); }
+/* ---- a colour per section ----
+   One accent across the whole guide made it read as a single unbroken wall.
+   Each section now carries its own hue, applied in four places at once —
+   heading, the rule beside it, the icon chip, and the card's leading edge —
+   so a section announces itself before you have read a word of it, and you
+   always know which one you are in.
+
+   Base values are the DARK theme, matching :root; the light theme overrides
+   below. Warnings are red-orange rather than the old gold: --hl-ink resolves
+   to #8a5a00 on light, a muddy brown that read as neither bright nor urgent. */
+.guide-group { --gc: var(--accent); --gc-ink: var(--accent-ink); --gc-wash: rgba(129, 140, 248, .16); }
+.guide-group[data-tone="fuel"]  { --gc: #34d399; --gc-ink: #34d399; --gc-wash: rgba(52, 211, 153, .16); }
+.guide-group[data-tone="supp"]  { --gc: #c4b5fd; --gc-ink: #c4b5fd; --gc-wash: rgba(196, 181, 253, .16); }
+.guide-group[data-tone="cycle"] { --gc: #67e8f9; --gc-ink: #67e8f9; --gc-wash: rgba(103, 232, 249, .16); }
+.guide-group[data-tone="warn"]  { --gc: #fb923c; --gc-ink: #fb923c; --gc-wash: rgba(251, 146, 60, .18); }
+.guide-group[data-tone="why"]   { --gc: #a5b4fc; --gc-ink: #a5b4fc; --gc-wash: rgba(165, 180, 252, .16); }
+:root[data-theme="light"] .guide-group[data-tone="fuel"]  { --gc: #0f7a4d; --gc-ink: #0f7a4d; --gc-wash: rgba(15, 122, 77, .10); }
+:root[data-theme="light"] .guide-group[data-tone="supp"]  { --gc: #6d28d9; --gc-ink: #6d28d9; --gc-wash: rgba(109, 40, 217, .10); }
+:root[data-theme="light"] .guide-group[data-tone="cycle"] { --gc: #0e7490; --gc-ink: #0e7490; --gc-wash: rgba(14, 116, 144, .10); }
+:root[data-theme="light"] .guide-group[data-tone="warn"]  { --gc: #c2410c; --gc-ink: #c2410c; --gc-wash: rgba(194, 65, 12, .10); }
+:root[data-theme="light"] .guide-group[data-tone="why"]   { --gc: #4338ca; --gc-ink: #4338ca; --gc-wash: rgba(67, 56, 202, .10); }
+
+/* heading: the section's colour, a chip round the icon, and its own rule */
+.guide-head { gap: 9px; color: var(--gc-ink); font-size: 12px; }
+.guide-head::after { background: var(--gc); opacity: .35; }
+.guide-ico {
+  font-size: 13px; line-height: 1; flex: 0 0 auto;
+  background: var(--gc-wash); border-radius: 7px; padding: 5px 6px;
+}
+/* the leading edge is what your eye catches while scrolling past */
+.guide-item { border-left: 3px solid var(--gc); }
+.guide-item-title { color: var(--gc-ink); }
+/* doses take the section's colour too, so a card reads as one piece rather
+   than two competing highlights */
+.guide-group .g-dose { color: var(--gc-ink); }
+/* cautions get a tinted card as well — the one group that is a warning
+   rather than an instruction, and worth spotting without reading */
+.guide-group-warn .guide-item { background: var(--gc-wash); }
 /* roomier than the default card text — this is read, not scanned for a number
    only, and the previous 13px at 1.55 ran as an undifferentiated block */
 .guide-item-body, .guide-card-body { font-size: 13.5px; line-height: 1.62; }
