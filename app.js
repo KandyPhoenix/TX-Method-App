@@ -2264,7 +2264,7 @@ function renderPrepToday() {
     if (d.note || gc.length) {
       const guideBits = gc.map(c => `<p class="note-guide"><b>${c.title}.</b> ${guideRich(c.body)}</p>`).join('');
       const more = hasGuide() ? `<button class="link-btn note-guide-more" data-goguide="1">Open the full guide</button>` : '';
-      html += `<details class="card note-fold"><summary>How this session works</summary><div class="note-body">${d.note || ''}${guideBits}${more}</div></details>`;
+      html += `<details class="card note-fold"><summary>Today&rsquo;s session</summary><div class="note-body">${d.note || ''}${guideBits}${more}</div></details>`;
     }
     html += readinessHTML();
     html += tierBarHTML();
