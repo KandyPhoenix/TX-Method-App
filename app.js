@@ -1793,7 +1793,34 @@ function advance(key, I, sp, day, wk) {
 const view    = document.getElementById('view');
 const titleEl = document.getElementById('screenTitle');
 const subEl   = document.getElementById('screenSub');
-let TAB = 'today', PROGRAM = generateProgram(), progCycle = 0;
+/* The tab you were last on, kept across reloads — refreshing used to drop
+   you back on Roadmap wherever you were. This is a view preference, so it
+   lives in its own key alongside tm_theme and tm_zoom rather than in S:
+   S is training data and syncs between devices, and which tab you happen
+   to have open should not follow you to another one.
+
+   Validated against the tab bar itself rather than a hardcoded list, so a
+   tab added to index.html needs no change here and a value left over from
+   an older build quietly falls back to Roadmap. app.js loads at the end of
+   body, so the buttons exist by the time this runs. */
+const TAB_KEY = 'tm_tab';
+function loadTab() {
+  try {
+    const t = localStorage.getItem(TAB_KEY);
+    return t && document.querySelector('.tab[data-tab="' + t + '"]') ? t : 'today';
+  } catch { return 'today'; }
+}
+/* Written at the END of render(), so a tab is only remembered once it has
+   actually drawn without throwing — otherwise a tab that breaks on some
+   state would be restored into the same break on every reload. */
+let tabSaved = null;
+function saveTab() {
+  if (TAB === tabSaved) return;
+  tabSaved = TAB;
+  try { localStorage.setItem(TAB_KEY, TAB); } catch {}
+}
+
+let TAB = loadTab(), PROGRAM = generateProgram(), progCycle = 0;
 
 function rebuild() { PROGRAM = generateProgram(); }
 function renderLibrary() {
@@ -1829,6 +1856,7 @@ function render() {
   if (TAB === 'setup')   renderSetup();
   updateSessionUI();   /* keeps the session bar in step with the current tab */
   if (typeof updateWakeLock === 'function') updateWakeLock();
+  saveTab();           /* last, so only a tab that rendered cleanly is remembered */
 }
 
 /* =====================================================================
@@ -3190,7 +3218,8 @@ const FORM_VIDEOS = {
   syn_tibialis_raises:               'VzIcGAgBiaM',   // Tibialis Wall Raises (Exercise Demo) — The Barefoot Sprinter
   syn_walking_lunges:                'Pbmj6xPo-Hw',   // Walking Lunges Exercise Tutorial — Buff Dudes
   tibraise:                          'VzIcGAgBiaM',   // Tibialis Wall Raises (Exercise Demo) — The Barefoot Sprinter
-  walkinglunge:                      'Pbmj6xPo-Hw'   // Walking Lunges Exercise Tutorial — Buff Dudes
+  walkinglunge:                      'Pbmj6xPo-Hw',  // Walking Lunges Exercise Tutorial — Buff Dudes
+  wu_sissy_squat:                    'DOxGMy258rM'   // Sissy Squat Correct Form | Gareth Sapstead — Mirafit
 };
 /* a pinned video always beats the bundled one */
 function videoFor(key) { return loadVideos()[key] || FORM_VIDEOS[key] || null; }
