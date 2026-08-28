@@ -2950,7 +2950,7 @@ const SYN_PLANS = [
     {
      "kicker": "Before you lift",
      "title": "About 15 g of protein",
-     "body": "Do not train fasted. Fasted work raises cortisol and stops you reaching the intensities this program depends on. A coffee with a scoop of protein, Greek yoghurt or a couple of eggs is enough. Her own version is an espresso with almond milk and protein powder."
+     "body": "Do not train fasted. Fasted work raises cortisol and stops you reaching the intensities this program depends on. A coffee with a scoop of protein, Greek yogurt or a couple of eggs is enough. Her own version is an espresso with almond milk and protein powder."
     },
     {
      "kicker": "Daily target",
@@ -3037,7 +3037,7 @@ const SYN_PLANS = [
    },
    "groups": [
     {
-     "title": "Fuelling",
+     "title": "Fueling",
      "tone": "fuel",
      "icon": "🍽",
      "items": [
@@ -3114,8 +3114,8 @@ const SYN_PLANS = [
      "icon": "🧠",
      "items": [
       {
-       "title": "Power replaces what oestrogen did",
-       "body": "As oestrogen falls, heavy and explosive work takes over the job it used to do. That is why the reps are low, the loads are heavy and there is jump training in a program aimed at women over 40."
+       "title": "Power replaces what estrogen did",
+       "body": "As estrogen falls, heavy and explosive work takes over the job it used to do. That is why the reps are low, the loads are heavy and there is jump training in a program aimed at women over 40."
       },
       {
        "title": "Jumps are for your bones",
