@@ -2937,7 +2937,7 @@ const SYN_PLANS = [
     of <=6 reps, 2-5 min rest; sprints <=30 s, min 2 min recovery, max five). */
 {
   "id": "sims-lift-heavy-sprint-short",
-  "name": "Lift Heavy, Sprint Short",
+  "name": "Sims 4 Women",
   "desc": "3 gym days, 4 walk days — Dr Stacy Sims",
   "kneeSafe": false,
   "days": [

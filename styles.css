@@ -1023,12 +1023,15 @@ h2.section::after { content: ''; flex: 1; height: 1px; background: var(--border)
 /* Diagnostics are measurements, not programs. Their own surface and a gold
    tag separate them at a glance. Gold TEXT needs --hl-ink: plain --hl is
    unreadable on the light theme's cream (see the token comment at :root). */
-/* A gold wash over whatever surface is underneath, rather than a swap to a
-   named token: --bg2 and --ink-surface are the SAME colour in dark, so a
-   token swap is invisible there and dramatic in light. A translucent tint
-   lands the same way in both. #f59e0b is --hl, which the tag also uses. */
+/* Diagnostics sit on --bg2, not the dark --ink-surface the workout tiles
+   use: on the light theme that dark panel read as a black block on a card
+   that is only a measurement. --bg2 follows the theme (pale in light, dark
+   in dark), and because it is the SAME colour as --ink-surface in dark it
+   would leave no distinction there on its own — hence the gold wash on top,
+   which tints relative to whatever is underneath and so lands the same way
+   in both. #f59e0b is --hl, which the tag also uses. */
 .proto-sec-diag .proto-art {
-  background: linear-gradient(rgba(245, 158, 11, .12), rgba(245, 158, 11, .12)), var(--ink-surface);
+  background: linear-gradient(rgba(245, 158, 11, .12), rgba(245, 158, 11, .12)), var(--bg2);
 }
 .proto-sec-diag .proto-tag {
   background: transparent; color: var(--hl-ink);
