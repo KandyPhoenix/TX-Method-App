@@ -2940,6 +2940,181 @@ const SYN_PLANS = [
   "name": "Sims 4 Women",
   "desc": "3 gym days, 4 walk days — Dr Stacy Sims",
   "kneeSafe": false,
+  /* Coaching that is not an exercise. Any plan may carry a `guide`; the app
+     shows `rotate` as a rail card that cycles day to day, `days` as a card
+     keyed on that day's title, and `groups` as the Guide tab. A plan without
+     one simply has no Guide tab. */
+  "guide": {
+   "blurb": "Dr Stacy Sims' published guidance for the women running this programme — what to eat and when, what to take, and what to watch for. The training is only half of it.",
+   "rotate": [
+    {
+     "kicker": "Before you lift",
+     "title": "About 15 g of protein",
+     "body": "Do not train fasted. Fasted work raises cortisol and stops you reaching the intensities this programme depends on. A coffee with a scoop of protein, Greek yoghurt or a couple of eggs is enough. Her own version is an espresso with almond milk and protein powder."
+    },
+    {
+     "kicker": "Daily target",
+     "title": "1.6–2.2 g of protein per kg",
+     "body": "Over 40, aim for 1.6–2.2 g per kilo of bodyweight a day. Through the menopause transition she raises that to 2.2–2.4 g/kg — the lower end on easy days, the higher end after a heavy session."
+    },
+    {
+     "kicker": "Spread it out",
+     "title": "30–40 g a meal, 15–20 g a snack",
+     "body": "Your body responds to protein spread evenly through the day, not loaded onto dinner. Three solid meals plus snacks beats one big hit at night."
+    },
+    {
+     "kicker": "Every day",
+     "title": "Creatine, 3–5 g",
+     "body": "Creatine monohydrate, 3–5 g daily. No loading phase — that dose saturates the muscle in three to four weeks without the bloating bigger doses cause. Timing does not matter; consistency does."
+    },
+    {
+     "kicker": "After training",
+     "title": "30–40 g within 45 minutes",
+     "body": "Still cycling: about 30–35 g of good protein within 30–45 minutes. Perimenopausal or beyond: 40 g or more. This is the window that decides whether the session you just did turns into muscle."
+    },
+    {
+     "kicker": "After training",
+     "title": "Carbs too, 0.3 g per kg",
+     "body": "Around 0.3 g of carbohydrate per kilo of bodyweight within two hours of finishing. Protein rebuilds; carbohydrate refills."
+    },
+    {
+     "kicker": "Watch for",
+     "title": "Caffeine in perimenopause",
+     "body": "Baseline cortisol is already elevated through perimenopause, and caffeine adds to it. It is not forbidden — but if sleep is fraying, this is one of the first things to look at."
+    },
+    {
+     "kicker": "Watch for",
+     "title": "The moderate middle",
+     "body": "The daily spin or bootcamp class is the least productive place to spend your time on this programme. Hard days hard, easy days genuinely easy, and very little in between. That is the whole model."
+    },
+    {
+     "kicker": "Sleep",
+     "title": "Adaptation happens on the easy days",
+     "body": "You do not get stronger during the session — you get stronger recovering from it. Walk days and the rest day are doing real work. Skipping them costs you the hard days."
+    },
+    {
+     "kicker": "If you still cycle",
+     "title": "Schedule the heavy work early",
+     "body": "The low-hormone phase, from day 1 through ovulation, is where heavy loads and PR attempts land best. Plan the big sessions there when you can."
+    }
+   ],
+   "days": {
+    "Lower Body Heavy": {
+     "kicker": "Today",
+     "title": "Rest is the exercise",
+     "body": "Three full minutes between the heavy sets. It feels indulgent and it is not — the rest is what lets the next set be heavy, which is the entire point of low reps. Stop each set with 2–3 reps still in you."
+    },
+    "Easy Walk": {
+     "kicker": "Today",
+     "title": "Talk the whole way",
+     "body": "If you cannot hold a full conversation, you are going too hard. This day is prescribed work, not a rest day with a label — but its job is recovery, and pushing it wrecks tomorrow."
+    },
+    "Upper Heavy + Sprints": {
+     "kicker": "Today",
+     "title": "All-out means all-out",
+     "body": "Your legs are fresh because nothing above touches them — that is why the sprints sit here. If the last sprint is as fast as the first, you paced it. Take more rest between, not less."
+    },
+    "Full Body Heavy": {
+     "kicker": "Today",
+     "title": "Deadlift day",
+     "body": "Lowest reps of the week and the most demanding session on your nervous system. The sprint finisher is optional and deliberately shorter — one good sprint session a week already satisfies the programme."
+    },
+    "Walk or Hike": {
+     "kicker": "Today",
+     "title": "Longer, still easy",
+     "body": "Time on your feet at low intensity is the base everything else sits on. Hills are fine as long as you can still talk on them."
+    },
+    "Rest": {
+     "kicker": "Today",
+     "title": "Take it",
+     "body": "At least one full day off a week. If you are sore, flat or sleeping badly, take the whole thing — doing nothing is a valid way to complete this day."
+    }
+   },
+   "groups": [
+    {
+     "title": "Fuelling",
+     "items": [
+      {
+       "title": "Never train fasted",
+       "body": "This is her most repeated point. Training fasted raises cortisol and prevents women reaching the intensities that make the programme work. Roughly 15 g of protein before lifting, or about 30 g of carbohydrate before cardio of up to an hour. Her stated exception is people with obesity, inactivity, PCOS or another metabolic condition, for whom strategic fasted work may suit."
+      },
+      {
+       "title": "Protein after training",
+       "body": "Still cycling: 30–35 g of high-quality, leucine-rich protein within 30–45 minutes. Perimenopausal and beyond: 40 g or more within 45 minutes — she has cited 40–60 g for this group."
+      },
+      {
+       "title": "Protein across the day",
+       "body": "Over 40: 1.6–2.2 g per kg of bodyweight daily. Through the menopause transition: 2.2–2.4 g/kg. Distribute it — 30–40 g at each meal and 15–20 g at snacks — rather than loading it at dinner."
+      },
+      {
+       "title": "Carbohydrate after training",
+       "body": "About 0.3 g per kg of bodyweight within two hours of finishing."
+      }
+     ]
+    },
+    {
+     "title": "Supplements",
+     "items": [
+      {
+       "title": "Creatine monohydrate",
+       "body": "3–5 g a day, every day. No loading phase is needed: that dose fully saturates muscle stores in about three to four weeks without the GI upset larger doses can cause. She prefers CreaPure. Timing is unimportant — consistency is what matters."
+      }
+     ]
+    },
+    {
+     "title": "If you are still cycling",
+     "items": [
+      {
+       "title": "Low-hormone phase",
+       "body": "Day 1 through ovulation is the best window for heavy loads and PR attempts. Put the hardest sessions here when the calendar allows."
+      },
+      {
+       "title": "Luteal phase",
+       "body": "Raise protein and carbohydrate. Your core temperature runs higher and the work costs more."
+      },
+      {
+       "title": "The ten-minute rule",
+       "body": "In the luteal phase, if you cannot reach the intended intensities after ten minutes of trying, convert the session to recovery work rather than grinding through it. That is her instruction, not a concession."
+      }
+     ]
+    },
+    {
+     "title": "What to watch for",
+     "items": [
+      {
+       "title": "Caffeine in perimenopause",
+       "body": "Baseline cortisol is already raised through perimenopause and caffeine compounds it. Worth reviewing first if sleep is deteriorating."
+      },
+      {
+       "title": "The moderate middle",
+       "body": "She names the daily spin or bootcamp habit specifically as the least productive use of your time. The polarized model needs the easy days genuinely easy; filling them with moderate-intensity work undoes the recovery the hard days depend on."
+      },
+      {
+       "title": "Intervals past 60 seconds",
+       "body": "Beyond a minute the cortisol cost climbs without a matching benefit. Sprints stay at 30 seconds or less, with a minimum two minutes recovery, up to a maximum of five."
+      }
+     ]
+    },
+    {
+     "title": "Why it is built this way",
+     "items": [
+      {
+       "title": "Power replaces what oestrogen did",
+       "body": "As oestrogen falls, heavy and explosive work takes over the job it used to do. That is why the reps are low, the loads are heavy and there is jump training in a programme aimed at women over 40."
+      },
+      {
+       "title": "Jumps are for your bones",
+       "body": "The plyometrics are not conditioning. They are a bone-density stimulus, which is why the volume is low and every rep is meant to be maximal."
+      },
+      {
+       "title": "Three sessions is the minimum, not the target",
+       "body": "Her stated weekly minimum is three resistance sessions plus one to two sprint sessions, with everything else walking. You do not need to train all week — you need these three to be genuinely hard."
+      }
+     ]
+    }
+   ],
+   "sources": "Dr Stacy Sims — drstacysims.com articles on protein, creatine and training through menopause, plus her Huberman Lab appearance. One caveat: the daily protein figure for still-cycling women is less precisely documented than the over-40 and menopause-transition numbers, so treat 1.6–2.0 g/kg as the least certain figure here."
+  },
   "days": [
    {
     "title": "Lower Body Heavy",

@@ -1005,6 +1005,43 @@ h2.section::after { content: ''; flex: 1; height: 1px; background: var(--border)
   .hero-title { font-size: 21px; }
   .day-chip .n { font-size: 12px; }
 }
+/* ---- programme guide ----
+   The coaching that is not an exercise. Rail cards on the session screen,
+   and a Guide tab for the whole lot. Accented down the left edge so a
+   guide card never reads as another set to tick. */
+.rail-guide-card { border-left: 3px solid var(--accent); }
+.rail-guide-title {
+  font-family: var(--display); font-weight: 800; font-size: 14px;
+  line-height: 1.15; margin: 2px 0 5px; color: var(--text);
+}
+.rail-guide-body { font-size: 12.5px; line-height: 1.5; color: var(--muted); }
+.rail-guide-more { width: 100%; font-size: 10px; padding: 9px; margin-top: 8px; }
+
+.note-guide { margin: 10px 0 0; }
+.note-guide b { color: var(--text); }
+.note-guide-more { margin-top: 10px; display: inline-block; }
+
+.guide-blurb { font-size: 13.5px; line-height: 1.55; color: var(--muted); padding: 15px 16px; }
+.guide-today { display: grid; gap: 10px; }
+.guide-card { border-left: 3px solid var(--accent); padding: 14px 16px 15px; }
+.guide-card-title {
+  font-family: var(--display); font-weight: 800; font-size: 16px;
+  line-height: 1.12; margin: 3px 0 6px;
+}
+.guide-card-body { font-size: 13.5px; line-height: 1.55; color: var(--muted); margin: 0; }
+.guide-group + .guide-group { margin-top: 4px; }
+.guide-items { display: grid; gap: 9px; }
+.guide-item { padding: 13px 15px 14px; }
+.guide-item-title {
+  font-family: var(--display); font-weight: 700; font-size: 13.5px;
+  text-transform: uppercase; letter-spacing: .4px; margin-bottom: 5px;
+}
+.guide-item-body { font-size: 13px; line-height: 1.55; color: var(--muted); margin: 0; }
+.guide-sources { padding: 14px 16px; margin-top: 14px; }
+.guide-sources p { font-size: 12px; line-height: 1.5; color: var(--dim); margin: 4px 0 0; }
+.guide-empty p { font-size: 13.5px; line-height: 1.55; color: var(--muted); margin: 6px 0 0; }
+@media (min-width: 760px) { .guide-items { grid-template-columns: repeat(2, 1fr); } }
+
 .proto.locked-proto { opacity: .5; }
 .proto.locked-proto .proto-art { background: var(--bg2); }
 
