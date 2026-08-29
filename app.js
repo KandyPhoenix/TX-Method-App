@@ -38,7 +38,7 @@ const DEFAULTS = {
   age: 45,            /* Fingerprint scoring is age-normed — see FP_ASSESS */
   equipment: 'gym',   /* gym | dumbbells | bodyweight — see EQUIP_RANK */
   weeklyGoal: 4,      /* sessions per week — the week strip counts toward this */
-  dbMax: 25,          /* heaviest dumbbell/kettlebell owned, per hand — see capHand */
+  dbMax: 50,          /* heaviest dumbbell/kettlebell owned, per hand — see capHand */
   readiness: null,    /* 1-4 how you slept / feel today; suggests a tier, never sets one */
   readinessDay: null,
   waveLoad: true,     /* ramp into a top set, back off, repeat — see waveFactors */
@@ -1149,14 +1149,16 @@ const SYN_ICO = {
   'knee-friendly-2x': '\u{1F9BF}', 'asian-pilates-3x': '\u{1F338}',
   'military-pelvic-4x': '\u{1F396}\u{FE0F}', 'mobility-snacks-4x': '\u{1F34E}',
   'joint-mobility-mastery-7x': '\u{1F9B4}', 'movesmethod-workouts-3x': '\u{1F57A}',
-  'dumbbell-49-supersets': '\u{1F517}', 'sims-lift-heavy-sprint-short': '\u{26A1}'
+  'dumbbell-49-supersets': '\u{1F517}', 'sims-lift-heavy-sprint-short': '\u{26A1}',
+  'norwegian-4x4': '\u{1F6B4}'
 };
 const SYN_TAG = {
   'ppl': 'Strength', 'upper-lower': 'Strength', 'full-body': 'Strength',
   'knee-friendly-2x': 'Strength', 'asian-pilates-3x': 'Mobility',
   'military-pelvic-4x': 'Conditioning', 'mobility-snacks-4x': 'Mobility',
   'joint-mobility-mastery-7x': 'Mobility', 'movesmethod-workouts-3x': 'Mobility',
-  'dumbbell-49-supersets': 'Strength', 'sims-lift-heavy-sprint-short': 'Strength'
+  'dumbbell-49-supersets': 'Strength', 'sims-lift-heavy-sprint-short': 'Strength',
+  'norwegian-4x4': 'Conditioning'
 };
 const SYN_GRP = {
   'asian-pilates-3x': 'recovery', 'mobility-snacks-4x': 'recovery',

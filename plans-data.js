@@ -4798,6 +4798,475 @@ const SYN_PLANS = [
     ]
    }
   ]
+ },
+ {
+  "id": "norwegian-4x4",
+  "name": "Norwegian 4×4",
+  "desc": "3 interval sessions a week — bike, stairs, your pick",
+  "kneeSafe": false,
+  "days": [
+   {
+    "title": "4×4 Bike",
+    "focus": "VO2max · the flagship session",
+    "exercises": [
+     {
+      "key": "n44_wu_bike",
+      "name": "Warm-Up",
+      "sets": 1,
+      "sec": 600,
+      "scheme": "10 min · easy · ~70% HRmax · spin, low resistance",
+      "needs": "bodyweight"
+     },
+     {
+      "key": "n44_work_bike_1",
+      "name": "Interval 1 — Hard",
+      "sets": 1,
+      "sec": 240,
+      "scheme": "4 min · 90-95% HRmax · seated, high resistance, ~80 rpm",
+      "needs": "bodyweight"
+     },
+     {
+      "key": "n44_rec_bike_1",
+      "name": "Recovery 1",
+      "sets": 1,
+      "sec": 180,
+      "scheme": "3 min · easy · ~70% HRmax · spin it out, no resistance",
+      "needs": "bodyweight"
+     },
+     {
+      "key": "n44_work_bike_2",
+      "name": "Interval 2 — Hard",
+      "sets": 1,
+      "sec": 240,
+      "scheme": "4 min · 90-95% HRmax · seated, high resistance, ~80 rpm",
+      "needs": "bodyweight"
+     },
+     {
+      "key": "n44_rec_bike_2",
+      "name": "Recovery 2",
+      "sets": 1,
+      "sec": 180,
+      "scheme": "3 min · easy · ~70% HRmax · spin it out, no resistance",
+      "needs": "bodyweight"
+     },
+     {
+      "key": "n44_work_bike_3",
+      "name": "Interval 3 — Hard",
+      "sets": 1,
+      "sec": 240,
+      "scheme": "4 min · 90-95% HRmax · seated, high resistance, ~80 rpm",
+      "needs": "bodyweight"
+     },
+     {
+      "key": "n44_rec_bike_3",
+      "name": "Recovery 3",
+      "sets": 1,
+      "sec": 180,
+      "scheme": "3 min · easy · ~70% HRmax · spin it out, no resistance",
+      "needs": "bodyweight"
+     },
+     {
+      "key": "n44_work_bike_4",
+      "name": "Interval 4 — Hard",
+      "sets": 1,
+      "sec": 240,
+      "scheme": "4 min · 90-95% HRmax · seated, high resistance, ~80 rpm",
+      "needs": "bodyweight"
+     },
+     {
+      "key": "n44_cd_bike",
+      "name": "Cool-Down",
+      "sets": 1,
+      "sec": 180,
+      "scheme": "3 min · very easy · ~70% HRmax",
+      "needs": "bodyweight"
+     }
+    ]
+   },
+   {
+    "title": "Easy Spin or Walk",
+    "focus": "Recovery · conversational only",
+    "exercises": [
+     {
+      "key": "n44_easy_spin",
+      "name": "Easy Spin or Walk",
+      "sets": 1,
+      "sec": 1500,
+      "scheme": "20-30 min · conversational · or take the day off",
+      "needs": "bodyweight"
+     }
+    ]
+   },
+   {
+    "title": "4×4 Stairs",
+    "focus": "VO2max · closest to the running the study used",
+    "exercises": [
+     {
+      "key": "n44_wu_stairs",
+      "name": "Warm-Up",
+      "sets": 1,
+      "sec": 600,
+      "scheme": "10 min · easy · ~70% HRmax · walk the flight at an easy pace",
+      "needs": "bodyweight"
+     },
+     {
+      "key": "n44_work_stairs_1",
+      "name": "Interval 1 — Hard",
+      "sets": 1,
+      "sec": 240,
+      "scheme": "4 min · 90-95% HRmax · up hard, WALK down — the descent is not the interval",
+      "needs": "bodyweight"
+     },
+     {
+      "key": "n44_rec_stairs_1",
+      "name": "Recovery 1",
+      "sets": 1,
+      "sec": 180,
+      "scheme": "3 min · easy · ~70% HRmax · walk the flat, keep moving",
+      "needs": "bodyweight"
+     },
+     {
+      "key": "n44_work_stairs_2",
+      "name": "Interval 2 — Hard",
+      "sets": 1,
+      "sec": 240,
+      "scheme": "4 min · 90-95% HRmax · up hard, WALK down — the descent is not the interval",
+      "needs": "bodyweight"
+     },
+     {
+      "key": "n44_rec_stairs_2",
+      "name": "Recovery 2",
+      "sets": 1,
+      "sec": 180,
+      "scheme": "3 min · easy · ~70% HRmax · walk the flat, keep moving",
+      "needs": "bodyweight"
+     },
+     {
+      "key": "n44_work_stairs_3",
+      "name": "Interval 3 — Hard",
+      "sets": 1,
+      "sec": 240,
+      "scheme": "4 min · 90-95% HRmax · up hard, WALK down — the descent is not the interval",
+      "needs": "bodyweight"
+     },
+     {
+      "key": "n44_rec_stairs_3",
+      "name": "Recovery 3",
+      "sets": 1,
+      "sec": 180,
+      "scheme": "3 min · easy · ~70% HRmax · walk the flat, keep moving",
+      "needs": "bodyweight"
+     },
+     {
+      "key": "n44_work_stairs_4",
+      "name": "Interval 4 — Hard",
+      "sets": 1,
+      "sec": 240,
+      "scheme": "4 min · 90-95% HRmax · up hard, WALK down — the descent is not the interval",
+      "needs": "bodyweight"
+     },
+     {
+      "key": "n44_cd_stairs",
+      "name": "Cool-Down",
+      "sets": 1,
+      "sec": 180,
+      "scheme": "3 min · very easy · ~70% HRmax",
+      "needs": "bodyweight"
+     }
+    ]
+   },
+   {
+    "title": "Easy Walk",
+    "focus": "Recovery · time on your feet",
+    "exercises": [
+     {
+      "key": "n44_easy_walk",
+      "name": "Easy Walk",
+      "sets": 1,
+      "sec": 2100,
+      "scheme": "30-35 min · conversational the whole way",
+      "needs": "bodyweight"
+     }
+    ]
+   },
+   {
+    "title": "4×4 Your Pick",
+    "focus": "VO2max · bike, stairs, rope or box — whichever you will do hard",
+    "exercises": [
+     {
+      "key": "n44_wu_pick",
+      "name": "Warm-Up",
+      "sets": 1,
+      "sec": 600,
+      "scheme": "10 min · easy · ~70% HRmax · your chosen mode, easy",
+      "needs": "bodyweight"
+     },
+     {
+      "key": "n44_work_pick_1",
+      "name": "Interval 1 — Hard",
+      "sets": 1,
+      "sec": 240,
+      "scheme": "4 min · 90-95% HRmax · whatever gets you to 90-95% and holds you there",
+      "needs": "bodyweight"
+     },
+     {
+      "key": "n44_rec_pick_1",
+      "name": "Recovery 1",
+      "sets": 1,
+      "sec": 180,
+      "scheme": "3 min · easy · ~70% HRmax · same mode, easy",
+      "needs": "bodyweight"
+     },
+     {
+      "key": "n44_work_pick_2",
+      "name": "Interval 2 — Hard",
+      "sets": 1,
+      "sec": 240,
+      "scheme": "4 min · 90-95% HRmax · whatever gets you to 90-95% and holds you there",
+      "needs": "bodyweight"
+     },
+     {
+      "key": "n44_rec_pick_2",
+      "name": "Recovery 2",
+      "sets": 1,
+      "sec": 180,
+      "scheme": "3 min · easy · ~70% HRmax · same mode, easy",
+      "needs": "bodyweight"
+     },
+     {
+      "key": "n44_work_pick_3",
+      "name": "Interval 3 — Hard",
+      "sets": 1,
+      "sec": 240,
+      "scheme": "4 min · 90-95% HRmax · whatever gets you to 90-95% and holds you there",
+      "needs": "bodyweight"
+     },
+     {
+      "key": "n44_rec_pick_3",
+      "name": "Recovery 3",
+      "sets": 1,
+      "sec": 180,
+      "scheme": "3 min · easy · ~70% HRmax · same mode, easy",
+      "needs": "bodyweight"
+     },
+     {
+      "key": "n44_work_pick_4",
+      "name": "Interval 4 — Hard",
+      "sets": 1,
+      "sec": 240,
+      "scheme": "4 min · 90-95% HRmax · whatever gets you to 90-95% and holds you there",
+      "needs": "bodyweight"
+     },
+     {
+      "key": "n44_cd_pick",
+      "name": "Cool-Down",
+      "sets": 1,
+      "sec": 180,
+      "scheme": "3 min · very easy · ~70% HRmax",
+      "needs": "bodyweight"
+     }
+    ]
+   },
+   {
+    "title": "Easy Walk or Rope",
+    "focus": "Recovery · keep it light",
+    "exercises": [
+     {
+      "key": "n44_easy_rope",
+      "name": "Easy Walk or Skip Rope",
+      "sets": 1,
+      "sec": 1200,
+      "scheme": "20 min · easy · rope in short relaxed sets if you use it",
+      "needs": "bodyweight"
+     }
+    ]
+   },
+   {
+    "title": "Rest",
+    "focus": "Nothing · this is prescribed",
+    "exercises": [
+     {
+      "key": "n44_rest",
+      "name": "Rest Day",
+      "sets": 1,
+      "sec": 600,
+      "scheme": "10 min easy walk at most · or a genuine day off",
+      "needs": "bodyweight"
+     }
+    ]
+   }
+  ],
+  "guide": {
+   "blurb": "The Norwegian 4×4 as Helgerud's group ran it — 10 minutes easy, four 4-minute intervals at 90-95% of max heart rate with 3 minutes easy between, 3 minutes down. Three times a week. This version swaps their treadmill running for the bike and stairs you actually have.",
+   "rotate": [
+    {
+     "kicker": "The session",
+     "title": "4 minutes is the dose",
+     "body": "The interval is long enough to pull you up to near-maximal oxygen uptake and hold you there, which is the point. Shorter and you never get there; longer and you cannot hold the intensity. 4 minutes is the whole reason this protocol is shaped the way it is."
+    },
+    {
+     "kicker": "Intensity",
+     "title": "90-95% of max heart rate",
+     "body": "Estimate max as 208 minus 0.7 times your age (Tanaka 2001) — at 45 that is about 176, so the interval window is roughly 158-167 beats. Estimates carry real spread, so use the effort check as well: too breathless for a sentence, still able to get a word out."
+    },
+    {
+     "kicker": "Recovery",
+     "title": "3 minutes easy, and actually easy",
+     "body": "The recovery is 70% of max — keep moving, but genuinely gently. Standing still lets heart rate drop too far and the next interval starts from scratch; pushing it means you cannot reach 90-95% again."
+    },
+    {
+     "kicker": "First interval",
+     "title": "Expect it to feel wrong",
+     "body": "Heart rate lags effort by a minute or so, so interval one often feels easier than the number says. Do not chase the reading by going harder at the start — pace it so the last minute is the hardest."
+    },
+    {
+     "kicker": "Frequency",
+     "title": "3 times a week",
+     "body": "That is what the study ran, for 8 weeks. Four hard sessions is not a better version of this; the easy days between are what let the hard ones be hard."
+    },
+    {
+     "kicker": "Alongside lifting",
+     "title": "Put it after, or on another day",
+     "body": "This was studied on its own. If you are also running Sims 4 Women or a lifting program, put the 4×4 on a non-lifting day where you can — and if it has to share a day, lift first."
+    }
+   ],
+   "after": [
+    {
+     "kicker": "After training",
+     "title": "Take the 3 minutes down",
+     "body": "The cool-down is in the protocol. Three minutes of very easy work lets heart rate come down gradually rather than stopping dead at the top of the last interval."
+    },
+    {
+     "kicker": "After training",
+     "title": "Note the mode and how it went",
+     "body": "Which of the four intervals fell off, and on what — bike, stairs, rope. That is the thing that tells you whether to change pacing or change mode next week."
+    }
+   ],
+   "days": {
+    "4×4 Bike": {
+     "kicker": "Today",
+     "title": "The easiest one to pace",
+     "body": "Resistance high enough that you cannot spin freely, cadence around 80. The bike is the most controllable of the three — use it to learn what 90-95% actually feels like, then take that feeling to the stairs."
+    },
+    "Easy Spin or Walk": {
+     "kicker": "Today",
+     "title": "Genuinely easy, or nothing",
+     "body": "This day is not in the protocol. It exists so you keep moving between hard sessions. If you are tired, taking it off costs you nothing."
+    },
+    "4×4 Stairs": {
+     "kicker": "Today",
+     "title": "Up hard, walk down",
+     "body": "The descent is not part of the interval — walk it, and let it be part of your recovery. Stairs get you to a high heart rate faster than the bike, so start the first interval slightly easier than you think."
+    },
+    "Easy Walk": {
+     "kicker": "Today",
+     "title": "Conversational the whole way",
+     "body": "If you cannot hold a full conversation you are going too hard. This day is doing recovery work; pushing it costs you the next interval session."
+    },
+    "4×4 Your Pick": {
+     "kicker": "Today",
+     "title": "Pick the one you will actually push on",
+     "body": "Bike, stairs, rope or step-ups on the box. The mode matters far less than reaching 90-95% and holding it for the full four minutes."
+    },
+    "Easy Walk or Rope": {
+     "kicker": "Today",
+     "title": "Short and light",
+     "body": "Rope in short relaxed sets if you use it — this is not a conditioning session. Twenty easy minutes."
+    },
+    "Rest": {
+     "kicker": "Today",
+     "title": "Take it",
+     "body": "Three hard sessions a week is the prescription and rest is what makes them repeatable. A ten-minute walk at most, or nothing at all."
+    }
+   },
+   "groups": [
+    {
+     "title": "How to run it",
+     "tone": "cycle",
+     "icon": "🔁",
+     "items": [
+      {
+       "title": "The session, exactly",
+       "body": "10 min easy, then 4 min hard / 3 min easy four times through, then 3 min easy down. 38 minutes end to end. The app runs each block on its own clock so you do not have to count."
+      },
+      {
+       "title": "Hard means 90-95% of max heart rate",
+       "body": "Not \"as hard as possible\". All-out sprinting overshoots and you cannot hold four minutes. This is a hard, sustainable, deeply unpleasant pace that you finish."
+      },
+      {
+       "title": "Keep moving through the recovery",
+       "body": "3 min at about 70%. Easy, but not stopped."
+      },
+      {
+       "title": "Three times a week",
+       "body": "The study ran it 3 days a week for 8 weeks. Keep at least one easy day between sessions."
+      }
+     ]
+    },
+    {
+     "title": "Finding your zone",
+     "tone": "supp",
+     "icon": "❤️",
+     "items": [
+      {
+       "title": "Estimating max heart rate",
+       "body": "208 minus 0.7 times age, from Tanaka's 2001 review of 351 studies. At 45 that is about 176 beats, putting the interval window near 158-167 and the recovery near 123. It is an estimate across a population, not a measurement of you — individual max varies substantially around it."
+      },
+      {
+       "title": "The effort check, if you have no monitor",
+       "body": "At 90-95% you can get out a word, not a sentence. At the 70% recovery you can talk in full sentences but would rather not. This is standard practice for setting intensity without a chest strap, not a finding from the study."
+      },
+      {
+       "title": "Let the last minute be the hardest",
+       "body": "Heart rate takes about a minute to catch up with effort. If interval one is your hardest minute you went out too fast and intervals three and four will fall apart."
+      }
+     ]
+    },
+    {
+     "title": "What to watch for",
+     "tone": "warn",
+     "icon": "⚠️",
+     "items": [
+      {
+       "title": "This is genuinely hard work",
+       "body": "Sustained 90-95% of max heart rate is a real cardiovascular load. If you have a heart or blood-pressure condition, take medication that affects heart rate, or have not trained at intensity in a long time, clear it with a doctor first. Nothing here is medical advice."
+      },
+      {
+       "title": "Heart-rate medication breaks the numbers",
+       "body": "Beta blockers and some other drugs lower both resting and maximum heart rate, which makes the percentages meaningless. Use effort instead, and ask your prescriber what intensity is appropriate."
+      },
+      {
+       "title": "Four sessions is not better than three",
+       "body": "The adaptation happens between sessions. Adding a fourth hard day is the most common way people make this protocol stop working."
+      },
+      {
+       "title": "Stairs punish careless descents",
+       "body": "Walk down, every time. The descent is not part of the interval and it is where the ankle and knee risk is."
+      }
+     ]
+    },
+    {
+     "title": "Why it is built this way",
+     "tone": "why",
+     "icon": "🧠",
+     "items": [
+      {
+       "title": "The intensity is the active ingredient",
+       "body": "Helgerud's group matched total oxygen cost across four groups. Only the two high-intensity interval groups improved VO2max — the 4×4 group by 7.2% (55.5 to 60.4 mL/kg/min) in 8 weeks, while the moderate continuous and lactate-threshold groups did not change significantly. Same total work, different result."
+      },
+      {
+       "title": "4×4 beat 15/15 on the heart itself",
+       "body": "Both interval groups raised VO2max, but the 4×4 group's stroke volume rose from 144 to 159 mL per beat. The long interval gives the heart time at a high filling rate that 15-second bursts do not."
+      },
+      {
+       "title": "Bike and stairs are the adaptation, not the study",
+       "body": "The trial used treadmill and track running. Any mode that holds you at 90-95% for four minutes drives the same stimulus, but the specific numbers above were measured on runners, not cyclists."
+      }
+     ]
+    }
+   ],
+   "sources": "Protocol and results: Helgerud J, Høydal K, Wang E, et al. Aerobic high-intensity intervals improve VO2max more than moderate training. Med Sci Sports Exerc. 2007;39(4):665-671 — 10-min warm-up, 4×4 min at 90-95% HRmax with 3 min active recovery at 70%, 3-min cool-down, 3 days a week for 8 weeks; VO2max +7.2% in the 4×4 group against no significant change at moderate intensity. Max heart rate estimate: Tanaka H, Monahan KD, Seals DR. Age-predicted maximal heart rate revisited. J Am Coll Cardiol. 2001;37:153-156. The bike and stair versions are an adaptation to available equipment; the study used running. Not medical advice."
+  }
  }
 ];
 
