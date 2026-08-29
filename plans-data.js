@@ -34,7 +34,7 @@ const SYN_PLANS = [
     },
     {
      "kicker": "Daily target",
-     "title": "1.4-2.0 g of protein per kg",
+     "title": "0.64-0.91 g of protein per pound",
      "body": "The ISSN range for building and maintaining muscle. Six training days a week is a lot of repair work; this is the single input that most often turns out to be missing."
     },
     {
@@ -57,7 +57,7 @@ const SYN_PLANS = [
     {
      "kicker": "After training",
      "title": "20-40 g of protein",
-     "body": "The ISSN stand puts a serving at 0.25 g/kg or an absolute 20-40 g, with 700-3000 mg of leucine. A shake, Greek yogurt, eggs or a chicken wrap all get you there."
+     "body": "The ISSN stand puts a serving at 20-40 g, with 700-3000 mg of leucine. A shake, Greek yogurt, eggs or a chicken wrap all get you there."
     },
     {
      "kicker": "After training",
@@ -104,12 +104,12 @@ const SYN_PLANS = [
      "icon": "🍽",
      "items": [
       {
-       "title": "Daily protein: 1.4-2.0 g/kg",
-       "body": "The ISSN position stand puts the range for building and maintaining muscle at 1.4-2.0 g of protein per kg of bodyweight per day for most exercising people. At 68 kg that is roughly 95-135 g a day. If you are eating in a deficit the same stand raises it to 2.3-3.1 g/kg to hold on to lean mass while you lose fat."
+       "title": "Daily protein: 0.64-0.91 g per pound",
+       "body": "The ISSN position stand puts the range for building and maintaining muscle at 0.64-0.91 g of protein per pound of bodyweight per day for most exercising people. At 165 lb that is roughly 105-150 g a day. If you are eating in a deficit the same stand raises it to 1.04-1.41 g per pound to hold on to lean mass while you lose fat."
       },
       {
-       "title": "Per meal: 0.25 g/kg, or 20-40 g",
-       "body": "The same stand recommends 0.25 g per kg per serving, or an absolute 20-40 g, aiming for 700-3000 mg of leucine in each dose. Dairy, eggs, meat, fish and soy all clear that easily; most plant sources need a bigger serving."
+       "title": "Per meal: 20-40 g",
+       "body": "The same stand recommends 20-40 g per serving, aiming for 700-3000 mg of leucine in each dose. Dairy, eggs, meat, fish and soy all clear that easily; most plant sources need a bigger serving."
       },
       {
        "title": "Every 3-4 hours, not all at dinner",
@@ -132,7 +132,7 @@ const SYN_PLANS = [
       },
       {
        "title": "Add weight when every rep is clean",
-       "body": "When you hit the top of the rep range on all sets with good form, add the smallest increment available — 2.5 kg on the bar, one dumbbell step. Then work back up the range."
+       "body": "When you hit the top of the rep range on all sets with good form, add the smallest increment available — 5 lb on the bar, one dumbbell step. Then work back up the range."
       },
       {
        "title": "Two rotations a week is the design",
@@ -549,7 +549,7 @@ const SYN_PLANS = [
     },
     {
      "kicker": "Daily target",
-     "title": "1.4-2.0 g of protein per kg",
+     "title": "0.64-0.91 g of protein per pound",
      "body": "The ISSN position stand range for building and maintaining muscle. Spread it every 3-4 hours rather than loading it onto one meal."
     },
     {
@@ -567,7 +567,7 @@ const SYN_PLANS = [
     {
      "kicker": "After training",
      "title": "20-40 g of protein",
-     "body": "0.25 g/kg per serving, or an absolute 20-40 g, per the ISSN stand. The exact timing matters less than people think — the same stand says the anabolic effect lasts at least 24 hours."
+     "body": "20-40 g per serving, per the ISSN stand. The exact timing matters less than people think — the same stand says the anabolic effect lasts at least 24 hours."
     },
     {
      "kicker": "After training",
@@ -604,12 +604,12 @@ const SYN_PLANS = [
      "icon": "🍽",
      "items": [
       {
-       "title": "Daily protein: 1.4-2.0 g/kg",
-       "body": "The ISSN position stand puts the range for building and maintaining muscle at 1.4-2.0 g of protein per kg of bodyweight per day for most exercising people. At 68 kg that is roughly 95-135 g a day. If you are eating in a deficit the same stand raises it to 2.3-3.1 g/kg to hold on to lean mass while you lose fat."
+       "title": "Daily protein: 0.64-0.91 g per pound",
+       "body": "The ISSN position stand puts the range for building and maintaining muscle at 0.64-0.91 g of protein per pound of bodyweight per day for most exercising people. At 165 lb that is roughly 105-150 g a day. If you are eating in a deficit the same stand raises it to 1.04-1.41 g per pound to hold on to lean mass while you lose fat."
       },
       {
-       "title": "Per meal: 0.25 g/kg, or 20-40 g",
-       "body": "The same stand recommends 0.25 g per kg per serving, or an absolute 20-40 g, aiming for 700-3000 mg of leucine in each dose. Dairy, eggs, meat, fish and soy all clear that easily; most plant sources need a bigger serving."
+       "title": "Per meal: 20-40 g",
+       "body": "The same stand recommends 20-40 g per serving, aiming for 700-3000 mg of leucine in each dose. Dairy, eggs, meat, fish and soy all clear that easily; most plant sources need a bigger serving."
       },
       {
        "title": "Every 3-4 hours, not all at dinner",
@@ -919,7 +919,7 @@ const SYN_PLANS = [
     },
     {
      "kicker": "Daily target",
-     "title": "1.4-2.0 g of protein per kg",
+     "title": "0.64-0.91 g of protein per pound",
      "body": "The ISSN position stand range for building and maintaining muscle. Fewer sessions does not mean less protein; recovery still runs every day of the week."
     },
     {
@@ -937,7 +937,7 @@ const SYN_PLANS = [
     {
      "kicker": "After training",
      "title": "20-40 g of protein",
-     "body": "0.25 g/kg per serving, or an absolute 20-40 g with 700-3000 mg of leucine, per the ISSN stand."
+     "body": "20-40 g per serving with 700-3000 mg of leucine, per the ISSN stand."
     },
     {
      "kicker": "After training",
@@ -969,12 +969,12 @@ const SYN_PLANS = [
      "icon": "🍽",
      "items": [
       {
-       "title": "Daily protein: 1.4-2.0 g/kg",
-       "body": "The ISSN position stand puts the range for building and maintaining muscle at 1.4-2.0 g of protein per kg of bodyweight per day for most exercising people. At 68 kg that is roughly 95-135 g a day. If you are eating in a deficit the same stand raises it to 2.3-3.1 g/kg to hold on to lean mass while you lose fat."
+       "title": "Daily protein: 0.64-0.91 g per pound",
+       "body": "The ISSN position stand puts the range for building and maintaining muscle at 0.64-0.91 g of protein per pound of bodyweight per day for most exercising people. At 165 lb that is roughly 105-150 g a day. If you are eating in a deficit the same stand raises it to 1.04-1.41 g per pound to hold on to lean mass while you lose fat."
       },
       {
-       "title": "Per meal: 0.25 g/kg, or 20-40 g",
-       "body": "The same stand recommends 0.25 g per kg per serving, or an absolute 20-40 g, aiming for 700-3000 mg of leucine in each dose. Dairy, eggs, meat, fish and soy all clear that easily; most plant sources need a bigger serving."
+       "title": "Per meal: 20-40 g",
+       "body": "The same stand recommends 20-40 g per serving, aiming for 700-3000 mg of leucine in each dose. Dairy, eggs, meat, fish and soy all clear that easily; most plant sources need a bigger serving."
       },
       {
        "title": "Every 3-4 hours, not all at dinner",
@@ -1255,7 +1255,7 @@ const SYN_PLANS = [
     },
     {
      "kicker": "Daily target",
-     "title": "1.4-2.0 g of protein per kg",
+     "title": "0.64-0.91 g of protein per pound",
      "body": "The ISSN range for building and maintaining muscle. Two sessions a week means each one has to count, and under-eating protein is the quiet way to waste them."
     },
     {
@@ -1278,7 +1278,7 @@ const SYN_PLANS = [
     {
      "kicker": "After training",
      "title": "20-40 g of protein",
-     "body": "0.25 g/kg per serving, or an absolute 20-40 g, per the ISSN stand."
+     "body": "20-40 g per serving, per the ISSN stand."
     },
     {
      "kicker": "After training",
@@ -1305,12 +1305,12 @@ const SYN_PLANS = [
      "icon": "🍽",
      "items": [
       {
-       "title": "Daily protein: 1.4-2.0 g/kg",
-       "body": "The ISSN position stand puts the range for building and maintaining muscle at 1.4-2.0 g of protein per kg of bodyweight per day for most exercising people. At 68 kg that is roughly 95-135 g a day. If you are eating in a deficit the same stand raises it to 2.3-3.1 g/kg to hold on to lean mass while you lose fat."
+       "title": "Daily protein: 0.64-0.91 g per pound",
+       "body": "The ISSN position stand puts the range for building and maintaining muscle at 0.64-0.91 g of protein per pound of bodyweight per day for most exercising people. At 165 lb that is roughly 105-150 g a day. If you are eating in a deficit the same stand raises it to 1.04-1.41 g per pound to hold on to lean mass while you lose fat."
       },
       {
-       "title": "Per meal: 0.25 g/kg, or 20-40 g",
-       "body": "The same stand recommends 0.25 g per kg per serving, or an absolute 20-40 g, aiming for 700-3000 mg of leucine in each dose. Dairy, eggs, meat, fish and soy all clear that easily; most plant sources need a bigger serving."
+       "title": "Per meal: 20-40 g",
+       "body": "The same stand recommends 20-40 g per serving, aiming for 700-3000 mg of leucine in each dose. Dairy, eggs, meat, fish and soy all clear that easily; most plant sources need a bigger serving."
       },
       {
        "title": "Every 3-4 hours, not all at dinner",
@@ -2058,7 +2058,7 @@ const SYN_PLANS = [
     },
     {
      "kicker": "Daily target",
-     "title": "1.4-2.0 g of protein per kg",
+     "title": "0.64-0.91 g of protein per pound",
      "body": "The ISSN position stand range for building and maintaining muscle. There is real strength work in every day of this program, and it needs feeding like any other."
     },
     {
@@ -2081,7 +2081,7 @@ const SYN_PLANS = [
     {
      "kicker": "After training",
      "title": "20-40 g of protein",
-     "body": "0.25 g/kg per serving, or an absolute 20-40 g, per the ISSN stand."
+     "body": "20-40 g per serving, per the ISSN stand."
     },
     {
      "kicker": "After training",
@@ -2118,12 +2118,12 @@ const SYN_PLANS = [
      "icon": "🍽",
      "items": [
       {
-       "title": "Daily protein: 1.4-2.0 g/kg",
-       "body": "The ISSN position stand puts the range for building and maintaining muscle at 1.4-2.0 g of protein per kg of bodyweight per day for most exercising people. At 68 kg that is roughly 95-135 g a day. If you are eating in a deficit the same stand raises it to 2.3-3.1 g/kg to hold on to lean mass while you lose fat."
+       "title": "Daily protein: 0.64-0.91 g per pound",
+       "body": "The ISSN position stand puts the range for building and maintaining muscle at 0.64-0.91 g of protein per pound of bodyweight per day for most exercising people. At 165 lb that is roughly 105-150 g a day. If you are eating in a deficit the same stand raises it to 1.04-1.41 g per pound to hold on to lean mass while you lose fat."
       },
       {
-       "title": "Per meal: 0.25 g/kg, or 20-40 g",
-       "body": "The same stand recommends 0.25 g per kg per serving, or an absolute 20-40 g, aiming for 700-3000 mg of leucine in each dose. Dairy, eggs, meat, fish and soy all clear that easily; most plant sources need a bigger serving."
+       "title": "Per meal: 20-40 g",
+       "body": "The same stand recommends 20-40 g per serving, aiming for 700-3000 mg of leucine in each dose. Dairy, eggs, meat, fish and soy all clear that easily; most plant sources need a bigger serving."
       },
       {
        "title": "Every 3-4 hours, not all at dinner",
@@ -3741,7 +3741,7 @@ const SYN_PLANS = [
     },
     {
      "kicker": "Daily target",
-     "title": "1.4-2.0 g of protein per kg",
+     "title": "0.64-0.91 g of protein per pound",
      "body": "The ISSN position stand range for building and maintaining muscle. Four dense sessions a week is a lot of repair; this is the input that most often turns out to be short."
     },
     {
@@ -3764,7 +3764,7 @@ const SYN_PLANS = [
     {
      "kicker": "After training",
      "title": "20-40 g of protein",
-     "body": "0.25 g/kg per serving, or an absolute 20-40 g with 700-3000 mg of leucine, per the ISSN stand."
+     "body": "20-40 g per serving with 700-3000 mg of leucine, per the ISSN stand."
     },
     {
      "kicker": "After training",
@@ -3801,12 +3801,12 @@ const SYN_PLANS = [
      "icon": "🍽",
      "items": [
       {
-       "title": "Daily protein: 1.4-2.0 g/kg",
-       "body": "The ISSN position stand puts the range for building and maintaining muscle at 1.4-2.0 g of protein per kg of bodyweight per day for most exercising people. At 68 kg that is roughly 95-135 g a day. If you are eating in a deficit the same stand raises it to 2.3-3.1 g/kg to hold on to lean mass while you lose fat."
+       "title": "Daily protein: 0.64-0.91 g per pound",
+       "body": "The ISSN position stand puts the range for building and maintaining muscle at 0.64-0.91 g of protein per pound of bodyweight per day for most exercising people. At 165 lb that is roughly 105-150 g a day. If you are eating in a deficit the same stand raises it to 1.04-1.41 g per pound to hold on to lean mass while you lose fat."
       },
       {
-       "title": "Per meal: 0.25 g/kg, or 20-40 g",
-       "body": "The same stand recommends 0.25 g per kg per serving, or an absolute 20-40 g, aiming for 700-3000 mg of leucine in each dose. Dairy, eggs, meat, fish and soy all clear that easily; most plant sources need a bigger serving."
+       "title": "Per meal: 20-40 g",
+       "body": "The same stand recommends 20-40 g per serving, aiming for 700-3000 mg of leucine in each dose. Dairy, eggs, meat, fish and soy all clear that easily; most plant sources need a bigger serving."
       },
       {
        "title": "Every 3-4 hours, not all at dinner",
@@ -4383,8 +4383,8 @@ const SYN_PLANS = [
     },
     {
      "kicker": "Daily target",
-     "title": "1.6–2.2 g of protein per kg",
-     "body": "Over 40, aim for 1.6–2.2 g per kilo of bodyweight a day. Through the menopause transition she raises that to 2.2–2.4 g/kg — the lower end on easy days, the higher end after a heavy session."
+     "title": "0.73–1.0 g of protein per pound",
+     "body": "Over 40, aim for 0.73–1.0 g per pound of bodyweight a day — at 165 lb, about 120–165 g. Through the menopause transition she raises that to 1.0–1.09 g per pound — the lower end on easy days, the higher end after a heavy session."
     },
     {
      "kicker": "Spread it out",
@@ -4428,8 +4428,8 @@ const SYN_PLANS = [
     },
     {
      "kicker": "After training",
-     "title": "Carbs too, 0.3 g per kg",
-     "body": "Around 0.3 g of carbohydrate per kilo of bodyweight within two hours of finishing. Protein rebuilds; carbohydrate refills."
+     "title": "Carbs too, 0.14 g per pound",
+     "body": "Around 0.14 g of carbohydrate per pound of bodyweight within two hours of finishing. Protein rebuilds; carbohydrate refills."
     }
    ],
    "days": {
@@ -4480,11 +4480,11 @@ const SYN_PLANS = [
       },
       {
        "title": "Protein across the day",
-       "body": "Over 40: 1.6–2.2 g per kg of bodyweight daily. Through the menopause transition: 2.2–2.4 g/kg. Distribute it — 30–40 g at each meal and 15–20 g at snacks — rather than loading it at dinner."
+       "body": "Over 40: 0.73–1.0 g per pound of bodyweight daily. Through the menopause transition: 1.0–1.09 g per pound. Distribute it — 30–40 g at each meal and 15–20 g at snacks — rather than loading it at dinner."
       },
       {
        "title": "Carbohydrate after training",
-       "body": "About 0.3 g per kg of bodyweight within two hours of finishing."
+       "body": "About 0.14 g per pound of bodyweight within two hours of finishing."
       }
      ]
     },
@@ -4557,7 +4557,7 @@ const SYN_PLANS = [
      ]
     }
    ],
-   "sources": "Dr Stacy Sims — drstacysims.com articles on protein, creatine and training through menopause, plus her Huberman Lab appearance. One caveat: the daily protein figure for still-cycling women is less precisely documented than the over-40 and menopause-transition numbers, so treat 1.6–2.0 g/kg as the least certain figure here."
+   "sources": "Dr Stacy Sims — drstacysims.com articles on protein, creatine and training through menopause, plus her Huberman Lab appearance. One caveat: the daily protein figure for still-cycling women is less precisely documented than the over-40 and menopause-transition numbers, so treat 0.73–0.91 g per pound as the least certain figure here. All per-bodyweight figures on this screen are converted to pounds from the published metric values."
   },
   "days": [
    {
@@ -5218,20 +5218,20 @@ const SYN_PLANS = [
        "body": "The joint position stand's own table puts carbohydrate during exercise under 45 minutes at \"not needed\", and a 4×4 session is 38 minutes end to end. Water is enough. Even in the 45-75 minute band it asks only for small amounts including a mouth rinse, and says plainly there is little need for carbohydrate to play a metabolic role at that length — the benefit is the mouth stimulating the brain, not the muscle running short."
       },
       {
-       "title": "Daily carbohydrate: the moderate band is 5-7 g/kg",
-       "body": "The stand puts a moderate exercise program of about 1 hour a day at 5-7 g of carbohydrate per kg of bodyweight per day, and an endurance program of 1-3 hours a day at 6-10 g/kg. Three 38-minute sessions a week sits below that first band, so the lower end is the sensible target rather than the top of it."
+       "title": "Daily carbohydrate: the moderate band is 2.3-3.2 g per pound",
+       "body": "The stand puts a moderate exercise program of about 1 hour a day at 2.3-3.2 g of carbohydrate per pound of bodyweight per day — at 165 lb, about 374-524 g — and an endurance program of 1-3 hours a day at 2.7-4.5 g per pound. Three 38-minute sessions a week sits below that first band, so the lower end is the sensible target rather than the top of it."
       },
       {
-       "title": "Protein: 1.2-2.0 g/kg a day",
-       "body": "The same stand puts protein for metabolic adaptation, repair and remodelling at 1.2-2.0 g per kg per day, taken as about 0.3 g/kg after training and spread in moderate amounts across the day rather than loaded onto one meal."
+       "title": "Protein: 0.54-0.91 g per pound a day",
+       "body": "The same stand puts protein for metabolic adaptation, repair and remodelling at 0.54-0.91 g per pound per day, taken as about 0.14 g per pound after training and spread in moderate amounts across the day rather than loaded onto one meal."
       },
       {
-       "title": "The 1-4 g/kg pre-event number is not for this",
+       "title": "The 0.45-1.8 g per pound pre-event number is not for this",
        "body": "That figure is in the same document, but it is for prolonged exercise — and this session is 38 minutes. Eat something you tolerate an hour or two before if you want to. Do not carb-load for a 4×4."
       },
       {
-       "title": "Caffeine, if you use it: 3-6 mg/kg",
-       "body": "The ISSN puts the effective range at 3-6 mg per kg of bodyweight, most commonly 60 minutes before exercise, and notes the minimum effective dose may be as low as 2 mg/kg. At 70 kg that is roughly 210-420 mg. They also say inter-individual differences — including whether it costs you sleep or raises anxiety — track with genetic variation in caffeine metabolism. A hard session late in the day plus caffeine is the combination to watch."
+       "title": "Caffeine, if you use it: 1.4-2.7 mg per pound",
+       "body": "The ISSN puts the effective range at 1.4-2.7 mg per pound of bodyweight, most commonly 60 minutes before exercise, and notes the minimum effective dose may be as low as 0.91 mg per pound. At 165 lb that is roughly 225-449 mg. They also say inter-individual differences — including whether it costs you sleep or raises anxiety — track with genetic variation in caffeine metabolism. A hard session late in the day plus caffeine is the combination to watch."
       }
      ]
     },
@@ -5284,7 +5284,7 @@ const SYN_PLANS = [
      "items": [
       {
        "title": "The intensity is the active ingredient",
-       "body": "Helgerud's group matched total oxygen cost across four groups. Only the two high-intensity interval groups improved VO2max — the 4×4 group by 7.2% (55.5 to 60.4 mL/kg/min) in 8 weeks, while the moderate continuous and lactate-threshold groups did not change significantly. Same total work, different result."
+       "body": "Helgerud's group matched total oxygen cost across four groups. Only the two high-intensity interval groups improved VO2max — the 4×4 group by 7.2% in 8 weeks, while the moderate continuous and lactate-threshold groups did not change significantly. Same total work, different result."
       },
       {
        "title": "4×4 beat 15/15 on the heart itself",
@@ -5297,7 +5297,7 @@ const SYN_PLANS = [
      ]
     }
    ],
-   "sources": "Protocol and results: Helgerud J, Høydal K, Wang E, et al. Aerobic high-intensity intervals improve VO2max more than moderate training. Med Sci Sports Exerc. 2007;39(4):665-671 — 10-min warm-up, 4×4 min at 90-95% HRmax with 3 min active recovery at 70%, 3-min cool-down, 3 days a week for 8 weeks; VO2max +7.2% in the 4×4 group against no significant change at moderate intensity. Max heart rate estimate: Tanaka H, Monahan KD, Seals DR. Age-predicted maximal heart rate revisited. J Am Coll Cardiol. 2001;37:153-156. The treadmill session follows the study; the bike sessions are an adaptation to available equipment. Not medical advice. Fueling: Thomas DT, Erdman KA, Burke LM. Position of the Academy of Nutrition and Dietetics, Dietitians of Canada, and the American College of Sports Medicine: Nutrition and Athletic Performance. J Acad Nutr Diet. 2016;116(3):501-528 — carbohydrate during exercise under 45 min listed as not needed; 5-7 g/kg/d for a moderate program of about 1 h/d; protein 1.2-2.0 g/kg/d. Caffeine: Guest NS, VanDusseldorp TA, Nelson MT, et al. International society of sports nutrition position stand: caffeine and exercise performance. J Int Soc Sports Nutr. 2021;18:1 — 3-6 mg/kg body mass, most commonly 60 min pre-exercise."
+   "sources": "Protocol and results: Helgerud J, Høydal K, Wang E, et al. Aerobic high-intensity intervals improve VO2max more than moderate training. Med Sci Sports Exerc. 2007;39(4):665-671 — 10-min warm-up, 4×4 min at 90-95% HRmax with 3 min active recovery at 70%, 3-min cool-down, 3 days a week for 8 weeks; VO2max +7.2% in the 4×4 group against no significant change at moderate intensity. Max heart rate estimate: Tanaka H, Monahan KD, Seals DR. Age-predicted maximal heart rate revisited. J Am Coll Cardiol. 2001;37:153-156. The treadmill session follows the study; the bike sessions are an adaptation to available equipment. Not medical advice. Fueling: Thomas DT, Erdman KA, Burke LM. Position of the Academy of Nutrition and Dietetics, Dietitians of Canada, and the American College of Sports Medicine: Nutrition and Athletic Performance. J Acad Nutr Diet. 2016;116(3):501-528 — carbohydrate during exercise under 45 min listed as not needed; 2.3-3.2 g of carbohydrate per pound per day for a moderate program of about 1 h/d; protein 0.54-0.91 g per pound per day. Caffeine: Guest NS, VanDusseldorp TA, Nelson MT, et al. International society of sports nutrition position stand: caffeine and exercise performance. J Int Soc Sports Nutr. 2021;18:1 — 1.4-2.7 mg per pound of body mass, most commonly 60 min pre-exercise. All per-bodyweight figures are converted to pounds from the published metric values."
   }
  }
 ];
