@@ -6503,7 +6503,7 @@ function libraryHTML() {
    and read the sentence around it only if you need to. Matches a quantity
    followed by a unit, so "day 1 through ovulation" and "ten-minute rule"
    are left alone. */
-const GUIDE_DOSE = /(\d+(?:\.\d+)?(?:\s*[–—-]\s*\d+(?:\.\d+)?)?\s*(?:g\/kg|g|kg|%|minutes|minute|min|hours|hour|seconds|second)\b)/g;
+const GUIDE_DOSE = /(\d+(?:\.\d+)?(?:\s*[–—-]\s*\d+(?:\.\d+)?)?\s*(?:g\/kg|mg|g|kg|%|minutes|minute|min|hours|hour|seconds|second)\b)/g;
 function guideRich(t) { return String(t == null ? '' : t).replace(GUIDE_DOSE, '<b class="g-dose">$1</b>'); }
 
 function guideCardHTML(c) {
