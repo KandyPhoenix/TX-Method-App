@@ -4802,7 +4802,7 @@ const SYN_PLANS = [
  {
   "id": "norwegian-4x4",
   "name": "Norwegian 4×4",
-  "desc": "3 interval sessions a week — bike, stairs, your pick",
+  "desc": "3 interval sessions a week — bike, treadmill, your pick",
   "kneeSafe": false,
   "days": [
    {
@@ -4898,75 +4898,75 @@ const SYN_PLANS = [
     ]
    },
    {
-    "title": "4×4 Stairs",
-    "focus": "VO2max · closest to the running the study used",
+    "title": "4×4 Treadmill",
+    "focus": "VO2max · the mode the study actually used",
     "exercises": [
      {
-      "key": "n44_wu_stairs",
+      "key": "n44_wu_tread",
       "name": "Warm-Up",
       "sets": 1,
       "sec": 600,
-      "scheme": "10 min · easy · ~70% HRmax · walk the flight at an easy pace",
+      "scheme": "10 min · easy · ~70% HRmax · walk, then an easy jog if you jog",
       "needs": "bodyweight"
      },
      {
-      "key": "n44_work_stairs_1",
+      "key": "n44_work_tread_1",
       "name": "Interval 1 — Hard",
       "sets": 1,
       "sec": 240,
-      "scheme": "4 min · 90-95% HRmax · up hard, WALK down — the descent is not the interval",
+      "scheme": "4 min · 90-95% HRmax · raise the incline before the speed",
       "needs": "bodyweight"
      },
      {
-      "key": "n44_rec_stairs_1",
+      "key": "n44_rec_tread_1",
       "name": "Recovery 1",
       "sets": 1,
       "sec": 180,
-      "scheme": "3 min · easy · ~70% HRmax · walk the flat, keep moving",
+      "scheme": "3 min · easy · ~70% HRmax · drop incline and speed, keep walking",
       "needs": "bodyweight"
      },
      {
-      "key": "n44_work_stairs_2",
+      "key": "n44_work_tread_2",
       "name": "Interval 2 — Hard",
       "sets": 1,
       "sec": 240,
-      "scheme": "4 min · 90-95% HRmax · up hard, WALK down — the descent is not the interval",
+      "scheme": "4 min · 90-95% HRmax · raise the incline before the speed",
       "needs": "bodyweight"
      },
      {
-      "key": "n44_rec_stairs_2",
+      "key": "n44_rec_tread_2",
       "name": "Recovery 2",
       "sets": 1,
       "sec": 180,
-      "scheme": "3 min · easy · ~70% HRmax · walk the flat, keep moving",
+      "scheme": "3 min · easy · ~70% HRmax · drop incline and speed, keep walking",
       "needs": "bodyweight"
      },
      {
-      "key": "n44_work_stairs_3",
+      "key": "n44_work_tread_3",
       "name": "Interval 3 — Hard",
       "sets": 1,
       "sec": 240,
-      "scheme": "4 min · 90-95% HRmax · up hard, WALK down — the descent is not the interval",
+      "scheme": "4 min · 90-95% HRmax · raise the incline before the speed",
       "needs": "bodyweight"
      },
      {
-      "key": "n44_rec_stairs_3",
+      "key": "n44_rec_tread_3",
       "name": "Recovery 3",
       "sets": 1,
       "sec": 180,
-      "scheme": "3 min · easy · ~70% HRmax · walk the flat, keep moving",
+      "scheme": "3 min · easy · ~70% HRmax · drop incline and speed, keep walking",
       "needs": "bodyweight"
      },
      {
-      "key": "n44_work_stairs_4",
+      "key": "n44_work_tread_4",
       "name": "Interval 4 — Hard",
       "sets": 1,
       "sec": 240,
-      "scheme": "4 min · 90-95% HRmax · up hard, WALK down — the descent is not the interval",
+      "scheme": "4 min · 90-95% HRmax · raise the incline before the speed",
       "needs": "bodyweight"
      },
      {
-      "key": "n44_cd_stairs",
+      "key": "n44_cd_tread",
       "name": "Cool-Down",
       "sets": 1,
       "sec": 180,
@@ -4991,7 +4991,7 @@ const SYN_PLANS = [
    },
    {
     "title": "4×4 Your Pick",
-    "focus": "VO2max · bike, stairs, rope or box — whichever you will do hard",
+    "focus": "VO2max · bike, treadmill, rope or box — whichever you will do hard",
     "exercises": [
      {
       "key": "n44_wu_pick",
@@ -5097,7 +5097,7 @@ const SYN_PLANS = [
    }
   ],
   "guide": {
-   "blurb": "The Norwegian 4×4 as Helgerud's group ran it — 10 minutes easy, four 4-minute intervals at 90-95% of max heart rate with 3 minutes easy between, 3 minutes down. Three times a week. This version swaps their treadmill running for the bike and stairs you actually have.",
+   "blurb": "The Norwegian 4×4 as Helgerud's group ran it — 10 minutes easy, four 4-minute intervals at 90-95% of max heart rate with 3 minutes easy between, 3 minutes down. Three times a week. The treadmill day is their protocol as written; the bike days are the adaptation.",
    "rotate": [
     {
      "kicker": "The session",
@@ -5139,24 +5139,24 @@ const SYN_PLANS = [
     {
      "kicker": "After training",
      "title": "Note the mode and how it went",
-     "body": "Which of the four intervals fell off, and on what — bike, stairs, rope. That is the thing that tells you whether to change pacing or change mode next week."
+     "body": "Which of the four intervals fell off, and on what — bike, treadmill, rope. That is the thing that tells you whether to change pacing or change mode next week."
     }
    ],
    "days": {
     "4×4 Bike": {
      "kicker": "Today",
      "title": "The easiest one to pace",
-     "body": "Resistance high enough that you cannot spin freely, cadence around 80. The bike is the most controllable of the three — use it to learn what 90-95% actually feels like, then take that feeling to the stairs."
+     "body": "Resistance high enough that you cannot spin freely, cadence around 80. The bike is the most controllable of the three — use it to learn what 90-95% actually feels like, then take that feeling to the treadmill."
     },
     "Easy Spin or Walk": {
      "kicker": "Today",
      "title": "Genuinely easy, or nothing",
      "body": "This day is not in the protocol. It exists so you keep moving between hard sessions. If you are tired, taking it off costs you nothing."
     },
-    "4×4 Stairs": {
+    "4×4 Treadmill": {
      "kicker": "Today",
-     "title": "Up hard, walk down",
-     "body": "The descent is not part of the interval — walk it, and let it be part of your recovery. Stairs get you to a high heart rate faster than the bike, so start the first interval slightly easier than you think."
+     "title": "Their protocol, on their equipment",
+     "body": "This is the one session that matches the trial exactly — they ran. Raise the incline before you raise the speed: it buys heart rate without the pounding, and it is easier to hold for the full 4 minutes."
     },
     "Easy Walk": {
      "kicker": "Today",
@@ -5166,7 +5166,7 @@ const SYN_PLANS = [
     "4×4 Your Pick": {
      "kicker": "Today",
      "title": "Pick the one you will actually push on",
-     "body": "Bike, stairs, rope or step-ups on the box. The mode matters far less than reaching 90-95% and holding it for the full four minutes."
+     "body": "Bike, treadmill, rope or step-ups on the box. The mode matters far less than reaching 90-95% and holding it for the full four minutes."
     },
     "Easy Walk or Rope": {
      "kicker": "Today",
@@ -5240,8 +5240,8 @@ const SYN_PLANS = [
        "body": "The adaptation happens between sessions. Adding a fourth hard day is the most common way people make this protocol stop working."
       },
       {
-       "title": "Stairs punish careless descents",
-       "body": "Walk down, every time. The descent is not part of the interval and it is where the ankle and knee risk is."
+       "title": "Know where the stop button is",
+       "body": "Set the treadmill up before the first interval and find the emergency stop. Do not hold the rails to survive an interval — if you need them, the speed or incline is too high."
       }
      ]
     },
@@ -5259,13 +5259,13 @@ const SYN_PLANS = [
        "body": "Both interval groups raised VO2max, but the 4×4 group's stroke volume rose from 144 to 159 mL per beat. The long interval gives the heart time at a high filling rate that 15-second bursts do not."
       },
       {
-       "title": "Bike and stairs are the adaptation, not the study",
-       "body": "The trial used treadmill and track running. Any mode that holds you at 90-95% for four minutes drives the same stimulus, but the specific numbers above were measured on runners, not cyclists."
+       "title": "The bike days are the adaptation, not the study",
+       "body": "The trial used treadmill and track running, so the treadmill day is their protocol as written. Any mode that holds you at 90-95% for four minutes drives the same stimulus, but the numbers above were measured on runners, not cyclists."
       }
      ]
     }
    ],
-   "sources": "Protocol and results: Helgerud J, Høydal K, Wang E, et al. Aerobic high-intensity intervals improve VO2max more than moderate training. Med Sci Sports Exerc. 2007;39(4):665-671 — 10-min warm-up, 4×4 min at 90-95% HRmax with 3 min active recovery at 70%, 3-min cool-down, 3 days a week for 8 weeks; VO2max +7.2% in the 4×4 group against no significant change at moderate intensity. Max heart rate estimate: Tanaka H, Monahan KD, Seals DR. Age-predicted maximal heart rate revisited. J Am Coll Cardiol. 2001;37:153-156. The bike and stair versions are an adaptation to available equipment; the study used running. Not medical advice."
+   "sources": "Protocol and results: Helgerud J, Høydal K, Wang E, et al. Aerobic high-intensity intervals improve VO2max more than moderate training. Med Sci Sports Exerc. 2007;39(4):665-671 — 10-min warm-up, 4×4 min at 90-95% HRmax with 3 min active recovery at 70%, 3-min cool-down, 3 days a week for 8 weeks; VO2max +7.2% in the 4×4 group against no significant change at moderate intensity. Max heart rate estimate: Tanaka H, Monahan KD, Seals DR. Age-predicted maximal heart rate revisited. J Am Coll Cardiol. 2001;37:153-156. The treadmill session follows the study; the bike sessions are an adaptation to available equipment. Not medical advice."
   }
  }
 ];
