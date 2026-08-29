@@ -47,9 +47,10 @@ const DEFAULTS = {
                          whether a repeated stall drops it. */
   /* What is actually in the room. The generator's exercises carry their own
      equipment lists, so this is a set of things owned rather than a tier.
-     Punching bag and treadmill are off by default: one is disliked, the other
-     is not owned. */
-  kit: ['barbell','dumbbells','kettlebell','bench','box','bands','jump-rope','bike','pull-up-bar','mat','yoga-ball','stairs'],
+     Corrected 2026-08-29: there are no stairs to use, and there IS a
+     treadmill — it is just not the first choice. Punching bag stays off; it
+     is disliked. The bike is a road bike. */
+  kit: ['barbell','dumbbells','kettlebell','bench','box','bands','jump-rope','bike','treadmill','pull-up-bar','mat','yoga-ball'],
   bodyweight: 165,
   barWeight: 45,
   plates: [45, 35, 25, 10, 5, 2.5],
@@ -2716,6 +2717,139 @@ const SYN_LOAD = {
      and are absent, so they progress by reps as before.
      Note every hand weight is still clamped by dbMax — the heaviest dumbbell
      in Setup, 25 lb by default. */
+  /* Push Pull Legs.
+     pct is the fraction of the Setup lift's estimated 1RM to use as the
+     working weight. Barbell entries are computed: the lift's ratio to its
+     Setup lift, times Epley inverted at THIS program's own rep target plus
+     2 reps in reserve — w = 1RM x (37 - (reps + 2)) / 36. That is why bench
+     is .750 here at 8 reps and .833 in a program that writes it for 5.
+     Dumbbell entries are taken verbatim from SA_WEIGHT for the same
+     movement: those are shipped working weights, already rep-adjusted, so
+     running Epley over them again would discount them twice. Isolation work
+     with no shipped equivalent starts at 10 lb and lets the reps-hit rule
+     find it — a guessed lateral-raise ratio would be false precision.
+     Bodyweight movements are absent and progress by reps as before. */
+  'syn-ppl': {
+    syn_bench_press:                    { src: 'bench', pct: 0.750, type: 'bar'  },   /* Bench Press · 8 reps · 1.00 x Epley(8+2) */
+    syn_overhead_press:                 { src: 'press', pct: 0.750, type: 'bar'  },   /* Overhead Press · 8 reps · 1.00 x Epley(8+2) */
+    syn_incline_dumbbell_press:         { src: 'bench', pct: 0.30, type: 'hand' },   /* Incline Dumbbell Press · from dbrenrow */
+    syn_lateral_raises:                 { src: 'press', pct: 0.12, type: 'hand' },   /* Lateral Raises · from dblatraise */
+    syn_dumbbell_kickbacks:             { start: 10, type: 'hand' },   /* Dumbbell Kickbacks · 12 reps · starts light */
+    syn_overhead_tricep_extension:      { start: 10, type: 'hand' },   /* Overhead Tricep Extension · 12 reps · starts light */
+    syn_deadlift:                       { src: 'deadlift', pct: 0.833, type: 'bar'  },   /* Deadlift · 5 reps · 1.00 x Epley(5+2) */
+    syn_barbell_rows:                   { src: 'bench', pct: 0.675, type: 'bar'  },   /* Barbell Rows · 8 reps · 0.90 x Epley(8+2) */
+    syn_bent_over_reverse_flyes:        { start: 10, type: 'hand' },   /* Bent Over Reverse Flyes · 15 reps · starts light */
+    syn_barbell_curls:                  { src: 'press', pct: 0.382, type: 'bar'  },   /* Barbell Curls · 10 reps · 0.55 x Epley(10+2) */
+    syn_hammer_curls:                   { src: 'press', pct: 0.20, type: 'hand' },   /* Hammer Curls · from dbhammer */
+    syn_squats:                         { src: 'squat', pct: 0.806, type: 'bar'  },   /* Squats · 6 reps · 1.00 x Epley(6+2) */
+    syn_romanian_deadlift:              { src: 'deadlift', pct: 0.486, type: 'bar'  },   /* Romanian Deadlift · 10 reps · 0.70 x Epley(10+2) */
+    syn_goblet_squats:                  { src: 'squat', pct: 0.30, type: 'db' },   /* Goblet Squats · from gobletsquat */
+    syn_calf_raises:                    { start: 10, type: 'hand' },   /* Calf Raises · 15 reps · starts light */
+    syn_walking_lunges:                 { src: 'squat', pct: 0.20, type: 'hand' },   /* Walking Lunges · from walkinglunge */
+    syn_dumbbell_bench_press:           { src: 'bench', pct: 0.35, type: 'hand' },   /* Dumbbell Bench Press · from dbpress */
+    syn_arnold_press:                   { src: 'press', pct: 0.35, type: 'hand' },   /* Arnold Press · from dbohp */
+    syn_dumbbell_flyes:                 { start: 10, type: 'hand' },   /* Dumbbell Flyes · 12 reps · starts light */
+    syn_front_raises:                   { start: 10, type: 'hand' },   /* Front Raises · 12 reps · starts light */
+    syn_skull_crushers:                 { src: 'press', pct: 0.312, type: 'bar'  },   /* Skull Crushers · 10 reps · 0.45 x Epley(10+2) */
+    syn_dumbbell_rows:                  { src: 'bench', pct: 0.35, type: 'hand' },   /* Dumbbell Rows · from dbrow */
+    syn_single_arm_dumbbell_row:        { src: 'bench', pct: 0.35, type: 'hand' },   /* Single Arm Dumbbell Row · from dbrow */
+    syn_reverse_flyes:                  { start: 10, type: 'hand' },   /* Reverse Flyes · 15 reps · starts light */
+    syn_concentration_curls:            { start: 10, type: 'hand' },   /* Concentration Curls · 10 reps · starts light */
+    syn_incline_curls:                  { start: 10, type: 'hand' },   /* Incline Curls · 10 reps · starts light */
+    syn_hip_thrusts:                    { src: 'squat', pct: 0.694, type: 'bar'  },   /* Hip Thrusts · 10 reps · 1.00 x Epley(10+2) */
+    syn_front_squats:                   { src: 'squat', pct: 0.637, type: 'bar'  },   /* Front Squats · 8 reps · 0.85 x Epley(8+2) */
+    syn_good_mornings:                  { src: 'deadlift', pct: 0.312, type: 'bar'  },   /* Good Mornings · 10 reps · 0.45 x Epley(10+2) */
+    syn_bulgarian_split_squats:         { src: 'squat', pct: 0.18, type: 'hand' },   /* Bulgarian Split Squats · from Sims table */
+    syn_seated_dumbbell_calf_raises:    { start: 10, type: 'hand' },   /* Seated Dumbbell Calf Raises · 15 reps · starts light */
+    syn_single_leg_calf_raises:         { start: 10, type: 'hand' },   /* Single Leg Calf Raises · 15 reps · starts light */
+  },
+  /* Upper Lower Split.
+     pct is the fraction of the Setup lift's estimated 1RM to use as the
+     working weight. Barbell entries are computed: the lift's ratio to its
+     Setup lift, times Epley inverted at THIS program's own rep target plus
+     2 reps in reserve — w = 1RM x (37 - (reps + 2)) / 36. That is why bench
+     is .750 here at 8 reps and .833 in a program that writes it for 5.
+     Dumbbell entries are taken verbatim from SA_WEIGHT for the same
+     movement: those are shipped working weights, already rep-adjusted, so
+     running Epley over them again would discount them twice. Isolation work
+     with no shipped equivalent starts at 10 lb and lets the reps-hit rule
+     find it — a guessed lateral-raise ratio would be false precision.
+     Bodyweight movements are absent and progress by reps as before. */
+  'syn-upper-lower': {
+    syn_bench_press:                    { src: 'bench', pct: 0.833, type: 'bar'  },   /* Bench Press · 5 reps · 1.00 x Epley(5+2) */
+    syn_barbell_rows:                   { src: 'bench', pct: 0.750, type: 'bar'  },   /* Barbell Rows · 5 reps · 0.90 x Epley(5+2) */
+    syn_overhead_press:                 { src: 'press', pct: 0.806, type: 'bar'  },   /* Overhead Press · 6 reps · 1.00 x Epley(6+2) */
+    syn_barbell_curls:                  { src: 'press', pct: 0.413, type: 'bar'  },   /* Barbell Curls · 8 reps · 0.55 x Epley(8+2) */
+    syn_squats:                         { src: 'squat', pct: 0.833, type: 'bar'  },   /* Squats · 5 reps · 1.00 x Epley(5+2) */
+    syn_romanian_deadlift:              { src: 'deadlift', pct: 0.564, type: 'bar'  },   /* Romanian Deadlift · 6 reps · 0.70 x Epley(6+2) */
+    syn_goblet_squats:                  { src: 'squat', pct: 0.30, type: 'db' },   /* Goblet Squats · from gobletsquat */
+    syn_calf_raises:                    { start: 10, type: 'hand' },   /* Calf Raises · 12 reps · starts light */
+    syn_incline_dumbbell_press:         { src: 'bench', pct: 0.30, type: 'hand' },   /* Incline Dumbbell Press · from dbrenrow */
+    syn_dumbbell_rows:                  { src: 'bench', pct: 0.35, type: 'hand' },   /* Dumbbell Rows · from dbrow */
+    syn_lateral_raises:                 { src: 'press', pct: 0.12, type: 'hand' },   /* Lateral Raises · from dblatraise */
+    syn_hammer_curls:                   { src: 'press', pct: 0.20, type: 'hand' },   /* Hammer Curls · from dbhammer */
+    syn_dumbbell_overhead_extensions:   { start: 10, type: 'hand' },   /* Dumbbell Overhead Extensions · 12 reps · starts light */
+    syn_hip_thrusts:                    { src: 'squat', pct: 0.694, type: 'bar'  },   /* Hip Thrusts · 10 reps · 1.00 x Epley(10+2) */
+    syn_front_squats:                   { src: 'squat', pct: 0.637, type: 'bar'  },   /* Front Squats · 8 reps · 0.85 x Epley(8+2) */
+    syn_good_mornings:                  { src: 'deadlift', pct: 0.312, type: 'bar'  },   /* Good Mornings · 10 reps · 0.45 x Epley(10+2) */
+    syn_reverse_lunges:                 { src: 'squat', pct: 0.15, type: 'hand' },   /* Reverse Lunges · from dblunge */
+    syn_seated_dumbbell_calf_raises:    { start: 10, type: 'hand' },   /* Seated Dumbbell Calf Raises · 15 reps · starts light */
+  },
+  /* Full Body 3x.
+     pct is the fraction of the Setup lift's estimated 1RM to use as the
+     working weight. Barbell entries are computed: the lift's ratio to its
+     Setup lift, times Epley inverted at THIS program's own rep target plus
+     2 reps in reserve — w = 1RM x (37 - (reps + 2)) / 36. That is why bench
+     is .750 here at 8 reps and .833 in a program that writes it for 5.
+     Dumbbell entries are taken verbatim from SA_WEIGHT for the same
+     movement: those are shipped working weights, already rep-adjusted, so
+     running Epley over them again would discount them twice. Isolation work
+     with no shipped equivalent starts at 10 lb and lets the reps-hit rule
+     find it — a guessed lateral-raise ratio would be false precision.
+     Bodyweight movements are absent and progress by reps as before. */
+  'syn-full-body': {
+    syn_squats:                         { src: 'squat', pct: 0.806, type: 'bar'  },   /* Squats · 6 reps · 1.00 x Epley(6+2) */
+    syn_bench_press:                    { src: 'bench', pct: 0.806, type: 'bar'  },   /* Bench Press · 6 reps · 1.00 x Epley(6+2) */
+    syn_barbell_rows:                   { src: 'bench', pct: 0.725, type: 'bar'  },   /* Barbell Rows · 6 reps · 0.90 x Epley(6+2) */
+    syn_overhead_press:                 { src: 'press', pct: 0.750, type: 'bar'  },   /* Overhead Press · 8 reps · 1.00 x Epley(8+2) */
+    syn_bicep_curls:                    { src: 'press', pct: 0.20, type: 'hand' },   /* Bicep Curls · from dbcurl */
+    syn_dumbbell_skull_crushers:        { start: 10, type: 'hand' },   /* Dumbbell Skull Crushers · 10 reps · starts light */
+    syn_deadlift:                       { src: 'deadlift', pct: 0.833, type: 'bar'  },   /* Deadlift · 5 reps · 1.00 x Epley(5+2) */
+    syn_incline_press:                  { src: 'bench', pct: 0.637, type: 'bar'  },   /* Incline Press · 8 reps · 0.85 x Epley(8+2) */
+    syn_lunges:                         { src: 'squat', pct: 0.15, type: 'hand' },   /* Lunges · from dblunge */
+    syn_lateral_raises:                 { src: 'press', pct: 0.12, type: 'hand' },   /* Lateral Raises · from dblatraise */
+    syn_bent_over_reverse_flyes:        { start: 10, type: 'hand' },   /* Bent Over Reverse Flyes · 15 reps · starts light */
+    syn_front_squats:                   { src: 'squat', pct: 0.637, type: 'bar'  },   /* Front Squats · 8 reps · 0.85 x Epley(8+2) */
+    syn_dumbbell_press:                 { src: 'bench', pct: 0.35, type: 'hand' },   /* Dumbbell Press · from dbpress */
+    syn_dumbbell_rows:                  { src: 'bench', pct: 0.35, type: 'hand' },   /* Dumbbell Rows · from dbrow */
+    syn_romanian_deadlift:              { src: 'deadlift', pct: 0.486, type: 'bar'  },   /* Romanian Deadlift · 10 reps · 0.70 x Epley(10+2) */
+    syn_arnold_press:                   { src: 'press', pct: 0.35, type: 'hand' },   /* Arnold Press · from dbohp */
+    syn_calf_raises:                    { start: 10, type: 'hand' },   /* Calf Raises · 15 reps · starts light */
+  },
+  /* Knee-Friendly 2x.
+     pct is the fraction of the Setup lift's estimated 1RM to use as the
+     working weight. Barbell entries are computed: the lift's ratio to its
+     Setup lift, times Epley inverted at THIS program's own rep target plus
+     2 reps in reserve — w = 1RM x (37 - (reps + 2)) / 36. That is why bench
+     is .750 here at 8 reps and .833 in a program that writes it for 5.
+     Dumbbell entries are taken verbatim from SA_WEIGHT for the same
+     movement: those are shipped working weights, already rep-adjusted, so
+     running Epley over them again would discount them twice. Isolation work
+     with no shipped equivalent starts at 10 lb and lets the reps-hit rule
+     find it — a guessed lateral-raise ratio would be false precision.
+     Bodyweight movements are absent and progress by reps as before. */
+  'syn-knee-friendly-2x': {
+    syn_bench_press:                    { src: 'bench', pct: 0.806, type: 'bar'  },   /* Bench Press · 6 reps · 1.00 x Epley(6+2) */
+    syn_barbell_rows:                   { src: 'bench', pct: 0.675, type: 'bar'  },   /* Barbell Rows · 8 reps · 0.90 x Epley(8+2) */
+    syn_overhead_press:                 { src: 'press', pct: 0.750, type: 'bar'  },   /* Overhead Press · 8 reps · 1.00 x Epley(8+2) */
+    syn_bent_over_reverse_flyes:        { start: 10, type: 'hand' },   /* Bent Over Reverse Flyes · 15 reps · starts light */
+    syn_barbell_curls:                  { src: 'press', pct: 0.382, type: 'bar'  },   /* Barbell Curls · 10 reps · 0.55 x Epley(10+2) */
+    syn_dumbbell_kickbacks:             { start: 10, type: 'hand' },   /* Dumbbell Kickbacks · 12 reps · starts light */
+    syn_barbell_hip_thrust:             { src: 'squat', pct: 0.750, type: 'bar'  },   /* Barbell Hip Thrust · 8 reps · 1.00 x Epley(8+2) */
+    syn_romanian_deadlift:              { src: 'deadlift', pct: 0.525, type: 'bar'  },   /* Romanian Deadlift · 8 reps · 0.70 x Epley(8+2) */
+    syn_b_stance_rdl:                   { src: 'deadlift', pct: 0.15, type: 'hand' },   /* B-Stance RDL · half dbrdl: it is near single-leg, and dbrdl's .30 put it at the dumbbell ceiling */
+    syn_split_squat_shallow:            { src: 'squat', pct: 0.10, type: 'hand' },   /* Split Squat (Shallow) · under stepup's .15 on purpose — this is the knee-protective program, so the accessories start light and climb */
+  },
   'syn-dumbbell-49-supersets': {
     syn_dumbbell_bench_press:         { start: 10, type: 'hand' },   /* Flat DB Press */
     syn_incline_dumbbell_press:       { start: 10, type: 'hand' },   /* Incline DB Press */
