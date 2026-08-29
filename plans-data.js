@@ -5128,6 +5128,11 @@ const SYN_PLANS = [
      "kicker": "Alongside lifting",
      "title": "Put it after, or on another day",
      "body": "This was studied on its own. If you are also running Sims 4 Women or a lifting program, put the 4×4 on a non-lifting day where you can — and if it has to share a day, lift first."
+    },
+    {
+     "kicker": "During the session",
+     "title": "Nothing to eat mid-session",
+     "body": "Carbohydrate during exercise is listed as not needed under 45 minutes, and this session is 38. Water is enough. What you eat across the day matters here; what you eat mid-interval does not."
     }
    ],
    "after": [
@@ -5204,6 +5209,33 @@ const SYN_PLANS = [
      ]
     },
     {
+     "title": "Fueling",
+     "tone": "fuel",
+     "icon": "🍽",
+     "items": [
+      {
+       "title": "Nothing to eat during this one",
+       "body": "The joint position stand's own table puts carbohydrate during exercise under 45 minutes at \"not needed\", and a 4×4 session is 38 minutes end to end. Water is enough. Even in the 45-75 minute band it asks only for small amounts including a mouth rinse, and says plainly there is little need for carbohydrate to play a metabolic role at that length — the benefit is the mouth stimulating the brain, not the muscle running short."
+      },
+      {
+       "title": "Daily carbohydrate: the moderate band is 5-7 g/kg",
+       "body": "The stand puts a moderate exercise program of about 1 hour a day at 5-7 g of carbohydrate per kg of bodyweight per day, and an endurance program of 1-3 hours a day at 6-10 g/kg. Three 38-minute sessions a week sits below that first band, so the lower end is the sensible target rather than the top of it."
+      },
+      {
+       "title": "Protein: 1.2-2.0 g/kg a day",
+       "body": "The same stand puts protein for metabolic adaptation, repair and remodelling at 1.2-2.0 g per kg per day, taken as about 0.3 g/kg after training and spread in moderate amounts across the day rather than loaded onto one meal."
+      },
+      {
+       "title": "The 1-4 g/kg pre-event number is not for this",
+       "body": "That figure is in the same document, but it is for prolonged exercise — and this session is 38 minutes. Eat something you tolerate an hour or two before if you want to. Do not carb-load for a 4×4."
+      },
+      {
+       "title": "Caffeine, if you use it: 3-6 mg/kg",
+       "body": "The ISSN puts the effective range at 3-6 mg per kg of bodyweight, most commonly 60 minutes before exercise, and notes the minimum effective dose may be as low as 2 mg/kg. At 70 kg that is roughly 210-420 mg. They also say inter-individual differences — including whether it costs you sleep or raises anxiety — track with genetic variation in caffeine metabolism. A hard session late in the day plus caffeine is the combination to watch."
+      }
+     ]
+    },
+    {
      "title": "Finding your zone",
      "tone": "supp",
      "icon": "❤️",
@@ -5265,7 +5297,7 @@ const SYN_PLANS = [
      ]
     }
    ],
-   "sources": "Protocol and results: Helgerud J, Høydal K, Wang E, et al. Aerobic high-intensity intervals improve VO2max more than moderate training. Med Sci Sports Exerc. 2007;39(4):665-671 — 10-min warm-up, 4×4 min at 90-95% HRmax with 3 min active recovery at 70%, 3-min cool-down, 3 days a week for 8 weeks; VO2max +7.2% in the 4×4 group against no significant change at moderate intensity. Max heart rate estimate: Tanaka H, Monahan KD, Seals DR. Age-predicted maximal heart rate revisited. J Am Coll Cardiol. 2001;37:153-156. The treadmill session follows the study; the bike sessions are an adaptation to available equipment. Not medical advice."
+   "sources": "Protocol and results: Helgerud J, Høydal K, Wang E, et al. Aerobic high-intensity intervals improve VO2max more than moderate training. Med Sci Sports Exerc. 2007;39(4):665-671 — 10-min warm-up, 4×4 min at 90-95% HRmax with 3 min active recovery at 70%, 3-min cool-down, 3 days a week for 8 weeks; VO2max +7.2% in the 4×4 group against no significant change at moderate intensity. Max heart rate estimate: Tanaka H, Monahan KD, Seals DR. Age-predicted maximal heart rate revisited. J Am Coll Cardiol. 2001;37:153-156. The treadmill session follows the study; the bike sessions are an adaptation to available equipment. Not medical advice. Fueling: Thomas DT, Erdman KA, Burke LM. Position of the Academy of Nutrition and Dietetics, Dietitians of Canada, and the American College of Sports Medicine: Nutrition and Athletic Performance. J Acad Nutr Diet. 2016;116(3):501-528 — carbohydrate during exercise under 45 min listed as not needed; 5-7 g/kg/d for a moderate program of about 1 h/d; protein 1.2-2.0 g/kg/d. Caffeine: Guest NS, VanDusseldorp TA, Nelson MT, et al. International society of sports nutrition position stand: caffeine and exercise performance. J Int Soc Sports Nutr. 2021;18:1 — 3-6 mg/kg body mass, most commonly 60 min pre-exercise."
   }
  }
 ];
