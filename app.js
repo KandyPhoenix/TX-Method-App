@@ -465,7 +465,7 @@ function fpx(key, name, icon, reps, scheme, needs, side) {
    and doing both would double-dip. */
 function fpProgress(ex, week) {
   if (!week) return ex;
-  const loaded = !!SA_WEIGHT[ex.key];
+  const loaded = !!loadEntry(ex.key);
   if (loaded) return ex;
   const out = Object.assign({}, ex);
   if (out.reps) out.reps = out.reps + week;
@@ -2344,7 +2344,7 @@ function itemRow(item, log, showName) {
         <div class="wt">${repTarget(ex)}<small> reps${ex.side ? '/side' : ''}</small></div>
         <div class="set-end"><button class="check ${on}" data-pcheck="${id}">✓</button></div></div>`;
 
-  if (hasLoadProgression() && SA_PROGRESS.includes(ex.key) && many) {
+  if (hasLoadProgression() && loadProgresses(ex.key) && many) {
     const rid = ex.key + '_' + item.setIndex;
     const cur = (log.reps && log.reps[rid] != null) ? log.reps[rid] : ex.reps;
     row += `<div class="log-row">
@@ -2414,7 +2414,7 @@ function prepExerciseCard(ex, setIndex, total, log) {
         <div class="lbl">${many ? `Set ${setIndex + 1}/${total}` : 'Target'}</div>
         <div class="wt">${repTarget(ex)}<small> reps${ex.side ? '/side' : ''}</small></div>
         <div class="set-end"><button class="check ${on}" data-pcheck="${id}">✓</button></div></div>`;
-  if (isSAProgram() && SA_PROGRESS.includes(ex.key) && many) {
+  if (hasLoadProgression() && loadProgresses(ex.key) && many) {
     const rid = `${ex.key}_${setIndex}`;
     const cur = (log.reps && log.reps[rid] != null) ? log.reps[rid] : ex.reps;
     rows += `<div class="log-row">
@@ -2496,7 +2496,7 @@ function tierDay(d) {
     if (e.sec)  e.sec  = Math.max(10, Math.round(scale(e.sec, 10) / 5) * 5);
     /* loaded movements keep their target reps — that is what the reps-hit
        progression reads */
-    if (e.reps && !SA_WEIGHT[e.key]) e.reps = scale(e.reps, 1);
+    if (e.reps && !loadEntry(e.key)) e.reps = scale(e.reps, 1);
     return e;
   });
   return out;
@@ -2659,9 +2659,129 @@ function isSAProgram() { return S.program === 'sa2' || S.program === 'sa4' || S.
    inside their own arrays. These are the ones that carry a load and need a
    rule for when it goes up. */
 function hasLoadProgression() {
-  return isSAProgram() || S.program === 'dumbbell' || S.program === 'fpfocus';
+  return isSAProgram() || S.program === 'dumbbell' || S.program === 'fpfocus' ||
+         !!SYN_LOAD[S.program];
+}
+
+/* ---------------------------------------------------------------------
+   Load progression for the syn plans.
+
+   SA_WEIGHT is one global table keyed by exercise, which was fine while only
+   the SuperAge and dumbbell A/B plans used it. The syn plans share exercise
+   keys with each other — dumbbell-49's "DB RDLs" and Sims' barbell Romanian
+   deadlift are both syn_romanian_deadlift — so a single global entry cannot
+   describe both. Each syn plan therefore carries its own table AND its own
+   saWeights namespace; without the second, switching programs would hand the
+   dumbbell RDL a barbell working weight.
+
+   An entry is either derived (src + pct off the Setup lifts) or fixed
+   (start, in lb, converted for metric). Entries progress by the reps-hit rule
+   unless they say prog: false.
+   --------------------------------------------------------------------- */
+const SYN_LOAD = {
+  'syn-sims-lift-heavy-sprint-short': {
+    /* Percentages are Epley inverted at the written rep target plus the 2-3
+       reps in reserve the program asks for, so the suggestion is a weight you
+       can finish rather than a limit set:
+           pct = (37 - (reps + 2.5)) / 36   ->   4 reps .85 | 5 reps .82 | 6 reps .79
+       Lifts with no Setup entry of their own scale off the nearest one by the
+       usual ratio: an RDL is about .70 of a deadlift, a front squat about .85
+       of a back squat, a push press sits above a strict press. Push press and
+       hip thrust start deliberately low; progression lifts them within a few
+       sessions and starting under is the cheaper mistake. */
+    sims_back_squat:            { src: 'squat',    pct: 0.82, type: 'bar'  },
+    syn_romanian_deadlift:      { src: 'deadlift', pct: 0.57, type: 'bar'  },
+    syn_barbell_hip_thrust:     { src: 'squat',    pct: 0.80, type: 'bar'  },
+    syn_overhead_press:         { src: 'press',    pct: 0.82, type: 'bar'  },
+    syn_bench_press:            { src: 'bench',    pct: 0.82, type: 'bar'  },
+    syn_deadlift:               { src: 'deadlift', pct: 0.85, type: 'bar'  },
+    syn_front_squats:           { src: 'squat',    pct: 0.67, type: 'bar'  },
+    sims_push_press:            { src: 'press',    pct: 0.90, type: 'bar'  },
+    syn_bulgarian_split_squats: { src: 'squat',    pct: 0.18, type: 'hand' },
+    wu_cs_db_row:               { src: 'bench',    pct: 0.35, type: 'hand' },
+    /* The carries are timed and distance work with no rep target. They get a
+       suggestion but prog:false keeps them out of the reps-hit rule, which
+       compares against ex.reps and would read a missing target as met on
+       every session — raising the load for ever. */
+    sims_suitcase_carry:        { src: 'deadlift', pct: 0.25, type: 'hand', prog: false },
+    sims_farmer_carry:          { src: 'deadlift', pct: 0.30, type: 'hand', prog: false },
+  },
+  /* Dumbbell 49: 45 loaded movements, every one starting at 10 lb (5 kg) and
+     progressing on its own. A flat start is right here — most of these are
+     small isolation lifts, and the reps-hit rule separates the goblet squat
+     from the lateral raise within a few weeks without anyone guessing up
+     front. Pull-ups, push-ups, bench dips and sissy squats hold no dumbbell
+     and are absent, so they progress by reps as before.
+     Note every hand weight is still clamped by dbMax — the heaviest dumbbell
+     in Setup, 25 lb by default. */
+  'syn-dumbbell-49-supersets': {
+    syn_dumbbell_bench_press:         { start: 10, type: 'hand' },   /* Flat DB Press */
+    syn_incline_dumbbell_press:       { start: 10, type: 'hand' },   /* Incline DB Press */
+    wu_single_arm_lat_row:            { start: 10, type: 'hand' },   /* Single-Arm Lat-Biased Row */
+    wu_db_floor_press:                { start: 10, type: 'hand' },   /* DB Floor Press */
+    wu_db_pullover:                   { start: 10, type: 'hand' },   /* DB Pull-Overs */
+    syn_dumbbell_flyes:               { start: 10, type: 'hand' },   /* DB Flyes */
+    wu_incline_dual_pullover:         { start: 10, type: 'hand' },   /* Incline Dual DB Pull-Overs */
+    wu_weighted_pushup:               { start: 10, type: 'hand' },   /* Weighted Push-Ups */
+    wu_weighted_deadbug:              { start: 10, type: 'hand' },   /* Weighted Deadbug */
+    wu_plank_db_transfer:             { start: 10, type: 'hand' },   /* Plank with DB Transfer */
+    syn_goblet_squats:                { start: 10, type: 'hand' },   /* Goblet Squats */
+    syn_romanian_deadlift:            { start: 10, type: 'hand' },   /* DB RDLs */
+    syn_bulgarian_split_squats:       { start: 10, type: 'hand' },   /* Bulgarian Split Squats */
+    wu_single_leg_rdl:                { start: 10, type: 'hand' },   /* Single-Leg RDLs */
+    syn_walking_lunges:               { start: 10, type: 'hand' },   /* Walking Lunges */
+    syn_hip_thrusts:                  { start: 10, type: 'hand' },   /* DB Hip Thrusts */
+    wu_step_up:                       { start: 10, type: 'hand' },   /* Step-Ups */
+    wu_db_glute_bridge:               { start: 10, type: 'hand' },   /* DB Glute Bridges */
+    wu_heel_elevated_squat:           { start: 10, type: 'hand' },   /* Heel-Elevated Squats */
+    wu_weighted_step_up_glute:        { start: 10, type: 'hand' },   /* Weighted Step-Ups (glute-biased) */
+    wu_db_leg_curl:                   { start: 10, type: 'hand' },   /* DB Leg Curls */
+    wu_seated_db_press:               { start: 10, type: 'hand' },   /* Seated DB Press */
+    syn_incline_curls:                { start: 10, type: 'hand' },   /* Incline Bench Curls */
+    wu_standing_db_press:             { start: 10, type: 'hand' },   /* Standing DB Press */
+    syn_hammer_curls:                 { start: 10, type: 'hand' },   /* Standing Hammer Curls */
+    syn_arnold_press:                 { start: 10, type: 'hand' },   /* Arnold Press */
+    syn_concentration_curls:          { start: 10, type: 'hand' },   /* Concentration Curls */
+    syn_lateral_raises:               { start: 10, type: 'hand' },   /* Lateral Raises */
+    wu_db_spider_curl:                { start: 10, type: 'hand' },   /* DB Spider Curls */
+    syn_front_raises:                 { start: 10, type: 'hand' },   /* Front Raises */
+    wu_cs_rear_delt_fly:              { start: 10, type: 'hand' },   /* Chest-Supported Rear Delt Flyes */
+    wu_upright_row:                   { start: 10, type: 'hand' },   /* Upright Rows */
+    wu_weighted_leg_raise:            { start: 10, type: 'hand' },   /* Weighted Leg Raises */
+    wu_bent_over_dual_row:            { start: 10, type: 'hand' },   /* Bent-Over Dual DB Rows */
+    syn_dumbbell_overhead_extensions: { start: 10, type: 'hand' },   /* Overhead DB Extension */
+    syn_single_arm_dumbbell_row:      { start: 10, type: 'hand' },   /* Single-Arm DB Row */
+    syn_dumbbell_skull_crushers:      { start: 10, type: 'hand' },   /* DB Skull Crushers */
+    wu_cs_db_row:                     { start: 10, type: 'hand' },   /* Chest-Supported DB Rows */
+    syn_dumbbell_kickbacks:           { start: 10, type: 'hand' },   /* DB Kickbacks */
+    wu_batwing_row:                   { start: 10, type: 'hand' },   /* DB Batwing Rows */
+    wu_reacher_row:                   { start: 10, type: 'hand' },   /* Reacher Row */
+    syn_single_leg_calf_raises:       { start: 10, type: 'hand' },   /* Single-Leg Calf Raises */
+    wu_db_shrug:                      { start: 10, type: 'hand' },   /* DB Shrugs */
+    syn_seated_dumbbell_calf_raises:  { start: 10, type: 'hand' },   /* Seated DB Calf Raises */
+    wu_db_russian_twist:              { start: 10, type: 'hand' },   /* DB Russian Twists */
+  }
+};
+/* the plan's own entry wins; SA_WEIGHT stays the fallback for everything else */
+function loadEntry(key) {
+  const t = SYN_LOAD[S.program];
+  return (t && t[key]) || SA_WEIGHT[key] || null;
+}
+/* Working weights are namespaced per plan wherever the plan has its own
+   table. The SuperAge and dumbbell A/B plans keep bare keys so no saved
+   progress is orphaned. */
+function saSlot(key) { return SYN_LOAD[S.program] ? S.program + '|' + key : key; }
+function loadProgresses(key) {
+  const t = SYN_LOAD[S.program];
+  if (t) { const m = t[key]; return !!m && m.prog !== false; }
+  return SA_PROGRESS.includes(key);
 }
 function saEstimate(m) {
+  /* a fixed starting weight rather than one derived from the Setup lifts */
+  if (m.start != null) {
+    const w = S.settings.units === 'lb' ? m.start : round(m.start * LB_PER_KG, 2.5);
+    return capHand(Math.max(5, w), m.type);
+  }
   const L = S.settings.lifts[m.src]; if (!L || !L.weight) return null;
   const est = oneRM(L.weight, L.reps) * m.pct;
   return m.type === 'bar' ? snapWeight(est, bar(), getPlates())
@@ -2721,9 +2841,10 @@ function saHintSet(key, i, total) {
 
 function saHint(key) {
   if (!hasLoadProgression()) return null;
-  const m = SA_WEIGHT[key]; if (!m) return null;
-  const stored = S.saWeights && S.saWeights[key] != null;
-  const w = stored ? S.saWeights[key] : saEstimate(m);
+  const m = loadEntry(key); if (!m) return null;
+  const slot = saSlot(key);
+  const stored = S.saWeights && S.saWeights[slot] != null;
+  const w = stored ? S.saWeights[slot] : saEstimate(m);
   if (w == null) return null;
   const suffix = m.type === 'bar' ? unit() : m.type === 'db' ? `${unit()} DB/KB` : `${unit()} / hand`;
   return { w, type: m.type, suffix, txt: `${fmt(w)} ${suffix}` };
@@ -2781,7 +2902,7 @@ function repBonusAdd(key, n) {
   S.repBonus[key] = repBonus(key) + n;
 }
 function atCeiling(key, w) {
-  const m = SA_WEIGHT[key];
+  const m = loadEntry(key);
   if (!m || (m.type !== 'db' && m.type !== 'hand')) return false;
   return w >= dbCap();
 }
@@ -2791,10 +2912,11 @@ function saApplyProgression(d, log) {
   if (!S.saWeights) S.saWeights = {};
   const msgs = [], seen = new Set();
   d.exercises.forEach(ex => {
-    if (seen.has(ex.key) || !SA_PROGRESS.includes(ex.key) || !(ex.sets > 1)) return;
+    if (seen.has(ex.key) || !loadProgresses(ex.key) || !(ex.sets > 1)) return;
     seen.add(ex.key);
-    const m = SA_WEIGHT[ex.key];
-    const cur = S.saWeights[ex.key] != null ? S.saWeights[ex.key] : saEstimate(m);
+    const m = loadEntry(ex.key); if (!m) return;
+    const slot = saSlot(ex.key);
+    const cur = S.saWeights[slot] != null ? S.saWeights[slot] : saEstimate(m);
     if (cur == null) return;
     let met = true;
     for (let i = 0; i < ex.sets; i++) {
@@ -2868,7 +2990,7 @@ function saApplyProgression(d, log) {
         msgs.push(`${ex.name} stalled three times — dropping to ${fmt(next)} ${unit()} to build back up 📉`);
       }
     }
-    S.saWeights[ex.key] = next;
+    S.saWeights[slot] = next;
   });
   log.progressed = true;
   return msgs;
