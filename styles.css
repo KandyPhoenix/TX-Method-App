@@ -1048,7 +1048,7 @@ h2.section::after { content: ''; flex: 1; height: 1px; background: var(--border)
 .guide-mast-rule { height: 2px; background: var(--text); opacity: .8; margin-top: 15px; }
 .guide-lead {
   font-family: var(--f-read); font-size: 16px; line-height: 1.62;
-  color: var(--text-soft); margin: 15px 0 0; max-width: 62ch;
+  color: var(--text-soft); margin: 15px 0 0;
 }
 
 /* ---- a colour per section ----
@@ -1156,7 +1156,7 @@ h2.section::after { content: ''; flex: 1; height: 1px; background: var(--border)
 .guide-sources .rail-kicker { color: var(--dim); }
 .guide-sources p {
   font-family: var(--f-read); font-size: 13px; line-height: 1.6;
-  color: var(--muted); margin: 6px 0 0; max-width: 62ch;
+  color: var(--muted); margin: 6px 0 0;
 }
 .guide-empty p {
   font-family: var(--f-read); font-size: 15px; line-height: 1.6;
