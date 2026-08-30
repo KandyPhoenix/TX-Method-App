@@ -3823,6 +3823,10 @@ const SYN_PLANS = [
      "tone": "cycle",
      "icon": "🔁",
      "items": [
+     {
+      "title": "Your ceiling is the heaviest dumbbell in Setup",
+      "body": "Every hand weight in this program is clamped to the heaviest dumbbell you told Setup you own — currently {{dbmax}}. Progression will climb to that number and then stop, so if it is wrong the whole program quietly tops out. It is one field in Setup."
+     },
       {
        "title": "No rest inside the pair, 90 seconds after it",
        "body": "Finish lift A, go straight into lift B, then rest properly before starting the pair again. That is the structure; removing the rest after the pair as well turns it into circuit training."
@@ -5107,7 +5111,7 @@ const SYN_PLANS = [
     {
      "kicker": "Intensity",
      "title": "90-95% of max heart rate",
-     "body": "Estimate max as 208 minus 0.7 times your age (Tanaka 2001) — at 45 that is about 176, so the interval window is roughly 158-167 beats. Estimates carry real spread, so use the effort check as well: too breathless for a sentence, still able to get a word out."
+     "body": "Estimate max as 208 minus 0.7 times your age (Tanaka 2001) — at {{age}} that is about {{hrmax}}, so the interval window is roughly {{hr:90-95}} beats. Estimates carry real spread, so use the effort check as well: too breathless for a sentence, still able to get a word out."
     },
     {
      "kicker": "Recovery",
@@ -5242,7 +5246,7 @@ const SYN_PLANS = [
      "items": [
       {
        "title": "Estimating max heart rate",
-       "body": "208 minus 0.7 times age, from Tanaka's 2001 review of 351 studies. At 45 that is about 176 beats, putting the interval window near 158-167 and the recovery near 123. It is an estimate across a population, not a measurement of you — individual max varies substantially around it."
+       "body": "208 minus 0.7 times age, from Tanaka's 2001 review of 351 studies. At {{age}} — the age in your Setup — that is about {{hrmax}} beats, putting the interval window near {{hr:90-95}} and the recovery near {{hr:70}}. It is an estimate across a population, not a measurement of you — individual max varies substantially around it."
       },
       {
        "title": "The effort check, if you have no monitor",

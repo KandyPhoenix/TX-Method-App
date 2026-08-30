@@ -6632,12 +6632,27 @@ function guideVars(t) {
   if (s.indexOf('{{') < 0) return s;
   const raw = +(S.settings && S.settings.bodyweight) || 0;
   const lb  = S.settings.units === 'kg' ? raw / LB_PER_KG : raw;
+  const age = +(S.settings && S.settings.age) || 0;
+  const hrMax = 208 - 0.7 * age;
   return s
     .replace(/\{\{bw\}\}/g, raw ? Math.round(raw) + ' ' + unit() : 'your bodyweight')
     .replace(/\{\{dose:([\d.]+)-([\d.]+):(\w+)\}\}/g, (m, lo, hi, u) => {
       if (!lb) return m;
       const at = v => Math.round(v * lb);
       return at(+lo) + '-' + at(+hi) + ' ' + u;
+    })
+    /* the heaviest dumbbell in Setup — the ceiling every hand weight is
+       clamped to, and the setting people forget they have not raised */
+    .replace(/\{\{dbmax\}\}/g, () => dbCap() + ' ' + unit())
+    /* Age, and the heart-rate zones that fall out of it. Max is Tanaka's
+       208 - 0.7 x age; the bands come off the UNROUNDED max so rounding is
+       applied once at the end rather than compounding through it. */
+    .replace(/\{\{age\}\}/g, () => age || 'your age')
+    .replace(/\{\{hrmax\}\}/g, () => age ? Math.round(hrMax) : '{{hrmax}}')
+    .replace(/\{\{hr:(\d+)(?:-(\d+))?\}\}/g, (m, lo, hi) => {
+      if (!age) return m;
+      const at = p => Math.round(hrMax * p / 100);
+      return hi ? at(+lo) + '-' + at(+hi) : String(at(+lo));
     });
 }
 /* vars first, then the dose highlighter — so a computed figure is picked out
