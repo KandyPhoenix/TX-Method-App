@@ -58,6 +58,7 @@ const DEFAULTS = {
   plates: [45, 35, 25, 10, 5, 2.5],
   mode: 'limit',
   ohpDecrement: 0.95,
+  reminder: { on: false, time: '10:00', lastFired: null },
   restSec: 120,
   restStep: 15,
   voice: true,
@@ -2107,6 +2108,7 @@ function renderToday() {
     prevId: "prevDay", nextId: "nextDay"
   });
 
+  html += reminderNudgeHTML();
   html += guideNoteHTML();
 
   for (const lf of w.days[day]) html += liftCard(lf, logKey, log);
@@ -2307,6 +2309,7 @@ function renderPrepToday() {
   } else {
     const log = pstate().log[dayNum] || { checks: {} };
     html += guideNoteHTML(d.note);
+    html += reminderNudgeHTML();
     html += readinessHTML();
     html += tierBarHTML();
     if (S.program === 'gen') html += genBarHTML();
@@ -4714,6 +4717,157 @@ function lineChart(canvas, series, labels) {
 /* =====================================================================
    SETUP  (changes #3 bar/plates at top + #4 tap-twice confirm)
    ===================================================================== */
+/* =====================================================================
+   WORKOUT REMINDER
+
+   Three tiers, because the web cannot do the obvious thing. A notification
+   that fires at 10:00 with the app fully closed needs a server to push it,
+   and this app is static files on GitHub Pages — there is no backend. The
+   browser-scheduled alternative (Notification Triggers, TimestampTrigger)
+   was abandoned by Chrome and never shipped, so it is not an option either.
+
+   So:
+     1. CALENDAR — a downloadable .ics with a daily repeating event and an
+        alarm. The OS does the reminding, so it works on a phone and a PC
+        with the app closed. This is the one that actually always fires.
+     2. BROWSER NOTIFICATION — scheduled while the app is open. Reliable on a
+        PC where the browser stays running; on a phone it fires only while
+        the app is open.
+     3. NUDGE — open the app any time after the reminder without having
+        trained and the Today screen says so.
+   ===================================================================== */
+function reminderCfg() {
+  const r = S.settings.reminder || {};
+  return { on: !!r.on, time: r.time || '10:00', lastFired: r.lastFired || null };
+}
+function setReminder(patch) {
+  S.settings.reminder = Object.assign(reminderCfg(), patch);
+  save();
+}
+/* next occurrence of HH:MM, today if it is still ahead, otherwise tomorrow */
+function reminderNext(time) {
+  const [h, m] = String(time || '10:00').split(':').map(Number);
+  const now = new Date(), t = new Date();
+  t.setHours(h || 0, m || 0, 0, 0);
+  if (t <= now) t.setDate(t.getDate() + 1);
+  return t;
+}
+let reminderTimer = null;
+function initReminder() {
+  if (reminderTimer) { clearTimeout(reminderTimer); reminderTimer = null; }
+  const r = reminderCfg();
+  if (!r.on) return;
+  if (typeof Notification === 'undefined' || Notification.permission !== 'granted') return;
+  const ms = reminderNext(r.time) - Date.now();
+  /* setTimeout is a 32-bit signed count of milliseconds — anything past ~24.8
+     days overflows and fires immediately. A day is well inside that, but the
+     re-arm below means this runs forever, so it is clamped anyway. */
+  reminderTimer = setTimeout(() => { fireReminder(); initReminder(); }, Math.min(ms, 2147483647));
+}
+function reminderBody() {
+  try {
+    if (S.program === 'texas') {
+      const w = PROGRAM[S.cursor.week];
+      return 'Texas Method · ' + DAY_NAMES[S.cursor.day];
+    }
+    const d = pdata()[(pstate().day || 1) - 1];
+    return guideProgramName() + (d && d.title ? ' · ' + d.title : '');
+  } catch (e) { return 'Time to train.'; }
+}
+function fireReminder() {
+  const today = isoDate(new Date());
+  if (reminderCfg().lastFired === today) return;      /* never twice in a day */
+  setReminder({ lastFired: today });
+  const opts = { body: reminderBody(), icon: 'icons/icon-192.png',
+                 badge: 'icons/icon-192.png', tag: 'tx-workout-reminder' };
+  const direct = () => { try { new Notification('Workout time', opts); } catch (e) {} };
+  /* Prefer the service worker: on a phone a worker notification survives the
+     tab, a constructed one may not. But navigator.serviceWorker.ready never
+     SETTLES when no worker is active — it does not reject, it hangs — so
+     awaiting it alone would leave the reminder silently doing nothing on any
+     load where registration has not completed. Race it against a short
+     timer and fall back. */
+  let sw = null;
+  try { sw = (navigator.serviceWorker && navigator.serviceWorker.ready) || null; } catch (e) { sw = null; }
+  if (!sw) return direct();
+  let done = false;
+  const timer = setTimeout(() => { if (!done) { done = true; direct(); } }, 800);
+  sw.then(reg => {
+    if (done) return;
+    done = true; clearTimeout(timer);
+    return reg.showNotification('Workout time', opts);
+  }).catch(() => { if (!done) { done = true; clearTimeout(timer); direct(); } });
+}
+function askReminderPermission() {
+  if (typeof Notification === 'undefined') {
+    toast('This browser cannot show notifications. Use Add to calendar instead.');
+    return Promise.resolve(false);
+  }
+  if (Notification.permission === 'granted') return Promise.resolve(true);
+  if (Notification.permission === 'denied') {
+    toast('Notifications are blocked for this site — allow them in your browser settings.');
+    return Promise.resolve(false);
+  }
+  return Notification.requestPermission().then(p => p === 'granted');
+}
+/* A daily repeating event with a 0-minute alarm, in FLOATING local time — no
+   timezone and no Z, so it means 10:00 wherever you happen to be. */
+function reminderICS() {
+  const r = reminderCfg();
+  const [h, m] = String(r.time).split(':').map(Number);
+  const p2 = n => String(n).padStart(2, '0');
+  const start = reminderNext(r.time);
+  const dt = start.getFullYear() + p2(start.getMonth() + 1) + p2(start.getDate())
+           + 'T' + p2(h || 0) + p2(m || 0) + '00';
+  const stamp = new Date().toISOString().replace(/[-:]/g, '').replace(/\.\d+/, '');
+  return [
+    'BEGIN:VCALENDAR', 'VERSION:2.0', 'PRODID:-//TX Method//Workout Reminder//EN',
+    'CALSCALE:GREGORIAN', 'METHOD:PUBLISH',
+    'BEGIN:VEVENT',
+    'UID:tx-method-workout-reminder@' + location.hostname,
+    'DTSTAMP:' + stamp,
+    'DTSTART:' + dt,
+    'DURATION:PT45M',
+    'RRULE:FREQ=DAILY',
+    'SUMMARY:Workout — TX Method',
+    'DESCRIPTION:Open TX Method and train.',
+    'BEGIN:VALARM', 'TRIGGER:PT0M', 'ACTION:DISPLAY',
+    'DESCRIPTION:Workout time', 'END:VALARM',
+    'END:VEVENT', 'END:VCALENDAR'
+  ].join('\r\n');
+}
+function downloadReminderICS() {
+  const blob = new Blob([reminderICS()], { type: 'text/calendar;charset=utf-8' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url; a.download = 'tx-method-workout-reminder.ics';
+  document.body.appendChild(a); a.click(); a.remove();
+  setTimeout(() => URL.revokeObjectURL(url), 1000);
+}
+/* Tier 3: no scheduling involved — you opened the app, it is past the time,
+   and nothing is logged for today. */
+function reminderNudgeHTML() {
+  const r = reminderCfg();
+  if (!r.on) return '';
+  const [h, m] = String(r.time).split(':').map(Number);
+  const now = new Date();
+  if (now.getHours() * 60 + now.getMinutes() < (h || 0) * 60 + (m || 0)) return '';
+  if (trainedToday()) return '';
+  return `<div class="card note-fold" style="border-left:3px solid var(--hl)">
+    <div class="tiny" style="padding:2px 0"><b>Not trained yet today.</b> ${reminderBody()}</div></div>`;
+}
+/* anything logged against today's date, in either store */
+function trainedToday() {
+  const today = isoDate(new Date());
+  const hit = l => l && (l.date === today) &&
+    ((l.checks && Object.values(l.checks).some(Boolean)) || (l.w && Object.keys(l.w).length));
+  if (Object.values(S.logs || {}).some(hit)) return true;
+  return Object.keys(DAY_PROGRAMS).some(pk => {
+    const st = S[DAY_PROGRAMS[pk].stateKey];
+    return st && st.log && Object.values(st.log).some(hit);
+  });
+}
+
 function renderSetup() {
   titleEl.textContent = 'Setup';
   subEl.textContent   = 'Your numbers — saved automatically';
@@ -4905,6 +5059,20 @@ function renderSetup() {
         <div class="field" style="margin:0"><label>Adjust step (± sec)</label>
           <input type="number" inputmode="numeric" id="restStepInp" value="${s.restStep}" /></div>
       </div>
+      <div class="field" style="margin-top:14px"><label>Workout reminder</label>
+        <div class="seg" id="segRemind">
+          <button data-remind="on"  class="${reminderCfg().on ? 'on' : ''}">On</button>
+          <button data-remind="off" class="${reminderCfg().on ? '' : 'on'}">Off</button>
+        </div>
+        <div class="inline2b" style="margin-top:8px">
+          <div class="field" style="margin:0"><label>Time</label>
+            <input type="time" id="remindTime" value="${reminderCfg().time}" /></div>
+          <div class="field" style="margin:0"><label>&nbsp;</label>
+            <button class="btn secondary" id="remindTest" style="width:100%">Test it</button></div>
+        </div>
+        <button class="btn secondary" id="remindICS" style="width:100%;margin-top:8px">\u{1F4C5} Add to calendar (phone + PC)</button>
+        <div class="hint">The calendar entry is the one that always fires — your phone or PC does the reminding, with the app closed. The browser notification only fires while the app is open, so it is dependable on a computer and not on a phone. A notification with the app fully closed needs a server to push it, and this app has none.</div>
+      </div>
       <div class="field" style="margin-top:14px"><label>Voice coaching</label>
         <div class="seg" id="segVoice">
           <button data-voice="on"  class="${s.voice ? 'on' : ''}">On</button>
@@ -4996,6 +5164,27 @@ function wireSetup() {
   view.querySelectorAll('#segRest button').forEach(b => b.onclick = () => {
     s.restSec = +b.dataset.rest; save(); render();
   });
+  document.querySelectorAll('#segRemind button').forEach(b => {
+    b.onclick = () => {
+      if (b.dataset.remind === 'off') { setReminder({ on: false }); initReminder(); render(); return; }
+      askReminderPermission().then(ok => {
+        setReminder({ on: !!ok });
+        if (ok) { initReminder(); toast('Reminder set for ' + reminderCfg().time + ' while the app is open.'); }
+        render();
+      });
+    };
+  });
+  const rt = document.getElementById('remindTime');
+  if (rt) rt.onchange = () => { setReminder({ time: rt.value || '10:00', lastFired: null }); initReminder(); render(); };
+  const rtest = document.getElementById('remindTest');
+  if (rtest) rtest.onclick = () => askReminderPermission().then(ok => {
+    if (!ok) return;
+    setReminder({ lastFired: null });
+    fireReminder();
+    toast('Sent — if nothing appeared, notifications are blocked for this site.');
+  });
+  const rics = document.getElementById('remindICS');
+  if (rics) rics.onclick = () => { downloadReminderICS(); toast('Calendar file downloaded — open it to add the daily reminder.'); };
   document.getElementById('restCustom').onchange = e => {
     s.restSec = Math.max(5, Math.min(900, +e.target.value || 120)); save(); render();
   };
@@ -8116,6 +8305,8 @@ synRegisterTips();
 render();
 /* auto-resume cloud sync if previously signed in */
 if (loadCloud().enabled) { setTimeout(cloudInit, 0); }
+initReminder();
+
 if ('serviceWorker' in navigator) {
   /* Registering alone is not enough. An installed PWA opened from the home
      screen does not navigate, so the browser may never re-check sw.js and the
