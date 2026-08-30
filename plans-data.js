@@ -105,7 +105,7 @@ const SYN_PLANS = [
      "items": [
       {
        "title": "Daily protein: 0.64-0.91 g per pound",
-       "body": "The ISSN position stand puts the range for building and maintaining muscle at 0.64-0.91 g of protein per pound of bodyweight per day for most exercising people. At 165 lb that is roughly 105-150 g a day. If you are eating in a deficit the same stand raises it to 1.04-1.41 g per pound to hold on to lean mass while you lose fat."
+       "body": "The ISSN position stand puts the range for building and maintaining muscle at 0.64-0.91 g of protein per pound of bodyweight per day for most exercising people. At {{bw}} that is roughly {{dose:0.64-0.91:g}} a day. If you are eating in a deficit the same stand raises it to 1.04-1.41 g per pound to hold on to lean mass while you lose fat."
       },
       {
        "title": "Per meal: 20-40 g",
@@ -605,7 +605,7 @@ const SYN_PLANS = [
      "items": [
       {
        "title": "Daily protein: 0.64-0.91 g per pound",
-       "body": "The ISSN position stand puts the range for building and maintaining muscle at 0.64-0.91 g of protein per pound of bodyweight per day for most exercising people. At 165 lb that is roughly 105-150 g a day. If you are eating in a deficit the same stand raises it to 1.04-1.41 g per pound to hold on to lean mass while you lose fat."
+       "body": "The ISSN position stand puts the range for building and maintaining muscle at 0.64-0.91 g of protein per pound of bodyweight per day for most exercising people. At {{bw}} that is roughly {{dose:0.64-0.91:g}} a day. If you are eating in a deficit the same stand raises it to 1.04-1.41 g per pound to hold on to lean mass while you lose fat."
       },
       {
        "title": "Per meal: 20-40 g",
@@ -970,7 +970,7 @@ const SYN_PLANS = [
      "items": [
       {
        "title": "Daily protein: 0.64-0.91 g per pound",
-       "body": "The ISSN position stand puts the range for building and maintaining muscle at 0.64-0.91 g of protein per pound of bodyweight per day for most exercising people. At 165 lb that is roughly 105-150 g a day. If you are eating in a deficit the same stand raises it to 1.04-1.41 g per pound to hold on to lean mass while you lose fat."
+       "body": "The ISSN position stand puts the range for building and maintaining muscle at 0.64-0.91 g of protein per pound of bodyweight per day for most exercising people. At {{bw}} that is roughly {{dose:0.64-0.91:g}} a day. If you are eating in a deficit the same stand raises it to 1.04-1.41 g per pound to hold on to lean mass while you lose fat."
       },
       {
        "title": "Per meal: 20-40 g",
@@ -1306,7 +1306,7 @@ const SYN_PLANS = [
      "items": [
       {
        "title": "Daily protein: 0.64-0.91 g per pound",
-       "body": "The ISSN position stand puts the range for building and maintaining muscle at 0.64-0.91 g of protein per pound of bodyweight per day for most exercising people. At 165 lb that is roughly 105-150 g a day. If you are eating in a deficit the same stand raises it to 1.04-1.41 g per pound to hold on to lean mass while you lose fat."
+       "body": "The ISSN position stand puts the range for building and maintaining muscle at 0.64-0.91 g of protein per pound of bodyweight per day for most exercising people. At {{bw}} that is roughly {{dose:0.64-0.91:g}} a day. If you are eating in a deficit the same stand raises it to 1.04-1.41 g per pound to hold on to lean mass while you lose fat."
       },
       {
        "title": "Per meal: 20-40 g",
@@ -2119,7 +2119,7 @@ const SYN_PLANS = [
      "items": [
       {
        "title": "Daily protein: 0.64-0.91 g per pound",
-       "body": "The ISSN position stand puts the range for building and maintaining muscle at 0.64-0.91 g of protein per pound of bodyweight per day for most exercising people. At 165 lb that is roughly 105-150 g a day. If you are eating in a deficit the same stand raises it to 1.04-1.41 g per pound to hold on to lean mass while you lose fat."
+       "body": "The ISSN position stand puts the range for building and maintaining muscle at 0.64-0.91 g of protein per pound of bodyweight per day for most exercising people. At {{bw}} that is roughly {{dose:0.64-0.91:g}} a day. If you are eating in a deficit the same stand raises it to 1.04-1.41 g per pound to hold on to lean mass while you lose fat."
       },
       {
        "title": "Per meal: 20-40 g",
@@ -3802,7 +3802,7 @@ const SYN_PLANS = [
      "items": [
       {
        "title": "Daily protein: 0.64-0.91 g per pound",
-       "body": "The ISSN position stand puts the range for building and maintaining muscle at 0.64-0.91 g of protein per pound of bodyweight per day for most exercising people. At 165 lb that is roughly 105-150 g a day. If you are eating in a deficit the same stand raises it to 1.04-1.41 g per pound to hold on to lean mass while you lose fat."
+       "body": "The ISSN position stand puts the range for building and maintaining muscle at 0.64-0.91 g of protein per pound of bodyweight per day for most exercising people. At {{bw}} that is roughly {{dose:0.64-0.91:g}} a day. If you are eating in a deficit the same stand raises it to 1.04-1.41 g per pound to hold on to lean mass while you lose fat."
       },
       {
        "title": "Per meal: 20-40 g",
@@ -4384,7 +4384,7 @@ const SYN_PLANS = [
     {
      "kicker": "Daily target",
      "title": "0.73–1.0 g of protein per pound",
-     "body": "Over 40, aim for 0.73–1.0 g per pound of bodyweight a day — at 165 lb, about 120–165 g. Through the menopause transition she raises that to 1.0–1.09 g per pound — the lower end on easy days, the higher end after a heavy session."
+     "body": "Over 40, aim for 0.73–1.0 g per pound of bodyweight a day — at {{bw}}, about {{dose:0.73-1.0:g}}. Through the menopause transition she raises that to 1.0–1.09 g per pound — the lower end on easy days, the higher end after a heavy session."
     },
     {
      "kicker": "Spread it out",
@@ -5219,7 +5219,7 @@ const SYN_PLANS = [
       },
       {
        "title": "Daily carbohydrate: the moderate band is 2.3-3.2 g per pound",
-       "body": "The stand puts a moderate exercise program of about 1 hour a day at 2.3-3.2 g of carbohydrate per pound of bodyweight per day — at 165 lb, about 374-524 g — and an endurance program of 1-3 hours a day at 2.7-4.5 g per pound. Three 38-minute sessions a week sits below that first band, so the lower end is the sensible target rather than the top of it."
+       "body": "The stand puts a moderate exercise program of about 1 hour a day at 2.3-3.2 g of carbohydrate per pound of bodyweight per day — at {{bw}}, about {{dose:2.3-3.2:g}} — and an endurance program of 1-3 hours a day at 2.7-4.5 g per pound. Three 38-minute sessions a week sits below that first band, so the lower end is the sensible target rather than the top of it."
       },
       {
        "title": "Protein: 0.54-0.91 g per pound a day",
@@ -5231,7 +5231,7 @@ const SYN_PLANS = [
       },
       {
        "title": "Caffeine, if you use it: 1.4-2.7 mg per pound",
-       "body": "The ISSN puts the effective range at 1.4-2.7 mg per pound of bodyweight, most commonly 60 minutes before exercise, and notes the minimum effective dose may be as low as 0.91 mg per pound. At 165 lb that is roughly 225-449 mg. They also say inter-individual differences — including whether it costs you sleep or raises anxiety — track with genetic variation in caffeine metabolism. A hard session late in the day plus caffeine is the combination to watch."
+       "body": "The ISSN puts the effective range at 1.4-2.7 mg per pound of bodyweight, most commonly 60 minutes before exercise, and notes the minimum effective dose may be as low as 0.91 mg per pound. At {{bw}} that is roughly {{dose:1.4-2.7:mg}}. They also say inter-individual differences — including whether it costs you sleep or raises anxiety — track with genetic variation in caffeine metabolism. A hard session late in the day plus caffeine is the combination to watch."
       }
      ]
     },

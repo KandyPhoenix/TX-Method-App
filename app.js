@@ -51,7 +51,9 @@ const DEFAULTS = {
      treadmill — it is just not the first choice. Punching bag stays off; it
      is disliked. The bike is a road bike. */
   kit: ['barbell','dumbbells','kettlebell','bench','box','bands','jump-rope','bike','treadmill','pull-up-bar','mat','yoga-ball'],
-  bodyweight: 165,
+  bodyweight: 145,   /* Kandy's. A saved profile keeps its own value; this
+                          only seeds a fresh one. Drives the guide worked
+                          examples via guideVars, and Wilks scoring. */
   barWeight: 45,
   plates: [45, 35, 25, 10, 5, 2.5],
   mode: 'limit',
@@ -6504,7 +6506,38 @@ function libraryHTML() {
    followed by a unit, so "day 1 through ovulation" and "ten-minute rule"
    are left alone. */
 const GUIDE_DOSE = /(\d+(?:\.\d+)?(?:\s*[–—-]\s*\d+(?:\.\d+)?)?\s*(?:g\/kg|mg|g|kg|%|minutes|minute|min|hours|hour|seconds|second)\b)/g;
-function guideRich(t) { return String(t == null ? '' : t).replace(GUIDE_DOSE, '<b class="g-dose">$1</b>'); }
+/* ---------------------------------------------------------------------
+   Worked examples that use YOUR numbers.
+
+   A guide that reads "at 165 lb that is 105-150 g" is doing the arithmetic
+   for somebody else. Two tokens resolve against the bodyweight in Setup at
+   render time, so the example reads for you and follows you when you change
+   it:
+
+     {{bw}}                 ->  "145 lb"
+     {{dose:0.64-0.91:g}}   ->  "93-132 g"
+
+   Rates are stored PER POUND — the same figure the sentence around them
+   quotes — so the rate and its worked example can never drift apart. In kg
+   mode the bodyweight is converted before multiplying, and {{bw}} still
+   prints the user's own unit. An unresolved token is left alone rather than
+   rendered as a broken number. */
+function guideVars(t) {
+  const s = String(t == null ? '' : t);
+  if (s.indexOf('{{') < 0) return s;
+  const raw = +(S.settings && S.settings.bodyweight) || 0;
+  const lb  = S.settings.units === 'kg' ? raw / LB_PER_KG : raw;
+  return s
+    .replace(/\{\{bw\}\}/g, raw ? Math.round(raw) + ' ' + unit() : 'your bodyweight')
+    .replace(/\{\{dose:([\d.]+)-([\d.]+):(\w+)\}\}/g, (m, lo, hi, u) => {
+      if (!lb) return m;
+      const at = v => Math.round(v * lb);
+      return at(+lo) + '-' + at(+hi) + ' ' + u;
+    });
+}
+/* vars first, then the dose highlighter — so a computed figure is picked out
+   the same way a written one is */
+function guideRich(t) { return guideVars(t).replace(GUIDE_DOSE, '<b class="g-dose">$1</b>'); }
 
 function guideCardHTML(c) {
   return c ? `<div class="card rail-card rail-guide-card">
