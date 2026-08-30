@@ -6278,3 +6278,159 @@ const SYN_TIPS = {
   "body": "PLAIN ENGLISH: A short easy walk, or nothing at all. A genuine day off is the correct choice here more often than not. HOW TO DO IT: 20-30 minutes of gentle walking, or take the day completely off. Cues: Take at least one fully rest day a week; Adaptation happens during recovery, not during the session; If you are sore, tired or sleeping badly, take the full day; Doing nothing is a valid completion of this day. Strength is built when you recover from training, not while you do it."
  }
 };
+
+
+/* The Texas Method is not a SYN plan — it has its own generator and its own
+   week/day cursor — so its guide lives here beside the others rather than
+   inside SYN_PLANS. programGuide() picks it up by program key. */
+const TEXAS_GUIDE = {
+ "blurb": "Three sessions a week, one hard set to beat. Volume on Monday builds the fatigue, Wednesday keeps you moving without adding to it, and Friday is where you cash it in for a new five-rep best.",
+ "rotate": [
+  {
+   "kicker": "The whole idea",
+   "title": "One PR a week, not one a session",
+   "body": "This is not the novice program where the weight goes up every workout. The whole week — the volume on Monday, the easy work on Wednesday — exists to set up a single heavy set of five on Friday. That set is the program."
+  },
+  {
+   "kicker": "Monday",
+   "title": "Volume is the stimulus, not a test",
+   "body": "Five sets of five is meant to be hard but finishable. If Monday turns into five singles with rest between, you have made it an intensity day and Friday will not happen."
+  },
+  {
+   "kicker": "Wednesday",
+   "title": "Light means light",
+   "body": "Squat 2x5 at about 80% of Monday's weight, and the other press at a genuinely easy load. This day is there to keep the movement pattern warm while you recover. Adding weight to it is the most common way people wreck Friday."
+  },
+  {
+   "kicker": "Friday",
+   "title": "Beat last Friday by the smallest step",
+   "body": "One set of five, heavier than the last one by the smallest increment your plates allow. Not a max attempt — a five-rep set you finish. If the fifth rep was never in doubt, you left the jump too small."
+  },
+  {
+   "kicker": "Daily target",
+   "title": "{{dose:0.64-0.91:g}} of protein",
+   "body": "0.64-0.91 g per pound of bodyweight a day, per the ISSN position stand — at {{bw}} that is {{dose:0.64-0.91:g}}. Three heavy sessions a week on top of a full life is a lot of repair work, and this is the input that most often turns out to be missing."
+  },
+  {
+   "kicker": "Watch for",
+   "title": "Adding exercises to fix a slow week",
+   "body": "The program is deliberately short. If Friday stalls, the answer is in the rest of this guide — less Monday volume, a smaller jump, a lighter week — not more accessories."
+  }
+ ],
+ "after": [
+  {
+   "kicker": "After training",
+   "title": "20-40 g of protein",
+   "body": "The ISSN stand puts a serving at 20-40 g, with 700-3000 mg of leucine. Timing matters less than people think — the same stand says the anabolic effect of the session lasts at least 24 hours."
+  },
+  {
+   "kicker": "After training",
+   "title": "Write down what the top set actually felt like",
+   "body": "Next Friday's jump is a judgement call, and the only honest input is whether this Friday's fifth rep was comfortable, ugly, or the last one you had."
+  }
+ ],
+ "days": {
+  "Monday · Volume": {
+   "kicker": "Today",
+   "title": "Five sets of five, all at the same weight",
+   "body": "Squat and the day's press both take 5x5, then the deadlift takes its single heavy set of five. Leave a rep or two in the tank on the early sets — the fifth set is the one that has to be complete."
+  },
+  "Wednesday · Light": {
+   "kicker": "Today",
+   "title": "The day it is hardest to follow instructions",
+   "body": "Squat 2x5 at roughly 80% of Monday, the other press at an easy 3x5, then chins and back extensions. You will feel able to do more. Doing more is how Friday gets taken away from you."
+  },
+  "Friday · Intensity": {
+   "kicker": "Today",
+   "title": "One set. Make it count",
+   "body": "Warm up properly, then one set of five at a weight you have not lifted for five before. Squat and press both. The power clean afterwards is speed work, not another heavy lift — 5x3 and quick."
+  }
+ },
+ "groups": [
+  {
+   "title": "How to run it",
+   "tone": "cycle",
+   "icon": "🔁",
+   "items": [
+    {
+     "title": "Monday, Wednesday, Friday",
+     "body": "Or any spacing with a rest day between each. The two days between Monday and Friday are doing real work; the recovery is what lets Friday be heavier than last week."
+    },
+    {
+     "title": "Monday 5x5, Wednesday 2x5 light, Friday 1x5",
+     "body": "That is the whole prescription for the squat. The presses alternate: whichever you press heavy on Monday and Friday, you do the other one light on Wednesday."
+    },
+    {
+     "title": "Progress the Friday set, and everything else follows",
+     "body": "When Friday's set of five goes up, the app moves Monday's volume and Wednesday's light work with it. You never have to work the percentages out yourself."
+    },
+    {
+     "title": "Take the full rest on the top sets",
+     "body": "Three to five minutes before the Friday set of five. It feels indulgent and it is not — the rest is what makes the set possible, which is the entire point of the day."
+    }
+   ]
+  },
+  {
+   "title": "Fueling",
+   "tone": "fuel",
+   "icon": "🍽",
+   "items": [
+    {
+     "title": "Daily protein: 0.64-0.91 g per pound",
+     "body": "The ISSN position stand's range for building and maintaining muscle. At {{bw}} that is roughly {{dose:0.64-0.91:g}} a day. In a deficit the same stand raises it to 1.04-1.41 g per pound to hold on to lean mass while you lose fat."
+    },
+    {
+     "title": "Per meal: 20-40 g",
+     "body": "Spread every 3-4 hours rather than loaded onto dinner, aiming for 700-3000 mg of leucine per dose."
+    },
+    {
+     "title": "Do not run this program in a deficit for long",
+     "body": "Friday is a weekly PR attempt. Under-eating for weeks is the quickest way to make that impossible, and a stalled intensity day is the program failing at its one job."
+    }
+   ]
+  },
+  {
+   "title": "What to watch for",
+   "tone": "warn",
+   "icon": "⚠️",
+   "items": [
+    {
+     "title": "Turning Wednesday into a third hard day",
+     "body": "The single most common way this program stops working. Light day, light weight, no exceptions."
+    },
+    {
+     "title": "Chasing the PR with bad reps",
+     "body": "A fifth rep with a rounded back or a stalled bar is not a PR you can build on — it is a weight you now have to repeat. Stop the set when the form goes."
+    },
+    {
+     "title": "Three failed Fridays in a row",
+     "body": "That is a stall, not a bad day. In order: cut Monday to 4x5 or 3x5, then drop Monday's weight 5-10%, then reset Friday about 10% and build back. Adding more work is not on the list."
+    },
+    {
+     "title": "Running it as a novice",
+     "body": "The Texas Method is written for someone who has finished a novice linear progression — roughly a year of consistent barbell training. Started too early, it is strictly worse than adding weight every session."
+    }
+   ]
+  },
+  {
+   "title": "Why it is built this way",
+   "tone": "why",
+   "icon": "🧠",
+   "items": [
+    {
+     "title": "Weekly, not per-session, progression",
+     "body": "An intermediate lifter cannot recover enough to add weight every workout, but can across a week. The program spreads one adaptation cycle over seven days instead of two."
+    },
+    {
+     "title": "Volume and intensity are separated on purpose",
+     "body": "Monday supplies the work, Friday supplies the load. Trying to do both in one session gives you a mediocre amount of each, which is exactly what the split is designed to avoid."
+    },
+    {
+     "title": "The deadlift gets less than the squat",
+     "body": "One heavy set of five, once a week. It is the most fatiguing lift in the program relative to what it gives back, so it is dosed accordingly."
+    }
+   ]
+  }
+ ],
+ "sources": "Program structure follows Practical Programming for Strength Training (Mark Rippetoe), where the Texas Method was published; it is generally credited to Glenn Pendlay's work at the Wichita Falls Athletic Club. The sets, reps and percentages described here were checked against this app's own generateProgram(), so the guide matches what you are actually prescribed. Protein figures: International Society of Sports Nutrition Position Stand: protein and exercise (Jager et al., J Int Soc Sports Nutr, 2017;14:20), converted to pounds from the published metric values. Stall guidance is standard practice for the program rather than a finding from a trial."
+};
