@@ -1402,9 +1402,40 @@ function footprintPlan(days) {
 function programGuide() {
   if (typeof SYN_PLANS === 'undefined') return null;
   const key = String(S.program || '');
+  if (key === 'texas') return (typeof TEXAS_GUIDE !== 'undefined') ? TEXAS_GUIDE : null;
   if (key.indexOf('syn-') !== 0) return null;
   const p = SYN_PLANS.find(x => x.id === key.slice(4));
   return (p && p.guide) || null;
+}
+
+/* Which day the guide should speak to, and what this program is called.
+   Texas is NOT a DAY_PROGRAM: pcfg() falls back to prep30 for it, so asking
+   pdata() for "today" would hand a Texas lifter prep30's day, and pLabel()
+   would title the screen "30-Day Prep". It carries its own week/day cursor
+   and its own name instead. */
+function guideDayCtx() {
+  if (S.program === 'texas') {
+    const d = (S.cursor && S.cursor.day) || 0;
+    return { dayNum: d + 1, dayTitle: (typeof DAY_NAMES !== 'undefined') ? DAY_NAMES[d] : null };
+  }
+  const st = pstate();
+  const dayNum = (st && st.day) ? st.day : 1;
+  const day = pdata()[dayNum - 1];
+  return { dayNum: dayNum, dayTitle: day && day.title };
+}
+/* The day's guide cards as the folded "Today's session" note. Texas and the
+   day programs build their session screens in separate functions, so this is
+   shared rather than written twice — Texas had no day note at all before. */
+function guideNoteHTML(extraNote) {
+  const ctx = guideDayCtx();
+  const gc = guideCardsFor(ctx.dayNum, ctx.dayTitle);
+  if (!extraNote && !gc.length) return '';
+  const bits = gc.map(c => `<p class="note-guide"><b>${c.title}.</b> ${guideRich(c.body)}</p>`).join('');
+  const more = hasGuide() ? `<button class="link-btn note-guide-more" data-goguide="1">Open the full guide</button>` : '';
+  return `<details class="card note-fold"><summary>Today&rsquo;s session</summary><div class="note-body">${extraNote || ''}${bits}${more}</div></details>`;
+}
+function guideProgramName() {
+  return S.program === 'texas' ? 'Texas Method' : pLabel();
 }
 function hasGuide() { return !!programGuide(); }
 
@@ -2076,6 +2107,8 @@ function renderToday() {
     prevId: "prevDay", nextId: "nextDay"
   });
 
+  html += guideNoteHTML();
+
   for (const lf of w.days[day]) html += liftCard(lf, logKey, log);
 
   html += `<button class="btn secondary" id="completeBtn">✓ Mark workout complete</button>
@@ -2189,8 +2222,16 @@ function wireToday(logKey) {
   document.getElementById('nextDay').onclick  = () => moveCursor(1);
   document.getElementById('completeBtn').onclick = () => {
     const w = PROGRAM[S.cursor.week];
+    /* Freeze what was actually lifted, and when. PROGRAM is regenerated from
+       the CURRENT Setup maxes, so reading a historical weight back out of it
+       would let a later change to those silently rewrite history. Same
+       reasoning as saApplyProgression, which stamps log.w for the day
+       programs. */
+    if (!log.w) log.w = {};
+    if (!log.date) log.date = isoDate(new Date());
     w.days[S.cursor.day].forEach(lf => {
       if (lf.logReps && log.reps[lf.key] == null) log.reps[lf.key] = lf.targetReps;
+      if (lf.work) log.w[lf.key] = lf.work;
     });
     const prMsgs = checkPRs(w, log);
     S.sessions = (S.sessions || 0) + 1;
@@ -2265,12 +2306,7 @@ function renderPrepToday() {
     <button class="btn primary" id="prepComplete">Next day ›</button>`;
   } else {
     const log = pstate().log[dayNum] || { checks: {} };
-    const gc = guideCardsFor(dayNum, d.title);
-    if (d.note || gc.length) {
-      const guideBits = gc.map(c => `<p class="note-guide"><b>${c.title}.</b> ${guideRich(c.body)}</p>`).join('');
-      const more = hasGuide() ? `<button class="link-btn note-guide-more" data-goguide="1">Open the full guide</button>` : '';
-      html += `<details class="card note-fold"><summary>Today&rsquo;s session</summary><div class="note-body">${d.note || ''}${guideBits}${more}</div></details>`;
-    }
+    html += guideNoteHTML(d.note);
     html += readinessHTML();
     html += tierBarHTML();
     if (S.program === 'gen') html += genBarHTML();
@@ -4027,7 +4063,7 @@ function formBtn(key) { return FORM_TIPS[key] ? `<button class="info-btn form-bt
 function renderGuide() {
   const g = programGuide();
   titleEl.textContent = 'Guide';
-  subEl.textContent   = pLabel();
+  subEl.textContent   = guideProgramName();
   if (!g) {
     view.innerHTML = `<div class="screen"><div class="card guide-empty">
       <div class="rail-kicker">Guide</div>
@@ -4035,10 +4071,8 @@ function renderGuide() {
     </div></div>`;
     return;
   }
-  const st = pstate();
-  const dayNum = st && st.day ? st.day : 1;
-  const d = pdata()[dayNum - 1];
-  const today = guideCardsFor(dayNum, d && d.title);
+  const ctx = guideDayCtx();
+  const today = guideCardsFor(ctx.dayNum, ctx.dayTitle);
 
   /* Sections are numbered in the order they actually render, so the numeral
      means "third thing on this page" rather than "third entry in the data" —
@@ -4082,7 +4116,7 @@ function renderGuide() {
   view.innerHTML = `<div class="screen">
     <header class="guide-mast">
       <div class="guide-eyebrow">Program guide</div>
-      <h1 class="guide-title">${pLabel()}</h1>
+      <h1 class="guide-title">${guideProgramName()}</h1>
       <div class="guide-mast-rule"></div>
       ${g.blurb ? `<p class="guide-lead">${g.blurb}</p>` : ''}
     </header>
@@ -4314,6 +4348,36 @@ function strengthSeries(key) {
       });
     });
   });
+  /* Texas Method. Its sessions live in S.logs['<week>-<day>'] — a store
+     older than DAY_PROGRAMS and shaped nothing like it, so the loop above
+     never saw them: a squat logged on Texas has never charted. The weight is
+     not in the log either, it is in the generated program, so a completed
+     day now stamps its own (see the complete handler in wireToday) and
+     anything logged before that falls back to what the program prescribes
+     for that week. */
+  if (typeof PROGRAM !== 'undefined' && Array.isArray(PROGRAM)) {
+    Object.keys(S.logs || {}).forEach(k => {
+      const L = S.logs[k];
+      if (!L) return;
+      const m = /^(\d+)-(\d+)$/.exec(k);
+      if (!m) return;
+      const wk = +m[1], dy = +m[2];
+      const day = PROGRAM[wk] && PROGRAM[wk].days && PROGRAM[wk].days[dy];
+      if (!day) return;
+      const lf = day.find(x => x.key === key);
+      if (!lf) return;
+      const w = (L.w && L.w[key] != null) ? L.w[key] : lf.work;
+      if (!w) return;
+      /* only a day with real ticks counts — opening one stubs an empty log */
+      if (!L.checks || !Object.values(L.checks).some(Boolean)) return;
+      pts.push({
+        date: L.date || null,
+        day: wk * 7 + dy,
+        w: w,
+        r: (L.reps && L.reps[key] != null) ? L.reps[key] : (lf.targetReps || null)
+      });
+    });
+  }
   /* dated points first in date order, then any undated ones by day number —
      an undated point cannot be interleaved honestly, so it trails */
   const dated = pts.filter(p => p.date).sort((a2, b2) => a2.date < b2.date ? -1 : 1);
@@ -4324,15 +4388,36 @@ function strengthSeries(key) {
 /* Every loaded movement the app can progress, plus the four hand-logged
    lifts. Built from SA_WEIGHT so a movement added later appears here without
    being listed twice. */
+/* readable names for the syn plans' movements, which are not all in
+   FORM_TIPS — taken from the plan data, first spelling wins */
+let synNameCache = null;
+function synExName(key) {
+  if (!synNameCache) {
+    synNameCache = {};
+    if (typeof SYN_PLANS !== 'undefined') {
+      SYN_PLANS.forEach(p => p.days.forEach(d => d.exercises.forEach(e => {
+        if (e.key && !synNameCache[e.key]) synNameCache[e.key] = e.name;
+      })));
+    }
+  }
+  return synNameCache[key];
+}
 function strengthLifts() {
   const seen = new Set(), out = [];
-  LIFT_TRACK.forEach(t => { seen.add(t.key); out.push({ key: t.key, name: t.name }); });
-  Object.keys(SA_WEIGHT).forEach(k => {
+  const add = k => {
     if (seen.has(k)) return;
     seen.add(k);
     const tip = FORM_TIPS[k];
-    out.push({ key: k, name: (tip && tip.title) || k });
-  });
+    out.push({ key: k, name: (tip && tip.title) || synExName(k) || k });
+  };
+  LIFT_TRACK.forEach(t => { seen.add(t.key); out.push({ key: t.key, name: t.name }); });
+  Object.keys(SA_WEIGHT).forEach(add);
+  /* The syn plans carry their own load tables rather than SA_WEIGHT, so
+     without this every movement in Sims, PPL, Dumbbell 49 and the rest is
+     progressed but never charted. */
+  if (typeof SYN_LOAD !== 'undefined') {
+    Object.keys(SYN_LOAD).forEach(p => Object.keys(SYN_LOAD[p]).forEach(add));
+  }
   return out;
 }
 
@@ -4365,8 +4450,16 @@ function strengthChartsHTML() {
         last.r ? ' \u00b7 last set ' + last.r + ' reps' : ''}</div>
     </div>`;
   }).join('');
-  const waitingLine = waiting.length
-    ? `<div class="tiny muted" style="margin-top:8px">${waiting.length} more movement${waiting.length === 1 ? '' : 's'} will chart here once you train ${waiting.length === 1 ? 'it' : 'them'}.</div>`
+  /* Count only what THIS program will actually put in front of you. Every
+     loaded movement in the app is chartable, so counting all of them would
+     promise a hundred charts you are not training toward. */
+  const inPlan = new Set();
+  try {
+    (isDayProgram() ? pdata() : []).forEach(dd => (dd.exercises || []).forEach(e => inPlan.add(e.key)));
+  } catch (e) { /* a program that cannot be read just yields no forecast */ }
+  const soon = waiting.filter(l => inPlan.has(l.key));
+  const waitingLine = soon.length
+    ? `<div class="tiny muted" style="margin-top:8px">${soon.length} more movement${soon.length === 1 ? '' : 's'} in this program will chart here once you train ${soon.length === 1 ? 'it' : 'them'}.</div>`
     : '';
   return `<h2 class="section">Strength progression</h2>${cards}${waitingLine}`;
 }
@@ -6667,10 +6760,8 @@ function guideCardHTML(c) {
     </div>` : '';
 }
 function guideRail() {
-  const st = pstate();
-  const day = (st && st.day) ? st.day : 1;
-  const d = pdata()[day - 1];
-  const s = guideSlots(day, d && d.title);
+  const ctx = guideDayCtx();
+  const s = guideSlots(ctx.dayNum, ctx.dayTitle);
   if (!s.any) return { top: '', bottom: '' };
   return {
     top: guideCardHTML(s.habit) + guideCardHTML(s.today),
