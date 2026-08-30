@@ -4271,7 +4271,7 @@ function renderPrepStats() {
   const banked = exKeys.map(e => {
     const v = tally[e.key] || 0, fl = full[e.key] || 1;
     const w = Math.min(100, Math.round(v / fl * 100));
-    return `<div class="bar-line"><div class="top"><span>${e.icon} ${e.name}</span><b>${v} <span class="muted" style="font-weight:600">/ ${fl}</span></b></div>
+    return `<div class="bar-line"><div class="top"><span>${e.icon ? e.icon + " " : ""}${e.name}</span><b>${v} <span class="muted" style="font-weight:600">/ ${fl}</span></b></div>
       <div class="track"><div class="fill" style="width:${w}%"></div></div></div>`;
   }).join('');
 
@@ -4298,12 +4298,14 @@ function renderPrepStats() {
           : `${workoutDays - done} day${workoutDays-done===1?'':'s'} to go.`}
       </div>
     </div>
+    ${loggedStrengthHTML()}
     ${strengthChartsHTML()}
     ${liftTrackerHTML()}
     ${calendarHTML()}
     ${achievementsCardHTML()}
     <button class="btn secondary" id="shareBtn">📤 Share my progress</button>
   </div>`;
+  drawLoggedStrengthCharts();
   drawStrengthCharts();
   const sb = document.getElementById('shareBtn'); if (sb) sb.onclick = shareCard;
   wireLiftTracker();
@@ -4419,6 +4421,147 @@ function strengthLifts() {
     Object.keys(SYN_LOAD).forEach(p => Object.keys(SYN_LOAD[p]).forEach(add));
   }
   return out;
+}
+
+/* =====================================================================
+   STRENGTH PANELS THAT WORK ON ANY PROGRAM
+
+   The Texas stats screen has four panels — estimated 1RM, 1RM over time,
+   powerlifting total, strength-to-weight — built from PROGRAM[week].intensity,
+   which is the Texas Method's PLANNED load. Nothing else in the app could
+   show them, so someone squatting three times a week on Sims or PPL saw
+   none of it.
+
+   These rebuild the same four from what was actually LOGGED, through
+   strengthSeries, so they work on every program. Texas keeps its own
+   plan-based versions; this is the record of what you did.
+   ===================================================================== */
+
+/* Which exercise keys ARE each barbell lift. A front squat or an RDL is a
+   different lift and stays out — it charts on its own card instead. */
+const CANON_LIFT = {
+  squat:    { name: 'Squat',       keys: ['squat', 'sims_back_squat', 'syn_squats'] },
+  bench:    { name: 'Bench',       keys: ['bench', 'syn_bench_press'] },
+  deadlift: { name: 'Deadlift',    keys: ['deadlift', 'syn_deadlift'] },
+  press:    { name: 'Press',       keys: ['press', 'syn_overhead_press'] },
+  clean:    { name: 'Power Clean', keys: ['clean'] }
+};
+/* Every logged set of a canonical lift, oldest first. Only a set with a rep
+   count can become a 1RM estimate, so the rest are dropped here rather than
+   silently assumed to be fives. */
+function canonSeries(lift) {
+  const out = [];
+  (CANON_LIFT[lift].keys || []).forEach(k => {
+    strengthSeries(k).forEach(p => { if (p.w && p.r) out.push(p); });
+  });
+  return out.sort((a, b) => (a.date || '') < (b.date || '') ? -1 : 1);
+}
+function canonBest(lift) {
+  return canonSeries(lift).reduce((m, p) => Math.max(m, oneRM(p.w, p.r)), 0);
+}
+/* A shared date axis with each lift carried forward. Lifts are trained on
+   different days, so without the carry-forward every series would be full of
+   holes; without a shared axis they could not be compared at all. Undated
+   points cannot be placed on a time axis, so they are left out. */
+function canonTimeline() {
+  const lifts = Object.keys(CANON_LIFT);
+  const by = {}, dates = new Set();
+  lifts.forEach(l => {
+    by[l] = canonSeries(l).filter(p => p.date);
+    by[l].forEach(p => dates.add(p.date));
+  });
+  const axis = Array.from(dates).sort();
+  const cur = {};
+  const rows = axis.map(d => {
+    lifts.forEach(l => {
+      const hit = by[l].filter(p => p.date === d);
+      if (hit.length) cur[l] = Math.round(Math.max.apply(null, hit.map(p => oneRM(p.w, p.r))));
+    });
+    return Object.assign({ date: d }, cur);
+  });
+  return { axis: axis, rows: rows };
+}
+function loggedStrengthHTML() {
+  const u = unit();
+  const best = {};
+  Object.keys(CANON_LIFT).forEach(k => { best[k] = canonBest(k); });
+  if (!Object.values(best).some(v => v > 0)) {
+    return `<h2 class="section">Estimated 1RM</h2>
+      <div class="card"><div class="tiny muted">Nothing to estimate from yet. Complete a session with a squat, bench, deadlift or press and these fill in from the weights and reps you actually logged.</div></div>`;
+  }
+  const maxv = Math.max.apply(null, Object.values(best));
+  const bw = +S.settings.bodyweight || 0;
+  let bars = '', ratios = '';
+  Object.keys(CANON_LIFT).forEach(k => {
+    const v = best[k], nm = CANON_LIFT[k].name;
+    if (!v) {
+      bars += `<div class="bar-line"><div class="top"><span>${nm}</span><b class="dim">—</b></div>
+        <div class="track"><div class="fill" style="width:0%"></div></div></div>`;
+      return;
+    }
+    bars += `<div class="bar-line"><div class="top"><span>${nm}</span><b>${fmt(Math.round(v))} ${u}</b></div>
+      <div class="track"><div class="fill" style="width:${(v / maxv * 100).toFixed(0)}%"></div></div></div>`;
+    if (bw) {
+      const r = v / bw;
+      ratios += `<div class="bar-line"><div class="top"><span>${nm}</span><b>${r.toFixed(2)}×</b></div>
+        <div class="track"><div class="fill" style="width:${Math.min(100, r / 3 * 100).toFixed(0)}%"></div></div></div>`;
+    }
+  });
+  const plVal = (best.squat || 0) + (best.bench || 0) + (best.deadlift || 0);
+  const all3 = best.squat && best.bench && best.deadlift;
+  const wVal = all3 ? wilks(plVal, S.settings.bodyweight, S.settings.sex, S.settings.units) : 0;
+  const enough = canonTimeline().rows.length > 1;
+
+  return `
+    <div class="tiles">
+      <div class="tile"><div class="k">Est. PL Total</div><div class="v">${all3 ? fmt(Math.round(plVal)) + ` <small>${u}</small>` : '—'}</div></div>
+      <div class="tile"><div class="k">Wilks Score</div><div class="v">${wVal ? wVal.toFixed(1) : '—'}</div></div>
+      <div class="tile"><div class="k">Best Squat 1RM</div><div class="v">${best.squat ? fmt(Math.round(best.squat)) + ` <small>${u}</small>` : '—'}</div></div>
+      <div class="tile"><div class="k">Best Deadlift 1RM</div><div class="v">${best.deadlift ? fmt(Math.round(best.deadlift)) + ` <small>${u}</small>` : '—'}</div></div>
+    </div>
+    <h2 class="section">Estimated 1RM</h2>
+    <div class="card">${bars}
+      <div class="tiny muted center" style="margin-top:8px">Your best estimate for each lift, Brzycki from the heaviest set you logged.</div>
+    </div>
+    <h2 class="section">Estimated 1RM over time</h2>
+    <div class="card">
+      <canvas id="lg1" class="chart"></canvas>
+      <div class="tiny muted center" style="margin-top:4px">${enough
+        ? 'Squat · Bench · Deadlift · Press across every dated session you have logged.'
+        : 'One dated session so far. The lines appear once there are two to join.'}</div>
+    </div>
+    ${all3 ? `<h2 class="section">Powerlifting total trend</h2>
+    <div class="card">
+      <canvas id="lg2" class="chart"></canvas>
+      <div class="tiny muted center" style="margin-top:4px">Squat + bench + deadlift, estimated, carried forward between sessions.</div>
+    </div>` : ''}
+    ${ratios ? `<h2 class="section">Strength-to-weight ratio</h2>
+    <div class="card">${ratios}
+      <div class="tiny muted center" style="margin-top:8px">Each estimated 1RM divided by the bodyweight in your Setup.</div>
+    </div>` : ''}`;
+}
+function drawLoggedStrengthCharts() {
+  const tl = canonTimeline();
+  if (tl.rows.length < 2) return;
+  const pal = chartPalette();
+  const labels = tl.axis.map(d => d.slice(5));
+  const c1 = document.getElementById('lg1');
+  if (c1) {
+    const series = ['squat', 'bench', 'deadlift', 'press']
+      .filter(l => tl.rows.some(r => r[l] != null))
+      .map((l, i) => ({ name: CANON_LIFT[l].name, color: pal[i % pal.length],
+                        data: tl.rows.map(r => r[l] != null ? r[l] : null) }));
+    if (series.length) lineChart(c1, series, labels);
+  }
+  const c2 = document.getElementById('lg2');
+  if (c2) {
+    /* a total only means anything once all three lifts have a value */
+    const data = tl.rows.map(r => (r.squat != null && r.bench != null && r.deadlift != null)
+      ? r.squat + r.bench + r.deadlift : null);
+    if (data.some(v => v != null)) {
+      lineChart(c2, [{ name: 'PL Total', color: cssVar('--chart-1', '#aaff00'), data: data }], labels);
+    }
+  }
 }
 
 function strengthChartsHTML() {
