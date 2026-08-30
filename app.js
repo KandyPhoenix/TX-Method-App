@@ -2484,8 +2484,41 @@ function currentTier() {
 function setSessionTier(k) {
   currentTier();                      /* make sure the day key is current first */
   sessionTier = tierBy(k).key;
+  rebuildSessionSteps();              /* keep a running session in step with it */
   render();
   toast(tierBy(k).name + ' — this session only');
+}
+
+/* Which checkIds are already banked for today, read from the same place
+   sessMarkDone() writes them so a rebuild cannot lose completed sets. */
+function sessDoneIds() {
+  const ids = new Set();
+  const checks = isDayProgram()
+    ? (((pstate().log || {})[pstate().day] || {}).checks || {})
+    : (((S.logs || {})[S.cursor.week + '-' + S.cursor.day] || {}).checks || {});
+  Object.keys(checks).forEach(k => { if (checks[k]) ids.add(k); });
+  return ids;
+}
+
+/* Changing the tier mid-session used to redraw the Roadmap list and nothing
+   else: sess.steps is built once in startSession(), so the guided session and
+   its voice cues kept reading the tier that was active when you pressed Start.
+   Rebuild the running session too - completed sets are kept (they live in the
+   log, not in sess), the cursor lands on the first set still outstanding, and
+   _spoke is cleared so the new set is actually announced. */
+function rebuildSessionSteps() {
+  if (!sess) return;
+  const steps = buildSteps();
+  if (!steps.length) return;
+  const done = sessDoneIds();
+  let i = 0;
+  while (i < steps.length && done.has(steps[i].checkId)) i++;
+  clearInterval(sessInt);
+  sess.steps = steps;
+  sess.i = Math.min(i, steps.length - 1);
+  sess.phase = 'ready';
+  sess._spoke = null;
+  renderSession();
 }
 
 /* Returns a NEW day object; never mutates the program data, which for the
@@ -2545,7 +2578,14 @@ function readyToday() {
 function setReadiness(v) {
   S.settings.readinessDay = isoDate(new Date());
   S.settings.readiness = v;
-  save(); render();
+  save();
+  /* A rough night now moves the session to Foundation on its own (Kandy,
+     2026-08-29). The better nights still only suggest, so the app never
+     quietly adds volume you did not ask for - which was the original reason
+     this whole control was advisory. */
+  const rec = READY.find(r => r.v === v);
+  if (v === 1 && rec && currentTier() !== rec.tier) { setSessionTier(rec.tier); return; }
+  render();
 }
 function readinessHTML() {
   const cur = readyToday();
@@ -5302,6 +5342,70 @@ function buildBundle() {
      top level. */
   return { type: 'tm_full_backup', version: 1, profiles, states, videos: loadVideos() };
 }
+/* ---------------------------------------------------------------------
+   Today's session, published for other surfaces.
+
+   Kandy's Command Center used to re-derive the workout from raw state and
+   fell back to classic Texas Method for any program it did not recognise -
+   so a Sims program was being shown as Squat/Bench/Deadlift with invented
+   weights. Rather than teach the dashboard every program's data (which lives
+   here, in plans-data.js), the app publishes what it is actually showing and
+   the dashboard reads it verbatim. One source of truth.
+
+   Always the session as programmed (Core). The tier is a session-only dial
+   that is deliberately not persisted and resets each day, so a published
+   tier-adjusted session would be stale the moment it changed.
+   --------------------------------------------------------------------- */
+function buildTodayPublic() {
+  try {
+    const proto = typeof PROTOCOLS !== 'undefined'
+      ? PROTOCOLS.find(p => p.key === S.program) : null;
+    const out = {
+      date: isoDate(new Date()),
+      program: S.program,
+      programName: (proto && proto.name)
+        || (isDayProgram() && pcfg().label) || String(S.program || ''),
+      title: '',
+      rest: false,
+      exercises: []
+    };
+
+    if (isDayProgram()) {
+      const day = pstate().day;
+      const d = pdata()[day - 1];
+      out.day = day;
+      out.totalDays = ptotal();
+      out.title = (d && d.title) ? d.title : ('Day ' + day);
+      if (!d || d.rest) { out.rest = true; return out; }
+    } else {
+      out.title = 'Week ' + (S.cursor.week + 1) + ' · Day ' + (S.cursor.day + 1);
+    }
+
+    /* force Core so the published session is the program, not today's dial */
+    const keep = sessionTier;
+    let steps;
+    sessionTier = 'core';
+    try { steps = buildSteps(); } finally { sessionTier = keep; }
+
+    /* collapse identical consecutive sets into "3 x 10 reps" */
+    const rows = [];
+    steps.forEach(st => {
+      const desc = st.kind === 'hold'
+        ? (st.seconds + ' sec hold')
+        : (st.amrap ? 'AMRAP' : (st.reps + ' reps'));
+      const w = st.weight ? (' @ ' + fmt(st.weight) + unit()) : '';
+      const last = rows[rows.length - 1];
+      if (last && last.name === st.name && last.desc === desc && last.w === w) last.n++;
+      else rows.push({ name: st.name, desc: desc, w: w, n: 1 });
+    });
+    out.exercises = rows.map(r =>
+      r.name + ' — ' + (r.n > 1 ? (r.n + ' × ') : '') + r.desc + r.w);
+    return out;
+  } catch (e) {
+    return null;   /* never let this break a cloud save */
+  }
+}
+
 function applyBundle(bundle) {
   if (!bundle || !bundle.profiles || !bundle.states) return false;
   saveProfiles(bundle.profiles);
@@ -5564,7 +5668,8 @@ async function cloudPush(immediate) {
     if (!fb) return;
     try {
       const updatedAt = Date.now();
-      await fb.setDoc(fb.ref, { updatedAt, writerId: cloudWriterId, bundle: buildBundle() });
+      await fb.setDoc(fb.ref, { updatedAt, writerId: cloudWriterId,
+                              bundle: buildBundle(), today: buildTodayPublic() });
       cloudLastApplied = updatedAt;
       cloudStatus('Synced ✓ ' + new Date(updatedAt).toLocaleTimeString());
     } catch (err) {

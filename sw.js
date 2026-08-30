@@ -1,5 +1,5 @@
-const CACHE = 'tx-method-v157';
-const ASSETS = ['./', 'index.html', 'app.js?v=157', 'generator-data.js?v=157', 'plans-data.js?v=157', 'styles.css?v=157', 'manifest.json', 'icons/icon-192.png', 'icons/icon-512.png'];
+const CACHE = 'tx-method-v158';
+const ASSETS = ['./', 'index.html', 'app.js?v=158', 'generator-data.js?v=158', 'plans-data.js?v=158', 'styles.css?v=158', 'manifest.json', 'icons/icon-192.png', 'icons/icon-512.png'];
 
 self.addEventListener('install', e => {
   e.waitUntil(caches.open(CACHE).then(c => c.addAll(ASSETS)).then(() => self.skipWaiting()));
