@@ -58,7 +58,7 @@ const DEFAULTS = {
   plates: [45, 35, 25, 10, 5, 2.5],
   mode: 'limit',
   ohpDecrement: 0.95,
-  reminder: { on: false, time: '10:00', lastFired: null },
+  reminder: { on: false, time: '10:00', lastFired: null, dismissed: false },
   restSec: 120,
   restStep: 15,
   voice: true,
@@ -2109,6 +2109,7 @@ function renderToday() {
   });
 
   html += reminderNudgeHTML();
+  html += reminderSetupCardHTML();
   html += guideNoteHTML();
 
   for (const lf of w.days[day]) html += liftCard(lf, logKey, log);
@@ -2310,6 +2311,7 @@ function renderPrepToday() {
     const log = pstate().log[dayNum] || { checks: {} };
     html += guideNoteHTML(d.note);
     html += reminderNudgeHTML();
+    html += reminderSetupCardHTML();
     html += readinessHTML();
     html += tierBarHTML();
     if (S.program === 'gen') html += genBarHTML();
@@ -4738,7 +4740,15 @@ function lineChart(canvas, series, labels) {
    ===================================================================== */
 function reminderCfg() {
   const r = S.settings.reminder || {};
-  return { on: !!r.on, time: r.time || '10:00', lastFired: r.lastFired || null };
+  return { on: !!r.on, time: r.time || '10:00', lastFired: r.lastFired || null,
+           dismissed: !!r.dismissed };
+}
+/* '10:00' -> '10:00 AM'. She is in America; the <input type=time> value is
+   always 24h regardless of what the browser shows in the field. */
+function clock12(t) {
+  const [h, m] = String(t || '10:00').split(':').map(Number);
+  const hh = (h % 12) || 12;
+  return hh + ':' + String(m || 0).padStart(2, '0') + ((h || 0) < 12 ? ' AM' : ' PM');
 }
 function setReminder(patch) {
   S.settings.reminder = Object.assign(reminderCfg(), patch);
@@ -4855,6 +4865,25 @@ function reminderNudgeHTML() {
   if (trainedToday()) return '';
   return `<div class="card note-fold" style="border-left:3px solid var(--hl)">
     <div class="tiny" style="padding:2px 0"><b>Not trained yet today.</b> ${reminderBody()}</div></div>`;
+}
+/* Tier 0: the OFFER. The reminder ships off and lives in Setup, which she
+   would have to go looking for. This puts it on the Today screen at two taps
+   and then gets out of the way for good - either button, or "Not now",
+   retires it. */
+function reminderSetupCardHTML() {
+  const r = reminderCfg();
+  if (r.on || r.dismissed) return '';
+  return `<div class="card remind-offer">
+    <div class="remind-offer-h">\u{23F0} Want a nudge to train?</div>
+    <p class="remind-offer-p">A daily reminder at ${clock12(r.time)}. The calendar entry is the one that
+      always fires &mdash; your phone and your PC do the reminding with the app closed. The browser
+      notification only fires while the app is open.</p>
+    <div class="remind-offer-b">
+      <button class="btn primary" data-remind-ics="1">\u{1F4C5} Add to my calendar</button>
+      <button class="btn secondary" data-remind-on="1">Notify me at ${clock12(r.time)}</button>
+    </div>
+    <button class="link-btn remind-offer-no" data-remind-no="1">Not now</button>
+  </div>`;
 }
 /* anything logged against today's date, in either store */
 function trainedToday() {
@@ -5169,7 +5198,7 @@ function wireSetup() {
       if (b.dataset.remind === 'off') { setReminder({ on: false }); initReminder(); render(); return; }
       askReminderPermission().then(ok => {
         setReminder({ on: !!ok });
-        if (ok) { initReminder(); toast('Reminder set for ' + reminderCfg().time + ' while the app is open.'); }
+        if (ok) { initReminder(); toast('Reminder set for ' + clock12(reminderCfg().time) + ' while the app is open.'); }
         render();
       });
     };
@@ -5625,6 +5654,23 @@ document.querySelectorAll('.tab').forEach(t => t.onclick = () => { TAB = t.datas
 /* every "open the full guide" button, wherever it is rendered */
 document.addEventListener('click', e => {
   if (e.target.closest('[data-goguide]')) { TAB = 'guide'; window.scrollTo(0, 0); render(); }
+  /* the Today-screen reminder offer - delegated for the same reason, so one
+     handler covers the Texas Today screen and the day-program Today screen */
+  if (e.target.closest('[data-remind-ics]')) {
+    downloadReminderICS();
+    setReminder({ dismissed: true });
+    toast('Calendar file downloaded \u2014 open it to add the daily reminder.');
+    render(); return;
+  }
+  if (e.target.closest('[data-remind-on]')) {
+    askReminderPermission().then(ok => {
+      setReminder({ on: !!ok, dismissed: true });
+      if (ok) { initReminder(); toast('Reminder set for ' + clock12(reminderCfg().time) + ' while the app is open.'); }
+      render();
+    });
+    return;
+  }
+  if (e.target.closest('[data-remind-no]')) { setReminder({ dismissed: true }); render(); return; }
 });
 /* Roadmap's '+ Log a lift' jumps to the Stats lift tracker. Delegated, so it
    survives the re-render that replaces the button on every screen draw. */
