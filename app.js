@@ -1698,26 +1698,53 @@ const LIFT_TRACK = [
   { key: 'bench',     name: 'Bench Press',     icon: '💪' },
   { key: 'glutestep', name: 'Glute Step Down', icon: '🦵' }
 ];
+/* Everything lifted on this lift, from anywhere: the sets typed in below AND
+   every session completed in any program. The tracker used to read S.liftLog
+   alone, so four weeks of Sims squats left it still saying "not logged yet".
+   One point per day - two sessions on one date collapse to the heavier. */
+function trackerSeries(key) {
+  const raw = CANON_LIFT[key] ? canonSeries(key) : strengthSeries(key).filter(p => p.w && p.r);
+  const byDate = new Map();
+  raw.forEach(p => {
+    if (!p.date) return;               /* a time axis cannot place an undated set */
+    const prev = byDate.get(p.date);
+    if (!prev || p.w > prev.w) byDate.set(p.date, p);
+  });
+  return Array.from(byDate.keys()).sort().map(d => byDate.get(d));
+}
+/* The Setup lift drives the ≈ weight suggestions and every Texas number. When
+   the sessions have moved well past it, say so and offer the correction -
+   never take it silently, because it regenerates the whole Texas program. */
+function trackerStale(key, setupL, pts) {
+  if (S.program === 'texas') return null;
+  if (!setupL || !setupL.weight || !pts.length) return null;
+  const base = oneRM(setupL.weight, setupL.reps || 5);
+  let best = null;
+  pts.forEach(p => { const e = oneRM(p.w, p.r); if (!best || e > best.e) best = { e: e, w: p.w, r: p.r }; });
+  return (best && best.e > base * 1.025) ? best : null;
+}
 function liftTrackerHTML() {
-  const L = S.liftLog || {};
   const rows = LIFT_TRACK.map(t => {
-    const arr = L[t.key] || [];
-    const last = arr.length ? arr[arr.length - 1] : null;
+    const pts = trackerSeries(t.key);
+    const last = pts.length ? pts[pts.length - 1] : null;
     const setupL = ['squat', 'deadlift', 'bench'].includes(t.key) ? S.settings.lifts[t.key] : null;
+    const stale = trackerStale(t.key, setupL, pts);
     return `<div class="bar-line" style="margin-bottom:14px">
       <div class="top"><span>${t.icon} ${t.name}${setupL ? ` <span class="muted" style="font-weight:600;font-size:11px">· Setup: ${fmt(setupL.weight)} × ${setupL.reps}</span>` : ''}</span>
-        <b>${last ? `${fmt(last.w)} ${unit()}${last.r ? ` × ${last.r}` : ''} <span class="muted" style="font-weight:600">· ${last.d.slice(5)}</span>` : '<span class="muted" style="font-weight:600">not logged yet</span>'}</b></div>
+        <b>${last ? `${fmt(last.w)} ${unit()}${last.r ? ` × ${last.r}` : ''} <span class="muted" style="font-weight:600">· ${last.date.slice(5)}</span>` : '<span class="muted" style="font-weight:600">not logged yet</span>'}</b></div>
+      ${stale ? `<div class="lt-stale">Your sessions are at <b>${fmt(stale.w)} ${unit()} × ${stale.r}</b> — Setup still says ${fmt(setupL.weight)} × ${setupL.reps}.
+        <button class="link-btn lt-sync" data-setupsync="${t.key}" data-w="${stale.w}" data-r="${stale.r}">Update Setup to ${fmt(stale.w)} × ${stale.r}</button></div>` : ''}
       <div style="display:flex;gap:8px;margin-top:6px">
         <input type="number" inputmode="decimal" placeholder="weight (${unit()})" style="flex:1" data-liftlog="${t.key}" />
         <input type="number" inputmode="numeric" placeholder="reps" style="width:70px" data-liftlogreps="${t.key}" />
         <button class="btn small secondary" data-liftlogbtn="${t.key}">＋ Log</button>
       </div>
-      ${arr.length > 1 ? `<canvas class="chart" id="lt_${t.key}" style="margin-top:8px"></canvas>`
-        : `<div class="tiny muted" style="margin-top:4px">${arr.length === 0 ? 'Not logged yet — ' : 'One entry so far — '}log your top set after each workout; the graph appears from your second logged day.</div>`}
+      ${pts.length > 1 ? `<canvas class="chart" id="lt_${t.key}" style="margin-top:8px"></canvas>`
+        : `<div class="tiny muted" style="margin-top:4px">${pts.length === 0 ? 'Nothing recorded yet — ' : 'One day recorded so far — '}complete a session with this lift, or log your top set here; the graph appears from the second day.</div>`}
     </div>`;
   }).join('');
   return `<h2 class="section">Lift tracker — all programs</h2><div class="card">${rows}
-    <div class="tiny muted center" style="margin-top:2px">Logging squat, deadlift or bench also updates your Setup lifts, so the ≈ weight suggestions and Texas numbers always match your current strength. Twice in one day updates that day's entry.</div></div>`;
+    <div class="tiny muted center" style="margin-top:2px">Charted from every session you complete in any program, plus anything you log by hand here. Logging squat, deadlift or bench also updates your Setup lifts, so the ≈ weight suggestions and Texas numbers match your current strength. Twice in one day updates that day's entry.</div></div>`;
 }
 function wireLiftTracker() {
   view.querySelectorAll('[data-liftlogbtn]').forEach(b => b.onclick = () => {
@@ -1736,10 +1763,19 @@ function wireLiftTracker() {
     if (['squat', 'deadlift', 'bench'].includes(k)) { S.settings.lifts[k] = { weight: w, reps: r }; synced = true; rebuild(); }
     save(); toast(synced ? 'Logged ✓ — Setup lift updated' : 'Logged ✓'); render();
   });
+  view.querySelectorAll('[data-setupsync]').forEach(b => b.onclick = () => {
+    const k = b.dataset.setupsync, w = +b.dataset.w, r = +b.dataset.r;
+    if (!w) return;
+    S.settings.lifts[k] = { weight: w, reps: r || 5 };
+    rebuild(); save();
+    toast(`Setup updated — ${fmt(w)} ${unit()} × ${r}`);
+    render();
+  });
   LIFT_TRACK.forEach(t => {
-    const arr = (S.liftLog && S.liftLog[t.key]) || [];
-    if (arr.length > 1) lineChart(document.getElementById('lt_' + t.key),
-      [{ name: t.name, color: cssVar('--chart-1', '#aaff00'), data: arr.map(e => e.w) }], arr.map(e => e.d.slice(5)));
+    const pts = trackerSeries(t.key);
+    if (pts.length > 1) lineChart(document.getElementById('lt_' + t.key),
+      [{ name: t.name, color: cssVar('--chart-1', '#aaff00'), data: pts.map(p => p.w) }],
+      pts.map(p => p.date.slice(5)));
   });
 }
 
@@ -3149,6 +3185,27 @@ function saApplyProgression(d, log) {
        days logged before it simply have no weight and say so. */
     if (!log.w) log.w = {};
     log.w[ex.key] = cur;
+    /* and the PR, which checkPRs() cannot see from here - it is written for
+       the Texas store only. Without this the PR achievement never unlocks on
+       a day program however heavy the session. */
+    const prReps = (function () {
+      let m2 = null;
+      for (let i = 0; i < ex.sets; i++) {
+        const v = log.reps && log.reps[`${ex.key}_${i}`];
+        if (v != null && (m2 == null || v > m2)) m2 = v;
+      }
+      return m2 != null ? m2 : (log.reps && log.reps[ex.key] != null ? log.reps[ex.key] : ex.reps);
+    })();
+    if (prReps) {
+      if (!S.prs) S.prs = {};
+      const e1 = oneRM(cur, prReps), was = S.prs[ex.key];
+      if (!was || e1 > was.e1rm + 0.01) {
+        /* recorded, not announced: on a linear-progression program every
+           session that met its reps is a PR, so a toast for it would only
+           repeat what the "+5 lb next time" message already says. */
+        S.prs[ex.key] = { weight: cur, reps: prReps, e1rm: e1, date: Date.now() };
+      }
+    }
     /* and when. Day logs are keyed by day NUMBER, which orders a single
        program but cannot order points gathered from several. */
     if (!log.date) log.date = isoDate(new Date());
@@ -4226,15 +4283,46 @@ function achievementsCardHTML() {
   const got = S.achievements.length, tot = ACHIEVEMENTS.length;
   return `<h2 class="section">Achievements — ${got}/${tot}</h2><div class="card"><div class="ach-grid">${items}</div></div><button class="btn secondary small" id="resetAch" style="width:100%;margin-top:10px">Reset achievements</button><div class="hint">Sets your badges back to zero and starts earning them again from today. Your logged sets, history, PRs and streaks are all kept.</div>`;
 }
+/* checkPRs() only ever ran on Texas - it reads week.days[S.cursor.day], which
+   no other program has - so S.prs is empty on every day program however hard
+   she has trained. The session history holds the same information, so derive
+   the rest from it rather than showing an empty card. */
+function derivedPRs() {
+  const out = {};
+  strengthLifts().forEach(l => {
+    let best = null;
+    strengthSeries(l.key).forEach(p => {
+      if (!p.w || !p.r) return;
+      const e = oneRM(p.w, p.r);
+      if (!best || e > best.e1rm + 0.01) best = { weight: p.w, reps: p.r, e1rm: e, name: l.name };
+    });
+    if (best) out[l.key] = best;
+  });
+  return out;
+}
 function prCardHTML() {
-  const keys = Object.keys(S.prs || {});
+  const merged = derivedPRs();
+  Object.keys(S.prs || {}).forEach(k => {
+    const p = S.prs[k];
+    if (!merged[k] || p.e1rm > merged[k].e1rm) merged[k] = Object.assign({}, p);
+  });
+  const keys = Object.keys(merged);
   if (!keys.length) return '';
+  /* the five barbell lifts lead, in their usual order; everything else
+     follows by how heavy it is */
   const order = ['squat','bench','press','deadlift','clean'];
-  const rows = keys.sort((a,b)=>order.indexOf(a)-order.indexOf(b)).map(k => {
-    const p = S.prs[k]; const nm = (LIFT_META[k] || {}).name || k;
+  keys.sort((a, b) => {
+    const ia = order.indexOf(a), ib2 = order.indexOf(b);
+    if (ia >= 0 || ib2 >= 0) return (ia < 0 ? 99 : ia) - (ib2 < 0 ? 99 : ib2);
+    return merged[b].e1rm - merged[a].e1rm;
+  });
+  const rows = keys.map(k => {
+    const p = merged[k];
+    const nm = (LIFT_META[k] || {}).name || p.name || (FORM_TIPS[k] && FORM_TIPS[k].title) || synExName(k) || k;
     return `<div class="pr-row"><span class="pr-nm">${nm}</span><b>${fmt(p.weight)} ${unit()} × ${p.reps}</b><span class="pr-1rm">~${fmt(Math.round(p.e1rm))} 1RM</span></div>`;
   }).join('');
-  return `<h2 class="section">🏆 Personal Records</h2><div class="card">${rows}</div>`;
+  return `<h2 class="section">🏆 Personal Records</h2><div class="card">${rows}
+    <div class="tiny muted center" style="margin-top:8px">Your heaviest estimated 1RM for each movement, Brzycki from the best set on record.</div></div>`;
 }
 
 /* current & best run of completed workout-days (rest days don't break it) */
@@ -4304,6 +4392,7 @@ function renderPrepStats() {
       </div>
     </div>
     ${loggedStrengthHTML()}
+    ${prCardHTML()}
     ${strengthChartsHTML()}
     ${liftTrackerHTML()}
     ${calendarHTML()}
