@@ -1825,3 +1825,12 @@ table.prog td.w { color: var(--text); }
   border-bottom: none; border-top: 1px solid var(--border);
   margin-top: 11px; padding: 12px 2px 1px;
 }
+
+/* ---- lift tracker: Setup has fallen behind the sessions ---- */
+.lt-stale {
+  margin-top: 6px; padding: 8px 10px; border-radius: 9px;
+  background: var(--panel2); border: 1px solid var(--border);
+  font-size: 12px; line-height: 1.5; color: var(--muted); font-weight: 600;
+}
+.lt-stale b { color: var(--text); }
+.lt-sync { border-bottom: none; padding: 7px 0 0; font-size: 11px; }
