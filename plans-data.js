@@ -6434,3 +6434,260 @@ const TEXAS_GUIDE = {
  ],
  "sources": "Program structure follows Practical Programming for Strength Training (Mark Rippetoe), where the Texas Method was published; it is generally credited to Glenn Pendlay's work at the Wichita Falls Athletic Club. The sets, reps and percentages described here were checked against this app's own generateProgram(), so the guide matches what you are actually prescribed. Protein figures: International Society of Sports Nutrition Position Stand: protein and exercise (Jager et al., J Int Soc Sports Nutr, 2017;14:20), converted to pounds from the published metric values. Stall guidance is standard practice for the program rather than a finding from a trial."
 };
+
+/* =====================================================================
+   PELVIC FLOOR FOUNDATION — 12 weeks, 3 phases, 6 tracked days a week
+   (3 core sessions + 3 Zone 2 walks; the 7th day is rest + the reset).
+
+   Unlike the extracted programs above, this one is generated rather than
+   written out, because its prescription genuinely changes week to week:
+   long-hold seconds build 3s → 10s, the position progresses lying →
+   seated → standing, and the walks build 15 → 35 minutes. 72 day entries
+   materialised once at load; app.js sees plain static data.
+
+   Doses come from clinical guidelines, cited in the guide's sources
+   card. Movement keys reuse the existing catalogue wherever the movement
+   is genuinely the same (clamshells, bird dog, dead bug, bridge march,
+   side plank, suitcase carry), so their form tips carry over; the
+   pf_-prefixed keys are new and get tips below.
+   ===================================================================== */
+const PF12_PLAN = (function () {
+  var HOLD = [3, 3, 4, 5, 6, 7, 8, 10, 10, 10, 10, 10];      /* long-hold seconds, by week */
+  var WALK = [15, 15, 20, 20, 25, 25, 30, 30, 35, 35, 35, 35]; /* zone-2 minutes, by week */
+  var PHASE_NAME = ["Foundation", "Strength", "Integration"];
+
+  function pos(w) { return w <= 4 ? "lying down" : w <= 8 ? "seated" : "standing"; }
+  function phase(w) { return w <= 4 ? 1 : w <= 8 ? 2 : 3; }
+
+  /* The daily reset opens every tracked day. NICE NG123 asks for at least
+     8 contractions 3x/day; this is one round, the guide prescribes the
+     other two as 60-second desk resets. */
+  function reset(w) {
+    var h = HOLD[w - 1], p = pos(w);
+    return [
+      { key: "pf_360_breathing", name: "360° Breathing", sets: 1, sec: 120, needs: "bodyweight",
+        scheme: "8-10 slow breaths · wide ribs, soft belly, long exhales · " + p },
+      { key: "pf_long_holds", name: "Pelvic Floor Long Holds", sets: 1, reps: 10, needs: "bodyweight",
+        scheme: "10 × " + h + "s squeeze-and-lift / " + h + "s FULL release · " + p },
+      { key: "pf_quick_flicks", name: "Pelvic Floor Quick Flicks", sets: 1, reps: 10, needs: "bodyweight",
+        scheme: "10 × 1-2s fast squeeze, instant full release · " + p },
+      { key: "pf_knack", name: "The Knack", sets: 1, reps: 3, needs: "bodyweight",
+        scheme: "3 × contract-and-hold through one deliberate medium cough" }
+    ];
+  }
+
+  var CORE = {
+    1: [
+      { key: "pf_tva_activation", name: "TVA Activation (Hook-Lying)", sets: 2, reps: 10, needs: "bodyweight",
+        scheme: "2×10 · exhale: lower belly draws in + pelvic floor lifts · 5s holds, keep breathing" },
+      { key: "pf_heel_slides", name: "Heel Slides", sets: 2, reps: 8, needs: "bodyweight",
+        scheme: "2×8 per side · exhale-engage, slide one heel out · pelvis dead still" },
+      { key: "syn_glute_bridge_isometric", name: "Glute Bridge (3s Top Hold)", sets: 2, reps: 10, needs: "bodyweight",
+        scheme: "2×10 · exhale up, 3s hold · ribs down, glutes do the work, not the lower back" },
+      { key: "pf_bent_knee_fallouts", name: "Bent-Knee Fallouts", sets: 2, reps: 8, needs: "bodyweight",
+        scheme: "2×8 per side · knee opens only as far as the pelvis stays level" },
+      { key: "syn_clam_shells", name: "Side-Lying Clamshell", sets: 2, reps: 12, needs: "bodyweight",
+        scheme: "2×12 per side · hips stacked, no rolling back" },
+      { key: "pf_bird_dog_arms", name: "Bird Dog — Arms Only", sets: 2, reps: 8, needs: "bodyweight",
+        scheme: "2×8 per side · pad the knees · imagine a cup of water on your low back" }
+    ],
+    2: [
+      { key: "pf_dead_bug_legs", name: "Dead Bug — Legs Only", sets: 2, reps: 8, needs: "bodyweight",
+        scheme: "2×8 per side · exhale, heel taps the floor · low back stays gently heavy" },
+      { key: "syn_bird_dog", name: "Bird Dog — Full", sets: 2, reps: 8, needs: "bodyweight",
+        scheme: "2×8 per side · opposite arm + leg, slow · hips level · pad the knees" },
+      { key: "syn_supported_side_plank_knee_down", name: "Side Plank from Knees", sets: 3, sec: 15, needs: "bodyweight",
+        scheme: "2-3 × 10-15s per side · one straight line, knees to head" },
+      { key: "syn_marching_bridge_with_kegel_coordination", name: "Bridge March + Pelvic Floor", sets: 2, reps: 8, needs: "bodyweight",
+        scheme: "2×8 per side · pelvic floor lifts as the foot lifts · pelvis level" },
+      { key: "pf_anti_rotation_press", name: "Standing Anti-Rotation Press", sets: 2, reps: 10, needs: "bodyweight",
+        scheme: "2×10 per side · band at elbow height, or press palms together hard · resist the twist" },
+      { key: "pf_suitcase_hold", name: "Suitcase Hold", sets: 2, sec: 20, needs: "dumbbells",
+        scheme: "2 × 20s per side · one heavy-ish object in one hand · stand tall, keep breathing" }
+    ],
+    3: [
+      { key: "syn_dead_bug_alternating", name: "Dead Bug — Full", sets: 3, reps: 8, needs: "bodyweight",
+        scheme: "3×8 per side · opposite arm + leg on the exhale · back arches = go back to legs-only" },
+      { key: "syn_bird_dog", name: "Bird Dog + 3s Hold", sets: 2, reps: 8, needs: "bodyweight",
+        scheme: "2×8 per side · pause and breathe at full reach" },
+      { key: "syn_supported_side_plank_knee_down", name: "Side Plank — Knees → Feet", sets: 3, sec: 20, needs: "bodyweight",
+        scheme: "3 × 15-20s per side · try the feet version only if completely pain-free" },
+      { key: "pf_single_leg_bridge", name: "Single-Leg Glute Bridge", sets: 2, reps: 8, needs: "bodyweight",
+        scheme: "2×8 per side · pelvis level · stay double-leg if the knee complains" },
+      { key: "sims_suitcase_carry", name: "Suitcase Carry", sets: 2, reps: 25, needs: "dumbbells",
+        scheme: "2-3 × 20-30 steps per side · tall posture against the offset load · exhale rhythm" },
+      { key: "pf_sit_to_stand", name: "Sit-to-Stand + Exhale-Engage", sets: 2, reps: 8, needs: "bodyweight",
+        scheme: "2×8 · exhale + pelvic floor lift as you stand · raise the seat if knees complain" }
+    ]
+  };
+
+  var days = [];
+  for (var w = 1; w <= 12; w++) {
+    var p = phase(w);
+    var coreDay = function () {
+      return {
+        title: "Core Session · Phase " + p,
+        focus: "Week " + w + " of 12 · " + PHASE_NAME[p - 1] + " · daily reset + deep core",
+        exercises: reset(w).concat(CORE[p])
+      };
+    };
+    var walkDay = function () {
+      return {
+        title: "Zone 2 Walk",
+        focus: "Week " + w + " of 12 · " + WALK[w - 1] + " easy talk-test minutes",
+        exercises: reset(w).concat([
+          { key: "pf_zone2_walk", name: "Zone 2 Walk", sets: 1, sec: WALK[w - 1] * 60, needs: "bodyweight",
+            scheme: WALK[w - 1] + " min · talk-test pace: breathing harder, still able to chat · flat route" }
+        ])
+      };
+    };
+    days.push(coreDay(), walkDay(), coreDay(), walkDay(), coreDay(), walkDay());
+  }
+
+  return {
+    id: "pelvic-floor-foundation-12w",
+    name: "Pelvic Floor Foundation",
+    desc: "12 weeks · pelvic floor, deep core & easy Zone 2 walks",
+    kneeSafe: true,
+    guide: {
+      blurb: "Twelve weeks of pelvic floor training, deep-core work and easy walking, built from clinical guidelines rather than a sales page. Pelvic floor muscle training is first-line treatment for stress urinary leakage, and in NIH-funded data 26.5% of US women aged 40-59 have at least one symptomatic pelvic floor disorder — nearly triple the rate of women in their 20s and 30s. What this program will not do is spot-reduce belly fat. What it can do is improve bladder control, deep-core strength and posture, which is what the evidence actually supports.",
+      rotate: [
+        { kicker: "Every day", title: "The reset happens daily — rest days too",
+          body: "The guideline dose is at least 8 pelvic floor contractions, 3 times a day, kept up for at least 3 months (NICE NG123). Today's session is one round. Add two 60-second desk resets — stand up, three slow 360° breaths, five long holds — and the day is dosed." },
+        { kicker: "Technique", title: "The release is half the exercise",
+          body: "Relax completely between contractions, for at least as long as the hold. A pelvic floor that never fully lets go can become overactive and symptomatic. If the last reps turn into glute-squeezing and breath-holding, end the set there — fewer perfect reps beat a full set of compensated ones." },
+        { kicker: "Every rep", title: "Exhale on effort",
+          body: "Inhale: ribs widen, belly softens, pelvic floor lengthens. Exhale: a gentle lift up-and-in while you do the hard part of the movement. The diaphragm, deep abdominals and pelvic floor are one pressure system — EMG studies show they contract together." },
+        { kicker: "Watch your midline", title: "Doming means downshift",
+          body: "If the centre line of your belly domes or cones upward during core work, the load is too high — drop back to the previous version. The same rule applies to pelvic heaviness, leaking, or any pain." },
+        { kicker: "Carry it into life", title: "The Knack, before every cough and lift",
+          body: "Pre-contracting the pelvic floor before a cough cut leakage by 98% for a medium cough and 73% for a deep one within a week of practice. Make it automatic before coughs, sneezes, and lifting anything heavier than a laundry basket." },
+        { kicker: "Off the mat", title: "Fibre and fluids are pelvic floor care",
+          body: "Chronic constipation and straining load the pelvic floor directly — standard clinical practice treats it as a modifiable risk. Protein supports the muscle you are rebuilding. Belly-fat change itself only comes from an overall calorie deficit, not from any exercise here." },
+        { kicker: "The honest bit", title: "No exercise spot-reduces belly fat",
+          body: "A meta-analysis of 13 trials (1,158 participants) found no localised fat loss from training one body area. Deep-core training can improve posture and resting abdominal tension — a flatter-looking midsection — and that is the only appearance claim this program makes." }
+      ],
+      after: [
+        { kicker: "After the session", title: "Ticks are the metric",
+          body: "Adherence, not intensity, is what moved outcomes in the trials — the guideline effect took three months of consistent practice. Tick what you did; the streak is the result." },
+        { kicker: "Later today", title: "Two 60-second desk resets",
+          body: "Stand up from the desk, three slow 360° breaths, five long holds. That completes the guideline three-a-day dose. Pair them with getting up for water so they attach to something you already do." }
+      ],
+      days: {
+        "Core Session · Phase 1": { kicker: "Today", title: "Awkward is normal — precision is the win",
+          body: "With brief verbal instruction alone, only 49% of women perform an ideal pelvic floor contraction, and 25% bear down instead — which can worsen leakage. Buttocks soft, breath moving, lift up-and-in. Small and correct beats big and wrong." },
+        "Core Session · Phase 2": { kicker: "Today", title: "Load arrives — the breath pattern stays",
+          body: "Dead bugs and side planks only count while the low back stays gently heavy on the floor and the midline stays flat. Exhale on every effort, and regress the moment form wobbles — the exercise is the coordination, not the burn." },
+        "Core Session · Phase 3": { kicker: "Today", title: "Make it functional",
+          body: "Standing work, carries and sit-to-stands are the point of the whole program: real life loads you upright. Pre-lift the pelvic floor before every carry and every stand — this is the Knack becoming a habit rather than an exercise." },
+        "Zone 2 Walk": { kicker: "Today", title: "Conversational is the target",
+          body: "Breathing harder than normal but still able to talk in full sentences. By heart rate that is roughly {{hr:60-70}} bpm for your age (estimated max {{hrmax}}), but the talk test wins whenever the two disagree. Flat route, cushioned shoes, and stop short of any distance that leaves the knee worse tomorrow." }
+      },
+      groups: [
+        { title: "Technique", tone: "cycle", icon: "\u{1F9ED}", items: [
+          { title: "Finding the muscles",
+            body: "Lying down, fully relaxed: imagine gently stopping urine and holding back gas at the same time, then lifting that whole area up and in. Or picture an elevator floor rising slowly one storey, then lowering all the way back down. You may stop your urine stream once, mid-flow, to confirm you have the right muscles — identification test only, never a regular exercise." },
+          { title: "What correct feels like",
+            body: "A gentle internal lift with everything else quiet: buttocks and thighs relaxed, breathing continuing, nothing pushing outward. Downward pressure is the error that can worsen leakage — stop, relax fully, start smaller." },
+          { title: "The four compensations",
+            body: "Squeezing glutes or inner thighs instead (a hand on the buttock should stay soft). Holding your breath (you should be able to talk mid-hold). Bearing down instead of lifting. Never fully releasing. Any of them means the rep did not count — reset and go again smaller." },
+          { title: "360° breathing",
+            body: "One hand on the lower ribs, one on the belly. Inhale through the nose and send air wide — ribs expand sideways and back, belly softens. Exhale long and slow, like fogging a mirror. No shoulder shrugging. This is the pressure system every exercise here builds on." }
+        ]},
+        { title: "Why this works", tone: "why", icon: "\u{1F9E0}", items: [
+          { title: "First-line, not fringe",
+            body: "A Cochrane systematic review found women doing pelvic floor muscle training were substantially more likely to report cure or improvement of urinary leakage than controls, with fewer leaks per day. UK national guidance (NICE NG123) makes a supervised programme of at least 3 months the first-line treatment for stress or mixed incontinence." },
+          { title: "Why after 40 specifically",
+            body: "In NIH-funded national data, 26.5% of US women aged 40-59 have at least one symptomatic pelvic floor disorder, versus 9.7% at 20-39, and declining oestrogen around menopause contributes to weakening pelvic tissue. Training the system before symptoms escalate is the cheap intervention." },
+          { title: "The breath-core link is measured, not mystical",
+            body: "Fine-wire EMG shows the deep abdominals co-contract with the pelvic floor, and a randomised trial found diaphragm and abdominal training improved pelvic floor strength and endurance. That is why every session opens with breathing and every rep is exhale-timed." },
+          { title: "Twelve weeks is the honest timeline",
+            body: "The Knack can cut cough leaks within a week. Continence change needs the guideline minimum of three months. Posture and resting belly tension shift gradually across the middle weeks. After week 12 the rotation simply runs again as maintenance — the pelvic floor detrains like any muscle, so the daily reset stays for life." }
+        ]},
+        { title: "The walking", tone: "fuel", icon: "\u{1F6B6}", items: [
+          { title: "Talk test first",
+            body: "Federal activity guidelines define moderate intensity by feel: heart rate up, breathing harder, still able to hold a conversation. The heart-rate band shown on walk days is a convention from the five-zone training model, personalised from your age in Setup — a rough guide, not a leash." },
+          { title: "The build",
+            body: "Three walks a week: 15 minutes in weeks 1-2, adding 5 minutes every fortnight to 35 by week 9. By weeks 11-12 you are near the guideline 150 moderate minutes a week, and the core sessions cover the 2-days-a-week strength target. If another program already schedules walking, these are the same minutes wearing two hats — count them once." },
+          { title: "Knees set the ceiling",
+            body: "Flat routes and cushioned shoes. The test is the next morning: a walk that leaves the knee worse than it found it was too long, whatever the plan said. Backward-walking intervals from knee rehab work fold in fine." }
+        ]},
+        { title: "Watch for", tone: "warn", icon: "⚠️", items: [
+          { title: "Pain with contractions",
+            body: "Pain during or after pelvic floor work, or ongoing pelvic pain, usually means an overactive floor that needs relaxation-first treatment — more squeezing makes it worse. Stop the holds and see a pelvic floor physical therapist; many work by telehealth." },
+          { title: "Heaviness, dragging, or a bulge",
+            body: "A feeling of vaginal heaviness or a visible bulge can be prolapse. Get assessed before adding load — the program can wait, and pelvic floor training is often still part of the answer afterwards." },
+          { title: "Nothing to feel",
+            body: "If after two weeks of practice you cannot feel a contraction happening at all, written cues have hit their limit. Biofeedback with a pelvic floor physical therapist solves what text cannot." },
+          { title: "No change by week 12",
+            body: "Leaking or symptoms unchanged after the full twelve weeks is the guideline trigger for supervised training and specialist review, which outperforms self-guided work. That is a referral, not a failure." }
+        ]}
+      ],
+      sources: "Pelvic floor dose (at least 8 contractions, 3×/day, at least 3 months, first-line): NICE guideline NG123, 2019. Effectiveness: Dumoulin, Cacciari & Hay-Smith, Cochrane systematic review (abridged republication, Brazilian Journal of Physical Therapy, 2018). Prevalence by age: Nygaard et al., JAMA 2008, NIH/NICHD-funded. The Knack: Miller, Ashton-Miller & DeLancey, Journal of the American Geriatrics Society, 1998. Technique-error rates: Bump et al., American Journal of Obstetrics and Gynecology, 1991. Breath-core co-activation: Sapsford & Hodges, Neurourology and Urodynamics, 2001, and Hodges et al., 2007; diaphragm/abdominal training trial: Scientific Reports, 2019. Spot reduction: systematic review with meta-analysis, 2021 (13 trials, 1,158 participants — no localised fat loss). Walking and strength targets: Physical Activity Guidelines for Americans, 2nd edition. Quick-flick and long-hold structure: AHRQ continence patient protocol. Heart-rate bands use Tanaka (208 − 0.7 × age) from your age in Setup. Set-and-rep schemes for the core sessions are standard pelvic-health physiotherapy programming rather than the output of a single trial. Educational, not medical advice: pain, prolapse symptoms, or no improvement by week 12 mean a pelvic floor physical therapist."
+    },
+    days: days
+  };
+})();
+SYN_PLANS.push(PF12_PLAN);
+
+/* Form tips for the movements new to the catalogue. Keys already in the
+   catalogue (clamshells, bird dog, dead bug, bridge march, side plank,
+   suitcase carry) keep the tips they have. */
+Object.assign(SYN_TIPS, {
+  "pf_360_breathing": {
+    "title": "360° Breathing",
+    "body": "PLAIN ENGLISH: Slow breathing that sends air into your ribs and back, not your shoulders. HOW: One hand on lower ribs, one on belly. Inhale through the nose — ribs push sideways into your hand, belly softens outward. Exhale long through pursed lips like fogging a mirror. Cues: No shoulder shrug; Inhale = pelvic floor relaxes; Exhale = everything settles in. This is the warm-up for the whole pressure system."
+  },
+  "pf_long_holds": {
+    "title": "Pelvic Floor Long Holds",
+    "body": "PLAIN ENGLISH: Squeeze and LIFT the muscles you would use to stop urine and hold back gas at the same time — then let go completely. HOW: Exhale, lift up-and-in, hold for the prescribed seconds while breathing normally, then relax fully for at least as long as you held. Cues: Buttocks and thighs stay soft; Keep talking-able; Never push down or out; The full release counts as much as the squeeze. If the reps degrade, stop the set early."
+  },
+  "pf_quick_flicks": {
+    "title": "Pelvic Floor Quick Flicks",
+    "body": "PLAIN ENGLISH: Fast, strong squeeze-and-lift, then instant total release. HOW: 1-2 seconds up, then off. These train the fast-twitch fibres that catch a sneeze or cough before it causes a leak. Cues: Sharp lift, complete drop; No breath-holding; Quality over speed — a flick that never fully releases is not a flick."
+  },
+  "pf_knack": {
+    "title": "The Knack",
+    "body": "PLAIN ENGLISH: Brace the pelvic floor BEFORE the pressure hits. HOW: Contract and lift, hold the contraction, then give one deliberate medium cough while holding, then release fully. In research this pre-contraction cut cough leaks by 98% within a week. Cues: Lift first, cough second; Keep it through the whole cough; Use it in real life before every cough, sneeze and heavy lift."
+  },
+  "pf_tva_activation": {
+    "title": "TVA Activation (Hook-Lying)",
+    "body": "PLAIN ENGLISH: Wake up the deepest ab muscle without crunching. HOW: On your back, knees bent, feet flat. Exhale and gently draw the lower belly toward your spine while the pelvic floor lifts — about 30% effort, not a hard suck-in. Hold 5s, keep breathing, release. Cues: Pelvis does not tilt; Ribs stay down; You should be able to talk; Fingertips just inside the hip bones feel a gentle tensioning, not a bulge."
+  },
+  "pf_heel_slides": {
+    "title": "Heel Slides",
+    "body": "PLAIN ENGLISH: Keep the core switched on while a leg moves — the first anti-movement drill. HOW: Hook-lying, exhale-engage, slide one heel along the floor until the leg is nearly straight, inhale it back. Cues: Pelvis dead still — no rocking; Low back keeps its gentle contact; Slow beats far; If the belly domes, shorten the slide."
+  },
+  "pf_bent_knee_fallouts": {
+    "title": "Bent-Knee Fallouts",
+    "body": "PLAIN ENGLISH: Let one knee fall out to the side without the pelvis following. HOW: Hook-lying, exhale-engage, lower one knee toward the floor only as far as the pelvis stays level, return. Cues: Both hip bones stay pointed at the ceiling; Range earns itself — small first; The working muscle is the deep core saying no to the roll."
+  },
+  "pf_bird_dog_arms": {
+    "title": "Bird Dog — Arms Only",
+    "body": "PLAIN ENGLISH: The bird dog with training wheels: arms move, legs stay put. HOW: Hands under shoulders, knees under hips, pad under the knees. Exhale and reach one arm forward to shoulder height, return, switch. Cues: Imagine a cup of water on your low back; Neck long, eyes down; Hips stay square; Reach comes from the shoulder, not from leaning."
+  },
+  "pf_dead_bug_legs": {
+    "title": "Dead Bug — Legs Only",
+    "body": "PLAIN ENGLISH: Dead bug without the arms — legs are the load, the flat back is the exercise. HOW: On your back, hips and knees at 90°, arms straight up. Exhale and lower one heel to tap the floor, inhale it back. Cues: Low back stays gently heavy on the floor; If it arches, tap closer to you; Slow, no swinging; Exhale on every lower."
+  },
+  "pf_anti_rotation_press": {
+    "title": "Standing Anti-Rotation Press",
+    "body": "PLAIN ENGLISH: Press your arms straight out and refuse to be twisted. HOW: With a band anchored at elbow height, stand side-on, hold it at your chest, exhale-engage and press both arms straight out, resist the pull, return. No band: press your palms together hard at chest height and extend. Cues: Hips and shoulders face front the whole rep; Soft knees; The work is the NOT-twisting."
+  },
+  "pf_suitcase_hold": {
+    "title": "Suitcase Hold",
+    "body": "PLAIN ENGLISH: Stand still holding a weight in one hand and refuse to lean. HOW: One heavy-ish object — dumbbell, kettlebell, loaded bag — in one hand, arm relaxed. Stand tall 20s, breathing. Cues: Shoulders level, ribs stacked over pelvis; Pelvic floor pre-lift before you pick it up; If you must hold your breath, it is too heavy."
+  },
+  "pf_single_leg_bridge": {
+    "title": "Single-Leg Glute Bridge",
+    "body": "PLAIN ENGLISH: A bridge on one leg without the pelvis tipping. HOW: Bridge up on both feet, extend one leg in line with the thigh, hold the hips level, lower and switch. Cues: Both hip bones stay level — a dropped side means go back to two feet; Exhale up; Glutes drive, hamstrings assist, low back stays quiet; Double-leg is the right call on a cranky-knee day."
+  },
+  "pf_sit_to_stand": {
+    "title": "Sit-to-Stand + Exhale-Engage",
+    "body": "PLAIN ENGLISH: Standing up from a chair as core training — the most functional rep in the program. HOW: Normal-height chair, feet under knees. Exhale, pelvic floor lift, stand without hands; control the sit back down. Cues: Nose over toes to start; Knees track over feet; Raise the seat with a cushion if knees complain; This exact pattern is how you will lift everything for the rest of your life."
+  },
+  "pf_zone2_walk": {
+    "title": "Zone 2 Walk",
+    "body": "PLAIN ENGLISH: A walk brisk enough to hear your breathing, easy enough to hold a conversation. HOW: Flat route, cushioned shoes, steady pace for the prescribed minutes. Cues: Full sentences possible = right pace; Gasping = slow down; Arms swing, shoulders loose; The next-morning knee report grades the walk, not the pace app."
+  }
+});

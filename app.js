@@ -1154,7 +1154,7 @@ const SYN_ICO = {
   'military-pelvic-4x': '\u{1F396}\u{FE0F}', 'mobility-snacks-4x': '\u{1F34E}',
   'joint-mobility-mastery-7x': '\u{1F9B4}', 'movesmethod-workouts-3x': '\u{1F57A}',
   'dumbbell-49-supersets': '\u{1F517}', 'sims-lift-heavy-sprint-short': '\u{26A1}',
-  'norwegian-4x4': '\u{1F6B4}'
+  'norwegian-4x4': '\u{1F6B4}', 'pelvic-floor-foundation-12w': '\u{1FAB7}'
 };
 const SYN_TAG = {
   'ppl': 'Strength', 'upper-lower': 'Strength', 'full-body': 'Strength',
@@ -1162,7 +1162,7 @@ const SYN_TAG = {
   'military-pelvic-4x': 'Conditioning', 'mobility-snacks-4x': 'Mobility',
   'joint-mobility-mastery-7x': 'Mobility', 'movesmethod-workouts-3x': 'Mobility',
   'dumbbell-49-supersets': 'Strength', 'sims-lift-heavy-sprint-short': 'Strength',
-  'norwegian-4x4': 'Conditioning'
+  'norwegian-4x4': 'Conditioning', 'pelvic-floor-foundation-12w': 'Conditioning'
 };
 const SYN_GRP = {
   'asian-pilates-3x': 'recovery', 'mobility-snacks-4x': 'recovery',
