@@ -1791,7 +1791,7 @@ function wireLiftTracker() {
     const pts = trackerSeries(t.key);
     if (pts.length > 1) lineChart(document.getElementById('lt_' + t.key),
       [{ name: t.name, color: cssVar('--chart-1', '#aaff00'), data: pts.map(p => p.w) }],
-      pts.map(p => p.date.slice(5)));
+      pts.map(p => p.date.slice(5)), { zero: true });
   });
 }
 
@@ -4780,7 +4780,7 @@ function drawLoggedStrengthCharts() {
       .filter(l => tl.rows.some(r => r[l] != null))
       .map((l, i) => ({ name: CANON_LIFT[l].name, color: pal[i % pal.length],
                         data: tl.rows.map(r => r[l] != null ? r[l] : null) }));
-    if (series.length) lineChart(c1, series, labels);
+    if (series.length) lineChart(c1, series, labels, { zero: true });
   }
   const c2 = document.getElementById('lg2');
   if (c2) {
@@ -4788,7 +4788,7 @@ function drawLoggedStrengthCharts() {
     const data = tl.rows.map(r => (r.squat != null && r.bench != null && r.deadlift != null)
       ? r.squat + r.bench + r.deadlift : null);
     if (data.some(v => v != null)) {
-      lineChart(c2, [{ name: 'PL Total', color: cssVar('--chart-1', '#aaff00'), data: data }], labels);
+      lineChart(c2, [{ name: 'PL Total', color: cssVar('--chart-1', '#aaff00'), data: data }], labels, { zero: true });
     }
   }
 }
@@ -4850,7 +4850,7 @@ function drawStrengthCharts() {
     if (pts.every(p => p.r)) {
       series.push({ name: 'Est. 1RM', color: pal[2], data: pts.map(p => Math.round(oneRM(p.w, p.r))) });
     }
-    lineChart(cv, series, pts.map((p, i) => p.date ? p.date.slice(5) : String(i + 1)));
+    lineChart(cv, series, pts.map((p, i) => p.date ? p.date.slice(5) : String(i + 1)), { zero: true });
   });
 }
 
@@ -4873,12 +4873,12 @@ function drawProjectionCharts() {
       name: LIFT_META[k].name,
       color: chartPalette()[i],
       data: completedProgram.map(w => oneRM(w.intensity[k], 5))
-    })), labels);
+    })), labels, { zero: true });
 
   lineChart(document.getElementById('ch2'),
     [{ name:'PL Total', color: cssVar('--chart-1', '#aaff00'),
        data: completedProgram.map(w => w.intensity.squat + w.intensity.bench + w.intensity.deadlift) }],
-    labels);
+    labels, { zero: true });
 }
 
 function emptyChart(canvas, seriesNames) {
@@ -4907,16 +4907,31 @@ function emptyChart(canvas, seriesNames) {
   });
 }
 
-function lineChart(canvas, series, labels) {
+function lineChart(canvas, series, labels, opts) {
   if (!canvas) return;
   const dpr = window.devicePixelRatio || 1, W = canvas.clientWidth, H = 200;
   canvas.width = W * dpr; canvas.height = H * dpr;
   const ctx = canvas.getContext('2d'); ctx.scale(dpr, dpr);
   ctx.clearRect(0, 0, W, H);
   const pad = { l:38, r:10, t:12, b:22 };
-  const all = series.flatMap(s => s.data);
+  const o = opts || {};
+  const all = series.flatMap(s => s.data).filter(v => v != null && isFinite(v));
+  if (!all.length) return;
   let min = Math.min(...all), max = Math.max(...all);
   if (min === max) { min -= 1; max += 1; }
+  /* Scale. zero-based charts anchor the axis at 0 with headroom above, so
+     the line floats inside the frame instead of running edge to edge — the
+     honest scale for "how much weight am I lifting". Trend charts (body
+     measurements) keep a data-fitted window, since a one-inch waist change
+     would be invisible from zero, but get the same breathing room on both
+     sides for readability. */
+  if (o.zero) {
+    min = 0;
+    max += Math.max(max * 0.10, 1);
+  } else {
+    const r = max - min;
+    min -= r * 0.15; max += r * 0.15;
+  }
   const py = v => pad.t + (H - pad.t - pad.b) * (1 - (v - min) / (max - min));
   const px = i => pad.l + (W - pad.l - pad.r) * (i / (labels.length - 1));
   const axisC = cssVar('--muted', '#aaaaaa');
