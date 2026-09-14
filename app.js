@@ -5142,29 +5142,36 @@ function renderSetup() {
       <input type="number" inputmode="decimal" data-step="${k}" value="${s.incPerSession[k]}" />
     </div>`).join('');
 
+  /* The program picker used to live here as a 13-tile grid of the built-ins
+     only, which silently omitted every imported program. Protocols is the one
+     complete library, so Setup now just shows where you are and points there. */
+  const proto = (typeof PROTOCOLS !== 'undefined' && PROTOCOLS.find(p => p.key === S.program)) ||
+                { ico: '💪', name: S.program, sub: '' };
+  let progWhere = '', progPct = 0;
+  if (S.program === 'texas') {
+    const wk = Math.min((S.cursor.week || 0) + 1, 24);
+    progWhere = `Week ${wk} of 24` + (typeof DAY_NAMES !== 'undefined' && DAY_NAMES[S.cursor.day] ? ` · ${DAY_NAMES[S.cursor.day]}` : '');
+    progPct = Math.round((S.cursor.week || 0) / 24 * 100);
+  } else {
+    const done = prepDaysComplete(), wd = pWorkDays();
+    progWhere = `Day ${pstate().day} of ${ptotal()} · ${done}/${wd} days done`;
+    progPct = wd ? Math.min(100, Math.round(done / wd * 100)) : 0;
+  }
+
   view.innerHTML = `<div class="screen">
 
-    <h2 class="section">Active program</h2>
+    <h2 class="section">Current program</h2>
     <div class="card">
-      <div class="prog-grid" id="segProgram">
-        ${[
-          ['fpfocus','🧬','Fingerprint Focus','targets your weakest'],
-          ['gen','🎲','Random Generator','a fresh workout on demand'],
-          ['prep30','🗓️','30-Day Prep','bodyweight ramp-up'],
-          ['mobility','🧘','Mobility','joint mobility'],
-          ['core','🔥','Core & Abs','core builder'],
-          ['dumbbell','💪','Dumbbell','A/B strength'],
-          ['pilates','🤸','Pilates Mat','classical Pilates'],
-          ['hiit','⚡','Full-Body HIIT','timed circuit'],
-          ['bjj','🥋','BJJ Drills','jiu-jitsu'],
-          ['sa2','🫀','SuperAge 2-Day','3-day condensed week'],
-          ['sa4','❤️‍🔥','SuperAge Full Week','4 lifts + 3 rides'],
-          ['sahyb','🔀','SuperAge Hybrid','alternating week styles'],
-          ['texas','🏋️','Texas Method','barbell']
-        ].map(([k,ico,nm,sub]) => `<button class="prog-tile ${S.program===k?'on':''}" data-prog="${k}">
-          <div class="prog-ico">${ico}</div><div class="prog-name">${nm}</div><div class="prog-sub">${sub}</div></button>`).join('')}
+      <div class="prog-now">
+        <div class="prog-now-ico">${proto.ico}</div>
+        <div class="prog-now-txt">
+          <div class="prog-now-name">${proto.name}</div>
+          <div class="tiny muted">${progWhere}</div>
+        </div>
+        <button class="btn secondary small" id="goProtocols">Change ›</button>
       </div>
-      <div class="hint">Tap a program to switch — your progress in each is saved separately.</div>
+      <div class="track prog-now-bar"><div class="fill" style="width:${progPct}%"></div></div>
+      <div class="hint">Every program keeps its own progress — switching in the 📚 Protocols library never loses anything.</div>
     </div>
 
     <h2 class="section">Display — theme</h2>
@@ -5375,11 +5382,8 @@ function wireSetup() {
   const s = S.settings;
 
   /* program selector */
-  view.querySelectorAll('#segProgram button').forEach(b => b.onclick = () => {
-    S.program = b.dataset.prog; save(); render();
-    const names = { prep30: '30-Day Prep 🗓️', mobility: 'Mobility Method 🧘', core: 'Core & Abs 🔥', dumbbell: 'Dumbbell Full-Body 💪', pilates: 'Pilates Mat 🤸', hiit: 'Full-Body HIIT ⚡', bjj: 'BJJ Solo Drills 🥋', sa2: 'SuperAge 2-Day 🫀', sa4: 'SuperAge Full Week ❤️‍🔥', sahyb: 'SuperAge Hybrid 🔀', texas: 'Texas Method 🏋️' };
-    toast((names[S.program] || S.program) + ' active');
-  });
+  const gp = document.getElementById('goProtocols');
+  if (gp) gp.onclick = () => { TAB = 'program'; window.scrollTo(0, 0); render(); };
 
   /* bar weight */
   document.getElementById('barWt').onchange = e => {
