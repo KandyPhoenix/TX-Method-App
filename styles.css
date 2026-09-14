@@ -1834,3 +1834,87 @@ table.prog td.w { color: var(--text); }
 }
 .lt-stale b { color: var(--text); }
 .lt-sync { border-bottom: none; padding: 7px 0 0; font-size: 11px; }
+
+/* =====================================================================
+   MUSCLE MAP + MUSCLE BALANCE (muscles.js)
+   Bucket colors are validated per theme for colorblind separation and
+   contrast against the card surface — change them only in pairs and
+   re-check both themes.
+   ===================================================================== */
+:root {
+  --map-body: rgba(255,255,255,.05);
+  --map-base: rgba(255,255,255,.10);
+  --map-hi:   var(--accent-2);
+  --mg-chest:#ec4899; --mg-back:#0284c7; --mg-shoulders:#ea580c; --mg-arms:#8b5cf6;
+  --mg-core:#65a30d;  --mg-pelvic:#6366f1; --mg-glutes:#d97706;  --mg-legs:#0d9488;
+}
+:root[data-theme="light"] {
+  --map-body: rgba(24,22,52,.06);
+  --map-base: rgba(24,22,52,.13);
+  --map-hi:   #4f46e5;
+  --mg-chest:#db2777; --mg-back:#0369a1; --mg-shoulders:#c2410c; --mg-arms:#7c3aed;
+  --mg-core:#4d7c0f;  --mg-pelvic:#4f46e5; --mg-glutes:#b45309;  --mg-legs:#0d9488;
+}
+
+.mm { display: block; }
+.mm .mm-body * { fill: var(--map-body); }
+.mm .mm-r { fill: var(--map-base); transition: fill .15s ease; }
+.mm .mm-r.p { fill: var(--map-hi); }
+.mm .mm-r.s { fill: var(--map-hi); opacity: .38; }
+.mm .mm-cap { font-size: 11px; fill: var(--dim); letter-spacing: .12em; font-weight: 700; }
+
+/* mini map on a session card head */
+.lift-side { display: flex; align-items: center; gap: 9px; flex: none; }
+.mmap-mini .mm { height: 42px; }
+
+/* "today works" strip above the session */
+.mm-day { display: flex; align-items: center; gap: 14px; }
+.mm-day .mm { height: 92px; flex: none; }
+.mm-day-txt { flex: 1; min-width: 0; }
+.mm-day-chips { display: flex; flex-wrap: wrap; gap: 5px; margin-top: 6px; }
+.mm-chip {
+  font-size: 11px; font-weight: 700; padding: 2px 8px; border-radius: 999px;
+  background: var(--accent-wash); color: var(--text-soft); border: 1px solid var(--border);
+}
+.mm-chip i { display: inline-block; width: 7px; height: 7px; border-radius: 2px; margin-right: 5px; }
+
+/* map in the How-to panel */
+.tip-mm { display: flex; justify-content: center; padding: 6px 0 2px; }
+.tip-mm .mm { height: 104px; }
+
+/* generator muscle picker */
+.gen-muscles { margin-top: 10px; border-top: 1px solid var(--border); padding-top: 10px; }
+.gen-muscles-head { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+.gen-muscles-title { font-size: 12.5px; font-weight: 800; letter-spacing: .04em; color: var(--muted); text-transform: uppercase; }
+.gen-muscles-body { display: flex; gap: 14px; align-items: flex-start; margin-top: 8px; }
+.gen-muscles-body .mm { height: 150px; flex: none; }
+.mm-pick .mm-r { cursor: pointer; }
+.mm-pick .mm-r.sel { fill: var(--mg); }
+.gen-muscle-chips { display: flex; flex-wrap: wrap; gap: 6px; align-content: flex-start; }
+.gm-chip {
+  font-size: 12px; font-weight: 700; padding: 4px 10px; border-radius: 999px;
+  background: var(--panel2); color: var(--text-soft); border: 1px solid var(--border); cursor: pointer;
+}
+.gm-chip.on { background: var(--mg); color: #fff; border-color: transparent; }
+.gm-clear { font-size: 11.5px; color: var(--accent-ink); background: none; border: none; cursor: pointer; font-weight: 700; }
+.gen-muscles-hint { font-size: 11px; color: var(--muted); margin-top: 6px; }
+
+/* balance doughnut */
+.mg-wrap { display: flex; gap: 16px; align-items: center; }
+.mg-donut { width: 148px; flex: none; }
+.mg-pct { font-size: 9px; font-weight: 800; fill: #fff; }
+.mg-mid { font-size: 20px; font-weight: 800; fill: var(--text); }
+.mg-mid-sub { font-size: 9px; fill: var(--muted); letter-spacing: .08em; }
+.mg-legend { flex: 1; min-width: 0; }
+.mg-leg-row { display: flex; align-items: center; gap: 8px; font-size: 12.5px; padding: 2.5px 0; }
+.mg-dot { width: 10px; height: 10px; border-radius: 3px; flex: none; }
+.mg-leg-name { flex: 1; color: var(--text-soft); }
+.mg-leg-v { font-variant-numeric: tabular-nums; color: var(--text); }
+.mg-leg-pct { color: var(--muted); width: 36px; text-align: right; font-variant-numeric: tabular-nums; }
+@media (max-width: 430px) { .mg-wrap { gap: 10px; } .mg-donut { width: 124px; } }
+
+/* body measurements */
+.meas-grid { display: grid; grid-template-columns: 1fr 1fr 1fr auto; gap: 8px; align-items: end; }
+.meas-grid label { display: block; font-size: 11px; color: var(--muted); font-weight: 700; margin-bottom: 3px; }
+.meas-grid input { width: 100%; }
+.meas-last { font-size: 11.5px; color: var(--muted); margin-top: 7px; }
