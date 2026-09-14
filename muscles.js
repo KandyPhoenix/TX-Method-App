@@ -186,7 +186,8 @@ function mmShapes(view) {
     cap('forearms', 14.5, 79, 8, 26, 4); cap('forearms', M(22.5), 79, 8, 26, 4);
     cap('obliques', 31, 62, 6.5, 28, 3); cap('obliques', M(37.5), 62, 6.5, 28, 3);
     cap('core', 40, 62, 20, 30, 6);
-    path('pelvic', 'M40 95 L60 95 Q60 104 50 110 Q40 104 40 95 Z');
+    /* drawn as the hammock it is — concave top, slung between the hip points */
+    path('pelvic', 'M39 94 Q50 100 61 94 L61 99 Q60 110 50 113 Q40 110 39 99 Z');
     /* quads outer-front, adductors the inner sliver */
     cap('quads', 29, 113, 13, 55, 6); cap('quads', M(42), 113, 13, 55, 6);
     cap('hips', 43.5, 112, 6, 30, 3); cap('hips', M(49.5), 112, 6, 30, 3);
@@ -495,4 +496,73 @@ function muscleDetailText(ex) {
   const d = muscleDetailFor(ex);
   if (!d) return '';
   return d.main.concat(d.assists).map(m => m.name + ' ' + m.where).join(' ').toLowerCase();
+}
+
+/* =====================================================================
+   PELVIC FLOOR DETAIL — the sling itself, viewed from below.
+
+   The body figure can only point at the pelvis; the muscles actually
+   live on its floor, so they get the view every anatomy text uses: from
+   underneath, pubic bone at the top, tailbone at the bottom, sit bones
+   at the sides. Standard female pelvic-outlet anatomy — the levator ani
+   bands (pubococcygeus, puborectalis, iliococcygeus) plus coccygeus,
+   with the three openings and the perineal body between them.
+   Shown wherever a movement's main muscle is the pelvic floor.
+   ===================================================================== */
+function pelvicFloorDetailSVG(h) {
+  const band = (d, w, op) => `<path d="${d}" fill="none" stroke="var(--mg-pelvic)" stroke-width="${w}" stroke-linecap="round" opacity="${op}"/>`;
+  const mirror = d => d.replace(/(-?\d+(?:\.\d+)?),/g, (m, x) => (264 - parseFloat(x)) + ',');
+  const lbl = (t, x, y, anchor) => `<text class="pfd-lbl" x="${x}" y="${y}" text-anchor="${anchor || 'start'}">${t}</text>`;
+  const lead = (x1, y1, x2, y2) => `<line class="pfd-lead" x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}"/>`;
+
+  const ilioL = 'M64,92 Q94,132 126,158';
+  const coccL = 'M84,130 Q110,152 128,168';
+  const pcL   = 'M122,32 Q100,80 118,124 Q124,140 130,148';
+
+  return `<svg class="pfd" viewBox="0 0 264 206" style="height:${h || 172}px" role="img"
+      aria-label="Pelvic floor muscles viewed from below">
+    <path class="pfd-outlet" d="M132,14 Q196,44 204,96 Q196,150 132,180 Q68,150 60,96 Q68,44 132,14 Z"/>
+    <path class="pfd-bone" d="M112,27 Q132,15 152,27" fill="none"/>
+    <circle class="pfd-bonedot" cx="60" cy="96" r="5"/><circle class="pfd-bonedot" cx="204" cy="96" r="5"/>
+    <circle class="pfd-bonedot" cx="132" cy="179" r="4"/>
+    ${band(ilioL, 13, .32)}${band(mirror(ilioL), 13, .32)}
+    ${band(coccL, 9, .28)}${band(mirror(coccL), 9, .28)}
+    ${band(pcL, 11, .55)}${band(mirror(pcL), 11, .55)}
+    ${band('M120,38 Q96,100 132,140 Q168,100 144,38', 12, .9)}
+    <circle class="pfd-open" cx="132" cy="56" r="3.2"/>
+    <ellipse class="pfd-open" cx="132" cy="80" rx="5" ry="7.5"/>
+    <circle class="pfd-body" cx="132" cy="101" r="3"/>
+    <circle class="pfd-open" cx="132" cy="122" r="4.5"/>
+    ${lead(46, 18, 112, 22)}${lbl('Pubic bone', 4, 21)}
+    ${lead(34, 56, 127, 56)}${lbl('Urethra', 4, 59)}
+    ${lead(32, 80, 125, 80)}${lbl('Vagina', 4, 83)}
+    ${lead(58, 101, 127, 101)}${lbl('Perineal body', 4, 104)}
+    ${lead(28, 122, 126, 122)}${lbl('Anus', 4, 125)}
+    ${lead(206, 44, 146, 44)}${lbl('Puborectalis', 260, 47, 'end')}
+    ${lead(200, 76, 148, 82)}${lbl('Pubococcygeus', 260, 79, 'end')}
+    ${lead(214, 112, 180, 118)}${lbl('Iliococcygeus', 260, 115, 'end')}
+    ${lead(216, 146, 166, 146)}${lbl('Coccygeus', 260, 149, 'end')}
+    ${lead(209, 96, 224, 96)}${lbl('Sit bone', 260, 99, 'end')}
+    ${lbl('Coccyx (tailbone)', 132, 200, 'middle')}
+  </svg>`;
+}
+
+/* the inset with its caption, for movements whose main muscle is the
+   pelvic floor (by name, or by the anatomy detail already resolved) */
+function pelvicInsetHTML(ex) {
+  const hay = ((ex && ex.name) || '') + ' ' + ((ex && ex.key) || '');
+  let show = /pelvic|kegel|knack|quick flick|long hold/i.test(hay);
+  if (!show) {
+    const d = muscleDetailFor(ex);
+    show = !!(d && d.main.some(m => m.name.indexOf('Pelvic floor') === 0));
+  }
+  if (!show) return '';
+  return `<div class="pfd-wrap">${pelvicFloorDetailSVG(172)}
+    <div class="pfd-cap">Viewed from below — pubic bone at the top, tailbone at the bottom.
+    “Squeeze and lift” is this sling drawing up and forward toward the pubic bone:
+    puborectalis loops behind the openings, pubococcygeus and iliococcygeus form the lifting
+    hammock, coccygeus closes the back. A thinner superficial layer (bulbospongiosus,
+    ischiocavernosus, transverse perineals) lies beneath the sling. Fully relaxing between
+    reps lets the whole hammock lengthen again — that release is half the exercise.</div>
+  </div>`;
 }
