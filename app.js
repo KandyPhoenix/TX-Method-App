@@ -4159,8 +4159,10 @@ function showFormTip(key) {
        </div>`;
   const swap = equipSwapFor(key);
   const tipMM = typeof muscleMapForEx === 'function' ? muscleMapForEx({ key, name: info.title }, 104) : '';
+  const tipMU = typeof muscleDetailHTML === 'function' ? muscleDetailHTML({ key, name: info.title }) : '';
   pop.innerHTML = `<div class="info-pop-title">${info.title}</div>
     ${tipMM ? `<div class="tip-mm">${tipMM}</div>` : ''}
+    ${tipMU}
     ${player}
     <div class="info-pop-body">${info.body}</div>
     ${swap ? `<div class="tip-swap"><b>No barbell today?</b> ${swap}</div>` : ''}
@@ -7317,7 +7319,13 @@ function libMatches() {
   const byName = all.filter(e => e.title.toLowerCase().indexOf(q) !== -1);
   const seen = new Set(byName.map(e => e.key));
   const byBody = all.filter(e => !seen.has(e.key) && e.body.toLowerCase().indexOf(q) !== -1);
-  return byName.concat(byBody);
+  byBody.forEach(e => seen.add(e.key));
+  /* third tier: the named anatomy — so "gluteus medius" or "soleus" finds
+     every movement that loads it even when no how-to text says so */
+  const byMuscle = typeof muscleDetailText === 'function'
+    ? all.filter(e => !seen.has(e.key) && muscleDetailText({ key: e.key, name: e.title }).indexOf(q) !== -1)
+    : [];
+  return byName.concat(byBody, byMuscle);
 }
 
 function libraryHTML() {
@@ -7325,11 +7333,15 @@ function libraryHTML() {
   const hits = libMatches();
   const rows = hits.slice(0, 120).map(e => {
     const vid = videoFor(e.key);
+    const libEx = { key: e.key, name: e.title };
+    const map = typeof muscleMapForEx === 'function' ? muscleMapForEx(libEx, 88) : '';
+    const mus = typeof muscleDetailHTML === 'function' ? muscleDetailHTML(libEx) : '';
     return `<details class="lib-item">
       <summary>
         <span class="lib-name">${e.title}</span>
         <span class="lib-tags">${vid ? '<span class="lib-vid">video</span>' : ''}<span class="lib-src">${e.src}</span></span>
       </summary>
+      ${map || mus ? `<div class="lib-mm">${map ? `<div class="lib-mm-fig">${map}</div>` : ''}${mus}</div>` : ''}
       <div class="lib-body">${e.body || 'No how-to written for this one yet.'}</div>
       ${vid ? `<div class="tip-video rail-video"><iframe src="https://www.youtube-nocookie.com/embed/${vid}?rel=0" title="${e.title} demo" allow="accelerometer; encrypted-media; gyroscope; picture-in-picture" allowfullscreen loading="lazy"></iframe></div>`
             : `<a class="rail-vid-search" href="https://www.youtube.com/results?search_query=${encodeURIComponent(e.title + ' exercise how to')}" target="_blank" rel="noopener">Find a demo on YouTube \u2197</a>`}
