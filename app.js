@@ -912,6 +912,7 @@ function genState() {
   if (!g.used) g.used = {};
   if (!g.type) g.type = 'random';
   if (!g.diff) g.diff = 'medium';
+  if (!g.muscles) g.muscles = [];
   return g;
 }
 
@@ -1013,6 +1014,18 @@ function genBuild(type, diff) {
   /* Nothing runnable in this category on today's equipment — widen rather than
      hand back an empty workout. */
   if (pool.length < 3) pool = genPoolFor('random', diff);
+  /* Muscle targeting: keep only movements that hit a picked group. If the
+     category leaves too few, widen to every category before giving up on
+     the filter — a targeted workout from the wrong category beats an
+     untargeted one from the right category. */
+  const wantB = (g.muscles || []).filter(b => MUSCLE_BUCKETS.some(x => x.id === b));
+  let targeted = false;
+  if (wantB.length) {
+    const hits = e => mmBucketsFor({ key: 'gen_' + e.id, name: e.name }).some(b => wantB.indexOf(b) >= 0);
+    let m = pool.filter(hits);
+    if (m.length < 3) m = genPoolFor('random', diff).filter(hits);
+    if (m.length >= 3) { pool = m; targeted = true; }
+  }
   pool = pool.map(e => Object.assign({ _fresh: genFreshness(e, g.used, now) }, e));
 
   let target = chosen === 'cardio' ? 3 : chosen === 'core' ? 5 : 6;
@@ -1036,13 +1049,16 @@ function genBuild(type, diff) {
 
   const name = (GEN_TYPES.find(t => t.key === chosen) || { name: chosen }).name;
   const dn = (GEN_DIFFS.find(d => d.key === diff) || { name: diff }).name;
+  const tgt = targeted
+    ? ' Targeting ' + wantB.map(b => (MUSCLE_BUCKETS.find(x => x.id === b) || { name: b }).name.toLowerCase()).join(', ') + '.'
+    : (wantB.length ? ' Too few matching movements for that muscle pick on today’s equipment — drawn from the full pool instead.' : '');
   return {
     genType: chosen,
     genDiff: diff,
     ids: picked.map(e => e.id),
     title: name,
-    note: 'Generated for you — ' + name.toLowerCase() + ', ' + dn.toLowerCase() +
-          '. Exercises you have not done recently are favoured, so generating again gives you a different session. ' +
+    note: 'Generated for you — ' + name.toLowerCase() + ', ' + dn.toLowerCase() + '.' + tgt +
+          ' Exercises you have not done recently are favoured, so generating again gives you a different session. ' +
           'Tap Generate a different one if this is not what today needs.',
     exercises: genWarmCool(wu, 'gw_')
       .concat(picked.map(genEx))
@@ -2317,6 +2333,26 @@ function prepDaysComplete() {
   return n;
 }
 
+/* "Today works" — the whole day's muscles on one figure, with a chip per
+   group. Sits above the exercise cards; days with nothing classifiable
+   (a pure walk, a rest day) render nothing. */
+function dayMuscleHTML(d) {
+  if (!d || !d.exercises || typeof muscleMapMerged !== 'function') return '';
+  const map = muscleMapMerged(d.exercises, 92);
+  if (!map) return '';
+  const hit = {};
+  d.exercises.forEach(ex => {
+    const m = muscleInfoFor(ex);
+    m.p.concat(m.s).forEach(r => { const b = MM_REGION_BUCKET[r]; if (b) hit[b] = true; });
+  });
+  const chips = MUSCLE_BUCKETS.filter(b => hit[b.id])
+    .map(b => `<span class="mm-chip"><i style="background:var(--mg-${b.id})"></i>${b.name}</span>`).join('');
+  return `<div class="card mm-day">${map}
+    <div class="mm-day-txt"><div class="rail-kicker">Today works</div>
+      <div class="mm-day-chips">${chips}</div>
+    </div></div>`;
+}
+
 function renderPrepToday() {
   const dayNum = pstate().day;
   const d = pdata()[dayNum - 1];
@@ -2351,6 +2387,7 @@ function renderPrepToday() {
     html += readinessHTML();
     html += tierBarHTML();
     if (S.program === 'gen') html += genBarHTML();
+    html += dayMuscleHTML(d);
     html += `<div class="spacer"></div>`;
     for (const g of groupDayItems(prepDayItems(d))) html += groupCard(g, log);
 
@@ -2449,7 +2486,7 @@ function groupCard(g, log) {
     return `<div class="card lift">
       <div class="lift-head"><div><div class="name">${names.join(' + ')}</div>
       <div class="scheme">Superset · ${rounds} rounds · alternate with no rest between partners</div></div>
-      <span class="badge vol">Superset</span></div>${g.items.map(i => itemRow(i, log, true)).join('')}</div>`;
+      <div class="lift-side"><span class="mmap-mini">${muscleMapMerged([...new Set(g.items.map(i => i.ex))], 42)}</span><span class="badge vol">Superset</span></div></div>${g.items.map(i => itemRow(i, log, true)).join('')}</div>`;
   }
   const ex = g.ex, n = g.items.length;
   const timed = ex.sec != null;
@@ -2458,7 +2495,7 @@ function groupCard(g, log) {
   return `<div class="card lift">
     <div class="lift-head"><div><div class="name">${ex.name} ${formBtn(ex.key)}</div>
     <div class="scheme">${n > 1 ? n + ' sets · ' : ''}${base}${hint ? ' · ' + hint.txt : ''}</div></div>
-    <span class="badge vol">${timed ? (ex.sec >= 90 ? 'Timed' : 'Hold') : 'Sets'}</span></div>${g.items.map(i => itemRow(i, log, false)).join('')}</div>`;
+    <div class="lift-side"><span class="mmap-mini">${muscleMapForEx(ex, 42)}</span><span class="badge vol">${timed ? (ex.sec >= 90 ? 'Timed' : 'Hold') : 'Sets'}</span></div></div>${g.items.map(i => itemRow(i, log, false)).join('')}</div>`;
 }
 
 function prepExerciseCard(ex, setIndex, total, log) {
@@ -2476,7 +2513,7 @@ function prepExerciseCard(ex, setIndex, total, log) {
     return `<div class="card lift">
       <div class="lift-head"><div><div class="name">${ex.name} ${formBtn(ex.key)}</div>
       <div class="scheme">${ex.sets}×${ex.sec} sec</div></div>
-      <span class="badge vol">Hold</span></div>${rows}</div>`;
+      <div class="lift-side"><span class="mmap-mini">${muscleMapForEx(ex, 42)}</span><span class="badge vol">Hold</span></div></div>${rows}</div>`;
   }
   /* reps exercise — one card per set */
   const many = total > 1;
@@ -2512,7 +2549,7 @@ function prepExerciseCard(ex, setIndex, total, log) {
   return `<div class="card lift">
     <div class="lift-head"><div><div class="name">${ex.name} ${formBtn(ex.key)}</div>
     <div class="scheme">${many ? `Set ${setIndex + 1} of ${total} · ` : ''}${ex.scheme || `${ex.reps} reps${ex.side ? ' each side' : ''}`}</div></div>
-    <span class="badge vol">${many || ex.scheme ? 'Sets' : 'Reps'}</span></div>${rows}</div>`;
+    <div class="lift-side"><span class="mmap-mini">${muscleMapForEx(ex, 42)}</span><span class="badge vol">${many || ex.scheme ? 'Sets' : 'Reps'}</span></div></div>${rows}</div>`;
 }
 
 /* ordered items for a day. In the 30-Day Prep the multi-set plank is
@@ -2619,6 +2656,9 @@ function tierDay(d) {
 
 function genBarHTML() {
   const g = genState();
+  const sel = g.muscles || [];
+  const chips = MUSCLE_BUCKETS.map(b =>
+    `<button class="gm-chip ${sel.indexOf(b.id) >= 0 ? 'on' : ''}" data-gm="${b.id}" style="--mg:var(--mg-${b.id})">${b.name}</button>`).join('');
   return `<div class="gen-bar">
     <div class="gen-row">
       <select id="genType" class="gen-sel" aria-label="Workout type">
@@ -2629,7 +2669,26 @@ function genBarHTML() {
       </select>
       <button class="btn primary gen-roll" id="genRoll">🎲 Generate a different one</button>
     </div>
+    <div class="gen-muscles">
+      <div class="gen-muscles-head"><span class="gen-muscles-title">🎯 Target muscles</span>
+        ${sel.length ? `<button class="gm-clear" id="gmClear">Clear (${sel.length})</button>` : ''}</div>
+      <div class="gen-muscles-body">
+        ${muscleMapSVG(null, { h: 150, pick: sel, labels: true })}
+        <div class="gen-muscle-chips">${chips}</div>
+      </div>
+      <div class="gen-muscles-hint">${sel.length
+        ? 'Drawing only movements that hit these groups. Tap to change the mix, or Clear for everything.'
+        : 'Tap the figure or the chips to aim the generator at specific muscle groups — leave empty for a bit of everything.'}</div>
+    </div>
   </div>`;
+}
+function genToggleMuscle(b) {
+  if (!b || !MUSCLE_BUCKETS.some(x => x.id === b)) return;
+  const g = genState();
+  const i = g.muscles.indexOf(b);
+  if (i >= 0) g.muscles.splice(i, 1); else g.muscles.push(b);
+  save();
+  genRegenerate();
 }
 
 /* ---------------------------------------------------------------------
@@ -4099,7 +4158,9 @@ function showFormTip(key) {
          <button class="btn primary small" data-vidsave="${key}">Pin</button>
        </div>`;
   const swap = equipSwapFor(key);
+  const tipMM = typeof muscleMapForEx === 'function' ? muscleMapForEx({ key, name: info.title }, 104) : '';
   pop.innerHTML = `<div class="info-pop-title">${info.title}</div>
+    ${tipMM ? `<div class="tip-mm">${tipMM}</div>` : ''}
     ${player}
     <div class="info-pop-body">${info.body}</div>
     ${swap ? `<div class="tip-swap"><b>No barbell today?</b> ${swap}</div>` : ''}
@@ -4188,6 +4249,70 @@ function renderGuide() {
   </div>`;
 }
 
+/* ---- Muscle balance + body measurements (shared by both stats screens) ---- */
+function muscleBalanceSectionHTML() {
+  if (typeof muscleDoughnutHTML !== 'function') return '';
+  return `<h2 class="section">Muscle balance · last 28 days</h2>
+    <div class="card">${muscleDoughnutHTML(28)}</div>`;
+}
+
+function measLog() { if (!S.bodyLog) S.bodyLog = []; return S.bodyLog; }
+const MEAS_FIELDS = [['w', 'Body weight'], ['wa', 'Waist'], ['hp', 'Hips']];
+function measUnit(k) { return k === 'w' ? unit() : (S.settings.units === 'kg' ? 'cm' : 'in'); }
+
+function measSectionHTML() {
+  const log = measLog();
+  const last = log.length ? log[log.length - 1] : null;
+  const charts = MEAS_FIELDS.map(([k, nm]) => {
+    const pts = log.filter(e => e[k] != null);
+    if (pts.length < 2) return '';
+    return `<h2 class="section">${nm} (${measUnit(k)})</h2><div class="card"><canvas class="chart" id="meas_${k}"></canvas></div>`;
+  }).join('');
+  const lastTxt = last
+    ? `Last entry ${last.d} — ` + MEAS_FIELDS
+        .filter(([k]) => last[k] != null)
+        .map(([k, nm]) => `${nm.toLowerCase()} ${last[k]} ${measUnit(k)}`).join(' · ')
+    : 'Nothing recorded yet. A waist trend is the honest belly metric — the scale alone can’t see posture or muscle.';
+  return `<h2 class="section">Body measurements</h2>
+    <div class="card">
+      <div class="meas-grid">
+        <div><label>Weight (${measUnit('w')})</label><input type="number" inputmode="decimal" id="measW" placeholder="${last && last.w != null ? last.w : '—'}"></div>
+        <div><label>Waist (${measUnit('wa')})</label><input type="number" inputmode="decimal" id="measWa" placeholder="${last && last.wa != null ? last.wa : '—'}"></div>
+        <div><label>Hips (${measUnit('hp')})</label><input type="number" inputmode="decimal" id="measHp" placeholder="${last && last.hp != null ? last.hp : '—'}"></div>
+        <button class="btn primary small" id="measSave">Save</button>
+      </div>
+      <div class="meas-last">${lastTxt} Fill any field and Save — today’s entry updates in place; graphs appear from the second entry.</div>
+    </div>${charts}`;
+}
+
+function wireMeas() {
+  const b = document.getElementById('measSave');
+  if (b) b.onclick = () => {
+    const gv = id => {
+      const el = document.getElementById(id);
+      const v = el && el.value !== '' ? +el.value : null;
+      return v != null && isFinite(v) && v > 0 ? v : null;
+    };
+    const w = gv('measW'), wa = gv('measWa'), hp = gv('measHp');
+    if (w == null && wa == null && hp == null) { toast('Enter at least one measurement'); return; }
+    const log = measLog(), d = isoDate(new Date());
+    let e = log.find(x => x.d === d);
+    if (!e) { e = { d }; log.push(e); }
+    if (w != null) { e.w = w; S.settings.bodyweight = w; } /* keep Wilks and dose math current */
+    if (wa != null) e.wa = wa;
+    if (hp != null) e.hp = hp;
+    save(); toast('Measurements saved 📏'); render();
+  };
+  const log = measLog();
+  MEAS_FIELDS.forEach(([k, nm]) => {
+    const c = document.getElementById('meas_' + k);
+    if (!c) return;
+    const pts = log.filter(e => e[k] != null);
+    lineChart(c, [{ name: `${nm} (${measUnit(k)})`, color: cssVar('--chart-1', '#818cf8'), data: pts.map(p => p[k]) }],
+      pts.map(p => p.d.slice(5)));
+  });
+}
+
 function renderStats() {
   if (isDayProgram()) { renderPrepStats(); return; }
   titleEl.textContent = 'Stats';
@@ -4263,6 +4388,8 @@ function renderStats() {
     ${prCardHTML()}
     ${strengthChartsHTML()}
     ${liftTrackerHTML()}
+    ${muscleBalanceSectionHTML()}
+    ${measSectionHTML()}
     ${calendarHTML()}
     ${achievementsCardHTML()}
     <button class="btn secondary" id="shareBtn">📤 Share my progress</button>
@@ -4272,6 +4399,7 @@ function renderStats() {
   const sb = document.getElementById('shareBtn'); if (sb) sb.onclick = shareCard;
   wireLiftTracker();
   wireCalendar();
+  wireMeas();
 }
 
 /* ---- Achievements + PR cards (shared by both stats screens) ---- */
@@ -4395,6 +4523,8 @@ function renderPrepStats() {
     ${prCardHTML()}
     ${strengthChartsHTML()}
     ${liftTrackerHTML()}
+    ${muscleBalanceSectionHTML()}
+    ${measSectionHTML()}
     ${calendarHTML()}
     ${achievementsCardHTML()}
     <button class="btn secondary" id="shareBtn">📤 Share my progress</button>
@@ -4404,6 +4534,7 @@ function renderPrepStats() {
   const sb = document.getElementById('shareBtn'); if (sb) sb.onclick = shareCard;
   wireLiftTracker();
   wireCalendar();
+  wireMeas();
 }
 
 /* =====================================================================
@@ -5222,6 +5353,8 @@ function renderSetup() {
         <button class="btn primary" id="exportBtn">⬇ Export all profiles</button>
         <button class="btn secondary" id="importBtn">⬆ Import backup</button>
       </div>
+      <button class="btn secondary" id="exportCsvBtn" style="width:100%;margin-top:8px">📄 Export training log as CSV</button>
+      <div class="hint">CSV opens in Excel or Sheets: one row per exercise per logged day (sets ticked, target, program), plus your hand-logged top sets and body measurements.</div>
       <input type="file" id="importFile" accept=".json" style="display:none">
     </div>
 
@@ -5444,6 +5577,56 @@ function wireSetup() {
     a.href = url; a.download = `tx-method-backup-${date}.json`;
     a.click(); URL.revokeObjectURL(url);
     toast(`Backup saved — ${profiles.list.length} profile${profiles.list.length === 1 ? '' : 's'} ⬇`);
+  };
+
+  /* ---- Export training log as CSV (current profile) ----
+     Flat rows for a spreadsheet, not a restore format — the JSON bundle
+     above stays the real backup. */
+  const csvBtn = document.getElementById('exportCsvBtn');
+  if (csvBtn) csvBtn.onclick = () => {
+    const esc = v => { const s = v == null ? '' : String(v); return /[",\n]/.test(s) ? '"' + s.replace(/"/g, '""') + '"' : s; };
+    const rows = [['date', 'source', 'program', 'day', 'day_title', 'exercise', 'sets_checked', 'target', 'type', 'weight_' + unit(), 'reps']];
+    Object.keys(DAY_PROGRAMS).forEach(k => {
+      const st = S[DAY_PROGRAMS[k].stateKey];
+      if (!st || !st.log) return;
+      let data = null;
+      Object.keys(st.log).forEach(dn => {
+        const log = st.log[dn];
+        if (!log) return;
+        const byEx = {};
+        Object.keys(log.checks || {}).forEach(id => {
+          if (!log.checks[id]) return;
+          const exKey = id.replace(/_\d+$/, '');
+          byEx[exKey] = (byEx[exKey] || 0) + 1;
+        });
+        if (!Object.keys(byEx).length) return;
+        if (!data) { try { data = DAY_PROGRAMS[k].data; } catch (e) { data = []; } }
+        const day = data && data[dn - 1];
+        if (!day || !day.exercises) return;
+        day.exercises.forEach(ex => {
+          if (!byEx[ex.key]) return;
+          rows.push([log.date || '', 'session', DAY_PROGRAMS[k].label, dn, day.title || '', ex.name,
+            byEx[ex.key], ex.sec != null ? ex.sec : ex.reps, ex.sec != null ? 'seconds' : 'reps', '', '']);
+        });
+      });
+    });
+    LIFT_TRACK.forEach(t => trackerSeries(t.key).forEach(p => {
+      rows.push([p.date || '', 'lift-tracker', '', '', '', t.name, 1, '', 'top-set', p.w != null ? p.w : '', p.r != null ? p.r : '']);
+    }));
+    measLog().forEach(e => {
+      MEAS_FIELDS.forEach(([k, nm]) => {
+        if (e[k] == null) return;
+        rows.push([e.d, 'measurement', '', '', '', nm + ' (' + measUnit(k) + ')', '', e[k], 'measure', '', '']);
+      });
+    });
+    if (rows.length === 1) { toast('Nothing logged yet — the CSV would be empty'); return; }
+    const csv = rows.map(r => r.map(esc).join(',')).join('\r\n');
+    const blob = new Blob(['﻿' + csv], { type: 'text/csv;charset=utf-8' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url; a.download = `tx-method-log-${new Date().toISOString().slice(0, 10)}.csv`;
+    a.click(); URL.revokeObjectURL(url);
+    toast(`CSV saved — ${rows.length - 1} rows ⬇`);
   };
 
   /* ---- Import backup (full bundle OR legacy single-profile) ---- */
@@ -7484,6 +7667,10 @@ function updateSessionUI() {
   if (gt) gt.onchange = () => { genState().type = gt.value; save(); genRegenerate(); };
   if (gd) gd.onchange = () => { genState().diff = gd.value; save(); genRegenerate(); };
   if (gb) gb.onclick = genRegenerate;
+  view.querySelectorAll('.gen-muscles [data-gm]').forEach(c => c.onclick = () => genToggleMuscle(c.dataset.gm));
+  view.querySelectorAll('.gen-muscles .mm-pick .mm-r').forEach(r => r.onclick = () => genToggleMuscle(r.dataset.b));
+  const gmc = document.getElementById('gmClear');
+  if (gmc) gmc.onclick = () => { genState().muscles = []; save(); genRegenerate(); };
   const eb = document.getElementById('equipBtn');
   if (eb && !eb.dataset.wired) { eb.dataset.wired = '1'; eb.onclick = equipMenu; }
   renderEquipBtn();
