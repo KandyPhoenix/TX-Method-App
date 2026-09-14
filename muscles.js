@@ -369,3 +369,130 @@ function muscleDoughnutHTML(days) {
     </div>
     <div class="tiny muted" style="margin-top:8px">Checked sets, last ${days} days, all programs on this profile. A set counts once for its main muscle and half for assisting ones. Walks and cardio are excluded — this chart is muscle balance.</div>`;
 }
+
+/* =====================================================================
+   NAMED ANATOMY — the specific muscles behind each region.
+
+   The body map answers "roughly where"; this answers "which muscle,
+   exactly, and where on your body that is" — gluteus medius vs maximus,
+   the teardrop above the knee vs the shin below it. Attributions follow
+   standard kinesiology (which muscles a movement pattern loads), stated
+   as anatomy rather than per-exercise measurement claims.
+   ===================================================================== */
+const MM_ANATOMY = {
+  glute_max: { name: 'Gluteus maximus',   where: 'the big main muscle of the bottom — the lower, meatiest part' },
+  glute_med: { name: 'Gluteus medius',    where: 'the upper-outer hip, above and to the side of the max — the "top glute"' },
+  glute_min: { name: 'Gluteus minimus',   where: 'deep underneath the medius on the outer hip' },
+  adductors: { name: 'Adductors (longus, magnus, brevis)', where: 'the inner-thigh muscles, groin to inner knee' },
+  hip_flex:  { name: 'Hip flexors (iliopsoas)', where: 'the front of the hip crease' },
+  quad_vm:   { name: 'Vastus medialis',   where: 'the teardrop just above the INSIDE of the knee' },
+  quad_vl:   { name: 'Vastus lateralis',  where: 'the outer sweep of the front thigh' },
+  quad_rf:   { name: 'Rectus femoris',    where: 'the middle strip of the front thigh, crossing up into the hip' },
+  hams:      { name: 'Hamstrings (biceps femoris, semitendinosus, semimembranosus)', where: 'the back of the thigh, sit-bone to just below the knee' },
+  gastroc:   { name: 'Gastrocnemius',     where: 'the upper-calf bulge just below the BACK of the knee' },
+  soleus:    { name: 'Soleus',            where: 'the deeper, lower calf muscle, down toward the ankle' },
+  tib_ant:   { name: 'Tibialis anterior', where: 'the shin muscle on the FRONT, below the knee' },
+  tva:       { name: 'Transversus abdominis', where: 'the deepest ab layer, wrapping below the navel like a corset' },
+  rect_abs:  { name: 'Rectus abdominis',  where: 'the "six-pack" strap down the front of the belly' },
+  obl:       { name: 'Internal & external obliques', where: 'the waist muscles along your sides' },
+  pf:        { name: 'Pelvic floor (levator ani: pubococcygeus, iliococcygeus; coccygeus)', where: 'the muscular sling from pubic bone to tailbone' },
+  diaphr:    { name: 'Diaphragm',         where: 'the breathing dome under the ribs' },
+  erectors:  { name: 'Erector spinae',    where: 'the two ropes either side of the spine' },
+  multifidus:{ name: 'Multifidus',        where: 'the small, deep stabilisers stitched along the spine' },
+  lats:      { name: 'Latissimus dorsi',  where: 'the wide sheets from armpit down to the low back' },
+  traps:     { name: 'Trapezius',         where: 'the kite from neck across the shoulders to mid-back' },
+  rhomb:     { name: 'Rhomboids',         where: 'between the shoulder blades' },
+  pec:       { name: 'Pectoralis major (sternal head)', where: 'the main chest plate' },
+  pec_up:    { name: 'Pectoralis major (clavicular head)', where: 'the upper chest shelf below the collarbone' },
+  delt_a:    { name: 'Anterior deltoid',  where: 'the FRONT of the shoulder cap' },
+  delt_m:    { name: 'Lateral deltoid',   where: 'the SIDE of the shoulder cap — width' },
+  delt_p:    { name: 'Posterior deltoid', where: 'the REAR of the shoulder cap' },
+  rotator:   { name: 'Rotator cuff (supraspinatus, infraspinatus, teres minor, subscapularis)', where: 'the small stabilisers wrapping the shoulder blade' },
+  serratus:  { name: 'Serratus anterior', where: 'the finger-like slips along the ribs under the armpit' },
+  biceps_b:  { name: 'Biceps brachii',    where: 'the front of the upper arm' },
+  triceps_b: { name: 'Triceps brachii',   where: 'the back of the upper arm' },
+  fore:      { name: 'Forearm flexors & extensors', where: 'grip — elbow to wrist' }
+};
+
+/* First matching rule wins; p = the movers, s = the helpers. */
+const MM_SPECIFIC_RULES = [
+  [/clam ?shell|fire hydrant|band walk|lateral.*walk|side[- ]?l(ying|eg).*(raise|lift)|hip (er|abduction)/i, { p: ['glute_med', 'glute_min'], s: ['glute_max'] }],
+  [/single[- ]?leg (glute )?bridge/i,                     { p: ['glute_max', 'hams'], s: ['glute_med', 'tva'] }],
+  [/glute bridge|hip thrust|bridge\b|donkey kick/i,       { p: ['glute_max'], s: ['hams', 'pf'] }],
+  [/bent[- ]?knee fallout|adductor|cossack|inner thigh|sumo/i, { p: ['adductors'], s: ['pf', 'tva'] }],
+  [/kegel|pelvic floor|knack|quick flick|long hold/i,     { p: ['pf'], s: ['tva'] }],
+  [/360|diaphrag|breath/i,                                { p: ['diaphr'], s: ['tva', 'pf'] }],
+  [/tva|draw[- ]?in|heel slide|dead ?bug|hollow/i,        { p: ['tva'], s: ['rect_abs', 'pf'] }],
+  [/side plank|pallof|anti[- ]?rotation|suitcase|farmer|carry|woodchop|russian twist/i, { p: ['obl'], s: ['tva', 'glute_med'] }],
+  [/bird dog|back extension|superman|good morning/i,      { p: ['erectors', 'multifidus'], s: ['glute_max', 'tva'] }],
+  [/plank|mountain climber|ab wheel|rollout/i,            { p: ['tva', 'rect_abs'], s: ['obl', 'serratus'] }],
+  [/crunch|sit[- ]?up|leg raise|toe touch/i,              { p: ['rect_abs'], s: ['hip_flex', 'obl'] }],
+  [/deadlift|rdl|romanian|hinge|kettlebell swing|swing\b/i, { p: ['hams', 'glute_max'], s: ['erectors', 'fore'] }],
+  [/leg curl|nordic|hamstring/i,                          { p: ['hams'], s: ['gastroc'] }],
+  [/seated calf|bent[- ]?knee calf/i,                     { p: ['soleus'], s: ['gastroc'] }],
+  [/calf|heel raise/i,                                    { p: ['gastroc'], s: ['soleus'] }],
+  [/tibialis|toe raise/i,                                 { p: ['tib_ant'], s: [] }],
+  [/lunge|split squat|bulgarian|step[- ]?(up|down)|pistol/i, { p: ['quad_vm', 'quad_vl', 'glute_max'], s: ['glute_med', 'adductors'] }],
+  [/squat|leg press|wall sit|sit[- ]?to[- ]?stand/i,      { p: ['quad_vl', 'quad_vm', 'quad_rf', 'glute_max'], s: ['adductors', 'erectors'] }],
+  [/pull[- ]?up|chin[- ]?up|pulldown|row\b|rows\b/i,      { p: ['lats'], s: ['rhomb', 'traps', 'biceps_b', 'delt_p'] }],
+  [/face pull|reverse fly|rear delt/i,                    { p: ['delt_p', 'rhomb'], s: ['traps', 'rotator'] }],
+  [/shrug/i,                                              { p: ['traps'], s: ['fore'] }],
+  [/external rotation|rotator|cuban/i,                    { p: ['rotator'], s: ['delt_p'] }],
+  [/incline.*(press|fly)/i,                               { p: ['pec_up'], s: ['delt_a', 'triceps_b'] }],
+  [/bench|push[- ]?up|chest (press|fly)|fly[e]?s|dip\b/i, { p: ['pec'], s: ['delt_a', 'triceps_b', 'serratus'] }],
+  [/overhead press|shoulder press|ohp|arnold/i,           { p: ['delt_a', 'delt_m'], s: ['triceps_b', 'traps'] }],
+  [/lateral raise/i,                                      { p: ['delt_m'], s: ['delt_a'] }],
+  [/front raise/i,                                        { p: ['delt_a'], s: ['delt_m'] }],
+  [/skull ?crusher|kickback|tricep|close[- ]?grip/i,      { p: ['triceps_b'], s: [] }],
+  [/curl/i,                                               { p: ['biceps_b'], s: ['fore'] }],
+  [/grip|dead ?hang|wrist/i,                              { p: ['fore'], s: [] }]
+];
+
+/* Region-level fallback when no specific rule matches. */
+const MM_REGION_GENERIC = {
+  chest: ['pec'], shoulders: ['delt_a', 'delt_m', 'delt_p'], biceps: ['biceps_b'], triceps: ['triceps_b'],
+  forearms: ['fore'], core: ['tva', 'rect_abs'], obliques: ['obl'], pelvic: ['pf'],
+  back: ['lats', 'traps', 'rhomb'], lowerback: ['erectors', 'multifidus'], glutes: ['glute_max', 'glute_med'],
+  quads: ['quad_vl', 'quad_vm', 'quad_rf'], hamstrings: ['hams'], calves: ['gastroc', 'soleus'],
+  hips: ['adductors', 'hip_flex']
+};
+
+/* {main:[{name,where}], assists:[...]} for one exercise, or null when the
+   movement has no muscle story (a stretch, a cardio interval). */
+function muscleDetailFor(ex) {
+  if (!ex) return null;
+  const info = muscleInfoFor(ex);
+  const hay = (ex.name || '') + ' ' + (ex.key || '');
+  for (const [re, spec] of MM_SPECIFIC_RULES) {
+    if (!re.test(hay)) continue;
+    const pick = ids => ids.map(id => MM_ANATOMY[id]).filter(Boolean);
+    return { main: pick(spec.p), assists: pick(spec.s || []) };
+  }
+  if (!info.p.length && !info.s.length) return null;
+  const fromRegions = rs => {
+    const out = [], seen = new Set();
+    rs.forEach(r => (MM_REGION_GENERIC[r] || []).forEach(id => {
+      if (seen.has(id)) return; seen.add(id);
+      if (MM_ANATOMY[id]) out.push(MM_ANATOMY[id]);
+    }));
+    return out;
+  };
+  return { main: fromRegions(info.p), assists: fromRegions(info.s) };
+}
+
+/* the detail as compact HTML — used by the How-to panel and the Library */
+function muscleDetailHTML(ex) {
+  const d = muscleDetailFor(ex);
+  if (!d || (!d.main.length && !d.assists.length)) return '';
+  const li = (m, role) => `<div class="tip-mu ${role}"><b>${m.name}</b> — ${m.where}</div>`;
+  return `<div class="tip-muscles">
+    ${d.main.map(m => li(m, 'main')).join('')}
+    ${d.assists.length ? `<div class="tip-mu-sub">Assisting</div>` + d.assists.map(m => li(m, 'sub')).join('') : ''}
+  </div>`;
+}
+/* searchable text of the same, for the Library's search box */
+function muscleDetailText(ex) {
+  const d = muscleDetailFor(ex);
+  if (!d) return '';
+  return d.main.concat(d.assists).map(m => m.name + ' ' + m.where).join(' ').toLowerCase();
+}
