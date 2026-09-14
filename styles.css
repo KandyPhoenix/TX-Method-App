@@ -1921,3 +1921,15 @@ table.prog td.w { color: var(--text); }
 .lib-mm { display: flex; gap: 12px; align-items: flex-start; padding: 8px 0 4px; border-bottom: 1px dashed var(--border); margin-bottom: 8px; }
 .lib-mm-fig { flex: none; }
 .lib-mm .tip-muscles { flex: 1; min-width: 0; padding-top: 0; }
+
+/* pelvic floor detail — the sling viewed from below */
+.pfd-wrap { padding: 8px 0 2px; }
+.pfd { display: block; margin: 0 auto; max-width: 100%; }
+.pfd-outlet { fill: var(--map-body); stroke: var(--border); stroke-width: 1; }
+.pfd-bone { stroke: var(--muted); stroke-width: 3; stroke-linecap: round; }
+.pfd-bonedot { fill: var(--map-base); stroke: var(--muted); stroke-width: 1; }
+.pfd-open { fill: var(--panel2); stroke: var(--muted); stroke-width: 1.2; }
+.pfd-body { fill: var(--muted); }
+.pfd-lbl { font-size: 10px; font-weight: 700; fill: var(--muted); }
+.pfd-lead { stroke: var(--dim); stroke-width: .7; opacity: .65; }
+.pfd-cap { font-size: 11.5px; color: var(--muted); line-height: 1.5; margin-top: 6px; }
