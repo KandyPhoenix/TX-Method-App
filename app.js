@@ -3742,6 +3742,29 @@ const FORM_TIPS = {
    the compound lifts plus the movements that matter most here; everything else
    still falls back to the pin-your-own field. */
 const FORM_VIDEOS = {
+  /* Strength & Speed 45+ (2026-09-26). Every id checked against YouTube's
+     oEmbed endpoint (200 = exists and embeddable); titles recorded. Ids
+     shared with other keys below were re-checked the same day. One key
+     covers every phase of a movement, so the video shows the phase that
+     names it — snap-downs and box jumps share the squat-jump demo. */
+  pw_chair_stand_test:   'qkV0UvjXgcs',   // 30-Second Chair Stand Test — Centers for Disease Control and Prevention (CDC)
+  pw_fast_sit_to_stand:  'eutszbtbJM8',   // How To Do A Sit To Stand - Strength - Wellen — Wellen
+  pw_jump:               'A-cFYWvaHr0',   // How To Do A Squat Jump | The Right Way | Well+Good — Well+Good
+  pw_goblet_squat:       '6mf0oa2GGUc',   // Goblet Squat Tutorial - Proper Form and Technique — Runna
+  pw_db_rdl:             'hQgFixeXdZo',   // Dumbbell Romanian (RDL) Deadlift |TECHNIQUE for Beginners — Mike | J2FIT Strength & Conditioning
+  pw_kb_swing:           'bDCeXbMJVNs',   // How To Kettlebell Swing (in 3 minutes) — Zack Henderson
+  pw_fast_step_up:       'aKj-6hgiViA',   // How To PROPERLY Perform Dumbbell Step Ups (GLUTE FOCUSED) — Colossus Fitness
+  pw_band_lateral_walk:  'y_bqFDQZSHQ',   // Lateral Band Walk | Proper Form Tutorial for Hip Stability — FIT.nl
+  pw_fast_calf_raise:    'CtyIVeJH6lI',   // You're Doing Calf Raises WRONG — Rehab and Revive
+  pw_step_drill:         'PgzGTLIROLo',   // Clock Balance Exercise: Improve Your Balance with this Simple Exercise — Dr. Michael Cuthbertson
+  pw_med_ball_chest_pass:'U1uXbG-j1NI',   // Medicine Ball: Chest Pass — RockIt Fitness
+  pw_pallof_press:       '_2xWmYNnFS8',   // How to Do the Pallof Press (Perfect Form for a Stronger Core) — Colossus Fitness
+  pw_cable_row:          'vwHG9Jfu4sw',   // How to do the SEATED CABLE ROW! | 2 Minute Tutorial — Max Euceda
+  pw_db_push_press:      'sElIkjcfyNY',   // Dumbbell Push Press - How To — Bobby Maximus
+  pw_band_pull_apart:    'bYsgk9SrJ48',   // How to Do Band Pull Aparts: A Guide from Physical Therapists — Hinge Health
+  pw_single_leg_balance: 'okRFJ_1GmqY',   // Single Leg Balance With Eyes Closed — altaTherapies
+  syn_dumbbell_bench_press: 'cZalRJCaw20', // How To Dumbbell Chest Press PROPERLY | Fix Your DB Bench Press — Colossus Fitness
+  pf_zone2_walk:         'UGOcJSZNpPY',   // How Do You Know You Are In Your Zone 2? Use The Talk Test! — Dr. Carrie Snaychuk
   squat:       'SbgHegC6lEs',   // How to Back Squat |#AskSquatU Show Ep. 10| — Squat University
   bench:       'A9MM-XkoWcw',   // How to: Barbell Bench Press – Proper Form Tutorial — BarbarianBody
   deadlift:    'XxWcirHIwVo',   // How to PROPERLY Deadlift for Growth — Jeremy Ethier
