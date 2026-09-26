@@ -3964,9 +3964,9 @@ const FORM_VIDEOS = {
   rollup:                                         'PGnibcCcAUE',   // How to do a Pilates Roll Up | The Right Way | Well+Good — Well+Good
   rtwist:                                         'fCHFQTBqm-U',   // How to PROPERLY Do Russian Twists For ABS (FIX THIS NOW!) — Colossus Fitness
   sabench:                                        '4Y2ZdHCOXok',   // How to PROPERLY Bench Press for Growth (5 Easy Steps) — Jeremy Ethier
-  sadbpress:                                      '0Ckp4XpWGIc',   // How to PROPERLY Single Arm Dumbbell Chest Press (Fix Your Form Now) — Colossus Fitness
+  sadbpress:                                      '4mzFocnr5mU',   // How To Single Arm Standing Dumbbell Shoulder Press PROPERLY — Colossus Fitness (was a single-arm CHEST press video; replaced 2026-09-26)
   saw:                                            '5cv9yA24lks',   // How to Do Saw Exercise — Blind Athletes Exercise
-  scissorlunge:                                   'wrwwXE_x-pQ',   // How To Do A LUNGE | Lunges for BEGINNERS | FITNESS SPECIAL | WORKOUT VIDEO — Mind Body Soul
+  scissorlunge:                                   'UxMhFyrwN7w',   // Scissor Lunge Jumps — Morgan Grace Fit (was a plain beginner lunge; replaced 2026-09-26)
   shadowbox:                                      'J4j3AOVWuHE',   // Quick Shadow Boxing Tutorial by Olympian — Tony Jeffries
   shortfoot:                                      'iy1Qxt2mnsE',   // Performing The Short Foot Exercise Properly — CPCinfo
   shrimp:                                         '_Pkeue2N-Gs',   // BJJ Fundamentals: How to Hip Escape (shrimp) — Ernest Chavez
@@ -4057,7 +4057,7 @@ const FORM_VIDEOS = {
   syn_hip_circles_on_all_fours_with_band:         '5HdkpRVr66E',   // All Fours Bent knee Hip Circles — Coach Alyssa Chang
   syn_hip_thrust_with_band:                       '2OaqZ-QAiYw',   // Hip Thrust with Resistance Band — Luke Briggs
   syn_incline_curls:                              'DCe8f6vMe9A',   // Stop Screwing Up Incline Dumbbell Curls (PROPER FORM!) — ATHLEAN-X™
-  syn_incline_press:                              'VesHgJR14E8',   // INCLINE CHEST PRESS | Exercise Form Guide — Max Euceda
+  syn_incline_press:                              '11gY7Q5D5wo',   // How to Do an Incline Barbell Bench Press — LIVESTRONG (replaced 2026-09-26: title did not confirm free-weight)
   syn_jefferson_curl_bodyweight:                  'nM747P0_OwM',   // Bodyweight Jefferson Curl — Functional Bodybuilding
   syn_kneeling_hip_flexor_stretch:                'iZ1eZBY4fwM',   // How To Do Kneeling Lunge (Hip Flexor Stretch) — PureGym
   syn_kneeling_hip_hinges_with_pelvic_tilt:       'K_SGYeZLWWU',   // Hip Hinge Pelvic Tilt — Cuirim Sports Recovery
