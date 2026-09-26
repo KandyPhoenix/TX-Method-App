@@ -6697,9 +6697,12 @@ Object.assign(SYN_TIPS, {
    (3 sessions + 3 easy walks a week; the 7th day is rest).
 
    Built for women 45+ who want the "power" half of training — standing
-   up fast, stepping quickly, catching a trip — without jumps or landings,
-   because the knees set the ceiling. Every speed drill here keeps a foot
-   on the floor or a hand on the load.
+   up fast, stepping quickly, catching a trip. Jumps, full-depth goblet
+   squats and standard step-ups are in (Kandy, 2026-09-26: "don't make it
+   knee safe"). Every knee-heavy movement instead carries a KNEE HURTING
+   swap in its scheme line and How-to, for the days the knee complains, and
+   those keys are also in KNEE_AVOID so the Setup knee caution swaps them
+   automatically.
 
    Three phases change HOW each movement is done, not which muscles work:
      1 Control (wk 1-4)  slow and even, learn the positions
@@ -6732,16 +6735,16 @@ const SS45_PLAN = (function () {
   function lower(p, s) {
     var byPhase = {
       1: [
-        { key: "pw_fast_sit_to_stand", name: "Sit-to-Stand (Brisk)", sets: s, reps: 8, needs: "bodyweight",
-          scheme: s + "×8 · bench or box at knee height · stand briskly, 3s sit · no hands if you can" },
-        { key: "pw_goblet_box_squat", name: "Goblet Box Squat", sets: s, reps: 10, needs: "dumbbells",
-          scheme: s + "×10 · one dumbbell at the chest · 3s down to the box, tap, stand · box at or above knee height" },
+        { key: "pw_jump", name: "Snap-Down (Landing Practice)", sets: 2, reps: 5, needs: "bodyweight",
+          scheme: "2×5 · rise onto your toes, drop fast into a quarter squat and stick it silently · KNEE HURTING: brisk sit-to-stand 2×8 from a knee-height bench" },
+        { key: "pw_goblet_squat", name: "Goblet Squat", sets: s, reps: 10, needs: "dumbbells",
+          scheme: s + "×10 · one dumbbell at the chest · 3s down, as deep as heels-down and chest-up allow · KNEE HURTING: box squat to a bench at knee height" },
         { key: "pw_db_rdl", name: "Dumbbell Romanian Deadlift", sets: s, reps: 10, needs: "dumbbells",
           scheme: s + "×10 · 3s down, hips back, soft knees · stop when the back wants to round" },
         { key: "pw_kb_swing", name: "Kettlebell Deadlift", sets: s, reps: 8, needs: "dumbbells",
           scheme: s + "×8 · learn the hinge that becomes the swing · bell between the feet, hips back, stand tall" },
-        { key: "pw_fast_step_up", name: "Low Step-Up", sets: 2, reps: 8, needs: "bodyweight",
-          scheme: "2×8 per side · 6-8 inch step · controlled up and down · hand on a wall is fine" },
+        { key: "pw_fast_step_up", name: "Step-Up", sets: 2, reps: 8, needs: "bodyweight",
+          scheme: "2×8 per side · 12-inch box · controlled up and down · KNEE HURTING: 6-8 inch step, or glute bridge 2×12" },
         { key: "pw_band_lateral_walk", name: "Band Lateral Walk", sets: 2, reps: 10, needs: "bodyweight",
           scheme: "2×10 steps each way · band above the knees · NO BAND: lateral step-outs with a 2s pause, or side-lying leg raise 2×12 per side" },
         { key: "pw_fast_calf_raise", name: "Calf Raise", sets: 2, reps: 12, needs: "bodyweight",
@@ -6750,16 +6753,16 @@ const SS45_PLAN = (function () {
           scheme: "2 × 30s per side · step forward, side, back to a clock face and return · big, deliberate steps near a counter" }
       ],
       2: [
-        { key: "pw_fast_sit_to_stand", name: "Fast Sit-to-Stand", sets: s, reps: 6, needs: "bodyweight",
-          scheme: s + "×6 · stand up AS FAST AS YOU CAN, 3s sit · feet stay on the floor, no jump" },
-        { key: "pw_goblet_box_squat", name: "Goblet Box Squat (Fast Up)", sets: s, reps: 8, needs: "dumbbells",
-          scheme: s + "×8 · 3s down to the box, stand up fast · same box height as phase 1" },
+        { key: "pw_jump", name: "Squat Jump", sets: s, reps: 5, needs: "bodyweight",
+          scheme: s + "×5 · quarter-squat dip, jump straight up, land softly and stick it · reset between reps · KNEE HURTING: fast sit-to-stand " + s + "×6, feet stay down" },
+        { key: "pw_goblet_squat", name: "Goblet Squat (Fast Up)", sets: s, reps: 8, needs: "dumbbells",
+          scheme: s + "×8 · 3s down, stand up fast · KNEE HURTING: box squat to a knee-height bench, still fast up" },
         { key: "pw_db_rdl", name: "Dumbbell Romanian Deadlift", sets: s, reps: 8, needs: "dumbbells",
           scheme: s + "×8 · 3s down, snap the hips forward to stand · a little heavier than phase 1" },
         { key: "pw_kb_swing", name: "Kettlebell Speed Deadlift", sets: s, reps: 6, needs: "dumbbells",
           scheme: s + "×6 · stand up fast, lower under control · the bell never leaves the line of the legs" },
-        { key: "pw_fast_step_up", name: "Fast Low Step-Up", sets: 3, reps: 6, needs: "bodyweight",
-          scheme: "3×6 per side · 6-8 inch step · drive up fast, 3s step down · no hop" },
+        { key: "pw_fast_step_up", name: "Fast Step-Up", sets: 3, reps: 6, needs: "bodyweight",
+          scheme: "3×6 per side · 12-inch box · drive up fast, 3s step down · KNEE HURTING: 6-8 inch step, or fast glute bridge 3×10" },
         { key: "pw_band_lateral_walk", name: "Band Lateral Walk", sets: 3, reps: 10, needs: "bodyweight",
           scheme: "3×10 steps each way · band above the knees, quicker steps · NO BAND: fast lateral step-outs, or side-lying leg raise 3×12 per side" },
         { key: "pw_fast_calf_raise", name: "Fast Calf Raise", sets: 3, reps: 10, needs: "bodyweight",
@@ -6768,20 +6771,20 @@ const SS45_PLAN = (function () {
           scheme: "3 × 30s per side · the same clock-face steps, as quickly as you can while staying tidy · near a counter" }
       ],
       3: [
-        { key: "pw_fast_sit_to_stand", name: "Loaded Fast Sit-to-Stand", sets: s, reps: 5, needs: "dumbbells",
-          scheme: s + "×5 · one dumbbell at the chest · explode up, 3s sit · no dumbbell: arms crossed, lower box height one notch if pain-free" },
-        { key: "pw_goblet_box_squat", name: "Goblet Box Squat (Heavier, Fast Up)", sets: s, reps: 6, needs: "dumbbells",
-          scheme: s + "×6 · heavier than phase 2 · 3s down, fast up · box stays at knee height unless the knee is quiet" },
+        { key: "pw_jump", name: "Box Jump (Step Down)", sets: s, reps: 5, needs: "bodyweight",
+          scheme: s + "×5 · 12-inch box to start · land softly on top, STEP down, never jump down · KNEE HURTING: fast sit-to-stand holding a dumbbell at the chest" },
+        { key: "pw_goblet_squat", name: "Goblet Squat (Heavier, Fast Up)", sets: s, reps: 6, needs: "dumbbells",
+          scheme: s + "×6 · heavier than phase 2 · 3s down, fast up · KNEE HURTING: box squat to a knee-height bench, lighter" },
         { key: "pw_db_rdl", name: "Dumbbell Romanian Deadlift (Heavy)", sets: s, reps: 6, needs: "dumbbells",
           scheme: s + "×6 · heaviest of the program · 3s down, fast up · 2 reps left in the tank" },
         { key: "pw_kb_swing", name: "Kettlebell Swing", sets: s, reps: 10, needs: "dumbbells",
           scheme: s + "×10 · Russian swing to chest height · hips snap, arms just ride along · park the bell when the hinge fades" },
         { key: "pw_fast_step_up", name: "Fast Weighted Step-Up", sets: 3, reps: 6, needs: "dumbbells",
-          scheme: "3×6 per side · 6-8 inch step, light dumbbells at the sides · fast up, 3s down" },
+          scheme: "3×6 per side · 12-18 inch box, dumbbells at the sides · fast up, 3s down · KNEE HURTING: 6-8 inch step, lighter dumbbells" },
         { key: "pw_band_lateral_walk", name: "Band Lateral Shuffle", sets: 3, reps: 10, needs: "bodyweight",
           scheme: "3×10 quick steps each way · band above the knees · NO BAND: quick lateral shuffle, feet never cross, or side-lying leg raise with a 3s hold" },
-        { key: "pw_fast_calf_raise", name: "Single-Leg Fast Calf Raise", sets: 3, reps: 8, needs: "bodyweight",
-          scheme: "3×8 per side · rise fast, 3s lower · fingertips on a counter" },
+        { key: "pw_fast_calf_raise", name: "Pogo Hops", sets: 3, reps: 10, needs: "bodyweight",
+          scheme: "3×10 · small, quick bounces off the balls of the feet, stiff ankles, knees nearly straight · KNEE HURTING: single-leg fast calf raise 3×8 per side" },
         { key: "pw_step_drill", name: "Reactive Lean-and-Step", sets: 3, reps: 5, needs: "bodyweight",
           scheme: "3 × 5 per direction · lean from the ankles until you must step, catch it with one quick step · beside a wall or counter" }
       ]
@@ -6819,7 +6822,7 @@ const SS45_PLAN = (function () {
         { key: "pw_cable_row", name: "Cable Row (Fast Pull)", sets: s, reps: 8, needs: "dumbbells",
           scheme: s + "×8 · pull fast, 3s return · NO CABLE: single-arm dumbbell row, pull fast, 3s lower" },
         { key: "pw_db_push_press", name: "Dumbbell Push Press", sets: s, reps: 6, needs: "dumbbells",
-          scheme: s + "×6 · small knee dip, drive the dumbbells up fast · 3s lower · the dip stays shallow" },
+          scheme: s + "×6 · small knee dip, drive the dumbbells up fast · 3s lower · KNEE HURTING: strict press, no dip" },
         { key: "pw_band_pull_apart", name: "Band Pull-Apart (Fast)", sets: 3, reps: 12, needs: "bodyweight",
           scheme: "3×12 · snap apart, 2s return · NO BAND: prone Y-T raises, lift fast, 2s lower, 3×8 each" },
         { key: "sims_farmer_carry", name: "Farmer Carry", sets: 3, reps: 30, needs: "dumbbells",
@@ -6837,7 +6840,7 @@ const SS45_PLAN = (function () {
         { key: "pw_cable_row", name: "Cable Row (Heavier, Fast)", sets: s, reps: 6, needs: "dumbbells",
           scheme: s + "×6 · heavier, pull fast, 3s return · NO CABLE: single-arm dumbbell row, heavier, pull fast" },
         { key: "pw_db_push_press", name: "Dumbbell Push Press (Heavier)", sets: s, reps: 5, needs: "dumbbells",
-          scheme: s + "×5 · heavier, fast drive · 3s lower · shallow dip" },
+          scheme: s + "×5 · heavier, fast drive · 3s lower · shallow dip · KNEE HURTING: strict press, no dip" },
         { key: "pw_band_pull_apart", name: "Band Pull-Apart (Fast)", sets: 3, reps: 15, needs: "bodyweight",
           scheme: "3×15 · snap apart, 2s return · NO BAND: prone Y-T raises with light dumbbells, 3×8 each" },
         { key: "sims_farmer_carry", name: "Farmer Carry (Brisk)", sets: 3, reps: 40, needs: "dumbbells",
@@ -6883,17 +6886,19 @@ const SS45_PLAN = (function () {
   return {
     id: "strength-speed-45plus-12w",
     name: "Strength & Speed 45+",
-    desc: "12 weeks · strength plus knee-safe speed work for women 45+",
-    kneeSafe: true,
+    desc: "12 weeks · strength, speed and jumps for women 45+",
+    kneeSafe: false,
     guide: {
-      blurb: "Twelve weeks that train two different things: strength (how much force you can make) and power (how fast you can make it). Power is what gets you out of a chair quickly, up a step in a hurry, or back under yourself when you trip. The speed work here is knee-friendly: no jumps and no landings. The research behind this was done mostly on adults over 60, so using it at 45+ is a reasonable extension, not something a trial has proven for this age group.",
+      blurb: "Twelve weeks that train two different things: strength (how much force you can make) and power (how fast you can make it). Power is what gets you out of a chair quickly, up a step in a hurry, or back under yourself when you trip. Jumps, full squats and step-ups are all in. Every knee-heavy movement has a KNEE HURTING line with a gentler swap for the days the knee complains. The research behind this was done mostly on adults over 60, so using it at 45+ is a reasonable extension, not something a trial has proven for this age group.",
       rotate: [
         { kicker: "Every speed rep", title: "Fast up, slow down",
           body: "The lifting part of each speed rep is as fast as you can do it with good form. The lowering part stays slow, about 3 seconds. Speed is the point, so a rep that slows to a grind has stopped training power. End the set there." },
         { kicker: "Load", title: "Speed work is not max effort",
           body: "Pick a weight you could lift many more times than the set asks for, then move it fast. Heavy strength work belongs in phase 3's lower-rep sets, and even there leave about 2 reps in the tank." },
-        { kicker: "Knees", title: "The box sets the depth",
-          body: "Squats go to a box or bench at knee height or higher, and step-ups use a 6-8 inch step. Sharp pain, catching, locking, or a knee that is worse the next morning means go back to the previous phase or raise the box. Don't push through it." },
+        { kicker: "Knee hurting today?", title: "Use the KNEE HURTING line",
+          body: "Jumps, squats, step-ups, pogo hops and the push press each list a gentler swap at the end of the exercise line and in the How-to. Use it for that day and go back to the full version when the knee settles. Sharp pain, catching, locking or giving way is different: stop that movement and get it checked." },
+        { kicker: "Jumps", title: "Land quiet, step down",
+          body: "A soft, quiet landing with the knees tracking over the toes is the skill. Stick every landing before the next rep, and always step down from the box. Jumping down adds landing force for no benefit." },
         { kicker: "No kit today", title: "Every band, cable and ball move has a swap",
           body: "Look at the end of the exercise line, or its How-to. The NO BAND / NO CABLE / NO MED BALL line tells you what to do instead. The swap trains the same job, but it isn't identical, and that's fine for now." },
         { kicker: "Rest", title: "Rest long enough to be fast again",
@@ -6905,15 +6910,15 @@ const SS45_PLAN = (function () {
         { kicker: "After the session", title: "Protein soon after",
           body: "Aim for a protein-containing meal or snack within a couple of hours. The Sims 4 Women guide in this app has detailed protein targets for women over 40, and they apply here too." },
         { kicker: "Tomorrow morning", title: "The knee report",
-          body: "Check the knee when you get up tomorrow. Same or better means the session was right. Worse means drop back a phase for that movement next time." }
+          body: "Check the knee when you get up tomorrow. Same or better means the session was right. Worse means use the KNEE HURTING swaps for those movements next session." }
       ],
       days: {
         "Lower Power · Phase 1": { kicker: "Today", title: "Learn the positions first",
-          body: "Phase 1 is deliberately slow. You're learning where the box is, how the hinge feels, and how to step with control, so the speed you add in phase 2 has something solid to build on." },
+          body: "Phase 1 is deliberately slow. You're learning to land quietly, how deep your squat goes, how the hinge feels, and how to step with control, so the jumps and speed in phase 2 have something solid to build on." },
         "Lower Power · Phase 2": { kicker: "Today", title: "Now make it fast",
-          body: "Same movements, new intent: the standing-up part is as fast as you can do it. Keep the feet down and don't jump. The lowering part stays slow." },
+          body: "The jumps start: small squat jumps, landing softly and sticking each one. Everything else stands up fast and lowers slowly. Knee grumbling? Use the KNEE HURTING swaps for today." },
         "Lower Power · Phase 3": { kicker: "Today", title: "A bit heavier, still fast",
-          body: "More load, same speed intent. The lean-and-step drill trains the quick recovery step you'd take if you tripped. Do it beside a counter, and lean only as far as you can catch." },
+          body: "More load, same speed intent. Box jumps: jump up, always step down. The lean-and-step drill trains the quick recovery step you'd take if you tripped. Do it beside a counter, and lean only as far as you can catch." },
         "Upper Power · Phase 1": { kicker: "Today", title: "Smooth, even reps",
           body: "Get the pressing, rowing and carrying positions right before you add speed. No band, cable or medicine ball? Every one of those rows lists what to do instead." },
         "Upper Power · Phase 2": { kicker: "Today", title: "Throw it, press it, pull it fast",
@@ -6942,13 +6947,13 @@ const SS45_PLAN = (function () {
           { title: "Stepping and balance reduce falls",
             body: "A Cochrane review of community-dwelling older adults (Sherrington et al., 2019) found that balance and functional exercise reduced the rate of falls by about 24%. A separate meta-analysis (Okubo et al., 2017) found step training, which is practising quick steps, also reduced falls." },
           { title: "The honest limit",
-            body: "These trials were mostly run on people over 60 to 65. At 45+ the aim is to build power before it drops, which makes sense but hasn't been tested directly. The program also skips jumps to protect the knees, and jumping loads bone in a way this program doesn't. Talk to whoever looks after your knees about adding low impact later." }
+            body: "These trials were mostly run on people over 60 to 65. At 45+ the aim is to build power before it drops, which makes sense but hasn't been tested directly." }
         ]},
         { title: "Tracking", tone: "fuel", icon: "\u{1F4CF}", items: [
           { title: "The chair-stand check",
             body: "Weeks 1, 6 and 12 open with a 30-second chair stand: arms crossed, standard-height chair, count every full stand. The published norms (Rikli & Jones) are for people 60 and over, so compare the number only with your own week 1." },
           { title: "Balance retest",
-            body: "The Fingerprint tab's Balance test (single-leg stance, eyes closed) is a good partner check. Take it in week 1 and again in week 12. Skip the Functional Strength broad jump there, because it's a jump." },
+            body: "The Fingerprint tab's Balance test (single-leg stance, eyes closed) is a good partner check. Take it in week 1 and again in week 12. The Functional Strength broad jump works too, on a day the knee is quiet." },
           { title: "Walking",
             body: "Three easy walks a week, building from 20 to 30 minutes. If another program already has you walking, count those minutes once, not twice." }
         ]},
@@ -6956,7 +6961,7 @@ const SS45_PLAN = (function () {
           { title: "Knee catching or locking",
             body: "Catching, locking or giving way is different from normal soreness. It can point to a mechanical meniscus problem, so stop that movement and get it assessed." },
           { title: "Pain that builds session to session",
-            body: "If a movement hurts more each time, go back a phase for it, raise the box, or shorten the step. For degenerative meniscus tears in middle-aged adults, a trial (Kise et al., BMJ 2016) found supervised exercise therapy worked as well as surgery over 2 years, so a physical therapist is a good ally here." },
+            body: "If a movement hurts more each time, switch to its KNEE HURTING swap or go back a phase. For degenerative meniscus tears in middle-aged adults, a trial (Kise et al., BMJ 2016) found supervised exercise therapy worked as well as surgery over 2 years, so a physical therapist is a good ally here." },
           { title: "Dizziness or chest symptoms",
             body: "Stop and seek medical care for chest pain, unusual breathlessness, or feeling faint. Fast efforts raise heart rate quickly." },
           { title: "Educational, not medical advice",
@@ -6979,9 +6984,13 @@ Object.assign(SYN_TIPS, {
     "title": "Fast Sit-to-Stand",
     "body": "PLAIN ENGLISH: Standing up from a seat, trained for speed. It's the most everyday power movement there is. HOW: Sit on a bench or box at knee height, feet under the knees. Lean the nose over the toes and stand. Phase 1 is brisk, phase 2 as fast as you can, phase 3 holding a dumbbell at the chest. Always sit back down slowly, over about 3 seconds. Cues: Feet stay on the floor, no jumping; Knees track over the toes; Raise the seat if the knees complain."
   },
-  "pw_goblet_box_squat": {
-    "title": "Goblet Box Squat",
-    "body": "PLAIN ENGLISH: A squat to a box, holding one dumbbell at your chest. The box keeps the depth knee-friendly. HOW: Stand in front of a box or bench at knee height or higher. Hold a dumbbell vertically against the chest. Sit back and down for 3 seconds until you touch the box, don't flop onto it, then stand. From phase 2, stand up fast. Cues: Chest up; Knees follow the toes; Weight through the whole foot; Only lower the box if the knee stays quiet the next day."
+  "pw_jump": {
+    "title": "Snap-Down → Squat Jump → Box Jump",
+    "body": "PLAIN ENGLISH: Jump training, built up over the phases. Landing well comes first. PHASE 1 (snap-down): Rise onto your toes with arms up, then drop fast into a quarter squat, arms swinging back, and freeze silently. PHASE 2 (squat jump): Quick quarter-squat dip, jump straight up, land softly on the balls of the feet rolling to the heels, and stick it before the next rep. PHASE 3 (box jump): Start with a 12-inch box. Jump up, land softly on top, stand, then STEP down. Cues: Knees track over the toes, not caving in; Quiet landings; Full reset between reps. KNEE HURTING: Sit-to-stand from a knee-height bench instead, fast from phase 2, holding a dumbbell in phase 3. Same fast-up intent, no landing."
+  },
+  "pw_goblet_squat": {
+    "title": "Goblet Squat (and knee-sore swap)",
+    "body": "PLAIN ENGLISH: A squat holding one dumbbell at your chest. HOW: Feet about shoulder-width, toes slightly out. Sit down between your heels for 3 seconds, as deep as you can while the heels stay down and the chest stays up. From phase 2, stand up fast. Cues: Knees follow the toes; Weight through the whole foot; Elbows inside the knees at the bottom. KNEE HURTING: Squat to a bench or box at knee height, tap it lightly and stand. That limits how far the knee bends."
   },
   "pw_db_rdl": {
     "title": "Dumbbell Romanian Deadlift",
@@ -6992,16 +7001,16 @@ Object.assign(SYN_TIPS, {
     "body": "PLAIN ENGLISH: One movement that progresses across the three phases. It's a hip snap: the power comes from the hips, not the arms or knees. PHASE 1 (deadlift): Bell between the feet. Hinge back, grip it, stand tall, lower it with control. PHASE 2 (speed deadlift): Same, but stand up fast. PHASE 3 (Russian swing): Hike the bell back between the legs, then snap the hips forward so it floats to chest height. The arms just guide it. Cues: Hinge, don't squat; Glutes squeeze hard at the top; Stand tall, don't lean back; Park the bell when the hinge gets sloppy. No kettlebell: hold one dumbbell by its end."
   },
   "pw_fast_step_up": {
-    "title": "Low Step-Up (Fast)",
-    "body": "PLAIN ENGLISH: Stepping up onto a low step, trained for speed so a hurried step never catches you out. HOW: 6-8 inch step, whole foot on it. Drive through that foot to stand tall on top, then step down slowly for about 3 seconds. Phase 1 is controlled, phase 2 is fast up, phase 3 adds light dumbbells. Cues: Push through the top foot, not off the back foot; Knee tracks over the toes; No hop; A hand on a wall is fine. Knee worse the next day? Use a lower step or go back a phase."
+    "title": "Step-Up (Fast)",
+    "body": "PLAIN ENGLISH: Stepping up onto a box, trained for speed so a hurried step never catches you out. HOW: 12-inch box (up to 18 inches in phase 3), whole foot on it. Drive through that foot to stand tall on top, then step down slowly for about 3 seconds. Phase 1 is controlled, phase 2 is fast up, phase 3 adds dumbbells. Cues: Push through the top foot, not off the back foot; Knee tracks over the toes; A hand on a wall is fine. KNEE HURTING: Use a 6-8 inch step, or swap for glute bridges (fast up from phase 2)."
   },
   "pw_band_lateral_walk": {
     "title": "Band Lateral Walk (and no-band swap)",
     "body": "PLAIN ENGLISH: Stepping sideways against resistance to strengthen the side-hip muscles that keep the knee lined up and catch a sideways stumble. WITH A BAND: Loop band just above the knees, slight squat, step sideways keeping tension; don't let the feet snap together. NO BAND: Lateral step-outs, a big step sideways with a 2-second pause, then back. In phase 3, quick side shuffles with the feet never crossing. Or side-lying leg raises: lie on your side and lift the top leg slightly behind you, toes forward. Cues: Hips level; Toes point forward; Feel it on the side of the hip, not the front."
   },
   "pw_fast_calf_raise": {
-    "title": "Fast Calf Raise",
-    "body": "PLAIN ENGLISH: Rising onto your toes, trained for speed. The ankle is often the first joint to correct a stumble. HOW: Fingertips on a counter. Rise onto the balls of the feet, fast from phase 2 onward, then lower slowly for 3 seconds. Phase 3 is one leg at a time. Cues: Straight up, no rolling to the outside of the foot; Full height at the top; Slow on the way down."
+    "title": "Calf Raise → Pogo Hops",
+    "body": "PLAIN ENGLISH: Ankle power. The ankle is often the first joint to correct a stumble. PHASES 1-2: Fingertips on a counter, rise onto the balls of the feet (fast in phase 2), lower slowly for 3 seconds. PHASE 3 (pogo hops): Small, quick bounces off the balls of the feet, ankles stiff like springs, knees nearly straight. Cues: Straight up, no rolling to the outside of the foot; Quick and light. KNEE HURTING: Single-leg fast calf raise, fingertips on a counter."
   },
   "pw_step_drill": {
     "title": "Step Drills (Deliberate → Quick → Reactive)",
@@ -7021,7 +7030,7 @@ Object.assign(SYN_TIPS, {
   },
   "pw_db_push_press": {
     "title": "Dumbbell Shoulder Press → Push Press",
-    "body": "PLAIN ENGLISH: Pressing overhead. From phase 2, a small knee dip helps drive it up fast. PHASE 1: Seated or standing, dumbbells at the shoulders, press straight up, 2s down. PHASES 2-3 (push press): Standing, dip the knees a few inches, then drive through the legs and press the dumbbells up in one quick movement. Lower them over 3 seconds. Cues: The dip is shallow, not a squat; Ribs down, no leaning back; Biceps finish by the ears."
+    "body": "PLAIN ENGLISH: Pressing overhead. From phase 2, a small knee dip helps drive it up fast. PHASE 1: Seated or standing, dumbbells at the shoulders, press straight up, 2s down. PHASES 2-3 (push press): Standing, dip the knees a few inches, then drive through the legs and press the dumbbells up in one quick movement. Lower them over 3 seconds. Cues: The dip is shallow, not a squat; Ribs down, no leaning back; Biceps finish by the ears. KNEE HURTING: Strict press with no dip, pressing as fast as you can."
   },
   "pw_band_pull_apart": {
     "title": "Band Pull-Apart (and no-band swap)",

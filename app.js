@@ -1253,7 +1253,8 @@ const KNEE_AVOID = [
   'syn_squats', 'syn_goblet_squats', 'syn_front_squats', 'syn_bulgarian_split_squats',
   'sims_back_squat', 'wu_heel_elevated_squat', 'wu_sissy_squat',
   'syn_walking_lunges', 'wu_step_up', 'wu_weighted_step_up_glute',
-  'sims_squat_jump', 'sims_box_jump'
+  'sims_squat_jump', 'sims_box_jump',
+  'pw_jump', 'pw_goblet_squat', 'pw_fast_step_up'   /* Strength & Speed 45+ */
 ];
 
 /* the cautions currently switched on, as a stable cache key ('' when none) */
@@ -3037,7 +3038,7 @@ const SYN_LOAD = {
      whenever the reps are hit would slowly turn them back into strength work.
      The carry and the swing get a suggestion but prog:false, as in Sims. */
   'syn-strength-speed-45plus-12w': {
-    pw_goblet_box_squat:              { start: 10, type: 'hand' },   /* Goblet Box Squat */
+    pw_goblet_squat:                  { start: 10, type: 'hand' },   /* Goblet Squat */
     pw_db_rdl:                        { start: 10, type: 'hand' },   /* Dumbbell Romanian Deadlift */
     syn_dumbbell_bench_press:         { start: 10, type: 'hand' },   /* Dumbbell Bench Press */
     pw_cable_row:                     { start: 10, type: 'hand' },   /* Cable Row / single-arm DB row */
