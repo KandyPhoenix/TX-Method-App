@@ -1171,7 +1171,8 @@ const SYN_ICO = {
   'joint-mobility-mastery-7x': '\u{1F9B4}', 'movesmethod-workouts-3x': '\u{1F57A}',
   'dumbbell-49-supersets': '\u{1F517}', 'sims-lift-heavy-sprint-short': '\u{26A1}',
   'norwegian-4x4': '\u{1F6B4}', 'pelvic-floor-foundation-12w': '\u{1FAB7}',
-  'strength-speed-45plus-12w': '\u{1F3C3}'
+  'strength-speed-45plus-12w': '\u{1F3C3}',
+  'superage-120-4x30': '\u{23F1}\u{FE0F}'
 };
 const SYN_TAG = {
   'ppl': 'Strength', 'upper-lower': 'Strength', 'full-body': 'Strength',
@@ -1180,7 +1181,8 @@ const SYN_TAG = {
   'joint-mobility-mastery-7x': 'Mobility', 'movesmethod-workouts-3x': 'Mobility',
   'dumbbell-49-supersets': 'Strength', 'sims-lift-heavy-sprint-short': 'Strength',
   'norwegian-4x4': 'Conditioning', 'pelvic-floor-foundation-12w': 'Conditioning',
-  'strength-speed-45plus-12w': 'Power'
+  'strength-speed-45plus-12w': 'Power',
+  'superage-120-4x30': 'Longevity'
 };
 const SYN_GRP = {
   'asian-pilates-3x': 'recovery', 'mobility-snacks-4x': 'recovery',
@@ -1518,13 +1520,18 @@ function prepDateFor(dayNum) {
   return d;
 }
 function fmtPrepDate(d) { return d.toLocaleDateString(undefined, { weekday: 'short', month: 'short', day: 'numeric' }); }
-/* rough session length: timed work + recoveries, ~110 s per lift set, 45 s per mobility move */
+/* rough session length: timed work + recoveries, ~110 s per lift set, 45 s per mobility move.
+   A superset set counts 45 s, not 110: the partner exercise IS the rest.
+   SuperAge's article (Arent) times chest press → row → back at 60-80 s for
+   the pair, so ~40 s a set plus a few seconds of change-over. */
 function estDayMin(d) {
   if (d.rest) return 0;
   let sec = 0;
   d.exercises.forEach(e => {
     const n = e.sets || 1;
-    if (e.sec != null) sec += n * e.sec + (n - 1) * 60 + 30;
+    if (e.ss != null && e.sec != null) sec += n * (e.sec + 10);
+    else if (e.ss != null) sec += n * 45;
+    else if (e.sec != null) sec += n * e.sec + (n - 1) * 60 + 30;
     else if (e.sets)   sec += n * 110;
     else               sec += 45;
   });
@@ -3046,6 +3053,38 @@ const SYN_LOAD = {
     pw_kb_swing:                      { start: 15, type: 'hand', prog: false },   /* KB Deadlift → Swing */
     sims_farmer_carry:                { start: 15, type: 'hand', prog: false },   /* Farmer Carry */
   },
+  /* SuperAge 120 · 4×30. Every set is 8-12 reps (target 10) with 2-3 in
+     reserve, so the main barbell lifts start at Epley inverted for 10 + 2.5:
+         pct = (37 - 12.5) / 36 = 0.68 of the estimated 1RM.
+     Dumbbell and single-leg work reuses the app's existing SA_WEIGHT ratios
+     where one exists (sadbpress, stepup, sidelunge, splitsquatecc, dbrow),
+     trimmed slightly for the 10-rep target elsewhere. All of it is a
+     starting estimate that the reps-hit rule corrects within a session or
+     two. Carries suggest a load but do not progress (no rep target). */
+  'syn-superage-120-4x30': {
+    syn_bench_press:                  { src: 'bench',    pct: 0.68, type: 'bar'  },
+    syn_barbell_rows:                 { src: 'bench',    pct: 0.60, type: 'bar'  },
+    syn_overhead_press:               { src: 'press',    pct: 0.68, type: 'bar'  },
+    syn_incline_press:                { src: 'bench',    pct: 0.55, type: 'bar'  },
+    sims_back_squat:                  { src: 'squat',    pct: 0.68, type: 'bar'  },
+    syn_romanian_deadlift:            { src: 'deadlift', pct: 0.50, type: 'bar'  },
+    syn_barbell_hip_thrust:           { src: 'squat',    pct: 0.68, type: 'bar'  },
+    syn_deadlift:                     { src: 'deadlift', pct: 0.68, type: 'bar'  },
+    syn_dumbbell_bench_press:         { src: 'bench',    pct: 0.30, type: 'hand' },
+    syn_incline_dumbbell_press:       { src: 'bench',    pct: 0.25, type: 'hand' },
+    sadbpress:                        { src: 'press',    pct: 0.30, type: 'hand' },
+    syn_single_arm_dumbbell_row:      { src: 'bench',    pct: 0.35, type: 'hand' },
+    pw_cable_row:                     { src: 'bench',    pct: 0.35, type: 'hand' },
+    syn_goblet_squats:                { src: 'squat',    pct: 0.30, type: 'db'   },
+    splitsquatecc:                    { src: 'squat',    pct: 0.15, type: 'hand' },
+    syn_bulgarian_split_squats:       { src: 'squat',    pct: 0.12, type: 'hand' },
+    syn_reverse_lunges:               { src: 'squat',    pct: 0.15, type: 'hand' },
+    sidelunge:                        { src: 'squat',    pct: 0.12, type: 'hand' },
+    stepup:                           { src: 'squat',    pct: 0.15, type: 'hand' },
+    wu_single_leg_rdl:                { src: 'deadlift', pct: 0.15, type: 'hand' },
+    sims_farmer_carry:                { src: 'deadlift', pct: 0.30, type: 'hand', prog: false },
+    sims_suitcase_carry:              { src: 'deadlift', pct: 0.25, type: 'hand', prog: false },
+  },
   'syn-dumbbell-49-supersets': {
     syn_dumbbell_bench_press:         { start: 10, type: 'hand' },   /* Flat DB Press */
     syn_incline_dumbbell_press:       { start: 10, type: 'hand' },   /* Incline DB Press */
@@ -3765,6 +3804,10 @@ const FORM_VIDEOS = {
   pw_single_leg_balance: 'okRFJ_1GmqY',   // Single Leg Balance With Eyes Closed — altaTherapies
   syn_dumbbell_bench_press: 'cZalRJCaw20', // How To Dumbbell Chest Press PROPERLY | Fix Your DB Bench Press — Colossus Fitness
   pf_zone2_walk:         'UGOcJSZNpPY',   // How Do You Know You Are In Your Zone 2? Use The Talk Test! — Dr. Carrie Snaychuk
+  /* SuperAge 120 · 4×30 (2026-09-26, oEmbed-checked). The pulldown key shows
+     the negative pull-up, because that is the version done without a machine. */
+  sa_mb_slam:            '6vXHh-Lhb2o',   // How to Do Medicine Ball Slams | Sleek/Strong With Rachel Cosgrove — LivestrongWoman
+  sa_lat_pulldown:       'gbPURTSxQLY',   // How To Do a Negative Pull-Up | Exercise Guide — Bodybuilding.com
   squat:       'SbgHegC6lEs',   // How to Back Squat |#AskSquatU Show Ep. 10| — Squat University
   bench:       'A9MM-XkoWcw',   // How to: Barbell Bench Press – Proper Form Tutorial — BarbarianBody
   deadlift:    'XxWcirHIwVo',   // How to PROPERLY Deadlift for Growth — Jeremy Ethier

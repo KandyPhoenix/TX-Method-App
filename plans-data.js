@@ -7041,3 +7041,235 @@ Object.assign(SYN_TIPS, {
     "body": "PLAIN ENGLISH: Standing on one leg, progressed until the inner ear and ankle do the work instead of the eyes. HOW: Beside a counter, fingertips hovering above it. Phase 1: eyes open, working toward no hands. Phase 2: add slow head turns side to side. Phase 3: eyes closed, and open them the moment you wobble. Cues: Soft standing knee; Hips level; Wobble is the training; Touch the counter whenever you need to."
   }
 });
+
+/* =====================================================================
+   SUPERAGE 120 · 4×30 — built from one article, 2026-09-26
+   "The Best Strength Training Dose for Longevity, According to Harvard"
+   (superage.com, 2026-07-31; experts Shawn Arent PhD and Mike Aidala).
+
+   The older SUPERAGE2/4/H programs in app.js rotate every exercise weekly,
+   so no lift is repeated often enough for the reps-hit load rule to move
+   it, and their pools use only a few of the article's listed options.
+   This one follows the article's own structure more literally:
+     - Arent's preferred week: 2 upper + 2 lower, 2-3 supersets each,
+       ~30 min, 3-4 rounds per superset, 8-12 reps, 2-3 reps in reserve.
+     - An explosive opener every session (the article's skater hops,
+       squat jumps, scissor lunges / medicine-ball slams) and lateral work.
+     - Aidala's core-and-carry pair as the third superset.
+     - Exercises only from the article's two option lists (its images
+       Upper-/Lower-Body-Exercise-Options.png). Items needing kit Kandy
+       does not have keep the article's name with a NO ... swap line:
+       cable rows, lat pulldown, leg curl, trap bar. Sled push/pull, leg
+       press and leg extension are left out.
+   Progressive load: each 4-week block keeps the SAME exercises so the
+   reps-hit rule can raise the weight week to week. Block B (wk 5-8)
+   swaps to the barbell/single-leg options; block A returns in wk 9-12 and
+   carries on from the weights it left at. Rounds go 3 → 4 inside each
+   block, which lands in the article's 12-18 weekly sets per muscle.
+   ===================================================================== */
+const SA120_PLAN = (function () {
+  var R = "8-12 reps · stop with 2-3 in reserve";
+
+  function warm() {
+    return [
+      { key: "jumprope", name: "Jump Rope or Brisk March", sets: 1, sec: 120, needs: "bodyweight",
+        scheme: "2 min easy · just get warm · KNEE HURTING: brisk march in place" },
+      { key: "wuleg", name: "Leg Swings", sets: 1, reps: 10, needs: "bodyweight", scheme: "10 per side, front-to-back, hold something" },
+      { key: "wuhip", name: "Hip Circles", sets: 1, reps: 10, needs: "bodyweight", scheme: "10 each direction" },
+      { key: "wuarm", name: "Arm Circles", sets: 1, reps: 10, needs: "bodyweight", scheme: "10 each direction, big and slow" }
+    ];
+  }
+  function ss(n, ex, sets, reps, extra, pos) {
+    /* pos 1 = first move of the pair, 2 = partner */
+    var tag = (n === 3 ? "Superset 3 · " : "Superset " + n + " · ") + (pos === 1 ? "A1" : "A2").replace("A", String.fromCharCode(64 + n));
+    var o = { key: ex.key, name: ex.name, sets: sets, needs: ex.needs, ss: n };
+    if (ex.sec) o.sec = ex.sec; else o.reps = reps;
+    if (ex.side) o.side = true;
+    o.scheme = tag + " · " + (extra || R) + (pos === 2 ? " · no rest, then back to " + String.fromCharCode(64 + n) + "1" : "");
+    return o;
+  }
+
+  /* Each session: [explosive, [ss1a, ss1b], [ss2a, ss2b], [ss3a, ss3b]] */
+  var X = {
+    slam: { key: "sa_mb_slam", name: "Medicine Ball Slam", needs: "bodyweight",
+      scheme: "2 × 6 · explosive, full effort, reset each rep · NO MED BALL: explosive incline push-up, hands on a bench, push away fast" },
+    squatjump: { key: "sims_squat_jump", name: "Squat Jumps", needs: "bodyweight",
+      scheme: "2 × 6 · explosive, land soft and stick it · KNEE HURTING: fast sit-to-stand from a bench" },
+    skater: { key: "skaters", name: "Skater Hops", needs: "bodyweight",
+      scheme: "2 × 6 per side · side to side, land soft · KNEE HURTING: fast lateral step-outs, no hop" },
+    scissor: { key: "scissorlunge", name: "Scissor Lunges", needs: "bodyweight",
+      scheme: "2 × 5 per side · switch legs in the air · KNEE HURTING: fast alternating reverse lunges, no jump" }
+  };
+  var E = {
+    dbBench:   { key: "syn_dumbbell_bench_press", name: "Dumbbell Chest Press", needs: "dumbbells" },
+    bbBench:   { key: "syn_bench_press", name: "Barbell Bench Press", needs: "gym" },
+    incDb:     { key: "syn_incline_dumbbell_press", name: "Incline Dumbbell Press", needs: "dumbbells" },
+    incBb:     { key: "syn_incline_press", name: "Incline Press", needs: "gym" },
+    ohpBb:     { key: "syn_overhead_press", name: "Overhead Press", needs: "gym" },
+    saOhp:     { key: "sadbpress", name: "Single-Arm Dumbbell Overhead Press", needs: "dumbbells", side: true },
+    pushup:    { key: "pushups", name: "Pushups", needs: "bodyweight" },
+    dbRow:     { key: "syn_single_arm_dumbbell_row", name: "Dumbbell Row", needs: "dumbbells", side: true },
+    bbRow:     { key: "syn_barbell_rows", name: "Barbell Row", needs: "gym" },
+    cableRow:  { key: "pw_cable_row", name: "Seated Cable Row", needs: "dumbbells" },
+    saCable:   { key: "pw_cable_row", name: "Single-Arm Cable Row", needs: "dumbbells", side: true },
+    pullup:    { key: "syn_pull_ups", name: "Pullups", needs: "bodyweight" },
+    pulldown:  { key: "sa_lat_pulldown", name: "Lat Pulldown", needs: "bodyweight" },
+    goblet:    { key: "syn_goblet_squats", name: "Goblet Squat", needs: "dumbbells" },
+    backSquat: { key: "sims_back_squat", name: "Barbell Back Squat", needs: "gym" },
+    split:     { key: "splitsquatecc", name: "Dumbbell Split Squat", needs: "dumbbells", side: true },
+    rfess:     { key: "syn_bulgarian_split_squats", name: "Rear-Foot Elevated Split Squat", needs: "dumbbells", side: true },
+    revLunge:  { key: "syn_reverse_lunges", name: "Reverse Lunge", needs: "dumbbells", side: true },
+    latLunge:  { key: "sidelunge", name: "Lateral Lunge", needs: "dumbbells", side: true },
+    stepup:    { key: "stepup", name: "Stepup", needs: "dumbbells", side: true },
+    rdl:       { key: "syn_romanian_deadlift", name: "Romanian Deadlift", needs: "gym" },
+    slRdl:     { key: "wu_single_leg_rdl", name: "Single-Leg Romanian Deadlift", needs: "dumbbells", side: true },
+    thrust:    { key: "syn_barbell_hip_thrust", name: "Barbell Hip Thrust", needs: "gym" },
+    legCurl:   { key: "syn_stability_ball_hamstring_curl", name: "Leg Curl", needs: "bodyweight" },
+    trapDl:    { key: "syn_deadlift", name: "Trap Bar Deadlift", needs: "gym" },
+    farmer:    { key: "sims_farmer_carry", name: "Farmer's Carry", needs: "dumbbells" },
+    suitcase:  { key: "sims_suitcase_carry", name: "Suitcase Carry", needs: "dumbbells" },
+    plank:     { key: "syn_plank_hold", name: "Plank", needs: "bodyweight", sec: 40 },
+    sidePlank: { key: "sideplank", name: "Side Plank", needs: "bodyweight", sec: 25, side: true }
+  };
+  /* scheme overrides where a move needs its own line */
+  var NOTE = {
+    pw_cable_row: R + " · NO CABLE: single-arm dumbbell row, hand and knee on the bench",
+    sa_lat_pulldown: "6-8 reps · NO MACHINE: pull-up negatives on the bar, jump or step up, lower for 5s",
+    syn_pull_ups: "as many clean reps as you can, 2 in reserve · can't do one yet? 3-5 slow negatives",
+    syn_stability_ball_hamstring_curl: "10-12 reps · NO LEG-CURL MACHINE: stability-ball hamstring curl",
+    syn_deadlift: R + " · NO TRAP BAR: conventional barbell deadlift",
+    sims_farmer_carry: "40 steps · heavy, tall posture, no leaning",
+    sims_suitcase_carry: "30 steps per side · heavy in one hand, stay level",
+    syn_plank_hold: "40s · ribs down, squeeze glutes, breathe",
+    sideplank: "25s per side · hips high, one straight line",
+    pushups: "8-12 reps · elevate the hands on a bench if 8 is out of reach",
+    syn_goblet_squats: R + " · KNEE HURTING: squat to a knee-height box",
+    sims_back_squat: R + " · KNEE HURTING: box squat to a knee-height box, lighter",
+    splitsquatecc: R + " per side · 3s down · KNEE HURTING: shorter range, back knee stops higher",
+    syn_bulgarian_split_squats: R + " per side · KNEE HURTING: flat-floor split squat, shorter range",
+    syn_reverse_lunges: R + " per side · KNEE HURTING: split squat with a shorter range",
+    sidelunge: "8 per side · sit the hips back · KNEE HURTING: shallower lunge, hold a counter",
+    stepup: R + " per side · box at about knee height · KNEE HURTING: 6-8 inch step"
+  };
+  function schemeFor(e) { return NOTE[e.key] || (R + (e.side ? " per side" : "")); }
+
+  var SESS = {
+    A: {
+      "Upper A": [X.slam, [E.dbBench, E.dbRow], [E.saOhp, E.pullup], [E.farmer, E.plank]],
+      "Lower A": [X.squatjump, [E.goblet, E.rdl], [E.revLunge, E.thrust], [E.latLunge, E.suitcase]],
+      "Upper B": [X.slam, [E.incDb, E.cableRow], [E.pushup, E.pulldown], [E.farmer, E.sidePlank]],
+      "Lower B": [X.skater, [E.split, E.slRdl], [E.stepup, E.legCurl], [E.latLunge, E.farmer]]
+    },
+    B: {
+      "Upper A": [X.slam, [E.bbBench, E.bbRow], [E.ohpBb, E.pullup], [E.farmer, E.plank]],
+      "Lower A": [X.scissor, [E.backSquat, E.rdl], [E.revLunge, E.thrust], [E.latLunge, E.suitcase]],
+      "Upper B": [X.slam, [E.incBb, E.saCable], [E.saOhp, E.pulldown], [E.farmer, E.sidePlank]],
+      "Lower B": [X.skater, [E.rfess, E.slRdl], [E.stepup, E.trapDl], [E.latLunge, E.farmer]]
+    }
+  };
+  var ORDER = ["Upper A", "Lower A", "Upper B", "Lower B"];
+
+  var days = [];
+  for (var w = 1; w <= 12; w++) {
+    var block = (w >= 5 && w <= 8) ? "B" : "A";
+    var wk = ((w - 1) % 4) + 1;              /* week inside the block */
+    var rounds = wk <= 2 ? 3 : 4, core = wk <= 2 ? 2 : 3;
+    ORDER.forEach(function (name) {
+      var s = SESS[block][name];
+      var ex = warm();
+      ex.push({ key: s[0].key, name: s[0].name, sets: 2, reps: 6, needs: s[0].needs, scheme: s[0].scheme });
+      [1, 2, 3].forEach(function (n) {
+        var pair = s[n], sets = n === 3 ? core : rounds;
+        pair.forEach(function (e, i) {
+          var reps = e.key === "sa_lat_pulldown" ? 6 : e.key === "syn_pull_ups" ? 5 : e.key === "sidelunge" ? 8 : e.key.indexOf("carry") >= 0 ? 40 : 10;
+          ex.push(ss(n, e, sets, reps, schemeFor(e), i + 1));
+        });
+      });
+      days.push({
+        title: name + " · Block " + (block === "A" ? (w <= 4 ? "1" : "3") : "2"),
+        focus: "Week " + w + " of 12 · " + rounds + " rounds per superset · warm-up, explosive opener, then 3 supersets",
+        exercises: ex
+      });
+    });
+  }
+
+  var dayCard = {
+    "Upper A": { title: "Push, pull, then carry", body: "Chest move, straight to the row, back to the chest move: that loop is the rest period. Put the phone away between sets. The article's point is that a 30-minute session only works if the 30 minutes are training." },
+    "Lower A": { title: "Squat or lunge, then hinge", body: "Squat or lunge first, hinge second, no rest between. The lateral lunge in superset 3 is the side-to-side work the article asks for." },
+    "Upper B": { title: "Different angles, same rules", body: "Incline pressing and a second row variation. No cable machine? The NO CABLE / NO MACHINE lines give the swap." },
+    "Lower B": { title: "One leg at a time", body: "Split squats, single-leg deadlifts and step-ups. Single-leg work trains balance along with strength. Use the lighter side's weight for both legs." }
+  };
+  var guideDays = {};
+  ["1", "2", "3"].forEach(function (b) {
+    ORDER.forEach(function (n) { var c = dayCard[n]; guideDays[n + " · Block " + b] = { kicker: "Today", title: c.title, body: c.body }; });
+  });
+
+  return {
+    id: "superage-120-4x30",
+    name: "SuperAge 120 · 4×30",
+    desc: "4 × 30 min a week · supersets · progressive load, from the SuperAge 120-minute article",
+    kneeSafe: false,
+    guide: {
+      blurb: "Four 30-minute sessions a week (two upper, two lower) for the 120 weekly minutes of strength training in SuperAge's July 2026 article. It's built the way the article's experts describe: supersets instead of long rests, 8-12 reps stopping with 2-3 in reserve, 3-4 rounds per superset, big multi-joint moves first, an explosive opener, and lateral work. Each 4-week block keeps the same exercises so the weights can climb.",
+      rotate: [
+        { kicker: "The dose", title: "About 120 minutes a week",
+          body: "SuperAge reports that a Harvard study in the British Journal of Sports Medicine (more than 147,000 people) linked 90-120 minutes a week of strength training with 19% lower cardiovascular death risk and 27% lower risk of death from neurological disease, with no extra protection beyond two hours. That's the article's summary. I haven't checked the study itself." },
+        { kicker: "Every set", title: "8-12 reps, 2-3 in reserve",
+          body: "Pick a weight you can lift 8-12 times and stop when you could do 2 or 3 more. The article's point is that this works almost as well as going to failure, and you'll be less sore." },
+        { kicker: "Supersets", title: "The partner exercise is your rest",
+          body: "Do A1, go straight to A2, then back to A1. Arent's example: chest press to row and back takes about 60-80 seconds, which is enough rest for each muscle." },
+        { kicker: "Progress", title: "Hit every set, the weight goes up",
+          body: "Log your reps. If every set hits the target, the app raises that weight next session. Miss one and it holds. Three misses in a row and it drops back so you can rebuild." },
+        { kicker: "Phone", title: "Put it away",
+          body: "Aidala's biggest time-waster: checking email between sets. Two minutes lost on a 30-minute session is a big share of it." },
+        { kicker: "Knee hurting?", title: "Use the KNEE HURTING line",
+          body: "The jumps, squats, lunges and step-ups each list a gentler swap for days the knee complains." }
+      ],
+      after: [
+        { kicker: "Next session", title: "Check what moved",
+          body: "Any lift where you hit every set will show a heavier suggested weight next time. That's the progressive load working." }
+      ],
+      days: guideDays,
+      groups: [
+        { title: "How it's built", tone: "cycle", icon: "\u{1F9F1}", items: [
+          { title: "Each session, about 30 minutes",
+            body: "About 5 minutes of warm-up: jump rope or a brisk march, then leg, hip and arm circles. The article asks for 5-10 minutes, so add time if you're stiff. Then 2 sets of an explosive move, two strength supersets, and a core-and-carry superset." },
+          { title: "Weekly sets",
+            body: "Two push supersets and two pull supersets on each upper day × 2 upper days gives 12 sets a week per muscle at 3 rounds and 16 at 4 rounds. Lower days work the same way for squats/lunges and hinges. That's inside the article's 12-18 sets per muscle per week." },
+          { title: "Three blocks",
+            body: "Weeks 1-4 use dumbbell-led versions (block 1). Weeks 5-8 switch to barbell and single-leg options (block 2). Weeks 9-12 bring back block 1's exercises and continue from the weights you left at. Inside each block, weeks 1-2 are 3 rounds per superset and weeks 3-4 are 4." },
+          { title: "Days",
+            body: "Upper A, Lower A, Upper B, Lower B. The article doesn't set specific days. Spreading them out, for example Mon, Tue, Thu and Fri, gives each muscle time to recover." }
+        ]},
+        { title: "Equipment swaps", tone: "fuel", icon: "\u{1F504}", items: [
+          { title: "What's left out",
+            body: "The article's lists include a sled push and pull, leg press and leg extension. They need equipment you don't have, so they aren't in the program." },
+          { title: "What has a swap",
+            body: "Seated and single-arm cable rows → single-arm dumbbell row. Lat pulldown → pull-up negatives. Leg curl → stability-ball hamstring curl. Trap bar deadlift → conventional barbell deadlift. Medicine ball slam → explosive incline push-up. Each swap is on the exercise line and in its How-to." }
+        ]},
+        { title: "The honest bits", tone: "warn", icon: "⚠️", items: [
+          { title: "Where the numbers come from",
+            body: "The 19% and 27% figures and the 12-18 sets guidance are as reported by the SuperAge article. I read the article, not the underlying studies." },
+          { title: "Starting weights are estimates",
+            body: "Starting weights come from your Setup lifts (marked ≈) using the app's usual ratios. Treat week 1 as calibration: if 10 reps feels far too easy or too hard, change the weight and the app carries on from there." },
+          { title: "Not medical advice",
+            body: "Check with your provider or a physical therapist if anything here conflicts with your knees or other conditions." }
+        ]}
+      ],
+      sources: "SuperAge, \"The Best Strength Training Dose for Longevity, According to Harvard,\" published 31 July 2026, superage.com/120-minutes-of-weekly-strength-work-is-best-for-longevity-heres-what-to-do/ — expert guidance from Shawn Arent PhD (University of South Carolina) and Mike Aidala (The Offense, Boulder CO). Exercise options from the article's Upper- and Lower-Body Exercise Options images. Research as cited by the article, not independently verified here: the British Journal of Sports Medicine study (bjsm.bmj.com/content/60/12/874) on 90-120 min/week of strength training; a Sports Medicine review on 3-5 min rests; a SportRxiv preprint on reps in reserve. The block structure, round counts, starting-weight ratios and swaps are this app's programming, not the article's."
+    },
+    days: days
+  };
+})();
+SYN_PLANS.push(SA120_PLAN);
+
+Object.assign(SYN_TIPS, {
+  "sa_mb_slam": {
+    "title": "Medicine Ball Slam (and no-ball swap)",
+    "body": "PLAIN ENGLISH: Lift a ball overhead and throw it into the floor as hard as you can. It's the article's upper-body explosive move. WITH A BALL: Use a non-bouncing slam ball. Feet shoulder-width, ball overhead on your toes, then slam it down in front of your feet by hinging and bracing hard. Squat to pick it up with a flat back, then reset. Cues: Exhale on the slam; Full effort every rep; Stop when the speed fades. NO MED BALL: Explosive incline push-up. Hands on a bench, lower for 2 seconds, then push away as fast as you can."
+  },
+  "sa_lat_pulldown": {
+    "title": "Lat Pulldown (and pull-up negative swap)",
+    "body": "PLAIN ENGLISH: Pulling a bar down to your upper chest to train the lats. WITH A MACHINE: Grip just wider than shoulders, chest up, pull the bar to the top of the chest by driving the elbows down, control it back up. NO MACHINE: Pull-up negatives. Jump or step up so your chin is over the pull-up bar, then lower yourself as slowly as you can, aiming for 5 seconds, until your arms are straight. Step down and repeat. Cues: Shoulders down away from the ears; Slow is the point; When you can do 8 good 5-second negatives, try a full pull-up."
+  }
+});
