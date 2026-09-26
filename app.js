@@ -1170,7 +1170,8 @@ const SYN_ICO = {
   'military-pelvic-4x': '\u{1F396}\u{FE0F}', 'mobility-snacks-4x': '\u{1F34E}',
   'joint-mobility-mastery-7x': '\u{1F9B4}', 'movesmethod-workouts-3x': '\u{1F57A}',
   'dumbbell-49-supersets': '\u{1F517}', 'sims-lift-heavy-sprint-short': '\u{26A1}',
-  'norwegian-4x4': '\u{1F6B4}', 'pelvic-floor-foundation-12w': '\u{1FAB7}'
+  'norwegian-4x4': '\u{1F6B4}', 'pelvic-floor-foundation-12w': '\u{1FAB7}',
+  'strength-speed-45plus-12w': '\u{1F3C3}'
 };
 const SYN_TAG = {
   'ppl': 'Strength', 'upper-lower': 'Strength', 'full-body': 'Strength',
@@ -1178,7 +1179,8 @@ const SYN_TAG = {
   'military-pelvic-4x': 'Conditioning', 'mobility-snacks-4x': 'Mobility',
   'joint-mobility-mastery-7x': 'Mobility', 'movesmethod-workouts-3x': 'Mobility',
   'dumbbell-49-supersets': 'Strength', 'sims-lift-heavy-sprint-short': 'Strength',
-  'norwegian-4x4': 'Conditioning', 'pelvic-floor-foundation-12w': 'Conditioning'
+  'norwegian-4x4': 'Conditioning', 'pelvic-floor-foundation-12w': 'Conditioning',
+  'strength-speed-45plus-12w': 'Power'
 };
 const SYN_GRP = {
   'asian-pilates-3x': 'recovery', 'mobility-snacks-4x': 'recovery',
@@ -3027,6 +3029,21 @@ const SYN_LOAD = {
     syn_romanian_deadlift:              { src: 'deadlift', pct: 0.525, type: 'bar'  },   /* Romanian Deadlift · 8 reps · 0.70 x Epley(8+2) */
     syn_b_stance_rdl:                   { src: 'deadlift', pct: 0.15, type: 'hand' },   /* B-Stance RDL · half dbrdl: it is near single-leg, and dbrdl's .30 put it at the dumbbell ceiling */
     syn_split_squat_shallow:            { src: 'squat', pct: 0.10, type: 'hand' },   /* Split Squat (Shallow) · under stepup's .15 on purpose — this is the knee-protective program, so the accessories start light and climb */
+  },
+  /* Strength & Speed 45+: every loaded lift starts light and lets the
+     reps-hit rule find the working weight — no Setup lift maps honestly onto
+     a goblet box squat or a single-arm row. The speed movements are absent
+     on purpose: their load is chosen for speed, and a rule that adds weight
+     whenever the reps are hit would slowly turn them back into strength work.
+     The carry and the swing get a suggestion but prog:false, as in Sims. */
+  'syn-strength-speed-45plus-12w': {
+    pw_goblet_box_squat:              { start: 10, type: 'hand' },   /* Goblet Box Squat */
+    pw_db_rdl:                        { start: 10, type: 'hand' },   /* Dumbbell Romanian Deadlift */
+    syn_dumbbell_bench_press:         { start: 10, type: 'hand' },   /* Dumbbell Bench Press */
+    pw_cable_row:                     { start: 10, type: 'hand' },   /* Cable Row / single-arm DB row */
+    pw_db_push_press:                 { start: 8,  type: 'hand' },   /* DB Shoulder Press → Push Press */
+    pw_kb_swing:                      { start: 15, type: 'hand', prog: false },   /* KB Deadlift → Swing */
+    sims_farmer_carry:                { start: 15, type: 'hand', prog: false },   /* Farmer Carry */
   },
   'syn-dumbbell-49-supersets': {
     syn_dumbbell_bench_press:         { start: 10, type: 'hand' },   /* Flat DB Press */

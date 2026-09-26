@@ -6691,3 +6691,344 @@ Object.assign(SYN_TIPS, {
     "body": "PLAIN ENGLISH: A walk brisk enough to hear your breathing, easy enough to hold a conversation. HOW: Flat route, cushioned shoes, steady pace for the prescribed minutes. Cues: Full sentences possible = right pace; Gasping = slow down; Arms swing, shoulders loose; The next-morning knee report grades the walk, not the pace app."
   }
 });
+
+/* =====================================================================
+   STRENGTH & SPEED 45+ — 12 weeks, generated like PF12 above
+   (3 sessions + 3 easy walks a week; the 7th day is rest).
+
+   Built for women 45+ who want the "power" half of training — standing
+   up fast, stepping quickly, catching a trip — without jumps or landings,
+   because the knees set the ceiling. Every speed drill here keeps a foot
+   on the floor or a hand on the load.
+
+   Three phases change HOW each movement is done, not which muscles work:
+     1 Control (wk 1-4)  slow and even, learn the positions
+     2 Speed   (wk 5-8)  same movements, lifting phase as fast as possible
+     3 Power   (wk 9-12) a bit more load, still moved fast, plus reactive
+                          stepping
+   Weeks 4 and 8 drop a set to consolidate; weeks 1, 6 and 12 open with a
+   30-second chair-stand check so progress is measured, not guessed.
+
+   Equipment: cable, band and medicine-ball movements stay in the plan,
+   and each one carries its no-kit alternative in the scheme line AND in
+   its How-to, so the swap is visible mid-session. Their `needs` reflects
+   the alternative, so nothing is marked unrunnable for lack of a band.
+   pw_-prefixed keys are new and get tips below; the Farmer Carry,
+   Dumbbell Bench Press and Zone 2 Walk reuse catalogue keys.
+   ===================================================================== */
+const SS45_PLAN = (function () {
+  var SETS = [2, 3, 3, 2, 3, 3, 3, 2, 3, 3, 4, 3];              /* working sets, by week */
+  var WALK = [20, 20, 20, 25, 25, 25, 30, 30, 30, 30, 30, 30];    /* zone-2 minutes, by week */
+  var PHASE_NAME = ["Control", "Speed", "Power"];
+  var TEST_WEEKS = { 1: true, 6: true, 12: true };
+
+  function phase(w) { return w <= 4 ? 1 : w <= 8 ? 2 : 3; }
+
+  function chairTest() {
+    return { key: "pw_chair_stand_test", name: "30-Second Chair Stand Check", sets: 1, sec: 30, needs: "bodyweight",
+      scheme: "Count full stands in 30s, arms crossed, standard chair · write the number down · compare with week 1, not with anyone else" };
+  }
+
+  function lower(p, s) {
+    var byPhase = {
+      1: [
+        { key: "pw_fast_sit_to_stand", name: "Sit-to-Stand (Brisk)", sets: s, reps: 8, needs: "bodyweight",
+          scheme: s + "×8 · bench or box at knee height · stand briskly, 3s sit · no hands if you can" },
+        { key: "pw_goblet_box_squat", name: "Goblet Box Squat", sets: s, reps: 10, needs: "dumbbells",
+          scheme: s + "×10 · one dumbbell at the chest · 3s down to the box, tap, stand · box at or above knee height" },
+        { key: "pw_db_rdl", name: "Dumbbell Romanian Deadlift", sets: s, reps: 10, needs: "dumbbells",
+          scheme: s + "×10 · 3s down, hips back, soft knees · stop when the back wants to round" },
+        { key: "pw_kb_swing", name: "Kettlebell Deadlift", sets: s, reps: 8, needs: "dumbbells",
+          scheme: s + "×8 · learn the hinge that becomes the swing · bell between the feet, hips back, stand tall" },
+        { key: "pw_fast_step_up", name: "Low Step-Up", sets: 2, reps: 8, needs: "bodyweight",
+          scheme: "2×8 per side · 6-8 inch step · controlled up and down · hand on a wall is fine" },
+        { key: "pw_band_lateral_walk", name: "Band Lateral Walk", sets: 2, reps: 10, needs: "bodyweight",
+          scheme: "2×10 steps each way · band above the knees · NO BAND: lateral step-outs with a 2s pause, or side-lying leg raise 2×12 per side" },
+        { key: "pw_fast_calf_raise", name: "Calf Raise", sets: 2, reps: 12, needs: "bodyweight",
+          scheme: "2×12 · both feet, fingertips on a counter · 2s up, 2s down" },
+        { key: "pw_step_drill", name: "Step Drill (Deliberate)", sets: 2, sec: 30, needs: "bodyweight",
+          scheme: "2 × 30s per side · step forward, side, back to a clock face and return · big, deliberate steps near a counter" }
+      ],
+      2: [
+        { key: "pw_fast_sit_to_stand", name: "Fast Sit-to-Stand", sets: s, reps: 6, needs: "bodyweight",
+          scheme: s + "×6 · stand up AS FAST AS YOU CAN, 3s sit · feet stay on the floor, no jump" },
+        { key: "pw_goblet_box_squat", name: "Goblet Box Squat (Fast Up)", sets: s, reps: 8, needs: "dumbbells",
+          scheme: s + "×8 · 3s down to the box, stand up fast · same box height as phase 1" },
+        { key: "pw_db_rdl", name: "Dumbbell Romanian Deadlift", sets: s, reps: 8, needs: "dumbbells",
+          scheme: s + "×8 · 3s down, snap the hips forward to stand · a little heavier than phase 1" },
+        { key: "pw_kb_swing", name: "Kettlebell Speed Deadlift", sets: s, reps: 6, needs: "dumbbells",
+          scheme: s + "×6 · stand up fast, lower under control · the bell never leaves the line of the legs" },
+        { key: "pw_fast_step_up", name: "Fast Low Step-Up", sets: 3, reps: 6, needs: "bodyweight",
+          scheme: "3×6 per side · 6-8 inch step · drive up fast, 3s step down · no hop" },
+        { key: "pw_band_lateral_walk", name: "Band Lateral Walk", sets: 3, reps: 10, needs: "bodyweight",
+          scheme: "3×10 steps each way · band above the knees, quicker steps · NO BAND: fast lateral step-outs, or side-lying leg raise 3×12 per side" },
+        { key: "pw_fast_calf_raise", name: "Fast Calf Raise", sets: 3, reps: 10, needs: "bodyweight",
+          scheme: "3×10 · rise fast, 3s lower · fingertips on a counter" },
+        { key: "pw_step_drill", name: "Quick Step Drill", sets: 3, sec: 30, needs: "bodyweight",
+          scheme: "3 × 30s per side · the same clock-face steps, as quickly as you can while staying tidy · near a counter" }
+      ],
+      3: [
+        { key: "pw_fast_sit_to_stand", name: "Loaded Fast Sit-to-Stand", sets: s, reps: 5, needs: "dumbbells",
+          scheme: s + "×5 · one dumbbell at the chest · explode up, 3s sit · no dumbbell: arms crossed, lower box height one notch if pain-free" },
+        { key: "pw_goblet_box_squat", name: "Goblet Box Squat (Heavier, Fast Up)", sets: s, reps: 6, needs: "dumbbells",
+          scheme: s + "×6 · heavier than phase 2 · 3s down, fast up · box stays at knee height unless the knee is quiet" },
+        { key: "pw_db_rdl", name: "Dumbbell Romanian Deadlift (Heavy)", sets: s, reps: 6, needs: "dumbbells",
+          scheme: s + "×6 · heaviest of the program · 3s down, fast up · 2 reps left in the tank" },
+        { key: "pw_kb_swing", name: "Kettlebell Swing", sets: s, reps: 10, needs: "dumbbells",
+          scheme: s + "×10 · Russian swing to chest height · hips snap, arms just ride along · park the bell when the hinge fades" },
+        { key: "pw_fast_step_up", name: "Fast Weighted Step-Up", sets: 3, reps: 6, needs: "dumbbells",
+          scheme: "3×6 per side · 6-8 inch step, light dumbbells at the sides · fast up, 3s down" },
+        { key: "pw_band_lateral_walk", name: "Band Lateral Shuffle", sets: 3, reps: 10, needs: "bodyweight",
+          scheme: "3×10 quick steps each way · band above the knees · NO BAND: quick lateral shuffle, feet never cross, or side-lying leg raise with a 3s hold" },
+        { key: "pw_fast_calf_raise", name: "Single-Leg Fast Calf Raise", sets: 3, reps: 8, needs: "bodyweight",
+          scheme: "3×8 per side · rise fast, 3s lower · fingertips on a counter" },
+        { key: "pw_step_drill", name: "Reactive Lean-and-Step", sets: 3, reps: 5, needs: "bodyweight",
+          scheme: "3 × 5 per direction · lean from the ankles until you must step, catch it with one quick step · beside a wall or counter" }
+      ]
+    };
+    return byPhase[p];
+  }
+
+  function upper(p, s) {
+    var byPhase = {
+      1: [
+        { key: "pw_med_ball_chest_pass", name: "Medicine Ball Chest Pass", sets: 2, reps: 8, needs: "bodyweight",
+          scheme: "2×8 · light ball against a wall, catch softly · NO MED BALL: incline push-up, hands on a counter, smooth 2s down" },
+        { key: "pw_pallof_press", name: "Cable Pallof Press", sets: 2, reps: 10, needs: "bodyweight",
+          scheme: "2×10 per side · cable or band at chest height · resist the twist · NO CABLE/BAND: palm-press anti-rotation, or a suitcase hold 20s per side" },
+        { key: "syn_dumbbell_bench_press", name: "Dumbbell Bench Press", sets: s, reps: 10, needs: "dumbbells",
+          scheme: s + "×10 · 3s down, smooth press · floor press if the bench is busy" },
+        { key: "pw_cable_row", name: "Seated Cable Row", sets: s, reps: 10, needs: "dumbbells",
+          scheme: s + "×10 · pull to the lower ribs, 3s return · NO CABLE: single-arm dumbbell row, hand and knee on the bench" },
+        { key: "pw_db_push_press", name: "Dumbbell Shoulder Press", sets: s, reps: 10, needs: "dumbbells",
+          scheme: s + "×10 · seated or standing, 2s down · ribs down, no back arch" },
+        { key: "pw_band_pull_apart", name: "Band Pull-Apart", sets: 2, reps: 12, needs: "bodyweight",
+          scheme: "2×12 · arms straight, squeeze the shoulder blades · NO BAND: prone Y-T raises on the floor or bench, 2×8 each" },
+        { key: "sims_farmer_carry", name: "Farmer Carry", sets: 2, reps: 30, needs: "dumbbells",
+          scheme: "2 × 30 steps · a dumbbell in each hand · tall, steady, normal pace" },
+        { key: "pw_single_leg_balance", name: "Single-Leg Balance", sets: 2, sec: 20, needs: "bodyweight",
+          scheme: "2 × 20s per side · eyes open, fingertips near a counter · work toward no hands" }
+      ],
+      2: [
+        { key: "pw_med_ball_chest_pass", name: "Medicine Ball Chest Pass (Fast)", sets: 3, reps: 6, needs: "bodyweight",
+          scheme: "3×6 · throw hard into the wall, catch, reset · NO MED BALL: fast incline push-up, hands on a counter, push away as fast as you can" },
+        { key: "pw_pallof_press", name: "Rotational Throw (Med Ball)", sets: 3, reps: 6, needs: "dumbbells",
+          scheme: "3×6 per side · turn from the hips and throw the ball sideways into a wall · NO MED BALL: fast dumbbell woodchop, light dumbbell, high to hip, never let go" },
+        { key: "syn_dumbbell_bench_press", name: "Dumbbell Bench Press (Fast Press)", sets: s, reps: 8, needs: "dumbbells",
+          scheme: s + "×8 · 3s down, press up as fast as possible" },
+        { key: "pw_cable_row", name: "Cable Row (Fast Pull)", sets: s, reps: 8, needs: "dumbbells",
+          scheme: s + "×8 · pull fast, 3s return · NO CABLE: single-arm dumbbell row, pull fast, 3s lower" },
+        { key: "pw_db_push_press", name: "Dumbbell Push Press", sets: s, reps: 6, needs: "dumbbells",
+          scheme: s + "×6 · small knee dip, drive the dumbbells up fast · 3s lower · the dip stays shallow" },
+        { key: "pw_band_pull_apart", name: "Band Pull-Apart (Fast)", sets: 3, reps: 12, needs: "bodyweight",
+          scheme: "3×12 · snap apart, 2s return · NO BAND: prone Y-T raises, lift fast, 2s lower, 3×8 each" },
+        { key: "sims_farmer_carry", name: "Farmer Carry", sets: 3, reps: 30, needs: "dumbbells",
+          scheme: "3 × 30 steps · heavier than phase 1 · tall, steady" },
+        { key: "pw_single_leg_balance", name: "Single-Leg Balance + Head Turns", sets: 3, sec: 20, needs: "bodyweight",
+          scheme: "3 × 20s per side · slow head turns side to side · fingertips near a counter" }
+      ],
+      3: [
+        { key: "pw_med_ball_chest_pass", name: "Medicine Ball Chest Pass (Heavier)", sets: 3, reps: 5, needs: "bodyweight",
+          scheme: "3×5 · a heavier ball, still thrown hard · NO MED BALL: fast push-up, hands on a lower surface than phase 2" },
+        { key: "pw_pallof_press", name: "Rotational Throw (Med Ball)", sets: 3, reps: 6, needs: "dumbbells",
+          scheme: "3×6 per side · harder throw, same hip turn · NO MED BALL: fast dumbbell woodchop, a little heavier, grip stays tight" },
+        { key: "syn_dumbbell_bench_press", name: "Dumbbell Bench Press (Heavier, Fast)", sets: s, reps: 6, needs: "dumbbells",
+          scheme: s + "×6 · heaviest of the program · 3s down, fast press · 2 reps left in the tank" },
+        { key: "pw_cable_row", name: "Cable Row (Heavier, Fast)", sets: s, reps: 6, needs: "dumbbells",
+          scheme: s + "×6 · heavier, pull fast, 3s return · NO CABLE: single-arm dumbbell row, heavier, pull fast" },
+        { key: "pw_db_push_press", name: "Dumbbell Push Press (Heavier)", sets: s, reps: 5, needs: "dumbbells",
+          scheme: s + "×5 · heavier, fast drive · 3s lower · shallow dip" },
+        { key: "pw_band_pull_apart", name: "Band Pull-Apart (Fast)", sets: 3, reps: 15, needs: "bodyweight",
+          scheme: "3×15 · snap apart, 2s return · NO BAND: prone Y-T raises with light dumbbells, 3×8 each" },
+        { key: "sims_farmer_carry", name: "Farmer Carry (Brisk)", sets: 3, reps: 40, needs: "dumbbells",
+          scheme: "3 × 40 steps · walk briskly without losing posture" },
+        { key: "pw_single_leg_balance", name: "Single-Leg Balance, Eyes Closed", sets: 3, sec: 15, needs: "bodyweight",
+          scheme: "3 × 15s per side · eyes closed, hand hovering over a counter · open your eyes the moment you wobble" }
+      ]
+    };
+    return byPhase[p];
+  }
+
+  var days = [];
+  for (var w = 1; w <= 12; w++) {
+    (function (w) {
+      var p = phase(w), s = SETS[w - 1];
+      var tag = "Week " + w + " of 12 · " + PHASE_NAME[p - 1];
+      var lowerDay = function (test) {
+        return { title: "Lower Power · Phase " + p,
+          focus: tag + " · sit-to-stand, squat, hinge, step and stepping reactions",
+          exercises: (test ? [chairTest()] : []).concat(lower(p, s)) };
+      };
+      var upperDay = function (test) {
+        return { title: "Upper Power · Phase " + p,
+          focus: tag + " · push, pull, throw, carry and balance",
+          exercises: (test ? [chairTest()] : []).concat(upper(p, s)) };
+      };
+      var walkDay = function () {
+        return { title: "Zone 2 Walk",
+          focus: tag + " · " + WALK[w - 1] + " easy talk-test minutes",
+          exercises: [
+            { key: "pf_zone2_walk", name: "Zone 2 Walk", sets: 1, sec: WALK[w - 1] * 60, needs: "bodyweight",
+              scheme: WALK[w - 1] + " min · talk-test pace: breathing harder, still able to chat · flat route" }
+          ] };
+      };
+      var t = !!TEST_WEEKS[w];
+      /* alternate which session leads the week so neither half is always
+         trained twice */
+      if (w % 2) days.push(lowerDay(t), walkDay(), upperDay(false), walkDay(), lowerDay(false), walkDay());
+      else       days.push(upperDay(t), walkDay(), lowerDay(false), walkDay(), upperDay(false), walkDay());
+    })(w);
+  }
+
+  return {
+    id: "strength-speed-45plus-12w",
+    name: "Strength & Speed 45+",
+    desc: "12 weeks · strength plus knee-safe speed work for women 45+",
+    kneeSafe: true,
+    guide: {
+      blurb: "Twelve weeks that train two different things: strength (how much force you can make) and power (how fast you can make it). Power is what gets you out of a chair quickly, up a step in a hurry, or back under yourself when you trip. The speed work here is knee-friendly: no jumps and no landings. The research behind this was done mostly on adults over 60, so using it at 45+ is a reasonable extension, not something a trial has proven for this age group.",
+      rotate: [
+        { kicker: "Every speed rep", title: "Fast up, slow down",
+          body: "The lifting part of each speed rep is as fast as you can do it with good form. The lowering part stays slow, about 3 seconds. Speed is the point, so a rep that slows to a grind has stopped training power. End the set there." },
+        { kicker: "Load", title: "Speed work is not max effort",
+          body: "Pick a weight you could lift many more times than the set asks for, then move it fast. Heavy strength work belongs in phase 3's lower-rep sets, and even there leave about 2 reps in the tank." },
+        { kicker: "Knees", title: "The box sets the depth",
+          body: "Squats go to a box or bench at knee height or higher, and step-ups use a 6-8 inch step. Sharp pain, catching, locking, or a knee that is worse the next morning means go back to the previous phase or raise the box. Don't push through it." },
+        { kicker: "No kit today", title: "Every band, cable and ball move has a swap",
+          body: "Look at the end of the exercise line, or its How-to. The NO BAND / NO CABLE / NO MED BALL line tells you what to do instead. The swap trains the same job, but it isn't identical, and that's fine for now." },
+        { kicker: "Rest", title: "Rest long enough to be fast again",
+          body: "Take 60 to 90 seconds between speed sets. If you're still breathing hard when you start the next set, it will be slower, and slower reps don't train power." },
+        { kicker: "Balance", title: "Always near a counter",
+          body: "Balance and stepping drills are done within reach of a wall or kitchen counter. Wobbling is the training, and falling isn't part of it." }
+      ],
+      after: [
+        { kicker: "After the session", title: "Protein soon after",
+          body: "Aim for a protein-containing meal or snack within a couple of hours. The Sims 4 Women guide in this app has detailed protein targets for women over 40, and they apply here too." },
+        { kicker: "Tomorrow morning", title: "The knee report",
+          body: "Check the knee when you get up tomorrow. Same or better means the session was right. Worse means drop back a phase for that movement next time." }
+      ],
+      days: {
+        "Lower Power · Phase 1": { kicker: "Today", title: "Learn the positions first",
+          body: "Phase 1 is deliberately slow. You're learning where the box is, how the hinge feels, and how to step with control, so the speed you add in phase 2 has something solid to build on." },
+        "Lower Power · Phase 2": { kicker: "Today", title: "Now make it fast",
+          body: "Same movements, new intent: the standing-up part is as fast as you can do it. Keep the feet down and don't jump. The lowering part stays slow." },
+        "Lower Power · Phase 3": { kicker: "Today", title: "A bit heavier, still fast",
+          body: "More load, same speed intent. The lean-and-step drill trains the quick recovery step you'd take if you tripped. Do it beside a counter, and lean only as far as you can catch." },
+        "Upper Power · Phase 1": { kicker: "Today", title: "Smooth, even reps",
+          body: "Get the pressing, rowing and carrying positions right before you add speed. No band, cable or medicine ball? Every one of those rows lists what to do instead." },
+        "Upper Power · Phase 2": { kicker: "Today", title: "Throw it, press it, pull it fast",
+          body: "Throwing trains speed because you never have to slow the weight down at the end. That's why the medicine-ball moves are in here. Until you have a ball, the fast push-up and dumbbell woodchop swaps keep the fast intent." },
+        "Upper Power · Phase 3": { kicker: "Today", title: "Heavier and fast",
+          body: "The heaviest pressing and rowing of the program. It's still fast on the way up and controlled on the way down, with about 2 reps left in the tank." },
+        "Zone 2 Walk": { kicker: "Today", title: "Conversational is the target",
+          body: "Breathing harder than normal but still able to talk in full sentences. By heart rate that is roughly {{hr:60-70}} bpm for your age (estimated max {{hrmax}}), but the talk test wins whenever the two disagree." }
+      },
+      groups: [
+        { title: "No equipment? Swaps", tone: "cycle", icon: "\u{1F504}", items: [
+          { title: "No medicine ball",
+            body: "Chest pass: fast incline push-up with hands on a kitchen counter or bench, pushing away as fast as you can (lower the surface to make it harder). Rotational throw: fast dumbbell woodchop, a light dumbbell held in both hands, from high on one side down to the opposite hip. Keep a tight grip and never let it go." },
+          { title: "No cable machine",
+            body: "Cable row: single-arm dumbbell row, one hand and knee on the bench, pulling fast and lowering in 3 seconds. Cable Pallof press: palm-press anti-rotation (press the palms together hard at chest height and push the arms straight out without twisting), or a one-sided suitcase hold." },
+          { title: "No bands",
+            body: "Band lateral walk: lateral step-outs with a 2-second pause, quick lateral shuffles in phase 3, or side-lying leg raises. Band pull-apart: prone Y-T raises lying face-down on the floor or a bench, with light dumbbells once bodyweight is easy." },
+          { title: "When you do get them",
+            body: "Swap back to the original movement in the phase you're in. A light medicine ball (roughly 4-6 lb, non-bouncing for slams) and a light-to-medium loop band cover almost everything here. You don't need a cable machine: a long resistance band anchored in a door covers the rows and Pallof press. These are suggestions, not a sponsored list." }
+        ]},
+        { title: "Why this works", tone: "why", icon: "\u{1F9E0}", items: [
+          { title: "Power fades faster than strength",
+            body: "A review in Exercise and Sport Sciences Reviews (Reid & Fielding, 2012) concluded that muscle power declines earlier and faster with age than strength does, and that power is more closely linked to everyday physical function. That's why this program trains speed separately and doesn't count on heavy lifting alone." },
+          { title: "It is in the guidelines",
+            body: "The National Strength and Conditioning Association's position statement on resistance training for older adults (Fragala et al., 2019) recommends including power training, meaning lighter loads lifted with a fast lifting phase, alongside regular strength work." },
+          { title: "Stepping and balance reduce falls",
+            body: "A Cochrane review of community-dwelling older adults (Sherrington et al., 2019) found that balance and functional exercise reduced the rate of falls by about 24%. A separate meta-analysis (Okubo et al., 2017) found step training, which is practising quick steps, also reduced falls." },
+          { title: "The honest limit",
+            body: "These trials were mostly run on people over 60 to 65. At 45+ the aim is to build power before it drops, which makes sense but hasn't been tested directly. The program also skips jumps to protect the knees, and jumping loads bone in a way this program doesn't. Talk to whoever looks after your knees about adding low impact later." }
+        ]},
+        { title: "Tracking", tone: "fuel", icon: "\u{1F4CF}", items: [
+          { title: "The chair-stand check",
+            body: "Weeks 1, 6 and 12 open with a 30-second chair stand: arms crossed, standard-height chair, count every full stand. The published norms (Rikli & Jones) are for people 60 and over, so compare the number only with your own week 1." },
+          { title: "Balance retest",
+            body: "The Fingerprint tab's Balance test (single-leg stance, eyes closed) is a good partner check. Take it in week 1 and again in week 12. Skip the Functional Strength broad jump there, because it's a jump." },
+          { title: "Walking",
+            body: "Three easy walks a week, building from 20 to 30 minutes. If another program already has you walking, count those minutes once, not twice." }
+        ]},
+        { title: "Watch for", tone: "warn", icon: "⚠️", items: [
+          { title: "Knee catching or locking",
+            body: "Catching, locking or giving way is different from normal soreness. It can point to a mechanical meniscus problem, so stop that movement and get it assessed." },
+          { title: "Pain that builds session to session",
+            body: "If a movement hurts more each time, go back a phase for it, raise the box, or shorten the step. For degenerative meniscus tears in middle-aged adults, a trial (Kise et al., BMJ 2016) found supervised exercise therapy worked as well as surgery over 2 years, so a physical therapist is a good ally here." },
+          { title: "Dizziness or chest symptoms",
+            body: "Stop and seek medical care for chest pain, unusual breathlessness, or feeling faint. Fast efforts raise heart rate quickly." },
+          { title: "Educational, not medical advice",
+            body: "Check this plan with your provider or a physical therapist before starting, especially given the knees." }
+        ]}
+      ],
+      sources: "Power vs strength with age: Reid KF, Fielding RA. Skeletal muscle power: a critical determinant of physical functioning in older adults. Exerc Sport Sci Rev. 2012;40(1):4-12. Power training recommendation: Fragala MS, Cadore EL, Dorgo S, et al. Resistance training for older adults: position statement from the National Strength and Conditioning Association. J Strength Cond Res. 2019;33(8):2019-2052. Falls: Sherrington C, Fairhall NJ, Wallbank GK, et al. Exercise for preventing falls in older people living in the community. Cochrane Database Syst Rev. 2019;1:CD012424. Step training: Okubo Y, Schoene D, Lord SR. Step training improves reaction time, gait and balance and reduces falls in older people: a systematic review and meta-analysis. Br J Sports Med. 2017;51(7):586-593. Chair stand: Rikli RE, Jones CJ. Development and validation of a functional fitness test for community-residing older adults. J Aging Phys Act. 1999;7:129-161. Meniscus: Kise NJ, Risberg MA, Stensrud S, et al. Exercise therapy versus arthroscopic partial meniscectomy for degenerative meniscal tear in middle aged patients. BMJ. 2016;354:i3740. Walking: Physical Activity Guidelines for Americans, 2nd edition. Heart-rate bands use Tanaka (208 − 0.7 × age) from your age in Setup. The phase structure, set and rep schemes, tempos and swaps are standard strength-and-conditioning programming applied to these recommendations, not the protocol of a single trial. Most of the evidence comes from adults over 60; this program applies it to 45+. Educational, not medical advice."
+    },
+    days: days
+  };
+})();
+SYN_PLANS.push(SS45_PLAN);
+
+Object.assign(SYN_TIPS, {
+  "pw_chair_stand_test": {
+    "title": "30-Second Chair Stand Check",
+    "body": "PLAIN ENGLISH: How many times can you stand up from a chair in 30 seconds. HOW: Standard-height chair (about 17 inches) against a wall, arms crossed on the chest. On 'go', stand all the way up and sit all the way down as many times as you can in 30 seconds. Count full stands only. Cues: Same chair each retest; Feet flat; Stop if the knee hurts. Compare with your own week 1. The published norms are for 60+."
+  },
+  "pw_fast_sit_to_stand": {
+    "title": "Fast Sit-to-Stand",
+    "body": "PLAIN ENGLISH: Standing up from a seat, trained for speed. It's the most everyday power movement there is. HOW: Sit on a bench or box at knee height, feet under the knees. Lean the nose over the toes and stand. Phase 1 is brisk, phase 2 as fast as you can, phase 3 holding a dumbbell at the chest. Always sit back down slowly, over about 3 seconds. Cues: Feet stay on the floor, no jumping; Knees track over the toes; Raise the seat if the knees complain."
+  },
+  "pw_goblet_box_squat": {
+    "title": "Goblet Box Squat",
+    "body": "PLAIN ENGLISH: A squat to a box, holding one dumbbell at your chest. The box keeps the depth knee-friendly. HOW: Stand in front of a box or bench at knee height or higher. Hold a dumbbell vertically against the chest. Sit back and down for 3 seconds until you touch the box, don't flop onto it, then stand. From phase 2, stand up fast. Cues: Chest up; Knees follow the toes; Weight through the whole foot; Only lower the box if the knee stays quiet the next day."
+  },
+  "pw_db_rdl": {
+    "title": "Dumbbell Romanian Deadlift",
+    "body": "PLAIN ENGLISH: A hip hinge. You bend at the hips, not the knees, with dumbbells sliding down the thighs. HOW: Dumbbells in front of the thighs, knees softly bent. Push the hips back and let the dumbbells travel down the legs for about 3 seconds until you feel the hamstrings stretch, then drive the hips forward to stand. Cues: Flat back; Dumbbells close to the legs; Stop before the back rounds; Knees barely bend, which is why this is knee-friendly."
+  },
+  "pw_kb_swing": {
+    "title": "Kettlebell Deadlift → Speed Deadlift → Swing",
+    "body": "PLAIN ENGLISH: One movement that progresses across the three phases. It's a hip snap: the power comes from the hips, not the arms or knees. PHASE 1 (deadlift): Bell between the feet. Hinge back, grip it, stand tall, lower it with control. PHASE 2 (speed deadlift): Same, but stand up fast. PHASE 3 (Russian swing): Hike the bell back between the legs, then snap the hips forward so it floats to chest height. The arms just guide it. Cues: Hinge, don't squat; Glutes squeeze hard at the top; Stand tall, don't lean back; Park the bell when the hinge gets sloppy. No kettlebell: hold one dumbbell by its end."
+  },
+  "pw_fast_step_up": {
+    "title": "Low Step-Up (Fast)",
+    "body": "PLAIN ENGLISH: Stepping up onto a low step, trained for speed so a hurried step never catches you out. HOW: 6-8 inch step, whole foot on it. Drive through that foot to stand tall on top, then step down slowly for about 3 seconds. Phase 1 is controlled, phase 2 is fast up, phase 3 adds light dumbbells. Cues: Push through the top foot, not off the back foot; Knee tracks over the toes; No hop; A hand on a wall is fine. Knee worse the next day? Use a lower step or go back a phase."
+  },
+  "pw_band_lateral_walk": {
+    "title": "Band Lateral Walk (and no-band swap)",
+    "body": "PLAIN ENGLISH: Stepping sideways against resistance to strengthen the side-hip muscles that keep the knee lined up and catch a sideways stumble. WITH A BAND: Loop band just above the knees, slight squat, step sideways keeping tension; don't let the feet snap together. NO BAND: Lateral step-outs, a big step sideways with a 2-second pause, then back. In phase 3, quick side shuffles with the feet never crossing. Or side-lying leg raises: lie on your side and lift the top leg slightly behind you, toes forward. Cues: Hips level; Toes point forward; Feel it on the side of the hip, not the front."
+  },
+  "pw_fast_calf_raise": {
+    "title": "Fast Calf Raise",
+    "body": "PLAIN ENGLISH: Rising onto your toes, trained for speed. The ankle is often the first joint to correct a stumble. HOW: Fingertips on a counter. Rise onto the balls of the feet, fast from phase 2 onward, then lower slowly for 3 seconds. Phase 3 is one leg at a time. Cues: Straight up, no rolling to the outside of the foot; Full height at the top; Slow on the way down."
+  },
+  "pw_step_drill": {
+    "title": "Step Drills (Deliberate → Quick → Reactive)",
+    "body": "PLAIN ENGLISH: Practising the quick step that stops a fall. PHASE 1: Stand on one leg as the center of a clock face and step the other foot to 12, 3, 6 and 9 o'clock, returning each time, big and deliberate. PHASE 2: The same, as fast as you can stay tidy. PHASE 3 (lean-and-step): Stand tall and lean forward from the ankles, body straight, until you have to step. Catch yourself with one quick step. Repeat to the side and, carefully, backward. Cues: Always beside a wall or counter; Small lean first; Quality over speed; Stop if dizzy."
+  },
+  "pw_med_ball_chest_pass": {
+    "title": "Medicine Ball Chest Pass (and no-ball swap)",
+    "body": "PLAIN ENGLISH: Pushing something away from your chest as fast as you can. Throwing lets you stay fast through the whole movement. WITH A BALL: Stand an arm's length or two from a solid wall, ball at the chest. Throw it hard into the wall, catch it softly, reset. NO BALL: Fast incline push-up. Hands on a kitchen counter or bench, lower for 2-3 seconds, then push away as fast as you can (hands may leave the surface briefly once you're comfortable). Lower the surface to make it harder. Cues: Body in one straight line; Elbows about 45° from the body; Speed on the push, control on the way down."
+  },
+  "pw_pallof_press": {
+    "title": "Pallof Press → Rotational Throw (and no-kit swaps)",
+    "body": "PLAIN ENGLISH: Phase 1 trains the core to RESIST twisting; phases 2-3 train it to twist FAST, starting from the hips. PHASE 1 WITH A CABLE OR BAND: Stand side-on to the anchor at chest height, hands at the chest, press straight out, hold 2s, return; don't let it turn you. NO CABLE/BAND: Press the palms together hard at chest height and push the arms straight out without twisting, or hold a dumbbell in one hand and stand tall 20s per side. PHASES 2-3 WITH A MED BALL: Side-on to a wall, turn away, then turn from the hips and throw the ball into the wall. NO MED BALL: Fast dumbbell woodchop. Hold a light dumbbell in both hands high beside one shoulder, then chop down across the body to the opposite hip, fast, then control it back. Never let go. Cues: The turn starts at the hips; Back foot pivots; Keep it light."
+  },
+  "pw_cable_row": {
+    "title": "Cable Row (and no-cable swap)",
+    "body": "PLAIN ENGLISH: Pulling toward your body, which balances out all the pressing and supports posture. WITH A CABLE: Seated, chest tall, pull the handle to the lower ribs by driving the elbows back, return over 3 seconds. From phase 2, pull fast. NO CABLE: Single-arm dumbbell row. One hand and knee on a bench, back flat, pull the dumbbell to the hip, fast from phase 2, and lower for 3 seconds. Cues: Shoulder blade moves first; No jerking with the lower back; Elbow brushes the ribs."
+  },
+  "pw_db_push_press": {
+    "title": "Dumbbell Shoulder Press → Push Press",
+    "body": "PLAIN ENGLISH: Pressing overhead. From phase 2, a small knee dip helps drive it up fast. PHASE 1: Seated or standing, dumbbells at the shoulders, press straight up, 2s down. PHASES 2-3 (push press): Standing, dip the knees a few inches, then drive through the legs and press the dumbbells up in one quick movement. Lower them over 3 seconds. Cues: The dip is shallow, not a squat; Ribs down, no leaning back; Biceps finish by the ears."
+  },
+  "pw_band_pull_apart": {
+    "title": "Band Pull-Apart (and no-band swap)",
+    "body": "PLAIN ENGLISH: Pulling the arms out wide to strengthen the upper back and rear shoulders. WITH A BAND: Arms straight out in front at shoulder height, pull the band apart to the chest by squeezing the shoulder blades together, return in 2s. NO BAND: Prone Y-T raises. Lie face-down on the floor or a bench, thumbs up. Raise the arms into a Y (overhead and out), lower, then into a T (straight out to the sides). Add light dumbbells once bodyweight is easy. Cues: Shoulders away from the ears; Squeeze, don't shrug; Small is fine."
+  },
+  "pw_single_leg_balance": {
+    "title": "Single-Leg Balance",
+    "body": "PLAIN ENGLISH: Standing on one leg, progressed until the inner ear and ankle do the work instead of the eyes. HOW: Beside a counter, fingertips hovering above it. Phase 1: eyes open, working toward no hands. Phase 2: add slow head turns side to side. Phase 3: eyes closed, and open them the moment you wobble. Cues: Soft standing knee; Hips level; Wobble is the training; Touch the counter whenever you need to."
+  }
+});
