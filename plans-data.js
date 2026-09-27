@@ -6802,11 +6802,11 @@ const SS45_PLAN = (function () {
         { key: "syn_dumbbell_bench_press", name: "Dumbbell Bench Press", sets: s, reps: 10, needs: "dumbbells",
           scheme: s + "×10 · 3s down, smooth press · floor press if the bench is busy" },
         { key: "pw_cable_row", name: "Seated Cable Row", sets: s, reps: 10, needs: "dumbbells",
-          scheme: s + "×10 · pull to the lower ribs, 3s return · NO CABLE: single-arm dumbbell row, hand and knee on the bench" },
+          scheme: s + "×10 · pull to the lower ribs, 3s return · NO CABLE: bent-over band row, standing on the middle of the #2 or #3 band, or single-arm dumbbell row" },
         { key: "pw_db_push_press", name: "Dumbbell Shoulder Press", sets: s, reps: 10, needs: "dumbbells",
           scheme: s + "×10 · seated or standing, 2s down · ribs down, no back arch" },
         { key: "pw_band_pull_apart", name: "Band Pull-Apart", sets: 2, reps: 12, needs: "bodyweight",
-          scheme: "2×12 · arms straight, squeeze the shoulder blades · NO BAND: prone Y-T raises on the floor or bench, 2×8 each" },
+          scheme: "2×12 · #1 band · arms straight, squeeze the shoulder blades · NO BAND: prone Y-T raises on the floor or bench, 2×8 each" },
         { key: "sims_farmer_carry", name: "Farmer Carry", sets: 2, reps: 30, needs: "dumbbells",
           scheme: "2 × 30 steps · a dumbbell in each hand · tall, steady, normal pace" },
         { key: "pw_single_leg_balance", name: "Single-Leg Balance", sets: 2, sec: 20, needs: "bodyweight",
@@ -6820,11 +6820,11 @@ const SS45_PLAN = (function () {
         { key: "syn_dumbbell_bench_press", name: "Dumbbell Bench Press (Fast Press)", sets: s, reps: 8, needs: "dumbbells",
           scheme: s + "×8 · 3s down, press up as fast as possible" },
         { key: "pw_cable_row", name: "Cable Row (Fast Pull)", sets: s, reps: 8, needs: "dumbbells",
-          scheme: s + "×8 · pull fast, 3s return · NO CABLE: single-arm dumbbell row, pull fast, 3s lower" },
+          scheme: s + "×8 · pull fast, 3s return · NO CABLE: bent-over band row, standing on the middle of the #2 or #3 band, pull fast, or single-arm dumbbell row" },
         { key: "pw_db_push_press", name: "Dumbbell Push Press", sets: s, reps: 6, needs: "dumbbells",
           scheme: s + "×6 · small knee dip, drive the dumbbells up fast · 3s lower · KNEE HURTING: strict press, no dip" },
         { key: "pw_band_pull_apart", name: "Band Pull-Apart (Fast)", sets: 3, reps: 12, needs: "bodyweight",
-          scheme: "3×12 · snap apart, 2s return · NO BAND: prone Y-T raises, lift fast, 2s lower, 3×8 each" },
+          scheme: "3×12 · #1 band · snap apart, 2s return · NO BAND: prone Y-T raises, lift fast, 2s lower, 3×8 each" },
         { key: "sims_farmer_carry", name: "Farmer Carry", sets: 3, reps: 30, needs: "dumbbells",
           scheme: "3 × 30 steps · heavier than phase 1 · tall, steady" },
         { key: "pw_single_leg_balance", name: "Single-Leg Balance + Head Turns", sets: 3, sec: 20, needs: "bodyweight",
@@ -6838,11 +6838,11 @@ const SS45_PLAN = (function () {
         { key: "syn_dumbbell_bench_press", name: "Dumbbell Bench Press (Heavier, Fast)", sets: s, reps: 6, needs: "dumbbells",
           scheme: s + "×6 · heaviest of the program · 3s down, fast press · 2 reps left in the tank" },
         { key: "pw_cable_row", name: "Cable Row (Heavier, Fast)", sets: s, reps: 6, needs: "dumbbells",
-          scheme: s + "×6 · heavier, pull fast, 3s return · NO CABLE: single-arm dumbbell row, heavier, pull fast" },
+          scheme: s + "×6 · heavier, pull fast, 3s return · NO CABLE: bent-over band row, standing on the middle of the #2 or #3 band (go up a band), or a heavier single-arm dumbbell row" },
         { key: "pw_db_push_press", name: "Dumbbell Push Press (Heavier)", sets: s, reps: 5, needs: "dumbbells",
           scheme: s + "×5 · heavier, fast drive · 3s lower · shallow dip · KNEE HURTING: strict press, no dip" },
         { key: "pw_band_pull_apart", name: "Band Pull-Apart (Fast)", sets: 3, reps: 15, needs: "bodyweight",
-          scheme: "3×15 · snap apart, 2s return · NO BAND: prone Y-T raises with light dumbbells, 3×8 each" },
+          scheme: "3×15 · #1 or #2 band · snap apart, 2s return · NO BAND: prone Y-T raises with light dumbbells, 3×8 each" },
         { key: "sims_farmer_carry", name: "Farmer Carry (Brisk)", sets: 3, reps: 40, needs: "dumbbells",
           scheme: "3 × 40 steps · walk briskly without losing posture" },
         { key: "pw_single_leg_balance", name: "Single-Leg Balance, Eyes Closed", sets: 3, sec: 15, needs: "bodyweight",
@@ -6933,7 +6933,7 @@ const SS45_PLAN = (function () {
           { title: "No medicine ball",
             body: "Chest pass: fast incline push-up with hands on a kitchen counter or bench, pushing away as fast as you can (lower the surface to make it harder). Rotational throw: fast dumbbell woodchop, a light dumbbell held in both hands, from high on one side down to the opposite hip. Keep a tight grip and never let it go." },
           { title: "No cable machine",
-            body: "Cable row: single-arm dumbbell row, one hand and knee on the bench, pulling fast and lowering in 3 seconds. Cable Pallof press: palm-press anti-rotation (press the palms together hard at chest height and push the arms straight out without twisting), or a one-sided suitcase hold." },
+            body: "Cable row: bent-over band row standing on the #2 or #3 long band, or a single-arm dumbbell row, pulling fast and lowering in 3 seconds. Cable Pallof press: palm-press anti-rotation (press the palms together hard at chest height and push the arms straight out without twisting), or a one-sided suitcase hold." },
           { title: "No bands",
             body: "Band lateral walk: lateral step-outs with a 2-second pause, quick lateral shuffles in phase 3, or side-lying leg raises. Band pull-apart: prone Y-T raises lying face-down on the floor or a bench, with light dumbbells once bodyweight is easy." },
           { title: "When you do get them",
@@ -7026,7 +7026,7 @@ Object.assign(SYN_TIPS, {
   },
   "pw_cable_row": {
     "title": "Cable Row (and no-cable swap)",
-    "body": "PLAIN ENGLISH: Pulling toward your body, which balances out all the pressing and supports posture. WITH A CABLE: Seated, chest tall, pull the handle to the lower ribs by driving the elbows back, return over 3 seconds. From phase 2, pull fast. NO CABLE: Single-arm dumbbell row. One hand and knee on a bench, back flat, pull the dumbbell to the hip, fast from phase 2, and lower for 3 seconds. Cues: Shoulder blade moves first; No jerking with the lower back; Elbow brushes the ribs."
+    "body": "PLAIN ENGLISH: Pulling toward your body, which balances out all the pressing and supports posture. WITH A CABLE: Seated, chest tall, pull the handle to the lower ribs by driving the elbows back, return over 3 seconds. From phase 2, pull fast. NO CABLE, WITH A LONG BAND: Bent-over band row. Stand on the middle of the #2 or #3 band, feet hip-width, hinge forward with a flat back and row both ends to your lower ribs, 3 seconds back down. Go up a band when 12 reps is easy. NO BAND EITHER: Single-arm dumbbell row. One hand and knee on a bench, back flat, pull the dumbbell to the hip, fast from phase 2, and lower for 3 seconds. Cues: Shoulder blade moves first; No jerking with the lower back; Elbow brushes the ribs."
   },
   "pw_db_push_press": {
     "title": "Dumbbell Shoulder Press → Push Press",
@@ -7133,9 +7133,9 @@ const SA120_PLAN = (function () {
   };
   /* scheme overrides where a move needs its own line */
   var NOTE = {
-    pw_cable_row: R + " · NO CABLE: single-arm dumbbell row, hand and knee on the bench",
-    sa_lat_pulldown: "6-8 reps · NO MACHINE: pull-up negatives on the bar, jump or step up, lower for 5s",
-    syn_pull_ups: "as many clean reps as you can, 2 in reserve · can't do one yet? 3-5 slow negatives",
+    pw_cable_row: R + " · NO CABLE: bent-over band row, standing on the middle of the #2 or #3 band, or single-arm dumbbell row",
+    sa_lat_pulldown: "8-12 reps · NO MACHINE: kneeling band pulldown, #2 or #3 band looped over the pull-up bar, or 6-8 pull-up negatives (5s down)",
+    syn_pull_ups: "as many clean reps as you can, 2 in reserve · NO PULL-UP YET: band-assisted pull-ups, knee in the #3 or #4 band looped on the bar (thinner band as you get stronger), or 3-5 slow negatives",
     syn_stability_ball_hamstring_curl: "10-12 reps · NO LEG-CURL MACHINE: stability-ball hamstring curl",
     syn_deadlift: R + " · NO TRAP BAR: conventional barbell deadlift",
     sims_farmer_carry: "40 steps · heavy, tall posture, no leaning",
@@ -7181,7 +7181,7 @@ const SA120_PLAN = (function () {
       [1, 2, 3].forEach(function (n) {
         var pair = s[n], sets = n === 3 ? core : rounds;
         pair.forEach(function (e, i) {
-          var reps = e.key === "sa_lat_pulldown" ? 6 : e.key === "syn_pull_ups" ? 5 : e.key === "sidelunge" ? 8 : e.key.indexOf("carry") >= 0 ? 40 : 10;
+          var reps = e.key === "sa_lat_pulldown" ? 10 : e.key === "syn_pull_ups" ? 5 : e.key === "sidelunge" ? 8 : e.key.indexOf("carry") >= 0 ? 40 : 10;
           ex.push(ss(n, e, sets, reps, schemeFor(e), i + 1));
         });
       });
@@ -7196,7 +7196,7 @@ const SA120_PLAN = (function () {
   var dayCard = {
     "Upper A": { title: "Push, pull, then carry", body: "Chest move, straight to the row, back to the chest move: that loop is the rest period. Put the phone away between sets. The article's point is that a 30-minute session only works if the 30 minutes are training." },
     "Lower A": { title: "Squat or lunge, then hinge", body: "Squat or lunge first, hinge second, no rest between. The lateral lunge in superset 3 is the side-to-side work the article asks for." },
-    "Upper B": { title: "Different angles, same rules", body: "Incline pressing and a second row variation. No cable machine? The NO CABLE / NO MACHINE lines give the swap." },
+    "Upper B": { title: "Different angles, same rules", body: "Incline pressing and a second row variation. No cable machine? The NO CABLE / NO MACHINE lines under each superset give the band version, with a no-band fallback." },
     "Lower B": { title: "One leg at a time", body: "Split squats, single-leg deadlifts and step-ups. Single-leg work trains balance along with strength. Use the lighter side's weight for both legs." }
   };
   var guideDays = {};
@@ -7245,7 +7245,7 @@ const SA120_PLAN = (function () {
           { title: "What's left out",
             body: "The article's lists include a sled push and pull, leg press and leg extension. They need equipment you don't have, so they aren't in the program." },
           { title: "What has a swap",
-            body: "Seated and single-arm cable rows → single-arm dumbbell row. Lat pulldown → pull-up negatives. Leg curl → stability-ball hamstring curl. Trap bar deadlift → conventional barbell deadlift. Medicine ball slam → explosive incline push-up. Each swap is on the exercise line and in its How-to." }
+            body: "Seated and single-arm cable rows → bent-over band row (#2 or #3 long band), or single-arm dumbbell row. Lat pulldown → kneeling band pulldown from the pull-up bar (#2 or #3), or pull-up negatives. Pullups → band-assisted (#3 or #4). Leg curl → stability-ball hamstring curl. Trap bar deadlift → conventional barbell deadlift. Medicine ball slam → explosive incline push-up. Each swap is on the exercise line and in its How-to." }
         ]},
         { title: "The honest bits", tone: "warn", icon: "⚠️", items: [
           { title: "Where the numbers come from",
@@ -7270,6 +7270,6 @@ Object.assign(SYN_TIPS, {
   },
   "sa_lat_pulldown": {
     "title": "Lat Pulldown (and pull-up negative swap)",
-    "body": "PLAIN ENGLISH: Pulling a bar down to your upper chest to train the lats. WITH A MACHINE: Grip just wider than shoulders, chest up, pull the bar to the top of the chest by driving the elbows down, control it back up. NO MACHINE: Pull-up negatives. Jump or step up so your chin is over the pull-up bar, then lower yourself as slowly as you can, aiming for 5 seconds, until your arms are straight. Step down and repeat. Cues: Shoulders down away from the ears; Slow is the point; When you can do 8 good 5-second negatives, try a full pull-up."
+    "body": "PLAIN ENGLISH: Pulling a bar down to your upper chest to train the lats. WITH A MACHINE: Grip just wider than shoulders, chest up, pull the bar to the top of the chest by driving the elbows down, control it back up. NO MACHINE, WITH A LONG BAND: Kneeling band pulldown. Loop the #2 or #3 band over the pull-up bar, kneel facing it, hold the band with both hands and pull down to your shoulders by driving the elbows toward your ribs, then control it back up. NO BAND: Pull-up negatives. Jump or step up so your chin is over the pull-up bar, then lower yourself as slowly as you can, aiming for 5 seconds, until your arms are straight. Step down and repeat. Cues: Shoulders down away from the ears; Slow is the point; When you can do 8 good 5-second negatives, try a full pull-up."
   }
 });
