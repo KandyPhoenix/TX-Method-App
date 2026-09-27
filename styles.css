@@ -1933,3 +1933,7 @@ table.prog td.w { color: var(--text); }
 .pfd-lbl { font-size: 10px; font-weight: 700; fill: var(--muted); }
 .pfd-lead { stroke: var(--dim); stroke-width: .7; opacity: .65; }
 .pfd-cap { font-size: 11.5px; color: var(--muted); line-height: 1.5; margin-top: 6px; }
+
+/* equipment / knee swap lines under a superset header (swapNotes in app.js) */
+.lift-head .scheme.ss-swap { margin-top: 3px; color: var(--text); }
+.lift-head .scheme.ss-swap b { font-weight: 700; }

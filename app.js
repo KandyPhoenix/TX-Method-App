@@ -2489,13 +2489,27 @@ function itemRow(item, log, showName) {
   return row;
 }
 
+/* The equipment and knee swaps live inside an exercise's scheme line
+   ("NO CABLE: …", "KNEE HURTING: …"). Two views never print that line — a
+   superset card shows one generic header for the pair, and the guided
+   session shows "10 reps" for a multi-set move — so the swap vanished
+   exactly where it was needed. Both now pull these segments out and show
+   them. */
+function swapNotes(scheme) {
+  return String(scheme || '').split(' · ').map(p => p.trim())
+    .filter(p => /^(NO [A-Z][A-Z\-\/ ]*:|KNEE HURTING:)/.test(p));
+}
+
 function groupCard(g, log) {
   if (g.kind === 'ss') {
     const names = [...new Set(g.items.map(i => i.ex.name))];
     const rounds = Math.max(...g.items.map(i => i.total));
+    const seenSwap = new Set();
+    const swaps = g.items.map(i => i.ex).filter(e => !seenSwap.has(e.key) && seenSwap.add(e.key))
+      .flatMap(e => swapNotes(e.scheme).map(p => `<div class="scheme ss-swap"><b>${e.name}</b> — ${p}</div>`)).join('');
     return `<div class="card lift">
       <div class="lift-head"><div><div class="name">${names.join(' + ')}</div>
-      <div class="scheme">Superset · ${rounds} rounds · alternate with no rest between partners</div></div>
+      <div class="scheme">Superset · ${rounds} rounds · alternate with no rest between partners</div>${swaps}</div>
       <div class="lift-side"><span class="mmap-mini">${muscleMapMerged([...new Set(g.items.map(i => i.ex))], 42)}</span><span class="badge vol">Superset</span></div></div>${g.items.map(i => itemRow(i, log, true)).join('')}</div>`;
   }
   const ex = g.ex, n = g.items.length;
@@ -6913,7 +6927,7 @@ function buildSteps() {
     prepDayItems(d).forEach(item => {
       if (item.type === 'reps') {
         const many = item.total > 1;
-        const step = { name: item.ex.name, key: item.ex.key, label: many ? `Set ${item.setIndex + 1} of ${item.total}` : 'Target', kind: 'reps', bw: true, reps: item.ex.reps, side: item.ex.side, scheme: many ? `${item.ex.reps} reps${item.ex.side ? ' / side' : ''}` : item.ex.scheme, checkId: many ? `${item.ex.key}_${item.setIndex}` : item.ex.key, store: 'prep' };
+        const step = { name: item.ex.name, key: item.ex.key, label: many ? `Set ${item.setIndex + 1} of ${item.total}` : 'Target', kind: 'reps', bw: true, reps: item.ex.reps, side: item.ex.side, scheme: many ? [`${item.ex.reps} reps${item.ex.side ? ' / side' : ''}`].concat(swapNotes(item.ex.scheme)).join(' · ') : item.ex.scheme, checkId: many ? `${item.ex.key}_${item.setIndex}` : item.ex.key, store: 'prep' };
         const h = saHint(item.ex.key);
         if (h) { step.scheme = (step.scheme ? step.scheme + ' · ' : '') + h.txt; if (h.w != null) step.weight = h.w; }
         steps.push(step);
