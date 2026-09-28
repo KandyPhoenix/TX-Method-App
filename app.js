@@ -4054,6 +4054,8 @@ const FORM_VIDEOS = {
   wu_db_spider_curl:                            'nvufDW-MSQk',   // Spider Curl — Men's Health
   wu_incline_dual_pullover:                     'LQEag7MKXSs',   // Incline Bench Dumbbell Pull Over — Functional Bodybuilding
   wu_plank_db_transfer:                         'QTDxX62Xf2w',   // Plank DB Transfers — True Fitness Windsor
+  circ_situps:           'pCX65Mtc_Kk',   // How To Do a Sit Up Correctly — Detroit Medical Center (oEmbed-checked 2026-09-28)
+  circ_db_deadlift:      'HMcXQyEqJ7A',   // How to Dumbbell Deadlift | Perfect Form, Tips & Common Mistakes — Colossus Fitness (oEmbed-checked 2026-09-28)
   sa_mb_slam:            '6vXHh-Lhb2o',   // How to Do Medicine Ball Slams | Sleek/Strong With Rachel Cosgrove — LivestrongWoman
   sa_lat_pulldown:       'SkT4rqrmH-M',   // How To Do A KNEELING RESISTANCE BAND PULLDOWN — Live Lean TV Daily Exercises (band pulldown from the pull-up bar, 2026-09-28)
   squat:       'SbgHegC6lEs',   // How to Back Squat |#AskSquatU Show Ep. 10| — Squat University
@@ -4468,7 +4470,17 @@ function parseYouTubeId(raw) {
   return m ? m[1] : null;
 }
 
-function showFormTip(key) {
+/* Generator circuits are a sequence of other moves, so their How-to lists
+   the moves and each one opens its own How-to and video (2026-09-28). */
+const FORM_CIRCUITS = {
+  'gen_upper-body-circuit': [['Push-ups','pushups'],['Dumbbell rows','gen_db-row'],['Shoulder press','gen_db-shoulder-press'],['Bicep curls','gen_db-bicep-curl'],['Tricep dips','gen_tricep-dips']],
+  'gen_lower-body-circuit': [['Goblet squats','gobletsquat'],['Glute bridges','gen_glute-bridge'],['Kettlebell swings','kbswing'],['Step-ups','gen_step-ups'],['Wall sit','gen_wall-sit']],
+  'gen_core-conditioning-circuit': [['Plank','gen_plank'],['Dead bug','deadbug'],['Russian twists','gen_russian-twist'],['Bird dogs','birddog'],['Hollow hold','hollow'],['Bicycle crunches','bicycle']],
+  'gen_metabolic-circuit': [['Kettlebell swings','kbswing'],['Jump rope','jumprope'],['Goblet squat','gobletsquat'],['Push-ups','pushups'],['Kettlebell high pull','gen_kb-high-pull'],['Mountain climbers','mtnclimb']],
+  'gen_amrap-circuit': [['Dumbbell deadlifts','circ_db_deadlift'],['Push-ups','pushups'],['Dumbbell rows','gen_db-row'],['Goblet squats','gobletsquat'],['Sit-ups','circ_situps']],
+  'gen_tabata-finisher': [['Mountain climbers','mtnclimb'],['Burpees (step out, no jump)','burpees'],['Plank jacks','plankjack'],['High knees','highknees']]
+};
+function showFormTip(key, fromCircuit) {
   const info = FORM_TIPS[key]; if (!info) return;
   let pop = document.getElementById('infoPop');
   if (!pop) {
@@ -4509,11 +4521,17 @@ function showFormTip(key) {
     ${FORM_VIDEOS_ALT[key] ? `<details class="tip-alt-vid"><summary>${FORM_VIDEOS_ALT[key].label}</summary>
        <div class="tip-video"><iframe src="https://www.youtube-nocookie.com/embed/${FORM_VIDEOS_ALT[key].id}?rel=0" title="${info.title} — ${FORM_VIDEOS_ALT[key].label}"
          allow="accelerometer; encrypted-media; gyroscope; picture-in-picture" allowfullscreen loading="lazy"></iframe></div></details>` : ''}
+    ${fromCircuit && FORM_TIPS[fromCircuit] ? `<button class="tip-circuit-back" data-tipback="${fromCircuit}">← Back to ${FORM_TIPS[fromCircuit].title}</button>` : ''}
     <div class="info-pop-body">${info.body}</div>
+    ${FORM_CIRCUITS[key] ? `<div class="tip-circuit"><div class="tip-circuit-head">Moves in this circuit</div>
+       <div class="tip-circuit-sub">Tap a move for its How-to and video.</div>
+       ${FORM_CIRCUITS[key].filter(m => FORM_TIPS[m[1]]).map(m => `<button class="tip-circuit-move" data-tipjump="${m[1]}">${m[0]}${videoFor(m[1]) ? ' <span class="tip-circuit-vid">▶ video</span>' : ''}</button>`).join('')}</div>` : ''}
     ${swap ? `<div class="tip-swap"><b>No barbell today?</b> ${swap}</div>` : ''}
     <a class="tip-demo" href="https://www.youtube.com/results?search_query=${q}" target="_blank" rel="noopener">🎬 Find a demo</a>`;
   pop.classList.add('visible');
 
+  pop.querySelectorAll('[data-tipjump]').forEach(b => b.onclick = () => { showFormTip(b.dataset.tipjump, key); pop.scrollTop = 0; });
+  pop.querySelectorAll('[data-tipback]').forEach(b => b.onclick = () => { showFormTip(b.dataset.tipback); pop.scrollTop = 0; });
   pop.querySelectorAll('[data-vidsave]').forEach(b => b.onclick = () => {
     const k = b.dataset.vidsave;
     const input = pop.querySelector('[data-vidfor="' + k + '"]');
