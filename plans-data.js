@@ -7323,3 +7323,16 @@ Object.assign(SYN_TIPS, {
   T.n44_rest = { title: "Rest Day", body: "PLAIN ENGLISH: A real rest day. HOW: A 10-minute easy walk at most, or nothing at all. Your body adapts to the intervals while it recovers, so skipping rest days costs you results." };
   Object.keys(T).forEach(function (k) { if (!SYN_TIPS[k]) SYN_TIPS[k] = T[k]; });
 })();
+
+/* Moves named inside the generator's AMRAP circuit that had no How-to of
+   their own (2026-09-28). */
+Object.assign(SYN_TIPS, {
+  "circ_situps": {
+    "title": "Sit-Ups",
+    "body": "PLAIN ENGLISH: Curling all the way up from lying on your back to sitting. HOW: Lie on your back, knees bent, feet flat (tuck them under something or have them held if needed). Arms crossed on your chest, or fingertips lightly behind your ears, never pulling on your neck. Exhale and curl up, chin slightly tucked, until your chest is near your thighs, then lower slowly with control. Cues: Lead with the chest, not the head; Don't yank on your neck; Slow on the way down. If your lower back complains, swap for crunches."
+  },
+  "circ_db_deadlift": {
+    "title": "Dumbbell Deadlift",
+    "body": "PLAIN ENGLISH: Picking dumbbells up off the floor with a flat back, like a barbell deadlift. HOW: Stand with feet hip-width, a dumbbell on the floor just outside each foot. Push your hips back and bend your knees to grip them, with your back flat and chest up. Push the floor away and stand tall, squeezing your glutes at the top. Lower by pushing your hips back again, keeping the dumbbells close to your legs. Cues: Flat back, never rounded; Weights stay close to your body; Stand up by driving through your whole foot. Unlike the Romanian deadlift, the knees bend more and the weights go all the way to the floor."
+  }
+});

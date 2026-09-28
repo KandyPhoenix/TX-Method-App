@@ -1942,3 +1942,11 @@ table.prog td.w { color: var(--text); }
 .tip-alt-vid { margin: 6px 0 10px; }
 .tip-alt-vid summary { cursor: pointer; font-weight: 700; font-size: 14px; }
 .tip-alt-vid .tip-video { margin-top: 8px; }
+
+/* circuit move list in the How-to (FORM_CIRCUITS in app.js) */
+.tip-circuit { margin: 12px 0; }
+.tip-circuit-head { font-weight: 800; font-size: 15px; }
+.tip-circuit-sub { font-size: 13px; color: var(--muted); margin: 2px 0 8px; }
+.tip-circuit-move { display: flex; justify-content: space-between; align-items: center; width: 100%; text-align: left; padding: 10px 12px; margin: 0 0 6px; border-radius: 10px; border: 1px solid var(--border, rgba(127,127,127,.3)); background: transparent; color: var(--text); font: inherit; font-weight: 600; cursor: pointer; }
+.tip-circuit-vid { font-size: 12px; font-weight: 700; color: var(--accent-ink, var(--muted)); }
+.tip-circuit-back { background: none; border: none; padding: 0; margin: 4px 0 8px; font: inherit; font-weight: 700; color: var(--accent-ink, var(--text)); cursor: pointer; }
