@@ -3822,6 +3822,238 @@ const FORM_VIDEOS = {
      the negative pull-up, because that is the version done without a machine. */
   mb_clamshell:          '7XbWo8clxR0',   // Banded Clamshell — Forward Physical Therapy LLC (oEmbed-checked 2026-09-28)
   mb_glute_bridge:       'Zr2RLjIjCN0',   // Bodyweight Knee-Banded Glute Bridge — Glute Lab (replaced the floor hip-thrust demo 2026-09-28; oEmbed-checked)
+  /* Video audit 2026-09-28: every exercise in every program, the generator
+     and its warm-ups/cool-downs checked for a demo. Each id below was
+     checked against YouTube's oEmbed (200 = exists and embeddable) and its
+     title recorded. Where the same movement already had a checked demo it
+     is reused. Deliberately left without one: the six generator circuits
+     (a sequence of other moves), stair walking, and the 4x4 rest day. The
+     4x4 and VO2 interval steps share one protocol explainer; easy days
+     share the talk-test video. */
+  gc_90_90_hip_stretch:                         't4Zz6-aG8Iw',   // 90 90 Hip Stretch (Best Hip Mobility Exercise!) — Jack Hanrahan Fitness 
+  gc_bicep_wall_stretch:                        'BzPzDuIn1PA',   // Wall Bicep Stretch — LIVESTRONG
+  gc_calf_stretch:                              'trC42QD0wQI',   // Calf Stretch — Sheffield Teaching Hospitals NHS Foundation Trust
+  gc_cat_cow_slow:                              'vuyUwtHl694',   // Cat Cow — California Department of Public Health
+  gc_chest_opener_stretch:                      '16qCwSMGqx4',   // Chest Opener Stretch — PALM Health
+  gc_child_s_pose:                              'kH12QrSGedM',   // Child Pose — Baptist Health
+  gc_corpse_pose_savasana:                      'Ns8TW7y-abA',   // How to Do: CORPSE POSE — Leap Fitness
+  gc_cross_body_shoulder_stretch:               'swvXpKN832E',   // How to Properly Perform The Cross Body Stretch - Have You Been Doing It Wrong This WHOLE Time? — [P]rehab
+  gc_deep_breathing_box_breath:                 'tEmt1Znux58',   // Box breathing relaxation technique: how to calm feelings of stress or anxiety — Sunnybrook Hospital
+  gc_doorway_chest_stretch:                     '8wiZpixdHPU',   // How to Doorway Chest Stretch — Hart Athletics
+  gc_figure_four_stretch_pigeon:                'xVq2-g_leTI',   // Supine Piriformis Stretch (Figure 4) — Catalyst Physical Therapy & Wellness
+  gc_forearm_stretch:                           'OT-1mQSE3lw',   // How to Fix Forearm Pain and Tightness (QUICK STRETCH!) — ATHLEAN-X™
+  gc_full_body_shake_out:                       'Tx8CVkfmIYE',   // Qigong Shaking for Stress Relief — Resilient Being
+  gc_happy_baby_pose:                           'DsuQQMzFU-4',   // How to Do the Happy Baby Pose: A Guide from Physical Therapists — Hinge Health
+  gc_kneeling_hip_flexor_stretch:               'iZ1eZBY4fwM',   // How To Do Kneeling Lunge (Hip Flexor Stretch) — PureGym
+  gc_lat_stretch:                               'izMQh1NeyRU',   // Lat Stretch — TheProactiveAthlete
+  gc_lying_hamstring_stretch:                   '5P3E8Pec_L8',   // How To Do Lying Hamstring Stretch — PureGym
+  gc_lying_spinal_twist:                        '2SCXbr33pRw',   // Lying Spinal Twist Stretch - for lower back mobility - #clinicalyoga — Core Elements Training
+  gc_neck_rolls:                                '2M80Mn0VBPw',   // Cervical Neck Rolls — Baptist Health
+  gc_puppy_pose:                                'i1-bFRjloeI',   // Yoga: How To Do Puppy Pose — Yoga 15 with Abi
+  gc_quad_stretch_lying:                        'uRRwljV-Nlk',   // Quad Stretch in Sidelying - Ask Doctor Jo — AskDoctorJo
+  gc_seated_forward_fold:                       'SLIaql7h6RQ',   // Forward Fold Yoga Pose - Seated and Standing — Vive Health
+  gc_standing_forward_fold:                     'goN4rWbQUn4',   // Standing Forward Fold - Stretch Hamstrings and Lower Back — Group HIIT
+  gc_thread_the_needle:                         'SkQhKf74nZk',   // How to Do a Thread the Needle Stretch: A Guide from Physical Therapists — Hinge Health
+  gc_tricep_stretch:                            'MWzR-WE_nhU',   // How to Do a Tricep Stretch: A Guide from Physical Therapists — Hinge Health
+  gc_walking_cool_down:                         'tk6oIzlx1SE',   // QUICK!  Six Minute WALKING Cool Down STRETCH, perfect after your workout! — PBF Workouts
+  'gen_21s-curls':                              '35GQ5NoH3fs',   // 21's Dumbbell Bicep Curls — EnviroFit Gym
+  'gen_ab-wheel-substitute':                    '3C1TRMJveXo',   // Barbell Rollout — The Active Life
+  'gen_archer-pushups':                         'MxVbNel13Ek',   // Archer Push Ups Tutorial | With Progressions — Andrew Alinda
+  'gen_bag-combo-rounds':                       'sSLFXjUSTXw',   // The Perfect Heavy Bag Boxing Workout for Beginners w/ Olympic Boxer — Tony Jeffries
+  'gen_bag-tabata':                             'k3ykvBhIVxU',   // 5 Minutes Heavy Bag Tabata Boxing Workout for Beginner — NateBowerFitness
+  'gen_band-face-pull':                         'CSP7YpPv3ds',   // Band Face Pull — Men's Health
+  'gen_band-pull-apart':                        'osRimvxXlKQ',   // Band Pull Apart Series - Shoulder Pain Relief Exercises — Physical Therapy 101
+  'gen_band-pushup-plus':                       'RFbjeyq_ZPc',   // Push Up Plus — E3 Rehab Exercise Library
+  'gen_banded-hip-thrust':                      '0XXUdRSTBxA',   // How to: Banded Hip Thrust (floor) — FitLife Gym
+  'gen_banded-internal-rotation':               'MfjCK5_Ss5g',   // How To Do An Internal Rotation with Band | Exercise Guide — Bodybuilding.com
+  'gen_barbell-complex':                        'B5L0D2dl5YI',   // The BEST Barbell Complex to Burn Fat — MAN Sports
+  'gen_barbell-curl':                           'kwG2ipFRgfo',   // How to Do a Barbell Curl | Arm Workout — Howcast
+  'gen_barbell-lunge':                          'NcDtORTfVNQ',   // How to PROPERLY Barbell Lunge (AVOID THESE MISTAKES) — Colossus Fitness
+  'gen_barbell-row':                            'FWJR5Ve8bnQ',   // How to do the BENT-OVER BARBELL ROW! | 2 Minute Tutorial — Max Euceda
+  'gen_bench-press':                            '4Y2ZdHCOXok',   // How to PROPERLY Bench Press for Growth (5 Easy Steps) — Jeremy Ethier
+  'gen_box-squat':                              'rMEPHwNhQfo',   // Box Squat Movement Demo — The Active Life
+  'gen_calf-raise-variations':                  'CtyIVeJH6lI',   // You're Doing Calf Raises WRONG | The Correct Way Taught By Physical Therapist — Rehab and Revive
+  'gen_close-grip-bench':                       'UYJsFzqdgK4',   // HOW TO: Close-Grip Bench Press (TRICEPS BUILDER) || PERFECT FORM — ScottHermanFitness
+  'gen_cycling-intervals':                      'NRpV7ENi6Sk',   // How To Train On Your Commute | HIIT Hill Reps — Global Cycling Network
+  'gen_cycling-steady':                         'AyMUWBUt3WY',   // How To Turbo Charge Zone 2 Training — Global Cycling Network
+  'gen_db-bench-press':                         'cZalRJCaw20',   // How To Dumbbell Chest Press PROPERLY | Fix Your DB Bench Press — Colossus Fitness
+  'gen_db-bicep-curl':                          'XE_pHwbst04',   // Bicep Curls — (DUMBBELL FORM & TECHNIQUE) — Fit Father Project - Fitness For Busy Fathers
+  'gen_db-complex':                             'IIIxgSVUjUc',   // Full Body Dumbbell Complex Workout - Back Friendly - 5 exercise full body complex workout! — Fitness 4 Back Pain
+  'gen_db-floor-fly-press':                     'N1Eopg1yibI',   // Dumbbell Chest Press + Fly Combo — Movement Upgraded
+  'gen_db-lateral-raise':                       'pgrWjBfaFe8',   // How to PROPERLY Dumbbell Lateral Raise For Bigger Shoulders (FIX THIS!) — Colossus Fitness
+  'gen_db-rdl':                                 'hQgFixeXdZo',   // Dumbbell Romanian (RDL) Deadlift |TECHNIQUE for Beginners — Mike | J2FIT Strength & Conditioning
+  'gen_db-rear-delt-fly':                       '0GSu6Z-Oj7U',   // Bowflex® How-To | Rear Delt Fly for Beginners — BowFlex
+  'gen_db-row':                                 'gfUg6qWohTk',   // STOP F*cking Up Dumbbell Rows (PROPER FORM!) — ATHLEAN-X™
+  'gen_db-shoulder-press':                      '0JfYxMRsUCQ',   // Dumbbell Shoulder Press | Exercise Guide — Bodybuilding.com
+  'gen_dead-hang-challenge':                    'Z6gFs5mXIZM',   // 7 PAINFUL Dead Hang Mistakes You Need to AVOID — Fitnessdy
+  gen_deadlift:                                 'GxsLrTzyGUU',   // How to Do A Conventional Deadlift Correctly — PureGym
+  'gen_double-leg-stretch':                     'N-jZas9tMSU',   // How to Do a Double Leg Stretch | Pilates Workout — Howcast
+  'gen_external-rotation':                      '_UvmPNGtlPM',   // Shoulder External Rotation with Resistive Band - Ask Doctor Jo — AskDoctorJo
+  'gen_farmer-carry':                           'z7E_YU9P1jU',   // How to Perform the Farmer’s Carry — Dr. Carl Baird
+  'gen_frog-pumps':                             'MQ62r2V7Lw8',   // Frog Pump — Men's Health
+  'gen_glute-bridge':                           'Q_Bpj91Yiis',   // Glute Bridge Exercise - The correct way of doing it — PostureFlow
+  'gen_glute-step-downs':                       '3sRrVvxwaUw',   // How to Perform Step Downs | Glute Exercise Tutorial — Buff Dudes Workouts
+  'gen_goblet-squat':                           '6mf0oa2GGUc',   // Goblet Squat Tutorial - Proper Form and Technique — Runna
+  'gen_hanging-leg-raise':                      'Pr1ieGZ5atk',   // Hanging Leg Raise | HOW-TO — ATHLEAN-X™
+  'gen_hip-opener-flow':                        'GffXQl3zvUI',   // Hip Mobility - Open Your Hips  - 13 Min Yoga Practice — Yoga With Adriene
+  'gen_hollow-body-hold':                       'Gkh7ZF_lcGw',   // Hollow Body Hold — The Active Life
+  'gen_inverted-rows':                          'GdyhjXlxE-U',   // How To PROPERLY Inverted Row For Muscle Gain — Colossus Fitness
+  'gen_jump-rope-basic':                        'u3zgHI8QnqE',   // How To Jump Rope | The Right Way | Well+Good — Well+Good
+  'gen_jump-rope-tricks':                       'AVMVjT9cLgY',   // 30 JUMP ROPE SKILLS l BEGINNER TO ADVANCE — Dayan Kole
+  'gen_kb-bottoms-up-press':                    'J5LEpIZSDS0',   // Classic Kettlebell - Bottoms Up Press — Iron Edge
+  'gen_kb-clean-press':                         'sAtZ4yAsQnI',   // Kettlebell Clean And Press — Men's Health
+  'gen_kb-deadlift-to-squat':                   '2u_ERIr8Vw4',   // Kettlebell: Deadlift to Goblet Squat — IMPACT-X Performance
+  'gen_kb-emom':                                'ZkT4-bQx8FI',   // 12 MINUTE KETTLEBELL EMOM | Follow Along — Tom Peto Training
+  'gen_kb-flow':                                'afk-1Dwc5EM',   // Full Body KettleBell Flow Workout | Intermediate Level KB Workout — CrossFit Federal Hill
+  'gen_kb-gorilla-row':                         'UsxcaALqr2c',   // The Kettlebell Gorilla Row — Testosterone Nation
+  'gen_kb-high-pull':                           'B6WhAbAadiM',   // Kettlebell High Pull — W10 Personal Training Gym
+  'gen_kb-sumo-squat':                          'rt7-XtK7jDA',   // Kettlebell Sumo Squat — TECHNIQUE, FORM, & TUTORIAL — Fit Father Project - Fitness For Busy Fathers
+  'gen_kb-swing':                               'DqkYuWR4zRI',   // HOW TO DO A KETTLEBELL SWING WITHOUT HURTING YOUR BACK! — Dr. Dan's Plan
+  'gen_kb-windmill':                            'q8K_Wg8OuV4',   // How to Perform a Kettlebell Windmill | Nuffield Health — Nuffield Health
+  'gen_man-maker':                              '2-6EPLtSLwU',   // How To Do Man Makers | Exercise Guide — Bodybuilding.com
+  'gen_overhead-press':                         'QAQ64hK4Xxs',   // How To Overhead Press For Bigger Shoulders (5 Mistakes You're Probably Making) — Jeremy Ethier
+  'gen_pallof-press':                           '_2xWmYNnFS8',   // How to Do the Pallof Press (Perfect Form for a Stronger Core) — Colossus Fitness
+  'gen_pilates-hundred':                        'lFvSS82o_ZY',   // How To Perform The Hundred — Sports and Fitness
+  'gen_pilates-roll-up':                        'PGnibcCcAUE',   // How to do a Pilates Roll Up | The Right Way | Well+Good — Well+Good
+  'gen_pilates-swimming':                       'bY6ZyiO_7ek',   // How to Do Swimming | Pilates Workout — Howcast
+  gen_plank:                                    '6LqqeBtFn9M',   // How to do the perfect PLANK: technique and common mistakes — Get Exercise Confident
+  'gen_plank-shoulder-tap':                     'gKA5LBy7WAI',   // How To Properly Do a Plank with Shoulder Taps - Strength Exercises - Wellen — Wellen
+  'gen_plate-front-raise-press':                'e8my9OOCXVo',   // How To: Overhead Front Raise (With Plate) — ScottHermanFitness
+  'gen_plate-squeeze-press':                    'zHDKvnDz0Hk',   // Plate Squeeze DB Chest Press — Somerset Fitness
+  'gen_prone-trap-raise':                       'ax9Gg8djfig',   // Prone Trap 3 Raise - OPEX Exercise Library — OPEX Fitness
+  gen_pushups:                                  'I9fsqKE5XHo',   // Do Push-Ups with Proper Form! — Upright Health
+  'gen_renegade-rows':                          'wTqlJ0aoJlM',   // Renegade Row: Core & Back Builder — BuiltLean®
+  'gen_romanian-deadlift':                      'fKWeeTI8jlQ',   // How to Romanian Deadlift Properly (Avoid Back Pain) — Sharelle Grant
+  'gen_russian-twist':                          'wkD8rjkodUI',   // How to Do a Russian Twist | Ab Workout — Howcast
+  'gen_sally-up-pushups':                       '41N6bKO-NVI',   // Bring Sally Up - Push Up Challenge — RisingDragonSchool
+  'gen_sally-up-squats':                        'nrExzjnFiLg',   // Sally up with Wall Squats — Movement Republic CrossFit
+  gen_scissors:                                 'WoNCIBVLbgY',   // How to Do Scissors | Ab Workout — Howcast
+  'gen_serratus-punches':                       'M-vsEfJIoWE',   // Serratus Punches — MGHOrthopaedics
+  'gen_side-plank-dips':                        'BWQRVB4LyFI',   // How to do Side Plank Hip Dips | Joanna Soh — Joanna Soh
+  'gen_single-leg-hip-thrust':                  'xKDhmWlf1UE',   // Perfect Your Single Leg Hip Thrust: Boost Glute Strength & Stability — Muscle & Motion
+  'gen_single-leg-rdl':                         'ep4ia78FTBQ',   // Modified Single Leg Romanian Deadlift — Nicklaus Children's Hospital
+  'gen_split-squat':                            'SX7BtPh_pL0',   // U.S. Marine Corps Fitness - Dumbbell Split Squat — U.S. Forces Fitness
+  'gen_stair-climb-workout':                    'm9rR6Fy69ik',   // How To Do SINGLE STEPS STAIR SPRINT | Exercise Demonstration Video and Guide — Live Lean TV Daily Exercises
+  'gen_stair-sprint-intervals':                 '2OwzD_UPL30',   // How To Do STAIRS HIIT SPRINTS | Exercise Demonstration Video and Guide — Live Lean TV Daily Exercises
+  'gen_step-ups':                               'otjVTHFMbcM',   // How to Correct Your Box Step Ups | Tim Keeley | Physio REHAB — Physio REHAB
+  'gen_sumo-deadlift':                          'JbY72Him34Q',   // How To Correctly Perform A Sumo Deadlift — PureGym
+  'gen_sun-salutation-a':                       'FPjppcOquE4',   // How To Do A Sun Salutation | The Right Way | Well+Good — Well+Good
+  'gen_tempo-goblet-squat':                     'IzDaNwx_sRg',   // Goblet Tempo Squat — Forge Personal Training
+  'gen_tempo-pull-ups':                         '5FoEa17E_10',   // Tempo Pull Ups (0-2-3) — James Michael
+  'gen_tempo-pushups':                          '6URcQFbGZTA',   // How to do a Tempo Push Up | The Right Way | Well+Good — Well+Good
+  'gen_treadmill-incline-walk':                 'NAsObfFJXvE',   // How To: Incline Treadmill Walk (12-3-30 Workout) — Live Lean TV Daily Exercises
+  'gen_tricep-dips':                            '0326dy_-CzM',   // How to Do Triceps Bench Dips — LIVESTRONG
+  'gen_turkish-getup':                          'jFK8FOiLa_M',   // Master the Turkish Get-Up (Avoid These 3 Mistakes!) — Squat University
+  'gen_wall-sit':                               'cWTZ8Am1Ee0',   // How to Do a Wall Sit Exercise | 30 Seconds | MedBridge — Medbridge
+  'gen_warrior-flow':                           'CHvnhxNDgn8',   // 7 Minute Yoga Flow Class - Warrior Flow Sequence for Balance — Di Hickman
+  'gen_yoga-ball-hamstring-curl':               'XkESHgkTdFw',   // Swiss Ball Hamstring Curl | Nuffield Health — Nuffield Health
+  'gen_yoga-ball-stir-pot':                     'FpH1C25VyXE',   // Core Exercise for Low Back Pain | Stir the Pot | Chesterfield Chiropractor — Elite Chiropractic and Performance
+  'gen_yoga-core-flow':                         'wU8gBbNp1AE',   // 10 MIN YOGA CORE FLOW | A Guided Yoga Flow For Core Strength | Eylem Abaci — Eylem Abaci
+  gw_arm_circles:                               '3STTSi_jdHk',   // How To Arm Circles | Nuffield Health — Nuffield Health
+  gw_arm_haulers:                               'GnHikoWYNow',   // Arm Haulers: Strength (Back) — UNBROKEN FITNESS SOLUTIONS
+  gw_arm_swings:                                'Qbxz74YARI8',   // essential exercises everyday arm swings — Ann & Robert H. Lurie Children's Hospital of Chicago
+  gw_band_face_pulls:                           'CSP7YpPv3ds',   // Band Face Pull — Men's Health
+  gw_band_pull_aparts:                          'osRimvxXlKQ',   // Band Pull Apart Series - Shoulder Pain Relief Exercises — Physical Therapy 101
+  gw_banded_monster_walks:                      '1flJ9_AZ2qY',   // Banded Monster Walks for Hip & Knee Stability — The Fix
+  gw_bodyweight_box_squats:                     '7LpLZOdz68A',   // Bodyweight Box Squat | Step-by-Step Tutorial — Physio Plus Fitness
+  gw_butt_kicks:                                'vXVPvY1UbJI',   // How to Do：BUTT KICKS — Leap Fitness
+  gw_cat_cow_stretch:                           'LIVJZZyZ2qM',   // Cat - Cow Stretch — Dr. Dawn
+  gw_clamshells:                                'EG5_gXcfozw',   // How To Do The Clamshell Exercise - Kinetic Sports Rehab — Tangelo - Seattle Chiropractor + Rehab
+  gw_dead_hangs:                                'Z6gFs5mXIZM',   // 7 PAINFUL Dead Hang Mistakes You Need to AVOID — Fitnessdy
+  gw_glute_bridges:                             'Q_Bpj91Yiis',   // Glute Bridge Exercise - The correct way of doing it — PostureFlow
+  gw_high_knees_march:                          'ymdS7tM0zws',   // high knee exercise and warm-up — Josh Wilson (Chief)
+  gw_hip_90_90_stretch:                         't4Zz6-aG8Iw',   // 90 90 Hip Stretch (Best Hip Mobility Exercise!) — Jack Hanrahan Fitness 
+  gw_hip_circles:                               'D_kQzMB_HkY',   // How to do standing hip circles (Home training exercise) — Sporting Health Club
+  gw_inchworms:                                 'ZY2ji_Ho0dA',   // How to Do：INCHWORMS — Leap Fitness
+  gw_jumping_jacks:                             'XR0xeuK5zBU',   // How to do Jumping Jacks exercise - Best Cardio Exercises video tutorial — P4P WORKOUTS 
+  gw_leg_swings:                                'difYoBtZi2s',   // How To Do Leg Swings — PureGym
+  gw_leg_swings_front_back:                     'naW8u72lOzI',   // 3. Leg Swings - Active Warm-Up - Fully Fit by Runner's World — 3v
+  gw_light_band_rows:                           '3DzjYvsAU8Y',   // How to Do a Standing Shoulder Row with Anchored Resistance | MedBridge — Medbridge
+  gw_light_jog_walk:                            'nmvVfgrExAg',   // How to do Brisk Walk - Warm Up Exercise — GetFitso
+  gw_light_push_ups:                            'WDIpL0pjun0',   // How to do a Push-Up | Proper Form & Technique | NASM — National Academy of Sports Medicine (NASM)
+  gw_prone_y_t_w_raises:                        'LSy6R7j3PDc',   // Prone Y, T, W Raise — Simone Sports Performance
+  gw_scapular_pulls:                            '-ZIpSoTRsuE',   // Scapular Pull Ups (Beginner to Advanced Progressions) — Zack Henderson
+  gw_scapular_push_ups:                         'huGj4aBk9C4',   // Scapular Push Up — Marcus Filly
+  gw_shoulder_pass_throughs:                    'l5I_E0_My5s',   // Shoulder Pass Through — HomeWODs
+  gw_thoracic_rotations:                        'QWwiOHexU8I',   // Quadruped Thoracic Rotation Movement Demo — The Active Life
+  gw_wall_slides:                               'tWDGEyMWv10',   // Easy fix for rounded shoulders - Scapula Wall Slides #mobility — Jack Hanrahan Fitness 
+  gw_world_s_greatest_stretch:                  '-CiWQ2IvY34',   // The World's Greatest Stretch (Mobility Exercise) by Squat University — Squat University
+  n44_cd_bike:                                  'uFr_6iq5hwg',   // Norwegian 4x4 Interval Training for Beginners (Start Without Burning Out) — VO2 Max Lab
+  n44_cd_pick:                                  'uFr_6iq5hwg',   // Norwegian 4x4 Interval Training for Beginners (Start Without Burning Out) — VO2 Max Lab
+  n44_cd_tread:                                 'uFr_6iq5hwg',   // Norwegian 4x4 Interval Training for Beginners (Start Without Burning Out) — VO2 Max Lab
+  n44_easy_rope:                                'UGOcJSZNpPY',   // How Do You Know You Are In Your Zone 2? Use The Talk Test! — Dr. Carrie Snaychuk
+  n44_easy_spin:                                'UGOcJSZNpPY',   // How Do You Know You Are In Your Zone 2? Use The Talk Test! — Dr. Carrie Snaychuk
+  n44_easy_walk:                                'UGOcJSZNpPY',   // How Do You Know You Are In Your Zone 2? Use The Talk Test! — Dr. Carrie Snaychuk
+  n44_rec_bike_1:                               'uFr_6iq5hwg',   // Norwegian 4x4 Interval Training for Beginners (Start Without Burning Out) — VO2 Max Lab
+  n44_rec_bike_2:                               'uFr_6iq5hwg',   // Norwegian 4x4 Interval Training for Beginners (Start Without Burning Out) — VO2 Max Lab
+  n44_rec_bike_3:                               'uFr_6iq5hwg',   // Norwegian 4x4 Interval Training for Beginners (Start Without Burning Out) — VO2 Max Lab
+  n44_rec_pick_1:                               'uFr_6iq5hwg',   // Norwegian 4x4 Interval Training for Beginners (Start Without Burning Out) — VO2 Max Lab
+  n44_rec_pick_2:                               'uFr_6iq5hwg',   // Norwegian 4x4 Interval Training for Beginners (Start Without Burning Out) — VO2 Max Lab
+  n44_rec_pick_3:                               'uFr_6iq5hwg',   // Norwegian 4x4 Interval Training for Beginners (Start Without Burning Out) — VO2 Max Lab
+  n44_rec_tread_1:                              'uFr_6iq5hwg',   // Norwegian 4x4 Interval Training for Beginners (Start Without Burning Out) — VO2 Max Lab
+  n44_rec_tread_2:                              'uFr_6iq5hwg',   // Norwegian 4x4 Interval Training for Beginners (Start Without Burning Out) — VO2 Max Lab
+  n44_rec_tread_3:                              'uFr_6iq5hwg',   // Norwegian 4x4 Interval Training for Beginners (Start Without Burning Out) — VO2 Max Lab
+  n44_work_bike_1:                              'uFr_6iq5hwg',   // Norwegian 4x4 Interval Training for Beginners (Start Without Burning Out) — VO2 Max Lab
+  n44_work_bike_2:                              'uFr_6iq5hwg',   // Norwegian 4x4 Interval Training for Beginners (Start Without Burning Out) — VO2 Max Lab
+  n44_work_bike_3:                              'uFr_6iq5hwg',   // Norwegian 4x4 Interval Training for Beginners (Start Without Burning Out) — VO2 Max Lab
+  n44_work_bike_4:                              'uFr_6iq5hwg',   // Norwegian 4x4 Interval Training for Beginners (Start Without Burning Out) — VO2 Max Lab
+  n44_work_pick_1:                              'uFr_6iq5hwg',   // Norwegian 4x4 Interval Training for Beginners (Start Without Burning Out) — VO2 Max Lab
+  n44_work_pick_2:                              'uFr_6iq5hwg',   // Norwegian 4x4 Interval Training for Beginners (Start Without Burning Out) — VO2 Max Lab
+  n44_work_pick_3:                              'uFr_6iq5hwg',   // Norwegian 4x4 Interval Training for Beginners (Start Without Burning Out) — VO2 Max Lab
+  n44_work_pick_4:                              'uFr_6iq5hwg',   // Norwegian 4x4 Interval Training for Beginners (Start Without Burning Out) — VO2 Max Lab
+  n44_work_tread_1:                             'uFr_6iq5hwg',   // Norwegian 4x4 Interval Training for Beginners (Start Without Burning Out) — VO2 Max Lab
+  n44_work_tread_2:                             'uFr_6iq5hwg',   // Norwegian 4x4 Interval Training for Beginners (Start Without Burning Out) — VO2 Max Lab
+  n44_work_tread_3:                             'uFr_6iq5hwg',   // Norwegian 4x4 Interval Training for Beginners (Start Without Burning Out) — VO2 Max Lab
+  n44_work_tread_4:                             'uFr_6iq5hwg',   // Norwegian 4x4 Interval Training for Beginners (Start Without Burning Out) — VO2 Max Lab
+  n44_wu_bike:                                  'uFr_6iq5hwg',   // Norwegian 4x4 Interval Training for Beginners (Start Without Burning Out) — VO2 Max Lab
+  n44_wu_pick:                                  'uFr_6iq5hwg',   // Norwegian 4x4 Interval Training for Beginners (Start Without Burning Out) — VO2 Max Lab
+  n44_wu_tread:                                 'uFr_6iq5hwg',   // Norwegian 4x4 Interval Training for Beginners (Start Without Burning Out) — VO2 Max Lab
+  pf_360_breathing:                             'TPGUgXWBY4Y',   // Seated 360 Breathing — Catalyst Physical Therapy & Wellness
+  pf_anti_rotation_press:                       'TTSOBYgV1SE',   // How to Do a Standing Anti-Rotation Press with Anchored Resistance | MedBridge — Medbridge
+  pf_bent_knee_fallouts:                        'GX4fOSAvNTY',   // Bent Knee Fallouts — Mondo Sports Therapy
+  pf_bird_dog_arms:                             'IXxKNyOEgMM',   // Beginner bird dog exercise arms only by chiropractor in Toronto Dr. Byron Mackay — Transform Chiropractic
+  pf_dead_bug_legs:                             '8edX8dvhpXY',   // Dead Bug - Bent Legs Only — Rehab My Patient
+  pf_heel_slides:                               '6-anByqnKp8',   // Core Exercise: Heel Slide — Children's Hospital Colorado
+  pf_knack:                                     'fp2YpdDLaYg',   // Knack Pelvic Floor Exercise — Melanie Platt with Perfect Pelvic Floor
+  pf_long_holds:                                'JFJtUtKQCuM',   // How to do pelvic floor exercises | NHS — NHS
+  pf_quick_flicks:                              'RbwyfEj-Oy4',   // Pelvic Floor Strengthening 3B: Quick Flicks & Endurance Holds — UCLA Health
+  pf_single_leg_bridge:                         'b1zTCyGJXCQ',   // Single Leg Glute Bridge Exercise | How To Perform And Common Mistakes — Dr. Carl Baird
+  pf_sit_to_stand:                              'ITv-_BkcrD0',   // Sit to Stand — Baptist Health
+  pf_suitcase_hold:                             'DbyqfH7CbJ8',   // How To: Suitcase Holds — Primal Method
+  pf_tva_activation:                            'p6T2fv2q_yk',   // TVA Activation Exercises (How to TARGET the Transverse Abs) — Criticalbench
+  sims_sprint20:                                's_jNQkalgmU',   // How Should You Start Sprint Intervals? Practical Approaches for Women in Midlife Training — Dr. Stacy Sims Official
+  sims_walk_short:                              'nmvVfgrExAg',   // How to do Brisk Walk - Warm Up Exercise — GetFitso
+  syn_bird_dog_tai_chi_tempo:                   'QABW99qPiNM',   // Bird Dog Exercise | Improve Your Core and Balance — Muscle & Motion
+  syn_clam_shells:                              'tQ6pqITQx_Q',   // Core Exercise: Clam Shells — Children's Hospital Colorado
+  syn_cobra_press_up_no_load:                   'BHeyJbIINBM',   // Dynamic Cobra Press Ups — Mobility Doc
+  syn_decline_push_ups_feet_elevated:           'QBlYp-EwHlo',   // How To Do A Decline Push Up — PureGym
+  syn_doorway_chest_opener_rotation:            'M850sCj9LHQ',   // How to Do a Doorway Pec Stretch Exercise | 90 Degrees Abduction | MedBridge — Medbridge
+  syn_dumbbell_press:                           'QsYre__-aro',   // STOP Doing Dumbbell Press Like This (5 Mistakes Slowing Your Chest Gains) — Jeremy Ethier
+  syn_froggy_jumps_modified_no_jump:            '0FWRt_h4-do',   // Squat to Stand with Overhead Reach — Champion Physical Therapy and Performance
+  syn_marching_bridge_with_kegel_coordination:  'nXd6rZDHC98',   // Marching Bridge — Dr. Chris Pieton || Pelvic Floor PT
+  syn_side_lying_book_opens:                    'M8XASi9Tnus',   // Side lying rotations / open book stretch — Revive Physiotherapy 
+  syn_single_leg_rdl_no_weight_wall_support:    'J0bEKhnP-Mw',   // Fixing The Single Leg RDL Problem (INCREDIBLE CHANGES) — Squat University
+  syn_slow_controlled_deep_squat_exit:          'IHApHfNA2Ag',   // How to Do a Deep Squat According to Physical Therapists — Hinge Health
+  syn_slow_get_up_to_standing:                  'W1EIew9BXHo',   // How to start building getting up from the floor without your hands — Dr. Coach Kelli
+  syn_standing_lateral_reach:                   'NTfHfoMg1qA',   // Side-Bend Stretch – Your Exercise Solution (YES) — Arthritis Foundation
+  syn_tabletop_hip_pulses:                      'GImwCsuBLyo',   // Quadruped Rock Back - Hip Mobility Drill — Mike Reinold
+  syn_tempo_push_ups_3_down_1_up:               '6URcQFbGZTA',   // How to do a Tempo Push Up | The Right Way | Well+Good — Well+Good
+  syn_tightrope_walk:                           'JPkjBrytmRY',   // Balance Training - Tightrope Walk — OPTPproducts
+  vo2i1:                                        'uFr_6iq5hwg',   // Norwegian 4x4 Interval Training for Beginners (Start Without Burning Out) — VO2 Max Lab
+  vo2i2:                                        'uFr_6iq5hwg',   // Norwegian 4x4 Interval Training for Beginners (Start Without Burning Out) — VO2 Max Lab
+  vo2i3:                                        'uFr_6iq5hwg',   // Norwegian 4x4 Interval Training for Beginners (Start Without Burning Out) — VO2 Max Lab
+  vo2i4:                                        'uFr_6iq5hwg',   // Norwegian 4x4 Interval Training for Beginners (Start Without Burning Out) — VO2 Max Lab
+  vo2r1:                                        'uFr_6iq5hwg',   // Norwegian 4x4 Interval Training for Beginners (Start Without Burning Out) — VO2 Max Lab
+  vo2r2:                                        'uFr_6iq5hwg',   // Norwegian 4x4 Interval Training for Beginners (Start Without Burning Out) — VO2 Max Lab
+  vo2r3:                                        'uFr_6iq5hwg',   // Norwegian 4x4 Interval Training for Beginners (Start Without Burning Out) — VO2 Max Lab
+  wu_bent_over_dual_row:                        '6gvmcqr226U',   // How To Do A Dumbbell Bent Over Row — PureGym
+  wu_db_glute_bridge:                           'PSMW7iSi2BU',   // Dumbbell Glute Bridge — Women's Strength Nation by Holly Perkins
+  wu_db_leg_curl:                               'ZHlBSI6JPsA',   // How to: Lying Leg Curl With a Dumbbell at Home — LIVESTRONG
+  wu_db_pullover:                               'jQjWlIwG4sI',   // Dumbbell Pullover — Renaissance Periodization
+  wu_db_shrug:                                  'cJRVVxmytaM',   // How To: Dumbbell Shrugs — ScottHermanFitness
+  wu_db_spider_curl:                            'nvufDW-MSQk',   // Spider Curl — Men's Health
+  wu_incline_dual_pullover:                     'LQEag7MKXSs',   // Incline Bench Dumbbell Pull Over — Functional Bodybuilding
+  wu_plank_db_transfer:                         'QTDxX62Xf2w',   // Plank DB Transfers — True Fitness Windsor
   sa_mb_slam:            '6vXHh-Lhb2o',   // How to Do Medicine Ball Slams | Sleek/Strong With Rachel Cosgrove — LivestrongWoman
   sa_lat_pulldown:       'SkT4rqrmH-M',   // How To Do A KNEELING RESISTANCE BAND PULLDOWN — Live Lean TV Daily Exercises (band pulldown from the pull-up bar, 2026-09-28)
   squat:       'SbgHegC6lEs',   // How to Back Squat |#AskSquatU Show Ep. 10| — Squat University
