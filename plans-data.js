@@ -6860,8 +6860,8 @@ const SS45_PLAN = (function () {
       var lowerDay = function (test) {
         return { title: "Lower Power · Phase " + p,
           focus: tag + " · sit-to-stand, squat, hinge, step and stepping reactions",
-          exercises: [{ key: "mb_glute_bridge", name: "Mini-Band Glute Bridge", sets: 1, reps: 12, needs: "bodyweight", scheme: "warm-up · 12 · mini band just above the knees · press the knees out, 2s squeeze at the top" },
-            { key: "syn_banded_clamshell_with_lift", name: "Mini-Band Clamshell", sets: 1, reps: 10, needs: "bodyweight", side: true, scheme: "warm-up · 10 per side · mini band above the knees · feet stay together, the foot lift is optional" }].concat(test ? [chairTest()] : [], lower(p, s)) };
+          exercises: [{ key: "mb_glute_bridge", name: "Mini-Band Glute Bridge", sets: 1, reps: 12, needs: "bodyweight", scheme: "warm-up · 12 · LIGHT or MEDIUM mini band just above the knees (heavy only once 12 feel easy) · press the knees out, 2s squeeze at the top" },
+            { key: "mb_clamshell", name: "Mini-Band Clamshell", sets: 1, reps: 10, needs: "bodyweight", side: true, scheme: "warm-up · 10 per side · LIGHT mini band above the knees (medium once 10 feel easy) · feet stay together, hips stacked" }].concat(test ? [chairTest()] : [], lower(p, s)) };
       };
       var upperDay = function (test) {
         return { title: "Upper Power · Phase " + p,
@@ -7079,8 +7079,8 @@ const SA120_PLAN = (function () {
     ].concat(lowerDay ? [
       /* mini-band glute warm-up (Kandy, 2026-09-28): replaces hip and arm
          circles on lower days so the session stays inside 30 minutes */
-      { key: "mb_glute_bridge", name: "Mini-Band Glute Bridge", sets: 1, reps: 12, needs: "bodyweight", scheme: "warm-up · 12 · mini band just above the knees · press the knees out, 2s squeeze at the top" },
-      { key: "syn_banded_clamshell_with_lift", name: "Mini-Band Clamshell", sets: 1, reps: 10, needs: "bodyweight", side: true, scheme: "warm-up · 10 per side · mini band above the knees · feet stay together, the foot lift is optional" }
+      { key: "mb_glute_bridge", name: "Mini-Band Glute Bridge", sets: 1, reps: 12, needs: "bodyweight", scheme: "warm-up · 12 · LIGHT or MEDIUM mini band just above the knees (heavy only once 12 feel easy) · press the knees out, 2s squeeze at the top" },
+      { key: "mb_clamshell", name: "Mini-Band Clamshell", sets: 1, reps: 10, needs: "bodyweight", side: true, scheme: "warm-up · 10 per side · LIGHT mini band above the knees (medium once 10 feel easy) · feet stay together, hips stacked" }
     ] : [
       { key: "wuhip", name: "Hip Circles", sets: 1, reps: 10, needs: "bodyweight", scheme: "10 each direction" },
       { key: "wuarm", name: "Arm Circles", sets: 1, reps: 10, needs: "bodyweight", scheme: "10 each direction, big and slow" }
@@ -7282,10 +7282,14 @@ Object.assign(SYN_TIPS, {
 });
 
 /* Mini-band glute warm-up (2026-09-28) — floor bridge with a loop band.
-   The clamshell reuses syn_banded_clamshell_with_lift's tip and video. */
+   The clamshell has its own mb_clamshell key (plain clamshell, band named). */
 Object.assign(SYN_TIPS, {
+  "mb_clamshell": {
+    "title": "Mini-Band Clamshell",
+    "body": "PLAIN ENGLISH: Lying on your side and opening the top knee against a mini band, like a clamshell opening, to wake up the side-hip muscle (gluteus medius) that keeps your knee lined up. WHICH BAND: Start with your LIGHT mini band. Move to MEDIUM once all 10 reps per side feel easy with a clean hold at the top. Save HEAVY for later, because a band that's too strong makes you roll your hips back and the wrong muscles take over. HOW: Lie on your side, band just above the knees, hips and knees bent about 45°, heels together and in line with your back. Keep your feet touching and lift the top knee as far as you can without the top hip rolling backward, pause 1 second, lower slowly. Cues: Hips stacked, the top hip stays forward; Feet stay together; Feel it on the side and back of the hip, not the front of the thigh; Slow on the way down."
+  },
   "mb_glute_bridge": {
     "title": "Mini-Band Glute Bridge",
-    "body": "PLAIN ENGLISH: A glute bridge on the floor with a mini band just above your knees, to wake up the glutes before lower-body work. HOW: Lie on your back, knees bent, feet flat and hip-width, band just above the knees. Press the knees gently out against the band, then drive through the heels to lift the hips until knees, hips and shoulders form a line. Squeeze 2 seconds, lower slowly. Cues: Knees stay pushed out, don't let them cave; Ribs down, don't arch the low back; Feel it in the glutes, not the hamstrings (move the feet a little closer if you do); Use a light or medium band, it's a warm-up."
+    "body": "PLAIN ENGLISH: A glute bridge on the floor with a mini band just above your knees, to wake up the glutes before lower-body work. WHICH BAND: LIGHT or MEDIUM. Move to HEAVY only once 12 reps feel easy and your knees stay pushed out the whole time. If your knees get pulled inward, the band is too strong. HOW: Lie on your back, knees bent, feet flat and hip-width, band just above the knees. Press the knees gently out against the band, then drive through the heels to lift the hips until knees, hips and shoulders form a line. Squeeze 2 seconds, lower slowly. Cues: Knees stay pushed out, don't let them cave; Ribs down, don't arch the low back; Feel it in the glutes, not the hamstrings (move the feet a little closer if you do); Use a light or medium band, it's a warm-up."
   }
 });
