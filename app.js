@@ -3812,7 +3812,7 @@ const FORM_VIDEOS = {
   pw_step_drill:         'PgzGTLIROLo',   // Clock Balance Exercise: Improve Your Balance with this Simple Exercise — Dr. Michael Cuthbertson
   pw_med_ball_chest_pass:'U1uXbG-j1NI',   // Medicine Ball: Chest Pass — RockIt Fitness
   pw_pallof_press:       '_2xWmYNnFS8',   // How to Do the Pallof Press (Perfect Form for a Stronger Core) — Colossus Fitness
-  pw_cable_row:          'vwHG9Jfu4sw',   // How to do the SEATED CABLE ROW! | 2 Minute Tutorial — Max Euceda
+  pw_cable_row:          'Y3H17rshgZE',   // How To Do A RESISTANCE BAND BENT OVER ROW — Live Lean TV Daily Exercises (band row is the version done at home, 2026-09-28)
   pw_db_push_press:      'sElIkjcfyNY',   // Dumbbell Push Press - How To — Bobby Maximus
   pw_band_pull_apart:    'bYsgk9SrJ48',   // How to Do Band Pull Aparts: A Guide from Physical Therapists — Hinge Health
   pw_single_leg_balance: 'okRFJ_1GmqY',   // Single Leg Balance With Eyes Closed — altaTherapies
@@ -3821,7 +3821,7 @@ const FORM_VIDEOS = {
   /* SuperAge 120 · 4×30 (2026-09-26, oEmbed-checked). The pulldown key shows
      the negative pull-up, because that is the version done without a machine. */
   sa_mb_slam:            '6vXHh-Lhb2o',   // How to Do Medicine Ball Slams | Sleek/Strong With Rachel Cosgrove — LivestrongWoman
-  sa_lat_pulldown:       'gbPURTSxQLY',   // How To Do a Negative Pull-Up | Exercise Guide — Bodybuilding.com
+  sa_lat_pulldown:       'SkT4rqrmH-M',   // How To Do A KNEELING RESISTANCE BAND PULLDOWN — Live Lean TV Daily Exercises (band pulldown from the pull-up bar, 2026-09-28)
   squat:       'SbgHegC6lEs',   // How to Back Squat |#AskSquatU Show Ep. 10| — Squat University
   bench:       'A9MM-XkoWcw',   // How to: Barbell Bench Press – Proper Form Tutorial — BarbarianBody
   deadlift:    'XxWcirHIwVo',   // How to PROPERLY Deadlift for Growth — Jeremy Ethier
@@ -4205,6 +4205,13 @@ const FORM_VIDEOS = {
   zone2:                                          'AyMUWBUt3WY'   // How To Turbo Charge Zone 2 Training — Global Cycling Network
 };
 /* a pinned video always beats the bundled one */
+/* A second demo for movements whose home version differs from the one the
+   main video shows, shown under it in the How-to. Kept separate so a shared
+   key (syn_pull_ups is used by several programs) keeps its main video.
+   oEmbed-checked 2026-09-28. */
+const FORM_VIDEOS_ALT = {
+  syn_pull_ups: { id: 'C4PnMRH57Pc', label: 'Band-assisted version (band under the knee)' }  // Assisted Pull-Up: Band Under Knee — BSU Masters Degree - Strength & Conditioning
+};
 function videoFor(key) { return loadVideos()[key] || FORM_VIDEOS[key] || null; }
 function isPinned(key) { return !!loadVideos()[key]; }
 
@@ -4264,6 +4271,9 @@ function showFormTip(key) {
     ${tipMU}
     ${tipPF}
     ${player}
+    ${FORM_VIDEOS_ALT[key] ? `<details class="tip-alt-vid"><summary>${FORM_VIDEOS_ALT[key].label}</summary>
+       <div class="tip-video"><iframe src="https://www.youtube-nocookie.com/embed/${FORM_VIDEOS_ALT[key].id}?rel=0" title="${info.title} — ${FORM_VIDEOS_ALT[key].label}"
+         allow="accelerometer; encrypted-media; gyroscope; picture-in-picture" allowfullscreen loading="lazy"></iframe></div></details>` : ''}
     <div class="info-pop-body">${info.body}</div>
     ${swap ? `<div class="tip-swap"><b>No barbell today?</b> ${swap}</div>` : ''}
     <a class="tip-demo" href="https://www.youtube.com/results?search_query=${q}" target="_blank" rel="noopener">🎬 Find a demo</a>`;

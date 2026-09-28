@@ -1937,3 +1937,8 @@ table.prog td.w { color: var(--text); }
 /* equipment / knee swap lines under a superset header (swapNotes in app.js) */
 .lift-head .scheme.ss-swap { margin-top: 3px; color: var(--text); }
 .lift-head .scheme.ss-swap b { font-weight: 700; }
+
+/* second demo (FORM_VIDEOS_ALT) under the main How-to video */
+.tip-alt-vid { margin: 6px 0 10px; }
+.tip-alt-vid summary { cursor: pointer; font-weight: 700; font-size: 14px; }
+.tip-alt-vid .tip-video { margin-top: 8px; }
