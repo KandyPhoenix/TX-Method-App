@@ -6860,7 +6860,8 @@ const SS45_PLAN = (function () {
       var lowerDay = function (test) {
         return { title: "Lower Power · Phase " + p,
           focus: tag + " · sit-to-stand, squat, hinge, step and stepping reactions",
-          exercises: (test ? [chairTest()] : []).concat(lower(p, s)) };
+          exercises: [{ key: "mb_glute_bridge", name: "Mini-Band Glute Bridge", sets: 1, reps: 12, needs: "bodyweight", scheme: "warm-up · 12 · mini band just above the knees · press the knees out, 2s squeeze at the top" },
+            { key: "syn_banded_clamshell_with_lift", name: "Mini-Band Clamshell", sets: 1, reps: 10, needs: "bodyweight", side: true, scheme: "warm-up · 10 per side · mini band above the knees · feet stay together, the foot lift is optional" }].concat(test ? [chairTest()] : [], lower(p, s)) };
       };
       var upperDay = function (test) {
         return { title: "Upper Power · Phase " + p,
@@ -7070,14 +7071,20 @@ Object.assign(SYN_TIPS, {
 const SA120_PLAN = (function () {
   var R = "8-12 reps · stop with 2-3 in reserve";
 
-  function warm() {
+  function warm(lowerDay) {
     return [
       { key: "jumprope", name: "Jump Rope or Brisk March", sets: 1, sec: 120, needs: "bodyweight",
         scheme: "2 min easy · just get warm · KNEE HURTING: brisk march in place" },
-      { key: "wuleg", name: "Leg Swings", sets: 1, reps: 10, needs: "bodyweight", scheme: "10 per side, front-to-back, hold something" },
+      { key: "wuleg", name: "Leg Swings", sets: 1, reps: 10, needs: "bodyweight", scheme: "10 per side, front-to-back, hold something" }
+    ].concat(lowerDay ? [
+      /* mini-band glute warm-up (Kandy, 2026-09-28): replaces hip and arm
+         circles on lower days so the session stays inside 30 minutes */
+      { key: "mb_glute_bridge", name: "Mini-Band Glute Bridge", sets: 1, reps: 12, needs: "bodyweight", scheme: "warm-up · 12 · mini band just above the knees · press the knees out, 2s squeeze at the top" },
+      { key: "syn_banded_clamshell_with_lift", name: "Mini-Band Clamshell", sets: 1, reps: 10, needs: "bodyweight", side: true, scheme: "warm-up · 10 per side · mini band above the knees · feet stay together, the foot lift is optional" }
+    ] : [
       { key: "wuhip", name: "Hip Circles", sets: 1, reps: 10, needs: "bodyweight", scheme: "10 each direction" },
       { key: "wuarm", name: "Arm Circles", sets: 1, reps: 10, needs: "bodyweight", scheme: "10 each direction, big and slow" }
-    ];
+    ]);
   }
   function ss(n, ex, sets, reps, extra, pos) {
     /* pos 1 = first move of the pair, 2 = partner */
@@ -7176,7 +7183,7 @@ const SA120_PLAN = (function () {
     var rounds = wk <= 2 ? 3 : 4, core = wk <= 2 ? 2 : 3;
     ORDER.forEach(function (name) {
       var s = SESS[block][name];
-      var ex = warm();
+      var ex = warm(name.indexOf("Lower") === 0);
       ex.push({ key: s[0].key, name: s[0].name, sets: 2, reps: 6, needs: s[0].needs, scheme: s[0].scheme });
       [1, 2, 3].forEach(function (n) {
         var pair = s[n], sets = n === 3 ? core : rounds;
@@ -7271,5 +7278,14 @@ Object.assign(SYN_TIPS, {
   "sa_lat_pulldown": {
     "title": "Lat Pulldown (and pull-up negative swap)",
     "body": "PLAIN ENGLISH: Pulling a bar down to your upper chest to train the lats. WITH A MACHINE: Grip just wider than shoulders, chest up, pull the bar to the top of the chest by driving the elbows down, control it back up. NO MACHINE, WITH A LONG BAND: Kneeling band pulldown. Loop the #2 or #3 band over the pull-up bar, kneel facing it, hold the band with both hands and pull down to your shoulders by driving the elbows toward your ribs, then control it back up. NO BAND: Pull-up negatives. Jump or step up so your chin is over the pull-up bar, then lower yourself as slowly as you can, aiming for 5 seconds, until your arms are straight. Step down and repeat. Cues: Shoulders down away from the ears; Slow is the point; When you can do 8 good 5-second negatives, try a full pull-up."
+  }
+});
+
+/* Mini-band glute warm-up (2026-09-28) — floor bridge with a loop band.
+   The clamshell reuses syn_banded_clamshell_with_lift's tip and video. */
+Object.assign(SYN_TIPS, {
+  "mb_glute_bridge": {
+    "title": "Mini-Band Glute Bridge",
+    "body": "PLAIN ENGLISH: A glute bridge on the floor with a mini band just above your knees, to wake up the glutes before lower-body work. HOW: Lie on your back, knees bent, feet flat and hip-width, band just above the knees. Press the knees gently out against the band, then drive through the heels to lift the hips until knees, hips and shoulders form a line. Squeeze 2 seconds, lower slowly. Cues: Knees stay pushed out, don't let them cave; Ribs down, don't arch the low back; Feel it in the glutes, not the hamstrings (move the feet a little closer if you do); Use a light or medium band, it's a warm-up."
   }
 });
