@@ -7293,3 +7293,33 @@ Object.assign(SYN_TIPS, {
     "body": "PLAIN ENGLISH: A glute bridge on the floor with a mini band just above your knees, to wake up the glutes before lower-body work. WHICH BAND: LIGHT or MEDIUM. Move to HEAVY only once 12 reps feel easy and your knees stay pushed out the whole time. If your knees get pulled inward, the band is too strong. HOW: Lie on your back, knees bent, feet flat and hip-width, band just above the knees. Press the knees gently out against the band, then drive through the heels to lift the hips until knees, hips and shoulders form a line. Squeeze 2 seconds, lower slowly. Cues: Knees stay pushed out, don't let them cave; Ribs down, don't arch the low back; Feel it in the glutes, not the hamstrings (move the feet a little closer if you do); Use a light or medium band, it's a warm-up."
   }
 });
+
+/* How-to text for the Norwegian 4x4 steps (2026-09-28 audit: they had none).
+   Built from the plan's own prescriptions and its cited protocol (Helgerud
+   et al. 2007: 10-min warm-up, 4 x 4 min at 90-95% HRmax with 3-min active
+   recovery at about 70%, 3-min cool-down). One text per step type, mapped
+   onto every mode's keys. */
+(function () {
+  var MODE = {
+    bike:  "On the bike: spin at low resistance, then for intervals stay seated with high resistance at around 80 rpm.",
+    tread: "On the treadmill: walk, then an easy jog if you jog. For the hard intervals, raise the incline before the speed, since that's easier on the knees.",
+    pick:  "Any mode works: bike, treadmill, rower, brisk hill walk. What matters is that it can get you to 90-95% of max heart rate and hold you there."
+  };
+  var T = {};
+  Object.keys(MODE).forEach(function (m) {
+    T["n44_wu_" + m] = { title: "4x4 Warm-Up (10 min)",
+      body: "PLAIN ENGLISH: Ten easy minutes so the first hard interval isn't a shock. HOW: About 70% of your max heart rate, where you're breathing a little harder but can still talk in sentences. Build gradually over the 10 minutes. " + MODE[m] };
+    for (var i = 1; i <= 4; i++) T["n44_work_" + m + "_" + i] = { title: "4x4 Hard Interval (4 min)",
+      body: "PLAIN ENGLISH: Four minutes hard, the part that drives the fitness gains. HOW: Aim for 90-95% of your max heart rate. You can only get out a few words at a time. Heart rate lags, so it's normal to reach the target only 1-2 minutes in. Pace it so interval 4 is as strong as interval 1, because starting too hard is the usual mistake. " + MODE[m] + " STOP if you get chest pain, dizziness or unusual breathlessness." };
+    for (var j = 1; j <= 3; j++) T["n44_rec_" + m + "_" + j] = { title: "4x4 Recovery (3 min)",
+      body: "PLAIN ENGLISH: Three minutes easy between hard intervals. Keep moving, don't stop. HOW: About 70% of your max heart rate. Drop the resistance or slow to an easy pace and let your breathing settle so you're ready for the next 4 minutes." };
+    T["n44_cd_" + m] = { title: "4x4 Cool-Down (3 min)",
+      body: "PLAIN ENGLISH: Three very easy minutes to bring your heart rate down gradually. HOW: Very light effort, about 70% of max heart rate or below. Keep moving until your breathing is back to normal, rather than stopping dead." };
+  });
+  var EASY = "PLAIN ENGLISH: An easy day between interval days. HOW: Conversational pace the whole time, so you can talk in full sentences (the talk test). If you're breathing hard, slow down. Easy days are what let the hard days work. Taking the day off instead is fine.";
+  T.n44_easy_spin = { title: "Easy Spin or Walk", body: EASY };
+  T.n44_easy_walk = { title: "Easy Walk", body: EASY };
+  T.n44_easy_rope = { title: "Easy Walk or Skip Rope", body: EASY + " If you use the rope, keep it to short, relaxed sets." };
+  T.n44_rest = { title: "Rest Day", body: "PLAIN ENGLISH: A real rest day. HOW: A 10-minute easy walk at most, or nothing at all. Your body adapts to the intervals while it recovers, so skipping rest days costs you results." };
+  Object.keys(T).forEach(function (k) { if (!SYN_TIPS[k]) SYN_TIPS[k] = T[k]; });
+})();
