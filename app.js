@@ -3821,7 +3821,7 @@ const FORM_VIDEOS = {
   /* SuperAge 120 · 4×30 (2026-09-26, oEmbed-checked). The pulldown key shows
      the negative pull-up, because that is the version done without a machine. */
   mb_clamshell:          '7XbWo8clxR0',   // Banded Clamshell — Forward Physical Therapy LLC (oEmbed-checked 2026-09-28)
-  mb_glute_bridge:       '0XXUdRSTBxA',   // How to: Banded Hip Thrust (floor) — FitLife Gym (the floor version is the banded glute bridge; oEmbed-checked 2026-09-28)
+  mb_glute_bridge:       'Zr2RLjIjCN0',   // Bodyweight Knee-Banded Glute Bridge — Glute Lab (replaced the floor hip-thrust demo 2026-09-28; oEmbed-checked)
   sa_mb_slam:            '6vXHh-Lhb2o',   // How to Do Medicine Ball Slams | Sleek/Strong With Rachel Cosgrove — LivestrongWoman
   sa_lat_pulldown:       'SkT4rqrmH-M',   // How To Do A KNEELING RESISTANCE BAND PULLDOWN — Live Lean TV Daily Exercises (band pulldown from the pull-up bar, 2026-09-28)
   squat:       'SbgHegC6lEs',   // How to Back Squat |#AskSquatU Show Ep. 10| — Squat University
@@ -4212,7 +4212,8 @@ const FORM_VIDEOS = {
    key (syn_pull_ups is used by several programs) keeps its main video.
    oEmbed-checked 2026-09-28. */
 const FORM_VIDEOS_ALT = {
-  syn_pull_ups: { id: 'C4PnMRH57Pc', label: 'Band-assisted version (band under the knee)' }  // Assisted Pull-Up: Band Under Knee — BSU Masters Degree - Strength & Conditioning
+  syn_pull_ups: { id: 'C4PnMRH57Pc', label: 'Band-assisted version (band under the knee)' },  // Assisted Pull-Up: Band Under Knee — BSU Masters Degree - Strength & Conditioning
+  mb_glute_bridge: { id: 'nCcjRAhPVIA', label: 'Longer walkthrough (about 3 min)' }  // Banded Glute Bridge Exercise For Lighting Up The Glutes — Back Muscle Solutions
 };
 function videoFor(key) { return loadVideos()[key] || FORM_VIDEOS[key] || null; }
 function isPinned(key) { return !!loadVideos()[key]; }
