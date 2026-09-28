@@ -3820,6 +3820,7 @@ const FORM_VIDEOS = {
   pf_zone2_walk:         'UGOcJSZNpPY',   // How Do You Know You Are In Your Zone 2? Use The Talk Test! — Dr. Carrie Snaychuk
   /* SuperAge 120 · 4×30 (2026-09-26, oEmbed-checked). The pulldown key shows
      the negative pull-up, because that is the version done without a machine. */
+  mb_glute_bridge:       '0XXUdRSTBxA',   // How to: Banded Hip Thrust (floor) — FitLife Gym (the floor version is the banded glute bridge; oEmbed-checked 2026-09-28)
   sa_mb_slam:            '6vXHh-Lhb2o',   // How to Do Medicine Ball Slams | Sleek/Strong With Rachel Cosgrove — LivestrongWoman
   sa_lat_pulldown:       'SkT4rqrmH-M',   // How To Do A KNEELING RESISTANCE BAND PULLDOWN — Live Lean TV Daily Exercises (band pulldown from the pull-up bar, 2026-09-28)
   squat:       'SbgHegC6lEs',   // How to Back Squat |#AskSquatU Show Ep. 10| — Squat University
