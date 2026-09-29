@@ -1950,3 +1950,8 @@ table.prog td.w { color: var(--text); }
 .tip-circuit-move { display: flex; justify-content: space-between; align-items: center; width: 100%; text-align: left; padding: 10px 12px; margin: 0 0 6px; border-radius: 10px; border: 1px solid var(--border, rgba(127,127,127,.3)); background: transparent; color: var(--text); font: inherit; font-weight: 600; cursor: pointer; }
 .tip-circuit-vid { font-size: 12px; font-weight: 700; color: var(--accent-ink, var(--muted)); }
 .tip-circuit-back { background: none; border: none; padding: 0; margin: 4px 0 8px; font: inherit; font-weight: 700; color: var(--accent-ink, var(--text)); cursor: pointer; }
+
+/* Key lifts cards (keyLiftsHTML in app.js) */
+.key-lift-row { display: flex; justify-content: space-between; align-items: baseline; gap: 10px; font-size: 14px; padding: 3px 0; }
+.key-lift-row b { font-weight: 800; white-space: nowrap; }
+.key-lift-row .str-delta { margin-left: 6px; }
