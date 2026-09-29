@@ -39,7 +39,7 @@ MUSCLE_BUCKETS.forEach(b => b.regions.forEach(r => { MM_REGION_BUCKET[r] = b.id;
    whole-body and cardio work, which highlight nothing specific. */
 const MM_PHRASES = [
   ['pelvic floor', ['pelvic']], ['deep core', ['core', 'pelvic']],
-  ['lower back', ['lowerback']], ['upper back', ['back']], ['mid back', ['back']],
+  ['lower back', ['lowerback']], ['low back', ['lowerback']], ['upper back', ['back']], ['mid back', ['back']],
   ['rear delts', ['shoulders']], ['side delts', ['shoulders']], ['rotator cuff', ['shoulders']],
   ['hip flexors', ['hips']], ['inner thighs', ['hips']], ['glute medius', ['glutes']],
   ['posterior chain', ['hamstrings', 'glutes', 'lowerback']],
@@ -86,25 +86,58 @@ function mmScanText(text) {
   return out;
 }
 
+/* ---- is this scheme segment a body-part label? ----
+   Plan schemes put their muscle note in its own segment ("10-12 · Quads/
+   Glutes"). The classifier used to scan EVERY segment, so coaching cues were
+   read as anatomy: "back knee stops higher" and "hips back" highlighted the
+   back, "one dumbbell at the chest" the chest (Kandy, 2026-09-29: a split
+   squat and single-leg RDL both showing the back). A segment now counts only
+   when every word in it is anatomy vocabulary or a connector. */
+const MM_LABEL_EXTRA = new Set(('and or with plus focus emphasis complex joint joints external internal ' +
+  'rotators rotator abductors abductor thoracic lumbar cervical neck ankle ankles wrist wrists knee knees ' +
+  'flexors flexor extensors upper lower mid low inner outer posterior anterior front rear side medius minimus maximus recovery')
+  .split(' '));
+let MM_LABEL_WORDS = null;
+function mmIsBodyPartLabel(seg) {
+  if (!MM_LABEL_WORDS) {
+    MM_LABEL_WORDS = new Set(Object.keys(MM_WORDS));
+    MM_PHRASES.forEach(([ph]) => ph.split(' ').forEach(w => MM_LABEL_WORDS.add(w)));
+  }
+  const words = String(seg).toLowerCase().replace(/[^a-z]+/g, ' ').trim().split(' ').filter(Boolean);
+  if (!words.length || words.length > 6) return false;
+  return words.every(w => MM_LABEL_WORDS.has(w) || MM_LABEL_EXTRA.has(w)) &&
+         words.some(w => MM_LABEL_WORDS.has(w));
+}
+
 /* ---- name fallback ----
    For movements whose scheme carries no body-part text (the Texas lifts,
    the prep-plan movements, warm-ups). First matching rule wins. */
 const MM_NAME_RULES = [
+  /* Specific names first: several of these contain a word a broader rule
+     below would grab ("Leg Curl" is not a biceps curl, "Pallof Press" is
+     not a shoulder press, "Rotational Throw" contains "row"). */
+  [/reverse nordic/i,                                                { p: ['quads'], s: [] }],
+  [/jefferson curl/i,                                                { p: ['hamstrings', 'lowerback'], s: [] }],
+  [/leg curl|nordic|hamstring/i,                                     { p: ['hamstrings'], s: [] }],
+  [/pallof|anti[- ]?rotation|woodchop|rotational (throw|slam)|russian twist|side plank|suitcase/i, { p: ['obliques'], s: ['core'] }],
+  [/pull[- ]?apart|reverse fly|rear delt|\by[- ]?t[- ]?w?\b|prone y/i, { p: ['shoulders', 'back'], s: [] }],
+  [/sit[- ]to[- ]stand|chair stand/i,                                { p: ['quads', 'glutes'], s: [] }],
+  [/pogo|calf|heel raise|tibialis/i,                                 { p: ['calves'], s: [] }],
+  [/overhead hold/i,                                                 { p: ['shoulders', 'core'], s: [] }],
+  [/rack.*hold|goblet hold/i,                                        { p: ['core'], s: ['forearms'] }],
+  [/step drill|lean[- ]and[- ]step/i,                                { p: ['calves', 'quads'], s: ['hips'] }],
   [/bench|push[- ]?up|chest (press|fly)|fly[e]?s|dip\b/i,            { p: ['chest'], s: ['triceps', 'shoulders'] }],
   [/overhead press|shoulder press|ohp|press\b(?!.*(leg|bench))/i,    { p: ['shoulders'], s: ['triceps'] }],
   [/lateral raise|front raise|face pull|shrug/i,                     { p: ['shoulders'], s: [] }],
   [/deadlift|rdl\b|romanian|good morning|hip hinge|kettlebell swing|swing\b/i, { p: ['hamstrings', 'glutes'], s: ['lowerback'] }],
-  [/pull[- ]?up|chin[- ]?up|pulldown|row\b|rows\b/i,                 { p: ['back'], s: ['biceps'] }],
-  [/curl(?!.*leg)/i,                                                 { p: ['biceps'], s: ['forearms'] }],
+  [/pull[- ]?up|chin[- ]?up|pulldown|\brows?\b/i,                    { p: ['back'], s: ['biceps'] }],
+  [/curl/i,                                                          { p: ['biceps'], s: ['forearms'] }],
   [/skull ?crusher|kickback|tricep/i,                                { p: ['triceps'], s: [] }],
   [/squat|leg press|step[- ]?(up|down)|wall sit|lunge|pistol/i,      { p: ['quads'], s: ['glutes'] }],
-  [/leg curl|nordic|hamstring/i,                                     { p: ['hamstrings'], s: [] }],
-  [/calf|heel raise|tibialis/i,                                      { p: ['calves'], s: [] }],
   [/glute bridge|hip thrust|bridge\b|fire hydrant|donkey kick/i,     { p: ['glutes'], s: ['hamstrings', 'pelvic'] }],
-  [/clam ?shell|band walk|hip (er|abduction|circle)|adductor|cossack/i, { p: ['hips'], s: ['glutes'] }],
+  [/clam ?shell|band walk|hip (er|abduction|circle)|leg lift|abduction|adductor|cossack/i, { p: ['hips'], s: ['glutes'] }],
   [/kegel|pelvic|knack/i,                                            { p: ['pelvic'], s: ['core'] }],
   [/dead bug|bird dog|hollow|plank|crunch|sit[- ]?up|leg raise|ab wheel|mountain climber|heel slide|fallout|draw[- ]?in|tva/i, { p: ['core'], s: ['pelvic'] }],
-  [/side plank|pallof|anti[- ]?rotation|woodchop|russian twist|suitcase/i, { p: ['obliques'], s: ['core'] }],
   [/carry|farmer/i,                                                  { p: ['core', 'forearms'], s: ['obliques'] }],
   [/breath/i,                                                        { p: ['core'], s: ['pelvic'] }],
   [/walk|run|jog|bike|cycling|row(er|ing)|jump|sprint|burpee|jack|cardio|interval/i, { cardio: true }],
@@ -135,10 +168,10 @@ function muscleInfoFor(ex) {
       return { p, s: scan.regions.filter(r => p.indexOf(r) < 0), cardio: scan.cardio, full: scan.full };
     }
   }
-  /* scheme text: the body-part note lives after the last '·' */
-  const parts = String(ex.scheme || '').split('·');
-  if (parts.length > 1) {
-    const scan = mmScanText(parts.slice(1).join(' '));
+  /* scheme text: only segments that ARE a body-part label, never cues */
+  const parts = String(ex.scheme || '').split('·').slice(1).map(x => x.trim()).filter(mmIsBodyPartLabel);
+  if (parts.length) {
+    const scan = mmScanText(parts.join(' '));
     if (scan.regions.length || scan.cardio || scan.full) {
       return { p: scan.regions.slice(0, 2), s: scan.regions.slice(2), cardio: scan.cardio, full: scan.full };
     }
