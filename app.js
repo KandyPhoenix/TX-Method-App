@@ -2194,13 +2194,16 @@ function renderToday() {
 
   html += reminderNudgeHTML();
   html += reminderSetupCardHTML();
+  html += recapTodayHTML();
   html += backCardHTML();
   html += bodyCheckHTML();
+  html += fuelHTML();
   html += guideNoteHTML();
   html += matchedWarmupHTML(w.days[day].map(lf => ({ key: lf.key, name: lf.name })));
 
   for (const lf of w.days[day]) html += liftCard(lf, logKey, log);
 
+  html += noteBoxHTML();
   html += `<button class="btn secondary" id="completeBtn">✓ Mark workout complete</button>
     <div class="spacer"></div>
     <button class="btn secondary" id="timerBtn">⏱ Start rest timer (${fmtClock(restDefault())})</button>
@@ -2413,15 +2416,18 @@ function renderPrepToday() {
       <div class="name" style="font-size:22px;margin-top:6px;">Rest Day</div>
       <div class="tiny muted" style="margin-top:6px;">Recover today — back at it tomorrow.</div>
     </div>
+    ${recapTodayHTML()}${fuelHTML()}
     <button class="btn primary" id="prepComplete">Next day ›</button>`;
   } else {
     const log = pstate().log[dayNum] || { checks: {} };
     html += guideNoteHTML(d.note);
     html += reminderNudgeHTML();
     html += reminderSetupCardHTML();
+    html += recapTodayHTML();
     html += backCardHTML();
     html += readinessHTML();
     html += bodyCheckHTML();
+    html += fuelHTML();
     html += tierBarHTML();
     if (S.program === 'gen') html += genBarHTML();
     html += dayMuscleHTML(d);
@@ -2431,6 +2437,7 @@ function renderPrepToday() {
 
     const last = dayNum >= ptotal();
     const lastLabel = S.program === 'prep30' ? '🎉 Finish prep → Start Texas Method' : '🎉 Finish program!';
+    html += noteBoxHTML();
     html += `<button class="btn ${last ? 'primary' : 'secondary'}" id="prepComplete">${last ? lastLabel : '✓ Mark day complete'}</button>
       <div class="spacer"></div>
       <button class="btn secondary" id="prepTimer">⏱ Start rest timer (${fmtClock(restDefault())})</button>`;
@@ -4961,7 +4968,9 @@ function renderStats() {
     ${strengthChartsHTML()}
     ${liftTrackerHTML()}
     ${muscleBalanceSectionHTML()}
+    ${recapStatsHTML()}
     ${healthSectionHTML()}
+    ${notesSectionHTML()}
     ${measSectionHTML()}
     ${calendarHTML()}
     ${achievementsCardHTML()}
@@ -5100,7 +5109,9 @@ function renderPrepStats() {
     ${strengthChartsHTML()}
     ${liftTrackerHTML()}
     ${muscleBalanceSectionHTML()}
+    ${recapStatsHTML()}
     ${healthSectionHTML()}
+    ${notesSectionHTML()}
     ${measSectionHTML()}
     ${calendarHTML()}
     ${achievementsCardHTML()}
@@ -9501,7 +9512,7 @@ function backCardHTML() {
   if (gap < 4) return '';
   const day = isDayProgram();
   return `<div class="card back-card"><div class="back-title">Welcome back 👋</div>
-    <div class="tiny" style="margin:4px 0 10px">Your last session was ${gap} days ago (${last}). After a few days off, an easier first session makes it more likely you will be back for the next one.</div>
+    <div class="tiny" style="margin:4px 0 10px">Your last session was ${gap} days ago (${last}). After a few days off, an easier first session is a gentle way back in.</div>
     ${day ? `<button class="btn primary small" data-back="ease">Ease in: Foundation today</button>` : ''}
     <button class="btn secondary small" data-back="go">${day ? 'Carry on as planned' : 'Got it'}</button>
     <div class="tiny muted" style="margin-top:6px">${day ? 'Foundation is one set fewer per exercise, for this session only.' : 'On a barbell day, consider taking the first set lighter and building up.'}</div></div>`;
@@ -9780,6 +9791,150 @@ document.addEventListener('click', e => {
   if (!pop) { pop = document.createElement('div'); pop.id = 'glPop'; pop.className = 'gl-pop'; document.body.appendChild(pop); }
   pop.innerHTML = `<b>${g[0]}</b><div>${g[1]}</div>`;
 }, true);
+
+/* =====================================================================
+   WORKOUT NOTES · WATER & PROTEIN · WEEKLY RECAP (2026-09-29)
+   ===================================================================== */
+
+/* ---- one note per session, kept on that session's log ---- */
+function sessionLogObj() {
+  if (isDayProgram()) {
+    const st = pstate(), d = st.day;
+    if (!st.log[d]) st.log[d] = { checks: {} };
+    return st.log[d];
+  }
+  const k = S.cursor.week + '-' + S.cursor.day;
+  if (!S.logs[k]) S.logs[k] = { checks: {}, reps: {} };
+  return S.logs[k];
+}
+function noteBoxHTML() {
+  const L = isDayProgram() ? (pstate().log[pstate().day] || {}) : ((S.logs || {})[S.cursor.week + '-' + S.cursor.day] || {});
+  const v = (L.note || '').replace(/&/g, '&amp;').replace(/</g, '&lt;');
+  return `<details class="card note-card"${v ? ' open' : ''}><summary>📝 Session note${v ? ' ✓' : ''}</summary>
+    <textarea id="sessNote" class="sess-note" rows="3" maxlength="600" placeholder="How did it feel? Anything to remember — a twinge, a weight that was easy, a swap you made.">${v}</textarea>
+    <div class="tiny muted">Saves as you type. Notes show in Stats and in your weekly recap.</div></details>`;
+}
+function allNotes() {
+  const out = [];
+  Object.keys(DAY_PROGRAMS).forEach(pk => {
+    const st = S[DAY_PROGRAMS[pk].stateKey];
+    if (st && st.log) Object.keys(st.log).forEach(n => { const L = st.log[n]; if (L && L.note) out.push({ d: L.date || L.noteDate || '', t: L.note, p: DAY_PROGRAMS[pk].label + ' · day ' + n }); });
+  });
+  Object.keys(S.logs || {}).forEach(k => { const L = S.logs[k]; if (L && L.note) out.push({ d: L.date || L.noteDate || '', t: L.note, p: 'Texas Method' }); });
+  return out.sort((a, b) => a.d < b.d ? 1 : -1);
+}
+function notesSectionHTML() {
+  const n = allNotes();
+  if (!n.length) return '';
+  const esc = t => t.replace(/&/g, '&amp;').replace(/</g, '&lt;');
+  return `<h2 class="section">Session notes</h2><div class="card">${n.slice(0, 25).map(x =>
+    `<div class="note-row"><div class="tiny muted">${x.d || 'undated'} · ${x.p}</div><div>${esc(x.t)}</div></div>`).join('')}
+    ${n.length > 25 ? `<div class="tiny muted">Showing the latest 25 of ${n.length}.</div>` : ''}</div>`;
+}
+
+/* ---- water glasses and a protein source at each meal: taps, no targets imposed ---- */
+const MEALS = [['b', 'Breakfast'], ['l', 'Lunch'], ['d', 'Dinner'], ['s', 'Snack']];
+function fuelToday() {
+  const d = isoDate(new Date());
+  if (!S.fuel) S.fuel = {};
+  return S.fuel[d] || (S.fuel[d] = { w: 0, p: {} });
+}
+function waterTarget() { const n = +S.settings.waterTarget; return n > 0 ? n : 8; }
+function fuelHTML() {
+  const f = (S.fuel || {})[isoDate(new Date())] || { w: 0, p: {} }, tgt = waterTarget();
+  const glasses = Array.from({ length: Math.max(tgt, f.w) }, (_, i) => `<button class="fuel-glass ${i < f.w ? 'on' : ''}" data-water="${i + 1}" aria-label="${i + 1} glasses">💧</button>`).join('');
+  const pc = MEALS.filter(([k]) => f.p[k]).length;
+  return `<details class="card fuel-card"><summary>💧 Water ${f.w}/${tgt} · 🍳 Protein ${pc}/4 meals</summary>
+    <div class="fuel-label">Water — tap the glasses you’ve had</div>
+    <div class="fuel-glasses">${glasses}<button class="fuel-more" data-water="+">+1</button></div>
+    <div class="tiny muted">Your target: <button class="fuel-tgt" data-watertgt="1">${tgt} glasses ✎</button> (tap to change). Needs vary with body size, heat and activity.</div>
+    <div class="fuel-label" style="margin-top:12px">A protein source at…</div>
+    <div class="fuel-meals">${MEALS.map(([k, l]) => `<button class="fuel-meal ${f.p[k] ? 'on' : ''}" data-meal="${k}">${f.p[k] ? '✓ ' : ''}${l}</button>`).join('')}</div>
+    <div class="tiny muted">Eggs, dairy, fish, meat, tofu, beans or lentils count. How much you need is best set with your clinician or dietitian.</div></details>`;
+}
+
+/* ---- weekly recap: last Monday–Sunday ---- */
+function weekKeyOf(iso) { return weekMonday(iso); }
+function addDays(iso, n) { const d = new Date(iso + 'T12:00:00'); d.setDate(d.getDate() + n); return isoDate(d); }
+function recapFor(mon) {
+  const sun = addDays(mon, 6), inWk = d => d && d >= mon && d <= sun;
+  const days = new Set();
+  const see = L => { if (L && inWk(L.date) && L.checks && Object.values(L.checks).some(Boolean)) days.add(L.date); };
+  Object.keys(DAY_PROGRAMS).forEach(pk => { const st = S[DAY_PROGRAMS[pk].stateKey]; if (st && st.log) Object.values(st.log).forEach(see); });
+  Object.values(S.logs || {}).forEach(see);
+  const mins = (strengthMinutesByWeek().find(w => w.d === mon) || {}).v || 0;
+  const prs = Object.keys(S.prs || {}).filter(k => { const p = S.prs[k]; return p && p.date && inWk(isoDate(new Date(p.date))); })
+    .map(k => ((FORM_TIPS[k] || {}).title || k) + ' ' + fmt(S.prs[k].weight) + ' ' + unit() + ' × ' + S.prs[k].reps);
+  const fuelDays = Object.keys(S.fuel || {}).filter(inWk);
+  const waterHit = fuelDays.filter(d => S.fuel[d].w >= waterTarget()).length;
+  const protein = fuelDays.reduce((a, d) => a + MEALS.filter(([k]) => S.fuel[d].p[k]).length, 0);
+  const notes = allNotes().filter(n => inWk(n.d)).length;
+  const hurts = Object.keys(S.bodyCheck || {}).filter(d => inWk(d) && S.bodyCheck[d].knees === 2).length;
+  return { mon, sun, sessions: days.size, mins, prs, waterHit, fuelDays: fuelDays.length, protein, notes, hurts };
+}
+function recapHTML(r, dismissable) {
+  const goal = S.settings.weeklyGoal || 3;
+  const lines = [
+    `<b>${r.sessions}</b> of ${goal} planned sessions${r.sessions >= goal ? ' — goal met 🎉' : ''}`,
+    `<b>${r.mins}</b> strength minutes (est.) of the 120 target`
+  ];
+  if (r.prs.length) lines.push(`New bests: ${r.prs.slice(0, 3).join(' · ')}`);
+  if (r.fuelDays) lines.push(`Water target hit on <b>${r.waterHit}</b> of ${r.fuelDays} tracked days · protein at <b>${r.protein}</b> meals`);
+  if (r.notes) lines.push(`${r.notes} session note${r.notes > 1 ? 's' : ''} written`);
+  if (r.hurts) lines.push(`Knees marked “hurts” on ${r.hurts} day${r.hurts > 1 ? 's' : ''} — worth a look if that keeps happening`);
+  const next = r.sessions >= goal ? 'Same again this week — consistency is what builds it.'
+    : r.sessions ? `This week: aim for ${goal}. If that feels like a lot, ${Math.min(goal, r.sessions + 1)} is still progress.`
+    : 'This week: one session is the win. Start with Foundation if it has been a while.';
+  return `<div class="card recap-card"><div class="recap-kick">Week of ${r.mon.slice(5)} – ${r.sun.slice(5)}</div>
+    <div class="recap-title">Your week in review</div>
+    <ul class="recap-list">${lines.map(l => `<li>${l}</li>`).join('')}</ul>
+    <div class="recap-next">${next}</div>
+    ${dismissable ? `<button class="btn secondary small" data-recapok="${r.mon}">Got it</button>` : ''}</div>`;
+}
+/* on Today from Monday to Wednesday, once per week, if there is anything to review */
+function recapTodayHTML() {
+  const today = isoDate(new Date()), mon = weekMonday(today), dow = (new Date(today + 'T12:00:00').getDay() + 6) % 7;
+  if (dow > 2) return '';
+  const last = addDays(mon, -7);
+  if (S.settings.recapSeen === last) return '';
+  const r = recapFor(last);
+  if (!r.sessions && !r.fuelDays && !r.notes) return '';
+  return recapHTML(r, true);
+}
+function recapStatsHTML() {
+  const today = isoDate(new Date()), r = recapFor(addDays(weekMonday(today), -7));
+  if (!r.sessions && !r.fuelDays && !r.notes && !lastTrainDate()) return '';
+  return `<h2 class="section">Last week</h2>` + recapHTML(r, false);
+}
+
+document.addEventListener('input', e => {
+  if (e.target.id !== 'sessNote') return;
+  const L = sessionLogObj();
+  L.note = e.target.value.trim();
+  if (!L.date && L.note) L.noteDate = isoDate(new Date());
+  clearTimeout(window.__noteT);
+  window.__noteT = setTimeout(save, 400);
+});
+document.addEventListener('click', e => {
+  const t = e.target.closest('[data-water],[data-watertgt],[data-meal],[data-recapok]');
+  if (!t) return;
+  const ds = t.dataset;
+  if (ds.water) {
+    const f = fuelToday();
+    f.w = ds.water === '+' ? f.w + 1 : (f.w === +ds.water ? +ds.water - 1 : +ds.water);
+    save(); render(); const c = document.querySelector('.fuel-card'); if (c) c.open = true; return;
+  }
+  if (ds.watertgt) {
+    const v = prompt('Glasses of water per day (your own target):', waterTarget());
+    if (v != null && +v > 0 && +v <= 30) { S.settings.waterTarget = Math.round(+v); save(); render(); const c = document.querySelector('.fuel-card'); if (c) c.open = true; }
+    return;
+  }
+  if (ds.meal) {
+    const f = fuelToday(); f.p[ds.meal] = !f.p[ds.meal];
+    save(); render(); const c = document.querySelector('.fuel-card'); if (c) c.open = true; return;
+  }
+  if (ds.recapok) { S.settings.recapSeen = ds.recapok; save(); render(); }
+});
 
 backfillHistory();
 syncAchievements();
