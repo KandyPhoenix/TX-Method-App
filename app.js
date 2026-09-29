@@ -1262,7 +1262,10 @@ const KNEE_AVOID = [
 /* the cautions currently switched on, as a stable cache key ('' when none) */
 function fpCautions() {
   const f = (S.settings && S.settings.footprint) || DEFAULTS.footprint;
-  return ((f && f.jointCautions) || []).slice().sort().join(',');
+  const jc = ((f && f.jointCautions) || []).slice();
+  /* knees marked "Hurts" in today's body check-in add the knee swaps for today */
+  if (jc.indexOf('knees') < 0 && typeof kneesHurtToday === 'function' && S.bodyCheck && kneesHurtToday()) jc.push('knees');
+  return jc.sort().join(',');
 }
 function kneeCare() { return fpCautions().split(',').indexOf('knees') >= 0; }
 
@@ -2191,6 +2194,8 @@ function renderToday() {
 
   html += reminderNudgeHTML();
   html += reminderSetupCardHTML();
+  html += backCardHTML();
+  html += bodyCheckHTML();
   html += guideNoteHTML();
 
   for (const lf of w.days[day]) html += liftCard(lf, logKey, log);
@@ -2413,7 +2418,9 @@ function renderPrepToday() {
     html += guideNoteHTML(d.note);
     html += reminderNudgeHTML();
     html += reminderSetupCardHTML();
+    html += backCardHTML();
     html += readinessHTML();
+    html += bodyCheckHTML();
     html += tierBarHTML();
     if (S.program === 'gen') html += genBarHTML();
     html += dayMuscleHTML(d);
@@ -6131,6 +6138,10 @@ function renderSetup() {
       <div class="hint">Used by the auto-start after each set and the “Start rest timer” button. The ± buttons on the timer bar nudge by your step. Voice coaching speaks the count-in and cues during a guided workout.</div>
     </div>
 
+    <h2 class="section">New here?</h2>
+    <div class="card"><button class="btn secondary" data-obopen="1">🧭 Run the setup guide</button>
+      <div class="hint">Five quick questions: where you train, how often, how long, your knees and your goal. It suggests a program and sets your equipment, weekly goal and knee swaps.</div></div>
+
     <h2 class="section">☁️ Cloud sync — Google</h2>
     <div class="card">
       <div id="cloudAuth"></div>
@@ -9434,12 +9445,173 @@ function fpRenderSheet(stage, payload) {
   }
 }
 
+/* =====================================================================
+   BEGINNER COACHING (2026-09-29) — first-day setup guide, welcome-back
+   card after a break, and a quick body check-in before training.
+   ===================================================================== */
+
+/* ---- body check-in: sore is normal muscle soreness, hurts is joint pain ---- */
+const BODY_AREAS = [
+  { id: 'knees', name: 'Knees' },
+  { id: 'back', name: 'Low back' },
+  { id: 'shoulders', name: 'Shoulders' }
+];
+const BODY_LEVELS = ['Fine', 'Sore', 'Hurts'];
+function bodyToday() {
+  const d = isoDate(new Date());
+  if (!S.bodyCheck) S.bodyCheck = {};
+  return S.bodyCheck[d] || null;
+}
+/* knees that hurt today turn on the knee swaps for today only */
+function kneesHurtToday() { const b = bodyToday(); return !!(b && b.knees === 2); }
+function bodyCheckHTML() {
+  const b = bodyToday() || {};
+  const rows = BODY_AREAS.map(a => `<div class="bc-row"><span class="bc-name">${a.name}</span>
+      <div class="seg bc-seg">${BODY_LEVELS.map((l, i) => `<button data-bc="${a.id}:${i}" class="${(b[a.id] || 0) === i && b[a.id] != null ? 'on' : ''}">${l}</button>`).join('')}</div></div>`).join('');
+  const notes = [];
+  if (b.knees === 2) {
+    const kl = (S.health && S.health.knee || []).find(e => e.d === isoDate(new Date()));
+    notes.push(`<div class="bc-note"><b>Knee swaps are on for today.</b> Moves that load a deeply bent knee or land hard are swapped for knee-friendlier ones. How bad is it (0 = none, 10 = worst)?
+      <div class="bc-scale">${Array.from({ length: 11 }, (_, i) => `<button data-kneelog="${i}" class="${kl && kl.v === i ? 'on' : ''}">${i}</button>`).join('')}</div></div>`);
+  }
+  if (b.back === 2 || b.shoulders === 2) notes.push(`<div class="bc-note">Skip or lighten anything that brings the pain on. Sharp pain, pain that gets worse as you go, or pain that lasts for days is a reason to stop and check with a clinician.</div>`);
+  if ([b.knees, b.back, b.shoulders].some(v => v === 1)) notes.push(`<div class="bc-note">Muscle soreness a day or two after training is normal, especially when you are new. Moving usually helps; warm up a little longer.</div>`);
+  return `<details class="card bc-card"${!bodyToday() || notes.length ? ' open' : ''}><summary>Body check-in${bodyToday() ? ' ✓' : ''}</summary>
+    <div class="tiny muted" style="margin:6px 0 8px">Sore = normal muscle soreness. Hurts = joint pain.</div>${rows}${notes.join('')}</details>`;
+}
+
+/* ---- welcome back after a break ---- */
+function lastTrainDate() {
+  let last = null;
+  const see = L => { if (L && L.date && L.checks && Object.values(L.checks).some(Boolean) && (!last || L.date > last)) last = L.date; };
+  Object.keys(DAY_PROGRAMS).forEach(pk => { const st = S[DAY_PROGRAMS[pk].stateKey]; if (st && st.log) Object.values(st.log).forEach(see); });
+  Object.values(S.logs || {}).forEach(see);
+  return last;
+}
+function daysBetween(a, b) { return Math.round((new Date(b + 'T12:00:00') - new Date(a + 'T12:00:00')) / 864e5); }
+function backCardHTML() {
+  const last = lastTrainDate(), today = isoDate(new Date());
+  if (!last || S.settings.backDismiss === today) return '';
+  const gap = daysBetween(last, today);
+  if (gap < 4) return '';
+  const day = isDayProgram();
+  return `<div class="card back-card"><div class="back-title">Welcome back 👋</div>
+    <div class="tiny" style="margin:4px 0 10px">Your last session was ${gap} days ago (${last}). After a few days off, an easier first session makes it more likely you will be back for the next one.</div>
+    ${day ? `<button class="btn primary small" data-back="ease">Ease in: Foundation today</button>` : ''}
+    <button class="btn secondary small" data-back="go">${day ? 'Carry on as planned' : 'Got it'}</button>
+    <div class="tiny muted" style="margin-top:6px">${day ? 'Foundation is one set fewer per exercise, for this session only.' : 'On a barbell day, consider taking the first set lighter and building up.'}</div></div>`;
+}
+
+/* ---- first-day setup guide ---- */
+const OB_Q = [
+  { id: 'where', q: 'Where will you train?', opts: [['body', 'Home, no equipment'], ['db', 'Home with dumbbells or bands'], ['gym', 'A gym']] },
+  { id: 'days', q: 'How many days a week can you train?', opts: [['2', '2'], ['3', '3'], ['4', '4'], ['5', '5 or more']] },
+  { id: 'mins', q: 'How long per session?', opts: [['20', '15–20 min'], ['30', 'About 30 min'], ['45', '45 min or more']] },
+  { id: 'knees', q: 'Do your knees need looking after?', opts: [['yes', 'Yes, swap the hard-on-knees moves'], ['no', 'No']] },
+  { id: 'goal', q: 'What matters most right now?', opts: [['start', 'Just getting started'], ['strength', 'Getting stronger'], ['longevity', 'Strength & power for 45+'], ['mobility', 'Mobility & stiff joints'], ['cardio', 'Fitness & heart']] }
+];
+function obPicks(a) {
+  const k = [];
+  const add = (...ks) => ks.forEach(x => { if (DAY_PROGRAMS[x] && k.indexOf(x) < 0) k.push(x); });
+  const noKit = a.where === 'body', short = a.mins === '20';
+  if (a.goal === 'start') { if (a.knees === 'yes' && a.days === '2') add('syn-knee-friendly-2x'); add(noKit ? 'prep30' : 'syn-full-body', 'prep30', 'syn-mobility-snacks-4x'); }
+  if (a.goal === 'strength') { if (a.knees === 'yes') add('syn-knee-friendly-2x'); add(noKit ? 'prep30' : 'dumbbell', +a.days >= 4 ? 'syn-upper-lower' : 'syn-full-body'); }
+  if (a.goal === 'longevity') { add(+a.days >= 4 && !noKit ? 'syn-superage-120-4x30' : 'syn-strength-speed-45plus-12w', 'syn-strength-speed-45plus-12w', 'syn-sims-lift-heavy-sprint-short'); }
+  if (a.goal === 'mobility') { add(short ? 'syn-mobility-snacks-4x' : 'syn-movesmethod-workouts-3x', 'mobility', 'syn-joint-mobility-mastery-7x'); }
+  if (a.goal === 'cardio') { add('syn-norwegian-4x4', 'hiit', 'syn-strength-speed-45plus-12w'); }
+  add('syn-full-body');
+  return k.slice(0, 3);
+}
+function obNeeded() {
+  return !S.onboarded && !lastTrainDate() && !Object.keys(S.logs || {}).length;
+}
+let obAns = {};
+function openOnboarding() {
+  obAns = {};
+  let el = document.getElementById('obSheet');
+  if (!el) { el = document.createElement('div'); el.id = 'obSheet'; el.className = 'ob-sheet'; document.body.appendChild(el); }
+  obDraw();
+}
+function obDraw() {
+  const el = document.getElementById('obSheet'); if (!el) return;
+  const step = OB_Q.findIndex(q => obAns[q.id] == null);
+  let body;
+  if (step >= 0) {
+    const q = OB_Q[step];
+    body = `<div class="ob-step">Question ${step + 1} of ${OB_Q.length}</div><div class="ob-q">${q.q}</div>
+      ${q.opts.map(([v, l]) => `<button class="btn secondary ob-opt" data-ob="${q.id}:${v}">${l}</button>`).join('')}
+      ${step ? `<button class="link-btn" data-obback="1">‹ Back</button>` : ''}`;
+  } else {
+    const picks = obPicks(obAns);
+    body = `<div class="ob-q">Good places to start</div>
+      <div class="tiny muted" style="margin-bottom:10px">Picked from your answers. You can switch any time in Protocols.</div>
+      ${picks.map((k, i) => { const c = DAY_PROGRAMS[k]; return `<button class="card ob-pick" data-obpick="${k}"><b>${i === 0 ? '⭐ ' : ''}${c.label}</b><div class="tiny muted">${c.sub}</div></button>`; }).join('')}
+      <div class="tiny muted" style="margin-top:8px">Your answers also set: ${obAns.where === 'body' ? 'bodyweight-only swaps' : 'equipment on'}, a ${obAns.days}-day weekly goal${obAns.knees === 'yes' ? ', knee swaps on' : ''}.</div>
+      <button class="link-btn" data-obback="1">‹ Back</button>`;
+  }
+  el.innerHTML = `<div class="ob-panel"><button class="ob-x" data-obclose="1" aria-label="Close">✕</button>
+    <div class="ob-head">Let’s set you up</div>${body}</div>`;
+  el.classList.add('open');
+}
+function obApply() {
+  const s = S.settings;
+  s.equipment = obAns.where === 'body' ? 'bodyweight' : 'gym';
+  s.weeklyGoal = Math.min(7, +obAns.days || 3);
+  s.footprint = s.footprint || { jointCautions: [], priorityMuscles: [] };
+  const jc = (s.footprint.jointCautions || []).filter(x => x !== 'knees');
+  if (obAns.knees === 'yes') jc.push('knees');
+  s.footprint.jointCautions = jc;
+  S.onboarded = isoDate(new Date());
+}
+
+document.addEventListener('click', e => {
+  const t = e.target.closest('[data-bc],[data-kneelog],[data-back],[data-ob],[data-obback],[data-obpick],[data-obclose],[data-obopen]');
+  if (!t) return;
+  const ds = t.dataset;
+  if (ds.bc) {
+    const [a, v] = ds.bc.split(':'), d = isoDate(new Date());
+    if (!S.bodyCheck) S.bodyCheck = {};
+    const b = S.bodyCheck[d] = S.bodyCheck[d] || {};
+    b[a] = +v;
+    BODY_AREAS.forEach(x => { if (b[x.id] == null) b[x.id] = 0; });
+    save(); render();
+    if (a === 'knees' && +v === 2) toast('Knee swaps on for today');
+    return;
+  }
+  if (ds.kneelog != null) {
+    const log = healthLog('knee'), d = isoDate(new Date()), v = +ds.kneelog, x = log.find(q => q.d === d);
+    if (x) x.v = v; else log.push({ d, v });
+    save(); toast('Knee pain ' + v + '/10 logged to Health markers'); render(); return;
+  }
+  if (ds.back) {
+    S.settings.backDismiss = isoDate(new Date()); save();
+    if (ds.back === 'ease') setSessionTier('foundation'); else render();
+    return;
+  }
+  if (ds.obopen) { openOnboarding(); return; }
+  if (ds.obclose) { S.onboarded = S.onboarded || 'skipped'; save(); document.getElementById('obSheet').classList.remove('open'); return; }
+  if (ds.obback) {
+    const done = OB_Q.filter(q => obAns[q.id] != null);
+    if (done.length) delete obAns[done[done.length - 1].id];
+    obDraw(); return;
+  }
+  if (ds.ob) { const [q, v] = ds.ob.split(':'); obAns[q] = v; obDraw(); return; }
+  if (ds.obpick) {
+    obApply();
+    S.program = ds.obpick; save(); rebuild();
+    document.getElementById('obSheet').classList.remove('open');
+    TAB = 'today'; window.scrollTo(0, 0); renderEquipBtn(); render();
+    toast('Starting ' + DAY_PROGRAMS[ds.obpick].label);
+  }
+});
+
 backfillHistory();
 syncAchievements();
 genRegisterTips();
 synRegisterTips();
 render();
 updateProfileBtn();
+if (obNeeded()) setTimeout(openOnboarding, 400);
 /* auto-resume cloud sync if previously signed in */
 if (loadCloud().enabled) { setTimeout(cloudInit, 0); }
 initReminder();
