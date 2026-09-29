@@ -5159,7 +5159,7 @@ function drawLoggedStrengthCharts() {
 }
 
 /* =====================================================================
-   KEY LIFTS — squats, deadlifts, bench press, rows (Kandy, 2026-09-29;
+   KEY LIFTS — squats, deadlifts, bench press, rows, overhead press (Kandy, 2026-09-29;
    lunges deliberately excluded).
 
    Every weighted variant of these already records its working weight and
@@ -5200,7 +5200,18 @@ const KEY_LIFTS = [
     { name: 'Chest-Supported Row', keys: ['wu_cs_db_row'], hand: true },
     { name: 'Lat-Biased Row',      keys: ['wu_single_arm_lat_row'], hand: true },
     { name: 'Renegade Row',        keys: ['dbrenrow'], hand: true },
-    { name: 'Batwing Row',         keys: ['wu_batwing_row'], hand: true } ] }
+    { name: 'Batwing Row',         keys: ['wu_batwing_row'], hand: true } ] },
+  /* Added 2026-09-29. syn_dumbbell_press ("Dumbbell Press", Full Body) is
+     left out: its name does not say chest or shoulders. pw_db_push_press is
+     a shoulder press in phase 1 and a push press after, so it sits with the
+     push press. */
+  { id: 'ohp', name: 'Overhead Press', variants: [
+    { name: 'Overhead Press',      keys: ['press', 'syn_overhead_press'] },
+    { name: 'Push Press',          keys: ['sims_push_press'] },
+    { name: 'DB Shoulder Press',   keys: ['dbohp', 'wu_seated_db_press', 'wu_standing_db_press'], hand: true },
+    { name: 'DB Push Press',       keys: ['pw_db_push_press', 'pushpress'], hand: true },
+    { name: 'Single-Arm DB Press', keys: ['sadbpress'], hand: true },
+    { name: 'Arnold Press',        keys: ['syn_arnold_press'], hand: true } ] }
 ];
 /* One point per date per variant: the heaviest set logged that day, with its
    reps so an estimated 1RM can be drawn where reps were recorded. */
