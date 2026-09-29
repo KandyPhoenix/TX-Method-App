@@ -1963,3 +1963,8 @@ table.prog td.w { color: var(--text); }
 .hm-chip.on { background: var(--accent); border-color: var(--accent); color: var(--on-accent, #fff); }
 .hm-entry { display: flex; gap: 8px; margin: 8px 0 4px; }
 .hm-entry input { flex: 1; min-width: 0; }
+
+/* Signed out: the profile pill becomes a Sign in button */
+.profile-avatar-btn.signin { background: var(--accent-ink); color: var(--panel); font-size: 13px; }
+.card.flash { animation: cardFlash 1.4s ease; }
+@keyframes cardFlash { 0%, 40% { box-shadow: 0 0 0 3px var(--accent-ink); } 100% { box-shadow: 0 0 0 0 transparent; } }
