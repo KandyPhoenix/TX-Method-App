@@ -4751,6 +4751,7 @@ function renderStats() {
     <h2 class="section">Strength-to-weight ratio ${ib('swr')}</h2>
     <div class="card">${ratios}</div>
     ${prCardHTML()}
+    ${keyLiftsHTML()}
     ${strengthChartsHTML()}
     ${liftTrackerHTML()}
     ${muscleBalanceSectionHTML()}
@@ -4760,6 +4761,7 @@ function renderStats() {
     <button class="btn secondary" id="shareBtn">📤 Share my progress</button>
   </div>`;
   drawProjectionCharts();
+  drawKeyLifts();
   drawStrengthCharts();
   const sb = document.getElementById('shareBtn'); if (sb) sb.onclick = shareCard;
   wireLiftTracker();
@@ -4884,6 +4886,7 @@ function renderPrepStats() {
           : `${workoutDays - done} day${workoutDays-done===1?'':'s'} to go.`}
       </div>
     </div>
+    ${keyLiftsHTML()}
     ${loggedStrengthHTML()}
     ${prCardHTML()}
     ${strengthChartsHTML()}
@@ -4894,6 +4897,7 @@ function renderPrepStats() {
     ${achievementsCardHTML()}
     <button class="btn secondary" id="shareBtn">📤 Share my progress</button>
   </div>`;
+  drawKeyLifts();
   drawLoggedStrengthCharts();
   drawStrengthCharts();
   const sb = document.getElementById('shareBtn'); if (sb) sb.onclick = shareCard;
@@ -5154,6 +5158,104 @@ function drawLoggedStrengthCharts() {
   }
 }
 
+/* =====================================================================
+   KEY LIFTS — squats, deadlifts, bench press, rows (Kandy, 2026-09-29;
+   lunges deliberately excluded).
+
+   Every weighted variant of these already records its working weight and
+   gets its own card further down, but the cards are scattered among every
+   other movement and rows never appear in the 1RM panels. These four cards
+   sit first and show each family together: one line per variant, on a
+   shared date axis, so moving from goblet squats in one program to back
+   squats in another reads as one story.
+
+   Keys that are the same movement in different programs are merged into one
+   line. Dumbbell and kettlebell work is logged per hand and says so, because
+   a 30 lb goblet squat and a 95 lb back squat on one axis would otherwise
+   look like a regression. Undated sessions (Texas logs from before dates
+   were stamped) cannot be placed on a timeline and are left out here; they
+   still show on the per-exercise cards below.
+   ===================================================================== */
+const KEY_LIFTS = [
+  { id: 'squat', name: 'Squats', variants: [
+    { name: 'Back Squat',          keys: ['squat', 'sims_back_squat', 'syn_squats'] },
+    { name: 'Front Squat',         keys: ['syn_front_squats'] },
+    { name: 'Goblet Squat',        keys: ['gobletsquat', 'syn_goblet_squats', 'pw_goblet_squat'], hand: true },
+    { name: 'Heel-Elevated Squat', keys: ['wu_heel_elevated_squat'], hand: true } ] },
+  { id: 'deadlift', name: 'Deadlifts', variants: [
+    { name: 'Deadlift',            keys: ['deadlift', 'syn_deadlift'] },
+    { name: 'Romanian Deadlift',   keys: ['sardl', 'syn_romanian_deadlift'] },
+    { name: 'DB Romanian Deadlift',keys: ['pw_db_rdl', 'dbrdl'], hand: true },
+    { name: 'DB Deadlift',         keys: ['dbhinge'], hand: true },
+    { name: 'Single-Leg RDL',      keys: ['wu_single_leg_rdl'], hand: true },
+    { name: 'B-Stance RDL',        keys: ['syn_b_stance_rdl'], hand: true } ] },
+  { id: 'bench', name: 'Bench Press', variants: [
+    { name: 'Bench Press',         keys: ['bench', 'sabench', 'syn_bench_press'] },
+    { name: 'DB Bench Press',      keys: ['syn_dumbbell_bench_press'], hand: true },
+    { name: 'DB Floor Press',      keys: ['dbpress', 'wu_db_floor_press'], hand: true } ] },
+  { id: 'row', name: 'Rows', variants: [
+    { name: 'Barbell Row',         keys: ['sarow', 'syn_barbell_rows'] },
+    { name: 'DB Row',              keys: ['dbrow', 'syn_dumbbell_rows', 'syn_single_arm_dumbbell_row', 'wu_bent_over_dual_row'], hand: true },
+    { name: 'Band / Cable Row',    keys: ['pw_cable_row'], hand: true },
+    { name: 'Chest-Supported Row', keys: ['wu_cs_db_row'], hand: true },
+    { name: 'Lat-Biased Row',      keys: ['wu_single_arm_lat_row'], hand: true },
+    { name: 'Renegade Row',        keys: ['dbrenrow'], hand: true },
+    { name: 'Batwing Row',         keys: ['wu_batwing_row'], hand: true } ] }
+];
+/* One point per date per variant: the heaviest weight logged that day. */
+function keyLiftSeries(v) {
+  const byDate = {};
+  v.keys.forEach(k => strengthSeries(k).forEach(p => {
+    if (!p.date || !p.w) return;
+    if (byDate[p.date] == null || p.w > byDate[p.date]) byDate[p.date] = p.w;
+  }));
+  return Object.keys(byDate).sort().map(d => ({ date: d, w: byDate[d] }));
+}
+function keyLiftData(g) {
+  const vs = g.variants.map(v => Object.assign({}, v, { pts: keyLiftSeries(v) })).filter(v => v.pts.length);
+  const axis = Array.from(new Set(vs.flatMap(v => v.pts.map(p => p.date)))).sort();
+  return { vs, axis };
+}
+function keyLiftsHTML() {
+  const u = unit();
+  const cards = KEY_LIFTS.map(g => {
+    const { vs, axis } = keyLiftData(g);
+    if (!vs.length) {
+      return `<div class="card str-card"><div class="str-head"><div class="str-name">${g.name}</div><div class="str-now dim">—</div></div>
+        <div class="tiny muted">Not logged yet. Log the weight on any ${g.name.toLowerCase()} variant (${g.variants.slice(0, 3).map(v => v.name).join(', ')}…) in any program and it charts here.</div></div>`;
+    }
+    const lines = vs.map(v => {
+      const first = v.pts[0].w, last = v.pts[v.pts.length - 1].w, d = last - first;
+      return `<div class="key-lift-row"><span>${v.name}</span><b>${fmt(last)} <small>${u}${v.hand ? ' / hand' : ''}</small>${
+        v.pts.length > 1 ? `<span class="str-delta ${d > 0 ? 'up' : d < 0 ? 'down' : ''}">${d > 0 ? '+' : ''}${fmt(d)}</span>` : ''}</b></div>`;
+    }).join('');
+    const sessions = vs.reduce((n, v) => n + v.pts.length, 0);
+    return `<div class="card str-card"><div class="str-head"><div class="str-name">${g.name}</div></div>
+      ${lines}
+      ${axis.length > 1 ? `<canvas id="key_${g.id}" class="str-chart"></canvas>`
+        : `<div class="tiny muted">One session so far. The chart draws once there are two dates to join.</div>`}
+      <div class="tiny muted str-sub">${sessions} session${sessions === 1 ? '' : 's'} logged · change is since your first logged session of each variant</div></div>`;
+  }).join('');
+  return `<h2 class="section">Key lifts</h2>${cards}`;
+}
+function drawKeyLifts() {
+  /* the theme palette is four tones of one hue; take them lightest/darkest
+     first so neighbouring lines differ as much as possible */
+  const cp = chartPalette();
+  const pal = [cp[0], cp[2], cp[3], cp[1], cssVar('--text', '#ffffff'), '#ffd400', '#ff5e5e'];
+  KEY_LIFTS.forEach(g => {
+    const cv = document.getElementById('key_' + g.id);
+    if (!cv) return;
+    const { vs, axis } = keyLiftData(g);
+    if (axis.length < 2) return;
+    const series = vs.map((v, i) => {
+      const m = {}; v.pts.forEach(p => { m[p.date] = p.w; });
+      return { name: v.name + (v.hand ? ' (/hand)' : ''), color: pal[i % pal.length], data: axis.map(d => m[d] != null ? m[d] : null) };
+    });
+    lineChart(cv, series, axis.map(d => d.slice(5)), { zero: true });
+  });
+}
+
 function strengthChartsHTML() {
   const lifts = strengthLifts().map(l => Object.assign({}, l, { pts: strengthSeries(l.key) }));
   const withData = lifts.filter(l => l.pts.length >= 1);
@@ -5278,6 +5380,15 @@ function lineChart(canvas, series, labels, opts) {
   const o = opts || {};
   const all = series.flatMap(s => s.data).filter(v => v != null && isFinite(v));
   if (!all.length) return;
+  /* Legend rows. With several series the names used to run off the right
+     edge; they now wrap, and the plot starts below however many rows that
+     takes. */
+  ctx.font = '11px -apple-system,sans-serif';
+  const legend = []; { let lx = pad.l, row = 0;
+    series.forEach(s => { const w = ctx.measureText(s.name).width + 34;
+      if (lx + w > W - pad.r && lx > pad.l) { row++; lx = pad.l; }
+      legend.push({ s, x: lx, y: 8 + row * 13 }); lx += w; });
+    pad.t = 12 + row * 13; }
   let min = Math.min(...all), max = Math.max(...all);
   if (min === max) { min -= 1; max += 1; }
   /* Scale. zero-based charts anchor the axis at 0 with headroom above, so
@@ -5294,7 +5405,7 @@ function lineChart(canvas, series, labels, opts) {
     min -= r * 0.15; max += r * 0.15;
   }
   const py = v => pad.t + (H - pad.t - pad.b) * (1 - (v - min) / (max - min));
-  const px = i => pad.l + (W - pad.l - pad.r) * (i / (labels.length - 1));
+  const px = i => pad.l + (W - pad.l - pad.r) * (labels.length > 1 ? i / (labels.length - 1) : 0.5);
   const axisC = cssVar('--muted', '#aaaaaa');
   ctx.strokeStyle = cssVar('--chart-grid', 'rgba(170,255,0,.15)'); ctx.fillStyle = axisC; ctx.font = '10px -apple-system,sans-serif'; ctx.lineWidth = 1;
   for (let g = 0; g <= 4; g++) {
@@ -5303,16 +5414,23 @@ function lineChart(canvas, series, labels, opts) {
     ctx.fillText(Math.round(v), 4, y + 3);
   }
   for (let i = 0; i < labels.length; i += 4) ctx.fillText(labels[i], px(i) - 8, H - 6);
+  /* A null is "not trained that day", not zero. It used to be plotted as
+     zero, so a gap dropped the line to the floor; now the line joins the
+     points on either side, and every real point gets a dot so a single
+     session still shows. */
   series.forEach(s => {
-    ctx.strokeStyle = s.color; ctx.lineWidth = 2.2; ctx.beginPath();
-    s.data.forEach((v, i) => { const X = px(i), Y = py(v); i ? ctx.lineTo(X,Y) : ctx.moveTo(X,Y); });
+    ctx.strokeStyle = s.color; ctx.fillStyle = s.color; ctx.lineWidth = 2.2; ctx.beginPath();
+    let started = false;
+    s.data.forEach((v, i) => { if (v == null || !isFinite(v)) return;
+      const X = px(i), Y = py(v); started ? ctx.lineTo(X, Y) : ctx.moveTo(X, Y); started = true; });
     ctx.stroke();
+    s.data.forEach((v, i) => { if (v == null || !isFinite(v)) return;
+      ctx.beginPath(); ctx.arc(px(i), py(v), 2.6, 0, Math.PI * 2); ctx.fill(); });
   });
-  let lx = pad.l; ctx.font = '11px -apple-system,sans-serif';
-  series.forEach(s => {
-    ctx.fillStyle = s.color; ctx.fillRect(lx, 2, 10, 4);
-    ctx.fillStyle = axisC; ctx.fillText(s.name, lx + 14, 8);
-    lx += ctx.measureText(s.name).width + 34;
+  ctx.font = '11px -apple-system,sans-serif';
+  legend.forEach(l => {
+    ctx.fillStyle = l.s.color; ctx.fillRect(l.x, l.y - 6, 10, 4);
+    ctx.fillStyle = axisC; ctx.fillText(l.s.name, l.x + 14, l.y);
   });
 }
 
