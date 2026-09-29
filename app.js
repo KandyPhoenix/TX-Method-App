@@ -2738,6 +2738,9 @@ function readyToday() {
 function setReadiness(v) {
   S.settings.readinessDay = isoDate(new Date());
   S.settings.readiness = v;
+  /* kept per day for the Health markers chart (2026-09-29) */
+  if (!S.readyLog) S.readyLog = {};
+  S.readyLog[S.settings.readinessDay] = v;
   save();
   /* A rough night now moves the session to Foundation on its own (Kandy,
      2026-08-29). The better nights still only suggest, so the app never
@@ -4631,6 +4634,170 @@ function muscleBalanceSectionHTML() {
     <div class="card">${muscleDoughnutHTML(28)}</div>`;
 }
 
+/* =====================================================================
+   HEALTH MARKERS (Kandy, 2026-09-29)
+
+   Eight longevity/strength markers, each switched on only when wanted: a
+   card shows when its toggle is on OR, for the tested ones, as soon as it
+   has data ("just there when I test them"). The two automatic ones (weekly
+   minutes, readiness) only show when switched on. Manual markers are
+   logged here, one value per day (today's entry updates in place).
+
+   Evidence behind the choice of markers is in the chat that asked for them;
+   the cards state what each measures and how to test it the same way each
+   time, and make no claims beyond that.
+   ===================================================================== */
+const HEALTH_MARKERS = [
+  { id: 'grip',  name: 'Grip strength', kind: 'manual', unit: () => unit(), better: 'up',
+    how: 'Hand dynamometer, dominant hand, best of 3 squeezes, standing, elbow at your side. Same device each time.' },
+  { id: 'chair', name: '30-second chair stand', kind: 'manual', unit: () => 'stands', better: 'up', int: true,
+    how: 'Standard chair against a wall, arms crossed, count full stands in 30 seconds. Also part of Strength & Speed 45+ (weeks 1, 6, 12).' },
+  { id: 'balance', name: 'Single-leg balance, eyes closed', kind: 'fp', unit: () => 'sec', better: 'up',
+    how: 'Recorded from the Balance test in the Fingerprint tab. Each retest adds a point.' },
+  { id: 'knee', name: 'Knee pain after lower-body days', kind: 'manual', unit: () => '/10', better: 'down', int: true, max: 10,
+    how: '0 = none, 10 = worst. Log it the evening after a lower-body session or the next morning, the same time each time.' },
+  { id: 'rhr', name: 'Resting heart rate', kind: 'manual', unit: () => 'bpm', better: 'down', int: true,
+    how: 'On waking, before getting up, or your watch’s resting average. Same method each time.' },
+  { id: 'cardio', name: '4×4 interval output', kind: 'manual', unit: () => 'avg', better: 'up',
+    how: 'Average watts (bike) or speed (treadmill) across your four hard intervals. Same machine and unit every time, or the line means nothing.' },
+  { id: 'whtr', name: 'Waist-to-height ratio', kind: 'whtr', unit: () => '', better: 'down',
+    how: 'Waist from Body measurements ÷ your height. UK NICE guidance (2022) suggests keeping it under 0.5.' },
+  { id: 'minutes', name: 'Weekly strength minutes', kind: 'minutes', unit: () => 'min', better: 'up',
+    how: 'Estimated from the planned length of the strength sessions you ticked, per week (Mon–Sun), against the 120-minute target. Walks and interval-only days are not counted.' },
+  { id: 'ready', name: 'Sleep / readiness', kind: 'ready', unit: () => '/4', better: 'up',
+    how: 'The "How did you sleep?" rating from Today, 1 (rough) to 4 (great), one per day.' }
+];
+function healthOn() { return (S.settings.healthOn = S.settings.healthOn || []); }
+function healthLog(id) { if (!S.health) S.health = {}; return (S.health[id] = S.health[id] || []); }
+function whtrSeries() {
+  const h = +S.settings.heightIn;
+  if (!(h > 0)) return [];
+  return measLog().filter(e => e.wa != null).map(e => ({ d: e.d, v: Math.round(e.wa / h * 1000) / 1000 }));
+}
+function weekMonday(iso) {
+  const d = new Date(iso + 'T12:00:00'); d.setDate(d.getDate() - ((d.getDay() + 6) % 7)); return isoDate(d);
+}
+function strengthMinutesByWeek() {
+  const wk = {};
+  const add = (date, min) => { if (!date || !min) return; const k = weekMonday(date); wk[k] = (wk[k] || 0) + min; };
+  Object.keys(DAY_PROGRAMS).forEach(pk => {
+    if (pk === 'gen' || pk === 'fpfocus') return;
+    const cfg = DAY_PROGRAMS[pk], st = S[cfg.stateKey];
+    if (!st || !st.log) return;
+    let data = null;
+    Object.keys(st.log).forEach(d => {
+      const L = st.log[d];
+      if (!L || !L.date || !L.checks || !Object.values(L.checks).some(Boolean)) return;
+      if (!data) { try { data = cfg.data; } catch (e) { data = []; } }
+      const day = data[+d - 1];
+      /* strength = the day has at least one rep-counted movement */
+      if (!day || day.rest || !(day.exercises || []).some(e => e.reps != null && e.sec == null)) return;
+      add(L.date, estDayMin(day));
+    });
+  });
+  if (typeof PROGRAM !== 'undefined') Object.keys(S.logs || {}).forEach(k => {
+    const L = S.logs[k], m = /^(\d+)-(\d+)$/.exec(k);
+    if (!L || !m || !L.date || !L.checks || !Object.values(L.checks).some(Boolean)) return;
+    const day = PROGRAM[+m[1]] && PROGRAM[+m[1]].days && PROGRAM[+m[1]].days[+m[2]];
+    if (day) add(L.date, estTexasMin(day));
+  });
+  /* the last 12 weeks, empty weeks shown as 0 */
+  const out = [], mon = new Date(weekMonday(isoDate(new Date())) + 'T12:00:00');
+  for (let i = 11; i >= 0; i--) { const d = new Date(mon); d.setDate(d.getDate() - 7 * i); const k = isoDate(d); out.push({ d: k, v: wk[k] || 0 }); }
+  return out;
+}
+function healthSeries(m) {
+  if (m.kind === 'manual') return healthLog(m.id).slice().sort((a, b) => a.d < b.d ? -1 : 1);
+  if (m.kind === 'fp') {
+    const h = ((S.fpHist || {})[m.id] || []).slice();
+    const cur = fpGet(m.id);
+    if (cur && cur.date && !h.some(e => e.d === cur.date)) h.push({ d: cur.date, v: cur.raw });
+    return h.sort((a, b) => a.d < b.d ? -1 : 1);
+  }
+  if (m.kind === 'whtr') return whtrSeries();
+  if (m.kind === 'minutes') return strengthMinutesByWeek();
+  if (m.kind === 'ready') return Object.keys(S.readyLog || {}).sort().map(d => ({ d, v: S.readyLog[d] }));
+  return [];
+}
+/* shown if switched on, or if a tested marker has data */
+function healthVisible(m) {
+  if (healthOn().indexOf(m.id) >= 0) return true;
+  if (m.kind === 'minutes' || m.kind === 'ready') return false;
+  if (m.kind === 'whtr') return false;
+  return healthSeries(m).length > 0;
+}
+function healthSectionHTML() {
+  const shown = HEALTH_MARKERS.filter(healthVisible);
+  const chips = HEALTH_MARKERS.map(m => {
+    const on = healthOn().indexOf(m.id) >= 0;
+    return `<button class="hm-chip ${shown.indexOf(m) >= 0 ? 'on' : ''}" data-hmtoggle="${m.id}">${on || shown.indexOf(m) >= 0 ? '✓ ' : '+ '}${m.name}</button>`;
+  }).join('');
+  const cards = shown.map(m => {
+    const pts = healthSeries(m), u = m.unit();
+    const last = pts.length ? pts[pts.length - 1] : null, first = pts.length ? pts[0] : null;
+    let head = '—';
+    if (last) head = `${m.kind === 'whtr' ? last.v.toFixed(2) : fmt(last.v)} <small>${u}</small>`;
+    let delta = '';
+    if (pts.length > 1 && m.kind !== 'minutes') {
+      const d = Math.round((last.v - first.v) * 100) / 100, good = m.better === 'up' ? d > 0 : d < 0;
+      if (d) delta = `<span class="str-delta ${good ? 'up' : 'down'}">${d > 0 ? '+' : ''}${m.kind === 'whtr' ? d.toFixed(2) : fmt(d)}</span>`;
+    }
+    const entry = m.kind === 'manual'
+      ? `<div class="hm-entry"><input type="number" inputmode="decimal" id="hm_in_${m.id}" min="0" ${m.max ? `max="${m.max}"` : ''} step="${m.int ? 1 : 'any'}" placeholder="Today’s ${u === 'avg' ? 'value' : u}">
+           <button class="btn primary small" data-hmsave="${m.id}">Save</button></div>`
+      : m.kind === 'whtr'
+      ? `<div class="hm-entry"><input type="number" inputmode="decimal" id="hm_height" placeholder="Your height (${S.settings.units === 'kg' ? 'cm' : 'in'})" value="${S.settings.heightIn || ''}">
+           <button class="btn primary small" data-hmheight="1">Save height</button></div>` : '';
+    const note = m.kind === 'whtr' && !(+S.settings.heightIn > 0) ? 'Add your height, then log waist in Body measurements below.'
+      : m.kind === 'fp' && !pts.length ? 'Take the Balance test in the Fingerprint tab to add the first point.'
+      : m.kind === 'ready' && !pts.length ? 'Rate your sleep on the Today screen; each day adds a point from now on.'
+      : '';
+    return `<div class="card str-card">
+      <div class="str-head"><div class="str-name">${m.name}</div><div class="str-now">${head}${delta}</div></div>
+      ${pts.length > 1 ? `<canvas id="hm_${m.id}" class="str-chart"></canvas>` : ''}
+      ${entry}
+      <div class="tiny muted str-sub">${note ? note + ' ' : ''}${m.how}${pts.length === 1 ? ' The graph draws from the second entry.' : ''}</div></div>`;
+  }).join('');
+  return `<h2 class="section">Health markers</h2>
+    <div class="card"><div class="tiny muted" style="margin-bottom:8px">Turn on the ones you want. A tested marker also appears by itself as soon as you log it.</div>
+      <div class="hm-chips">${chips}</div></div>${cards}`;
+}
+function wireHealth() {
+  document.querySelectorAll('[data-hmtoggle]').forEach(b => b.onclick = () => {
+    const id = b.dataset.hmtoggle, on = healthOn(), i = on.indexOf(id);
+    const m = HEALTH_MARKERS.find(x => x.id === id);
+    if (i >= 0) on.splice(i, 1);
+    else if (healthVisible(m)) { toast(m.name + ' shows because it has data'); return; }
+    else on.push(id);
+    save(); render();
+  });
+  document.querySelectorAll('[data-hmsave]').forEach(b => b.onclick = () => {
+    const id = b.dataset.hmsave, m = HEALTH_MARKERS.find(x => x.id === id);
+    const el = document.getElementById('hm_in_' + id), v = el && el.value !== '' ? +el.value : NaN;
+    if (!isFinite(v) || v < 0 || (m.max != null && v > m.max)) { toast('Enter a number' + (m.max != null ? ' from 0 to ' + m.max : '')); return; }
+    const log = healthLog(id), d = isoDate(new Date()), e = log.find(x => x.d === d);
+    if (e) e.v = v; else log.push({ d, v });
+    if (healthOn().indexOf(id) < 0) healthOn().push(id);
+    save(); toast(m.name + ' saved'); render();
+  });
+  const hb = document.querySelector('[data-hmheight]');
+  if (hb) hb.onclick = () => {
+    const el = document.getElementById('hm_height'), v = el && +el.value;
+    if (!(v > 0)) { toast('Enter your height'); return; }
+    S.settings.heightIn = v; save(); toast('Height saved'); render();
+  };
+  const pal = chartPalette();
+  HEALTH_MARKERS.forEach(m => {
+    const c = document.getElementById('hm_' + m.id);
+    if (!c) return;
+    const pts = healthSeries(m);
+    const series = [{ name: m.name + (m.unit() ? ' (' + m.unit() + ')' : ''), color: pal[0], data: pts.map(p => p.v) }];
+    if (m.kind === 'minutes') series.push({ name: 'Target 120', color: pal[2], data: pts.map(() => 120) });
+    if (m.kind === 'whtr') series.push({ name: '0.5 guide', color: pal[2], data: pts.map(() => 0.5) });
+    lineChart(c, series, pts.map(p => p.d.slice(5)), { zero: m.kind === 'minutes' || m.kind === 'ready' || m.id === 'knee' });
+  });
+}
+
 function measLog() { if (!S.bodyLog) S.bodyLog = []; return S.bodyLog; }
 const MEAS_FIELDS = [['w', 'Body weight'], ['wa', 'Waist'], ['hp', 'Hips']];
 function measUnit(k) { return k === 'w' ? unit() : (S.settings.units === 'kg' ? 'cm' : 'in'); }
@@ -4765,6 +4932,7 @@ function renderStats() {
     ${strengthChartsHTML()}
     ${liftTrackerHTML()}
     ${muscleBalanceSectionHTML()}
+    ${healthSectionHTML()}
     ${measSectionHTML()}
     ${calendarHTML()}
     ${achievementsCardHTML()}
@@ -4776,6 +4944,7 @@ function renderStats() {
   const sb = document.getElementById('shareBtn'); if (sb) sb.onclick = shareCard;
   wireLiftTracker();
   wireCalendar();
+  wireHealth();
   wireMeas();
 }
 
@@ -4902,6 +5071,7 @@ function renderPrepStats() {
     ${strengthChartsHTML()}
     ${liftTrackerHTML()}
     ${muscleBalanceSectionHTML()}
+    ${healthSectionHTML()}
     ${measSectionHTML()}
     ${calendarHTML()}
     ${achievementsCardHTML()}
@@ -4913,6 +5083,7 @@ function renderPrepStats() {
   const sb = document.getElementById('shareBtn'); if (sb) sb.onclick = shareCard;
   wireLiftTracker();
   wireCalendar();
+  wireHealth();
   wireMeas();
 }
 
@@ -5516,7 +5687,7 @@ function lineChart(canvas, series, labels, opts) {
   for (let g = 0; g <= 4; g++) {
     const v = min + (max - min) * g / 4, y = py(v);
     ctx.beginPath(); ctx.moveTo(pad.l, y); ctx.lineTo(W - pad.r, y); ctx.globalAlpha = .5; ctx.stroke(); ctx.globalAlpha = 1;
-    ctx.fillText(Math.round(v), 4, y + 3);
+    ctx.fillText(max - min < 0.1 ? v.toFixed(3) : max - min < 5 ? (Math.round(v * 100) / 100).toString() : Math.round(v), 4, y + 3);
   }
   for (let i = 0; i < labels.length; i += 4) ctx.fillText(labels[i], px(i) - 8, H - 6);
   /* A null is "not trained that day", not zero. It used to be plotted as
@@ -8895,6 +9066,10 @@ function fpState() { if (!S.fp) S.fp = {}; return S.fp; }
 function fpGet(axis) { return fpState()[axis] || null; }
 function fpSave(axis, raw, unit, score) {
   fpState()[axis] = { raw, unit, score, tier: fpTier(score).key, date: isoDate(new Date()) };
+  /* history, so a retest becomes a trend (Health markers, 2026-09-29) */
+  if (!S.fpHist) S.fpHist = {};
+  const h = (S.fpHist[axis] = S.fpHist[axis] || []), d = isoDate(new Date());
+  const same = h.find(e => e.d === d); if (same) same.v = raw; else h.push({ d, v: raw });
   save();
 }
 
