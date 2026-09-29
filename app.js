@@ -1636,9 +1636,28 @@ function renameProfile(id, name) {
   if (prof) { prof.name = name.trim() || prof.name; saveProfiles(p); updateProfileBtn(); }
 }
 
+/* The header pill doubles as the sign-in prompt: signed out, it says
+   "Sign in" and opens the Google sign-in card in Setup; signed in, it shows
+   the profile name and opens the profile switcher. While a remembered
+   sign-in is still resuming it keeps the name, so it doesn't flash. */
+function pillWantsSignIn() {
+  return !cloudUser && !(loadCloud().enabled && !cloudAuthKnown);
+}
 function updateProfileBtn() {
   const btn = document.getElementById('profileBtn');
-  if (btn) btn.textContent = activeProfile().name || 'Me';
+  if (!btn) return;
+  const signIn = pillWantsSignIn();
+  btn.textContent = signIn ? 'Sign in' : (activeProfile().name || 'Me');
+  btn.title = signIn ? 'Sign in with Google to sync' : 'Switch profile';
+  btn.classList.toggle('signin', signIn);
+}
+function openSignInArea() {
+  TAB = 'setup'; render();
+  const el = document.getElementById('cloudAuth');
+  if (!el) return;
+  const card = el.closest('.card') || el;
+  card.scrollIntoView({ behavior: 'smooth', block: 'center' });
+  card.classList.remove('flash'); void card.offsetWidth; card.classList.add('flash');
 }
 
 function initials(name) {
@@ -6826,8 +6845,7 @@ function closeProfileSheet() {
   if (sheet) sheet.classList.remove('open');
 }
 
-document.getElementById('profileBtn').onclick = openProfileSheet;
-updateProfileBtn();
+document.getElementById('profileBtn').onclick = () => pillWantsSignIn() ? openSignInArea() : openProfileSheet();
 
 /* =====================================================================
    CLOUD SYNC  (Firebase Firestore — cross-device, all profiles)
@@ -6943,7 +6961,7 @@ function applyBundle(bundle) {
 let fb = null;                 // { ref, setDoc, unsub }
 let cloudSDK = null;           // loaded firebase modules
 let fbApp = null, fbAuth = null, fbDb = null;
-let cloudUser = null;
+let cloudUser = null, cloudAuthKnown = false;
 let cloudWriterId = 'w' + Math.random().toString(36).slice(2);
 let cloudApplying = false, cloudPushT = null, cloudLastApplied = 0;
 
@@ -6962,8 +6980,10 @@ function renderCloudAuth() {
       <button class="btn secondary" id="cloudSignOut">Sign out</button>`;
     const b = document.getElementById('cloudSignOut'); if (b) b.onclick = cloudSignOut;
   } else {
-    el.innerHTML = `<button class="btn primary" id="cloudSignIn">🔓 Sign in with Google</button>`;
+    el.innerHTML = `<button class="btn primary" id="cloudSignIn">🔓 Sign in with Google</button>
+      <button class="btn secondary" id="cloudProfiles" style="margin-top:8px">Profiles on this device (${activeProfile().name || 'Me'})</button>`;
     const b = document.getElementById('cloudSignIn'); if (b) b.onclick = cloudSignIn;
+    const pb = document.getElementById('cloudProfiles'); if (pb) pb.onclick = openProfileSheet;
   }
 }
 
@@ -7088,14 +7108,15 @@ async function cloudInit() {
     });
     authMod.onAuthStateChanged(fbAuth, user => {
       clearTimeout(cloudSignInT);
-      cloudUser = user || null;
+      cloudUser = user || null; cloudAuthKnown = true;
       if (user) { const c = loadCloud(); c.enabled = true; saveCloud(c); cloudStartSync(user); }
       else { cloudStopSync(); }
-      renderCloudAuth();
+      renderCloudAuth(); updateProfileBtn();
     });
     return true;
   } catch (err) {
     cloudStatus('Error loading sync: ' + (err && err.message ? err.message : err));
+    cloudAuthKnown = true; updateProfileBtn();
     return false;
   }
 }
@@ -7134,7 +7155,7 @@ async function cloudSignOut() {
   try {
     if (fbAuth) { const { authMod } = await cloudLoadSDK(); await authMod.signOut(fbAuth); }
   } catch { /* ignore */ }
-  cloudUser = null; cloudStatus('Signed out'); renderCloudAuth();
+  cloudUser = null; cloudStatus('Signed out'); renderCloudAuth(); updateProfileBtn();
 }
 
 /* sync this account's data with users/{uid} */
@@ -9418,6 +9439,7 @@ syncAchievements();
 genRegisterTips();
 synRegisterTips();
 render();
+updateProfileBtn();
 /* auto-resume cloud sync if previously signed in */
 if (loadCloud().enabled) { setTimeout(cloudInit, 0); }
 initReminder();
