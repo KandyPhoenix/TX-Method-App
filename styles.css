@@ -1990,3 +1990,12 @@ table.prog td.w { color: var(--text); }
 .ob-q { font-weight: 800; font-size: 18px; margin: 6px 0 12px; }
 .ob-opt { margin-bottom: 8px; text-align: left; }
 .ob-pick { display: block; width: 100%; text-align: left; margin-bottom: 8px; cursor: pointer; color: inherit; font: inherit; }
+.tip-why { margin: 10px 0; padding: 10px 12px; border-left: 3px solid var(--accent-ink); background: var(--chip, rgba(129,140,248,.10)); border-radius: 8px; font-size: 13px; line-height: 1.5; }
+.wu-card summary, .gl-card summary { cursor: pointer; font-weight: 800; }
+.wu-move { display: flex !important; justify-content: space-between; gap: 10px; width: 100%; text-align: left; padding: 10px 12px !important; margin: 4px 0; border: 1px solid var(--border) !important; border-radius: 12px; background: var(--panel); color: inherit; font-size: 14px; height: auto !important; }
+.wu-move span { color: var(--muted); font-size: 12px; text-align: right; }
+.gl-row { padding: 8px 0; border-top: 1px solid var(--border); }
+.gl-row:first-of-type { border-top: 0; }
+.gl-term { all: unset; cursor: pointer; border-bottom: 1px dotted currentColor; color: var(--accent-ink); }
+.gl-pop { position: fixed; left: 12px; right: 12px; bottom: 90px; z-index: 10000; max-width: 500px; margin: 0 auto; padding: 14px 16px; border-radius: 14px; background: var(--panel); border: 2px solid var(--accent-ink); box-shadow: 0 10px 30px rgba(0,0,0,.3); font-size: 14px; line-height: 1.5; }
+.gl-pop b { display: block; margin-bottom: 4px; }

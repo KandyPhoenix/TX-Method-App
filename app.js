@@ -1455,9 +1455,9 @@ function guideNoteHTML(extraNote) {
   const ctx = guideDayCtx();
   const gc = guideCardsFor(ctx.dayNum, ctx.dayTitle);
   if (!extraNote && !gc.length) return '';
-  const bits = gc.map(c => `<p class="note-guide"><b>${c.title}.</b> ${guideRich(c.body)}</p>`).join('');
+  const bits = gc.map(c => `<p class="note-guide"><b>${c.title}.</b> ${glossLink(guideRich(c.body))}</p>`).join('');
   const more = hasGuide() ? `<button class="link-btn note-guide-more" data-goguide="1">Open the full guide</button>` : '';
-  return `<details class="card note-fold"><summary>Today&rsquo;s session</summary><div class="note-body">${extraNote || ''}${bits}${more}</div></details>`;
+  return `<details class="card note-fold"><summary>Today&rsquo;s session</summary><div class="note-body">${glossLink(extraNote || '')}${bits}${more}</div></details>`;
 }
 function guideProgramName() {
   return S.program === 'texas' ? 'Texas Method' : pLabel();
@@ -2197,6 +2197,7 @@ function renderToday() {
   html += backCardHTML();
   html += bodyCheckHTML();
   html += guideNoteHTML();
+  html += matchedWarmupHTML(w.days[day].map(lf => ({ key: lf.key, name: lf.name })));
 
   for (const lf of w.days[day]) html += liftCard(lf, logKey, log);
 
@@ -2424,6 +2425,7 @@ function renderPrepToday() {
     html += tierBarHTML();
     if (S.program === 'gen') html += genBarHTML();
     html += dayMuscleHTML(d);
+    html += matchedWarmupHTML(tierDay(d).exercises);
     html += `<div class="spacer"></div>`;
     for (const g of groupDayItems(prepDayItems(d))) html += groupCard(g, log);
 
@@ -4561,7 +4563,8 @@ function showFormTip(key, fromCircuit) {
        <div class="tip-video"><iframe src="https://www.youtube-nocookie.com/embed/${FORM_VIDEOS_ALT[key].id}?rel=0" title="${info.title} — ${FORM_VIDEOS_ALT[key].label}"
          allow="accelerometer; encrypted-media; gyroscope; picture-in-picture" allowfullscreen loading="lazy"></iframe></div></details>` : ''}
     ${fromCircuit && FORM_TIPS[fromCircuit] ? `<button class="tip-circuit-back" data-tipback="${fromCircuit}">← Back to ${FORM_TIPS[fromCircuit].title}</button>` : ''}
-    <div class="info-pop-body">${info.body}</div>
+    ${whyHTML(key, info.title)}
+    <div class="info-pop-body">${glossLink(info.body)}</div>
     ${FORM_CIRCUITS[key] ? `<div class="tip-circuit"><div class="tip-circuit-head">Moves in this circuit</div>
        <div class="tip-circuit-sub">Tap a move for its How-to and video.</div>
        ${FORM_CIRCUITS[key].filter(m => FORM_TIPS[m[1]]).map(m => `<button class="tip-circuit-move" data-tipjump="${m[1]}">${m[0]}${videoFor(m[1]) ? ' <span class="tip-circuit-vid">▶ video</span>' : ''}</button>`).join('')}</div>` : ''}
@@ -8147,7 +8150,8 @@ function libraryHTML() {
       </summary>
       ${map || mus ? `<div class="lib-mm">${map ? `<div class="lib-mm-fig">${map}</div>` : ''}${mus}</div>` : ''}
       ${typeof pelvicInsetHTML === 'function' ? pelvicInsetHTML(libEx) : ''}
-      <div class="lib-body">${e.body || 'No how-to written for this one yet.'}</div>
+      ${whyHTML(e.key, e.title)}
+      <div class="lib-body">${e.body ? glossLink(e.body) : 'No how-to written for this one yet.'}</div>
       ${vid ? `<div class="tip-video rail-video"><iframe src="https://www.youtube-nocookie.com/embed/${vid}?rel=0" title="${e.title} demo" allow="accelerometer; encrypted-media; gyroscope; picture-in-picture" allowfullscreen loading="lazy"></iframe></div>`
             : `<a class="rail-vid-search" href="https://www.youtube.com/results?search_query=${encodeURIComponent(e.title + ' exercise how to')}" target="_blank" rel="noopener">Find a demo on YouTube \u2197</a>`}
     </details>`;
@@ -8159,6 +8163,7 @@ function libraryHTML() {
       <input id="libSearch" class="lib-search" type="search" placeholder="Search ${all.length} movements \u2014 name, muscle, or cue" value="${libQuery.replace(/"/g, '&quot;')}" />
       <div class="hint">Every movement the app knows, from all programs and the generator. Tap one to read the how-to.</div>
     </div>
+    ${glossaryHTML()}
     <div class="lib-count tiny muted">${hits.length} of ${all.length} movements</div>
     <div class="card lib-list">${rows || '<div class="tiny muted center">Nothing matches that.</div>'}</div>
     ${more}
@@ -9604,6 +9609,177 @@ document.addEventListener('click', e => {
     toast('Starting ' + DAY_PROGRAMS[ds.obpick].label);
   }
 });
+
+/* =====================================================================
+   WHY THIS EXERCISE · MATCHED WARM-UP · GLOSSARY (2026-09-29)
+
+   "Why" lines are grouped by movement pattern rather than written per
+   exercise, and say what the pattern does in everyday life. The three
+   research claims carry their source; everything else is description,
+   not a promised result.
+   ===================================================================== */
+const WHY_TEXT = {
+  cardio: 'Heart and lung fitness. Cardiorespiratory fitness is one of the strongest predictors of long-term health (American Heart Association scientific statement, Ross et al., Circulation, 2016).',
+  power: 'Power — producing force quickly. It declines faster with age than plain strength and is closely tied to everyday function like getting up quickly or catching yourself when you trip (Reid & Fielding, Exercise and Sport Sciences Reviews, 2012).',
+  balance: 'Balance. Exercise programs that train balance reduce falls in older adults (Sherrington et al., Cochrane Review, 2019).',
+  pelvic: 'Pelvic floor and deep core: support for bladder control and for the trunk when you lift, cough or jump.',
+  carry: 'Loaded carries: grip, shoulders and trunk working together — the same job as carrying groceries or luggage.',
+  grip: 'Grip and hanging strength — carrying, opening jars and holding on.',
+  single: 'One leg at a time — the pattern behind stairs, stepping off a curb and getting up off the floor. It also shows up and evens out left-right differences.',
+  squat: 'Squatting — the pattern for getting up from a chair or the toilet and lifting from low down. Builds the thighs and glutes.',
+  bridge: 'Glutes and hips — they drive standing up and climbing, and steady the pelvis and knees with every step.',
+  hinge: 'Hip hinge — bending at the hips with a long, braced back, the safe way to pick things up off the floor. Builds glutes, hamstrings and the back muscles that support you.',
+  core: 'Trunk control — keeping the spine steady while the arms and legs move, which is what protects the back when you lift, carry and twist.',
+  vpush: 'Pressing overhead — reaching and lifting to a high shelf. Builds shoulders and triceps.',
+  hpush: 'Pushing away from you — getting up off the floor, pushing a door or cart. Builds chest, shoulders and triceps.',
+  pull: 'Pulling toward you — opening heavy doors, lifting bags. The upper-back muscles it builds also help you stand tall.',
+  arms: 'Arm strength for lifting and carrying — useful, but a finisher: the big pushes and pulls do most of the work.',
+  lowleg: 'Lower legs and ankles — push-off when walking and a steadier ankle on uneven ground.',
+  shoulder: 'Shoulder-blade and rotator-cuff control — the small muscles that keep the shoulder joint centred and healthy for pushing, pulling and reaching overhead.',
+  delts: 'Shoulder muscles that lift the arms out and up — reaching, and holding things away from the body.',
+  ham: 'Hamstrings — they bend the knee, help steady it, and balance out strong thighs.',
+  knee: 'Strength right around the knee — the thigh muscle that straightens and steadies the joint.',
+  getup: 'Getting down to the floor and back up — a skill worth keeping for life.',
+  agility: 'Quick feet and changes of direction — the footwork that keeps you upright when you have to react.',
+  mobility: 'Mobility — taking joints through their full range so everyday movement and your lifts feel less stiff.'
+};
+/* first match wins, so the specific rules sit above the broad ones;
+   'skip' means no line (rest, meditation, sport drills, mixed circuits) */
+const WHY_PATTERNS = [
+  ['skip', /neck|wrist push|cobra press|punching bag|shadow box|rest day|easy recovery|meditation|savasana|shavasana|corpse|body scan|circuit|amrap|tabata|emom|complex|man makers|granby|breakfall|sprawl|sit-?outs|hip heist|inversion|finger tendon|technical stand|chin tuck/i],
+  ['mobility', /stretch|leg swing|arm swing|spinal twist|spine twist|walk-around|inchworm|pose|forward fold|butterfly|happy baby|figure.?8|isolation|frog rocks|book open|lateral reach|shake|neck roll|legs up|jefferson/i],
+  ['shoulder', /band (external|internal) rotation|y-?t-?w|trap-?3|wall angel|serratus|scapular|wall slide|arm haulers|snow angel|dislocates|pass-?through|swimmers|pilates swimming/i],
+  ['delts', /lateral raise|front raise/i],
+  ['pull', /rear delt|reverse fl(y|ies|yes)|pull-?over|shrug/i],
+  ['arms', /tricep|skull|overhead extension/i],
+  ['ham', /hamstring curl|leg curl|nordic ham/i],
+  ['knee', /terminal knee|reverse nordic|knee extension/i],
+  ['getup', /get-?up/i],
+  ['agility', /carioca|shuffle|step drills|agility/i],
+  ['cardio', /jump.?rope|jumprope|skip rope|jumping jack|high knees|butt kicks|cycling/i],
+  ['single', /lunge|split.?squat|bulgarian|step.?up|step.?down|b.?stance|single.?leg (squat|deadlift|rdl)|skater squat|pistol|cossack|lateral squat/i],
+  ['bridge', /band.?walk|monster walk|lateral.*walk|side.?steps?|clam|bridge|hip thrust|abduct|adduct|glute kickback|donkey kick|fire hydrant|frog pump|hip extension|hip pulses/i],
+  ['core', /pallof|plank|dead.?bug|bird.?dog|hollow|crunch|sit.?up|situp|leg raise|twist|v.?up|mountain|roll.?up|rolling like|hundred|teaser|the saw|swan|scissors|side kicks|toe taps|heel slides|fallouts|tva|leg slides|the knack|\babs?\b|core|woodchop|anti.?rot|bear|crab|stir the pot|windmill/i],
+  ['pelvic', /kegel|pelvic|pf_|flick|360.?breath/i],
+  ['balance', /balance|single.?leg stance|stork|tandem|tightrope|eyes.?closed|wobble/i],
+  ['power', /jump|slam|throw|explosive|pogo|bound|sprint|skater|fast|speed|power|plyo|\bhops?\b|med.?ball|burpee|high pull/i],
+  ['cardio', /zone.?2|4.?x.?4|n44_|interval|treadmill|\bbike\b|\bride\b|\bwalk|jog|rower|elliptical|stair|\bspin\b|wucardio|brisk/i],
+  ['carry', /carry|farmer|suitcase|waiter|front.?rack|goblet hold/i],
+  ['grip', /dead.?hang|active hang|towel hang|grip strength|wrist curl/i],
+  ['squat', /squat|sit.?to.?stand|chair|wall sit|leg press|box sit/i],
+  ['hinge', /deadlift|rdl|hinge|good.?morning|(kettlebell|kb|light|dumbbell|db).{0,12}swing|clean|hyperext|back extension|superman/i],
+  ['vpush', /overhead|shoulder press|push press|military|arnold|pike|landmine press|ohp|z.?press/i],
+  ['hpush', /push.?up|pushup|bench|chest press|floor press|\bfly|flye|dip|\bpress\b/i],
+  ['pull', /row|pull.?up|pullup|pulldown|pull.?down|chin|face.?pull|pull.?apart|\blats?\b/i],
+  ['arms', /curl|kickback|extension/i],
+  ['lowleg', /calf|tibialis|tib raise|heel raise|toe raise|ankle|short foot|toe yoga|toe spread/i],
+  ['mobility', /mobility|circle|cars\b|rotation|cat.?cow|pigeon|thread the needle|opener|thoracic|roll.?down|flow|cloud hands|waving hands|qigong|90.?90|n9090|shrimp|yoga|child|breath|puppy/i]
+];
+function whyPattern(key, title) {
+  const s = (key || '').replace(/_/g, ' ') + ' ' + (title || '');
+  const hit = WHY_PATTERNS.find(p => p[1].test(s));
+  return hit && hit[0] !== 'skip' ? { id: hit[0], why: WHY_TEXT[hit[0]] } : null;
+}
+function whyHTML(key, title) {
+  const p = whyPattern(key, title);
+  return p ? `<div class="tip-why"><b>Why it’s here:</b> ${glossLink(p.why)}</div>` : '';
+}
+
+/* ---- matched warm-up for programs that don't include their own ---- */
+const WU_PROGRAMS = ['texas', 'prep30', 'dumbbell', 'core', 'syn-ppl', 'syn-upper-lower', 'syn-full-body',
+  'syn-knee-friendly-2x', 'syn-military-pelvic-4x', 'syn-dumbbell-49-supersets', 'syn-sims-lift-heavy-sprint-short'];
+function dayHasWarmup(exs) {
+  return exs.some(e => /^(wu|gw_|mb_|n44_wu)/.test(e.key || '') || /warm/i.test((e.scheme || '') + ' ' + (e.name || '')));
+}
+function warmupFor(exs) {
+  let lower = 0, upper = 0, power = 0;
+  exs.forEach(e => {
+    const p = whyPattern(e.key, e.name); if (!p) return;
+    if (['squat', 'single', 'hinge', 'bridge', 'lowleg'].indexOf(p.id) >= 0) lower++;
+    if (['hpush', 'vpush', 'pull', 'arms'].indexOf(p.id) >= 0) upper++;
+    if (p.id === 'power') { power++; lower++; }
+  });
+  const knees = kneeCare();
+  const m = [[knees ? 'gw_high_knees_march' : 'gw_jumping_jacks', knees ? '1 min, easy march' : '1 min, easy']];
+  if (upper && !lower) m.push(['gw_arm_circles', '10 each direction'], ['gw_band_pull_aparts', '15 (no band: squeeze shoulder blades together)'], ['gw_scapular_push_ups', '10'], ['gw_thoracic_rotations', '8 each side']);
+  else if (lower && !upper) m.push(['gw_leg_swings_front_back', '10 each leg, hold something'], ['gw_hip_circles', '10 each direction'], ['gw_glute_bridges', '12'], [knees ? 'gw_world_s_greatest_stretch' : 'squats', knees ? '3 each side' : '10, slow, comfortable depth']);
+  else m.push(['gw_world_s_greatest_stretch', '3 each side'], ['gw_arm_circles', '10 each direction'], ['gw_glute_bridges', '12'], [knees ? 'gw_leg_swings_front_back' : 'squats', knees ? '10 each leg' : '10, slow, comfortable depth']);
+  if (power) m.push(['gw_high_knees_march', '30 s — build up the speed']);
+  return m.filter(x => FORM_TIPS[x[0]]);
+}
+function matchedWarmupHTML(exs) {
+  if (WU_PROGRAMS.indexOf(S.program) < 0 || !exs || !exs.length || dayHasWarmup(exs)) return '';
+  const m = warmupFor(exs);
+  if (!m.length) return '';
+  return `<details class="card wu-card"><summary>Suggested warm-up · about 5 min</summary>
+    <div class="tiny muted" style="margin:6px 0 8px">Picked for what today trains. Tap a move for its How-to and video.</div>
+    ${m.map(([k, dose]) => `<button class="info-btn wu-move" onclick="showFormTip('${k}')"><b>${FORM_TIPS[k].title}</b><span>${dose}</span></button>`).join('')}
+    <div class="tiny muted" style="margin-top:8px">Then do 1–2 lighter ${glossLink('warm-up sets')} of your first lift before the ${glossLink('working sets')}.</div></details>`;
+}
+
+/* ---- glossary ---- */
+const GLOSSARY = [
+  ['Set', 'A group of reps done back to back, then a rest. "3 × 10" is 3 sets of 10 reps.'],
+  ['Rep', 'One complete movement — down and back up is one squat.'],
+  ['Superset', 'Two exercises done back to back, alternating, usually for different muscles, so one rests while the other works.', /supersets?/i],
+  ['Circuit', 'Several exercises done one after another with little rest, then the whole round repeats.', /circuits?/i],
+  ['AMRAP', 'As Many Reps (or Rounds) As Possible in a set time or set — with good form.', /AMRAP/],
+  ['EMOM', 'Every Minute On the Minute: start the set at the top of each minute and rest for whatever is left.', /EMOM/],
+  ['RPE', 'Rating of Perceived Exertion, 1–10: how hard a set felt. 10 is all-out; 7–8 means about 2–3 reps left in the tank.', /\bRPE\b/],
+  ['Reps in reserve', 'How many more good reps you could have done when you stopped the set. "2–3 in reserve" means stop well short of failure.', /reps? in reserve|\bRIR\b/i],
+  ['Tempo', 'How fast each part of a rep goes, in seconds — e.g. 3-1-1 is 3 s down, 1 s pause, 1 s up.', /\btempo\b/i],
+  ['Progressive overload', 'Doing a little more over time — more weight, reps or sets — so the body keeps adapting. The app raises the weight when you hit your reps.', /progressive (overload|load)/i],
+  ['Deload', 'A planned lighter week or session to recover, after which you come back stronger.', /deload/i],
+  ['Warm-up sets', 'Lighter sets of your first lift before the real ones, to rehearse the movement.', /warm-up sets?/i],
+  ['Working sets', 'The sets at the prescribed weight and reps — the ones that count.', /working sets?/i],
+  ['Hinge', 'Bending at the hips — pushing the hips back — with a long, braced back, rather than rounding over.', /\bhinge\b/i],
+  ['Brace', 'Tightening the trunk — like getting ready to be nudged — before and during a lift, to keep the spine steady.', /\bbrac(e|ing)\b/i],
+  ['Neutral spine', 'The back in its natural, long position — not arched or rounded.', /neutral spine/i],
+  ['Eccentric', 'The lowering half of a rep, when the muscle lengthens under load. Slowing it down makes an exercise harder.', /eccentric/i],
+  ['Isometric', 'Holding a position without moving, like a plank or wall sit.', /isometric/i],
+  ['Unilateral', 'One arm or one leg at a time.', /unilateral/i],
+  ['Compound exercise', 'A move that works several joints and muscles at once, like a squat, deadlift, row or press.', /compound/i],
+  ['Zone 2', 'Easy-to-moderate steady cardio: you can still talk in full sentences but would rather not sing.', /zone 2/i],
+  ['HRmax', 'Maximum heart rate. Interval targets such as "90–95% HRmax" are a share of it. Formulas only estimate it.', /HRmax/],
+  ['Intervals', 'Hard efforts alternated with easier recovery periods.', /\bintervals?\b/i],
+  ['Plyometric', 'Jumping and bounding moves that train the muscles to produce force quickly.', /plyometric/i],
+  ['DOMS', 'Delayed-onset muscle soreness: the ache 1–3 days after new or harder training. Normal; it fades as you adapt.', /\bDOMS\b/],
+  ['Range of motion', 'How far a joint moves during an exercise. Work in the range you can control.', /range of motion/i],
+  ['1RM', 'One-rep max: the most weight you can lift once. The app estimates it; you never need to test it.', /\b1RM\b/i],
+  ['Failure', 'The point where you cannot do another rep with good form. Most sets should stop short of it.', /\bfailure\b/i],
+  ['Per side / each', 'Do the full number of reps on the left, then the full number on the right.'],
+  ['Foundation / Core / Advanced', 'The app’s session sizes: Foundation is one set fewer, Core as written, Advanced and Elite add sets. They apply to one session only.']
+];
+/* wrap the first mention of each glossary term in text (never inside a tag) */
+function glossLink(html) {
+  if (!html) return html;
+  const used = {};
+  return String(html).split(/(<[^>]+>)/).map(part => {
+    if (part.charAt(0) === '<') return part;
+    GLOSSARY.forEach(([term, , re], i) => {
+      if (!re || used[i]) return;
+      const g = new RegExp(re.source, re.flags.replace('g', ''));
+      const m = g.exec(part);
+      if (!m) return;
+      used[i] = true;
+      part = part.slice(0, m.index) + '\u0000' + i + '\u0001' + m[0] + '\u0002' + part.slice(m.index + m[0].length);
+    });
+    return part.replace(/\u0000(\d+)\u0001([^\u0002]*)\u0002/g, (_, i, w) => `<button class="gl-term" data-gl="${i}">${w}</button>`);
+  }).join('');
+}
+function glossaryHTML() {
+  return `<details class="card gl-card"><summary>📖 Beginner glossary · ${GLOSSARY.length} terms</summary>
+    ${GLOSSARY.map(([t, d]) => `<div class="gl-row"><b>${t}</b><div class="tiny">${d}</div></div>`).join('')}</details>`;
+}
+document.addEventListener('click', e => {
+  const t = e.target.closest('.gl-term');
+  let pop = document.getElementById('glPop');
+  if (!t) { if (pop && !e.target.closest('#glPop')) pop.remove(); return; }
+  e.preventDefault(); e.stopPropagation();
+  const g = GLOSSARY[+t.dataset.gl]; if (!g) return;
+  if (!pop) { pop = document.createElement('div'); pop.id = 'glPop'; pop.className = 'gl-pop'; document.body.appendChild(pop); }
+  pop.innerHTML = `<b>${g[0]}</b><div>${g[1]}</div>`;
+}, true);
 
 backfillHistory();
 syncAchievements();
