@@ -1999,3 +1999,21 @@ table.prog td.w { color: var(--text); }
 .gl-term { all: unset; cursor: pointer; border-bottom: 1px dotted currentColor; color: var(--accent-ink); }
 .gl-pop { position: fixed; left: 12px; right: 12px; bottom: 90px; z-index: 10000; max-width: 500px; margin: 0 auto; padding: 14px 16px; border-radius: 14px; background: var(--panel); border: 2px solid var(--accent-ink); box-shadow: 0 10px 30px rgba(0,0,0,.3); font-size: 14px; line-height: 1.5; }
 .gl-pop b { display: block; margin-bottom: 4px; }
+.sess-note { width: 100%; box-sizing: border-box; margin: 8px 0 4px; padding: 10px; border-radius: 12px; border: 1px solid var(--border); background: var(--bg, transparent); color: inherit; font: inherit; font-size: 14px; resize: vertical; }
+.note-row { padding: 8px 0; border-top: 1px solid var(--border); font-size: 14px; }
+.note-row:first-child { border-top: 0; }
+.fuel-card summary { cursor: pointer; font-weight: 800; }
+.fuel-label { font-weight: 700; font-size: 13px; margin: 8px 0 6px; }
+.fuel-glasses { display: flex; flex-wrap: wrap; gap: 4px; margin-bottom: 6px; }
+.fuel-glass, .fuel-more { width: 36px; height: 36px; border-radius: 10px; border: 1px solid var(--border); background: var(--panel); font-size: 18px; filter: grayscale(1); opacity: .45; }
+.fuel-glass.on { filter: none; opacity: 1; border-color: var(--accent-ink); }
+.fuel-more { filter: none; opacity: 1; font-size: 13px; font-weight: 800; color: var(--accent-ink); }
+.fuel-meals { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; margin-bottom: 6px; }
+.fuel-meal { padding: 9px; border-radius: 10px; border: 1px solid var(--border); background: var(--panel); color: inherit; font-weight: 700; }
+.fuel-meal.on { background: var(--accent-ink); color: var(--panel); border-color: var(--accent-ink); }
+.recap-card { border: 2px solid var(--accent-ink); }
+.recap-kick { font-size: 11px; font-weight: 800; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); }
+.recap-title { font-weight: 800; font-size: 18px; margin: 2px 0 6px; }
+.recap-list { margin: 0 0 8px; padding-left: 18px; font-size: 14px; line-height: 1.55; }
+.recap-next { font-size: 13px; font-weight: 700; margin-bottom: 8px; }
+.fuel-tgt { all: unset; cursor: pointer; font-weight: 800; color: var(--accent-ink); border-bottom: 1px dotted currentColor; }
