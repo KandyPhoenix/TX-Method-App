@@ -2473,17 +2473,17 @@ function itemRow(item, log, showName) {
         <div class="wt">${repTarget(ex)}<small> reps${ex.side ? '/side' : ''}</small></div>
         <div class="set-end"><button class="check ${on}" data-pcheck="${id}">✓</button></div></div>`;
 
-  if (hasLoadProgression() && loadProgresses(ex.key) && many) {
+  if (((hasLoadProgression() && loadProgresses(ex.key)) || repTracked(ex.key)) && many) {
     const rid = ex.key + '_' + item.setIndex;
-    const cur = (log.reps && log.reps[rid] != null) ? log.reps[rid] : ex.reps;
+    const cur = (log.reps && log.reps[rid] != null) ? log.reps[rid] : (repTracked(ex.key) ? lastSetReps(ex.key, item.setIndex, ex.reps) : ex.reps);
     row += `<div class="log-row">
-      <label>Reps hit</label>
+      <label>${repTracked(ex.key) ? 'Reps done' : 'Reps hit'}</label>
       <div class="stepper">
         <button data-sarep="${rid}" data-d="-1">−</button>
         <div class="val" id="sarep_${rid}">${cur}</div>
         <button data-sarep="${rid}" data-d="1">+</button>
       </div>
-      <span class="tiny muted">all sets ${repTarget(ex)}+ → ${repBonus(ex.key) ? 'reps up again' : 'weight up'}</span>
+      <span class="tiny muted">${repTracked(ex.key) ? 'set it to what you did, then tick · charts in Stats' : `all sets ${repTarget(ex)}+ → ${repBonus(ex.key) ? 'reps up again' : 'weight up'}`}</span>
     </div>`;
   }
   return row;
@@ -2557,17 +2557,17 @@ function prepExerciseCard(ex, setIndex, total, log) {
         <div class="lbl">${many ? `Set ${setIndex + 1}/${total}` : 'Target'}</div>
         <div class="wt">${repTarget(ex)}<small> reps${ex.side ? '/side' : ''}</small></div>
         <div class="set-end"><button class="check ${on}" data-pcheck="${id}">✓</button></div></div>`;
-  if (hasLoadProgression() && loadProgresses(ex.key) && many) {
+  if (((hasLoadProgression() && loadProgresses(ex.key)) || repTracked(ex.key)) && many) {
     const rid = `${ex.key}_${setIndex}`;
-    const cur = (log.reps && log.reps[rid] != null) ? log.reps[rid] : ex.reps;
+    const cur = (log.reps && log.reps[rid] != null) ? log.reps[rid] : (repTracked(ex.key) ? lastSetReps(ex.key, setIndex, ex.reps) : ex.reps);
     rows += `<div class="log-row">
-      <label>Reps hit</label>
+      <label>${repTracked(ex.key) ? 'Reps done' : 'Reps hit'}</label>
       <div class="stepper">
         <button data-sarep="${rid}" data-d="-1">−</button>
         <div class="val" id="sarep_${rid}">${cur}</div>
         <button data-sarep="${rid}" data-d="1">+</button>
       </div>
-      <span class="tiny muted">all sets ${repTarget(ex)}+ → ${repBonus(ex.key) ? 'reps up again' : 'weight up'}</span>
+      <span class="tiny muted">${repTracked(ex.key) ? 'set it to what you did, then tick · charts in Stats' : `all sets ${repTarget(ex)}+ → ${repBonus(ex.key) ? 'reps up again' : 'weight up'}`}</span>
     </div>`;
   }
   return `<div class="card lift">
@@ -3449,6 +3449,16 @@ function wirePrepToday() {
     btn.onclick = () => {
       const id = btn.dataset.pcheck;
       log.checks[id] = !log.checks[id];
+      /* a rep-tracked set (pull-ups) records exactly the number the stepper
+         showed when it was ticked, so the chart never assumes a target */
+      if (log.checks[id] && repTracked(id.slice(0, id.lastIndexOf('_')))) {
+        if (!log.reps) log.reps = {};
+        const shown = document.getElementById('sarep_' + id);
+        if (log.reps[id] == null && shown) log.reps[id] = +shown.textContent;
+        /* the date is what places the set on the chart; loaded lifts get it
+           when the session completes, a bodyweight-only session might not */
+        if (!log.date) log.date = isoDate(new Date());
+      }
       btn.classList.toggle('on', log.checks[id]);
       btn.closest('.set-row').classList.toggle('done', log.checks[id]);
       save();
@@ -5176,6 +5186,54 @@ function drawLoggedStrengthCharts() {
    were stamped) cannot be placed on a timeline and are left out here; they
    still show on the per-exercise cards below.
    ===================================================================== */
+/* Bodyweight movements whose progress is REPS, not load (Kandy, 2026-09-29:
+   "pull-up graphs too"). They get the same per-set reps stepper the loaded
+   lifts have, and a reps chart in Key Lifts. */
+const REP_TRACK = new Set(['syn_pull_ups', 'latpull', 'chin', 'syn_chin_ups']);
+function repTracked(key) { return REP_TRACK.has(key); }
+/* What the stepper starts at: the reps recorded for the same set the last
+   time this exercise was done (any program, before today), else the target. */
+function lastSetReps(key, setIndex, fallback) {
+  const rid = key + '_' + setIndex, today = isoDate(new Date());
+  let best = null, bestDate = '';
+  Object.keys(DAY_PROGRAMS).forEach(pk => {
+    if (pk === 'gen' || pk === 'fpfocus') return;
+    const st = S[DAY_PROGRAMS[pk].stateKey];
+    if (!st || !st.log) return;
+    Object.keys(st.log).forEach(d => {
+      const L = st.log[d];
+      if (L && L.date && L.date < today && L.date > bestDate && L.reps && L.reps[rid] != null && L.checks && L.checks[rid]) { bestDate = L.date; best = L.reps[rid]; }
+    });
+  });
+  return best != null ? best : fallback;
+}
+/* Per dated session: the best set and the total, from ticked sets with a
+   recorded rep count. Ticking a rep-tracked set stamps the stepper's number
+   into log.reps, so nothing here ever falls back to the program's target. */
+function repSeries(key) {
+  const byDate = {};
+  Object.keys(DAY_PROGRAMS).forEach(pk => {
+    if (pk === 'gen' || pk === 'fpfocus') return;
+    const cfg = DAY_PROGRAMS[pk], st = S[cfg.stateKey];
+    if (!st || !st.log) return;
+    Object.keys(st.log).forEach(d => {
+      const L = st.log[d];
+      if (!L || !L.date || !L.checks) return;
+      const sets = [];
+      Object.keys(L.checks).forEach(cid => {
+        if (!L.checks[cid] || !(cid === key || cid.indexOf(key + '_') === 0)) return;
+        const r = L.reps && L.reps[cid];
+        if (r != null) sets.push(+r);
+      });
+      if (!sets.length) return;
+      const cur = byDate[L.date] || { best: 0, total: 0 };
+      cur.best = Math.max(cur.best, Math.max.apply(null, sets));
+      cur.total += sets.reduce((a, b) => a + b, 0);
+      byDate[L.date] = cur;
+    });
+  });
+  return Object.keys(byDate).sort().map(d => ({ date: d, best: byDate[d].best, total: byDate[d].total }));
+}
 const KEY_LIFTS = [
   { id: 'squat', name: 'Squats', variants: [
     { name: 'Back Squat',          keys: ['squat', 'sims_back_squat', 'syn_squats'] },
@@ -5211,7 +5269,12 @@ const KEY_LIFTS = [
     { name: 'DB Shoulder Press',   keys: ['dbohp', 'wu_seated_db_press', 'wu_standing_db_press'], hand: true },
     { name: 'DB Push Press',       keys: ['pw_db_push_press', 'pushpress'], hand: true },
     { name: 'Single-Arm DB Press', keys: ['sadbpress'], hand: true },
-    { name: 'Arnold Press',        keys: ['syn_arnold_press'], hand: true } ] }
+    { name: 'Arnold Press',        keys: ['syn_arnold_press'], hand: true } ] },
+  /* Reps, not load. Assisted and negative sets are logged under the same
+     exercise, so the card says so rather than pretending they are strict. */
+  { id: 'pull', name: 'Pull-Ups', reps: true, variants: [
+    { name: 'Pull-Ups', keys: ['syn_pull_ups', 'latpull'] },
+    { name: 'Chin-Ups', keys: ['syn_chin_ups', 'chin'] } ] }
 ];
 /* One point per date per variant: the heaviest set logged that day, with its
    reps so an estimated 1RM can be drawn where reps were recorded. */
@@ -5230,6 +5293,7 @@ function keyLiftSeries(v) {
 function keyLiftsHTML() {
   const u = unit();
   const groups = KEY_LIFTS.map(g => {
+    if (g.reps) return keyRepsHTML(g);
     const vs = g.variants.map((v, i) => Object.assign({}, v, { idx: i, pts: keyLiftSeries(v) })).filter(v => v.pts.length);
     if (!vs.length) {
       return `<h3 class="key-lift-family">${g.name}</h3>
@@ -5250,11 +5314,44 @@ function keyLiftsHTML() {
   }).join('');
   return `<h2 class="section">Key lifts</h2>${groups}`;
 }
+function keyRepsSeries(v) {
+  const byDate = {};
+  v.keys.forEach(k => repSeries(k).forEach(p => {
+    const c = byDate[p.date] || { best: 0, total: 0 };
+    c.best = Math.max(c.best, p.best); c.total += p.total; byDate[p.date] = c;
+  }));
+  return Object.keys(byDate).sort().map(d => ({ date: d, best: byDate[d].best, total: byDate[d].total }));
+}
+function keyRepsHTML(g) {
+  const vs = g.variants.map((v, i) => Object.assign({}, v, { idx: i, pts: keyRepsSeries(v) })).filter(v => v.pts.length);
+  if (!vs.length) {
+    return `<h3 class="key-lift-family">${g.name}</h3>
+      <div class="card str-card"><div class="tiny muted">Not logged yet. On a pull-up or chin-up set, use the Reps done counter to enter what you did, then tick the set, and it charts here.</div></div>`;
+  }
+  return `<h3 class="key-lift-family">${g.name}</h3>` + vs.map(v => {
+    const first = v.pts[0], last = v.pts[v.pts.length - 1], best = Math.max.apply(null, v.pts.map(p => p.best)), d = last.best - first.best;
+    return `<div class="card str-card">
+      <div class="str-head"><div class="str-name">${v.name}</div>
+        <div class="str-now">${last.best} <small>reps best set</small>${
+          v.pts.length > 1 ? `<span class="str-delta ${d > 0 ? 'up' : d < 0 ? 'down' : ''}">${d > 0 ? '+' : ''}${d}</span>` : ''}</div></div>
+      ${v.pts.length > 1 ? `<canvas id="key_${g.id}_${v.idx}" class="str-chart"></canvas>`
+        : `<div class="tiny muted">One session so far. The chart draws once there are two to join.</div>`}
+      <div class="tiny muted str-sub">${v.pts.length} session${v.pts.length === 1 ? '' : 's'} · personal best ${best} in one set · last session ${last.total} total reps. Band-assisted and negative sets count here too.</div></div>`;
+  }).join('');
+}
 function drawKeyLifts() {
   const pal = chartPalette();
   KEY_LIFTS.forEach(g => g.variants.forEach((v, i) => {
     const cv = document.getElementById('key_' + g.id + '_' + i);
     if (!cv) return;
+    if (g.reps) {
+      const rp = keyRepsSeries(v);
+      if (rp.length < 2) return;
+      lineChart(cv, [{ name: 'Best set (reps)', color: pal[0], data: rp.map(p => p.best) },
+                     { name: 'Total reps', color: pal[2], data: rp.map(p => p.total) }],
+                rp.map(p => p.date.slice(5)), { zero: true });
+      return;
+    }
     const pts = keyLiftSeries(v);
     if (pts.length < 2) return;
     const series = [{ name: v.name + (v.hand ? ' (/hand)' : ''), color: pal[0], data: pts.map(p => p.w) }];
