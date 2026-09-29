@@ -5202,58 +5202,55 @@ const KEY_LIFTS = [
     { name: 'Renegade Row',        keys: ['dbrenrow'], hand: true },
     { name: 'Batwing Row',         keys: ['wu_batwing_row'], hand: true } ] }
 ];
-/* One point per date per variant: the heaviest weight logged that day. */
+/* One point per date per variant: the heaviest set logged that day, with its
+   reps so an estimated 1RM can be drawn where reps were recorded. */
 function keyLiftSeries(v) {
   const byDate = {};
   v.keys.forEach(k => strengthSeries(k).forEach(p => {
     if (!p.date || !p.w) return;
-    if (byDate[p.date] == null || p.w > byDate[p.date]) byDate[p.date] = p.w;
+    const cur = byDate[p.date];
+    if (!cur || p.w > cur.w || (p.w === cur.w && (p.r || 0) > (cur.r || 0))) byDate[p.date] = { w: p.w, r: p.r || null };
   }));
-  return Object.keys(byDate).sort().map(d => ({ date: d, w: byDate[d] }));
+  return Object.keys(byDate).sort().map(d => ({ date: d, w: byDate[d].w, r: byDate[d].r }));
 }
-function keyLiftData(g) {
-  const vs = g.variants.map(v => Object.assign({}, v, { pts: keyLiftSeries(v) })).filter(v => v.pts.length);
-  const axis = Array.from(new Set(vs.flatMap(v => v.pts.map(p => p.date)))).sort();
-  return { vs, axis };
-}
+/* Separate chart per exercise (Kandy, 2026-09-29: "separate graphs for each
+   exercise so I can see my strength progression for each"). Grouped under
+   the four family headings; only variants with logged sessions get a card. */
 function keyLiftsHTML() {
   const u = unit();
-  const cards = KEY_LIFTS.map(g => {
-    const { vs, axis } = keyLiftData(g);
+  const groups = KEY_LIFTS.map(g => {
+    const vs = g.variants.map((v, i) => Object.assign({}, v, { idx: i, pts: keyLiftSeries(v) })).filter(v => v.pts.length);
     if (!vs.length) {
-      return `<div class="card str-card"><div class="str-head"><div class="str-name">${g.name}</div><div class="str-now dim">—</div></div>
-        <div class="tiny muted">Not logged yet. Log the weight on any ${g.name.toLowerCase()} variant (${g.variants.slice(0, 3).map(v => v.name).join(', ')}…) in any program and it charts here.</div></div>`;
+      return `<h3 class="key-lift-family">${g.name}</h3>
+        <div class="card str-card"><div class="tiny muted">Not logged yet. Log the weight on any ${g.name.toLowerCase()} variant (${g.variants.slice(0, 3).map(v => v.name).join(', ')}…) in any program and its chart appears here.</div></div>`;
     }
-    const lines = vs.map(v => {
-      const first = v.pts[0].w, last = v.pts[v.pts.length - 1].w, d = last - first;
-      return `<div class="key-lift-row"><span>${v.name}</span><b>${fmt(last)} <small>${u}${v.hand ? ' / hand' : ''}</small>${
-        v.pts.length > 1 ? `<span class="str-delta ${d > 0 ? 'up' : d < 0 ? 'down' : ''}">${d > 0 ? '+' : ''}${fmt(d)}</span>` : ''}</b></div>`;
+    const cards = vs.map(v => {
+      const first = v.pts[0], last = v.pts[v.pts.length - 1], d = last.w - first.w;
+      return `<div class="card str-card">
+        <div class="str-head"><div class="str-name">${v.name}</div>
+          <div class="str-now">${fmt(last.w)} <small>${u}${v.hand ? ' / hand' : ''}</small>${
+            v.pts.length > 1 ? `<span class="str-delta ${d > 0 ? 'up' : d < 0 ? 'down' : ''}">${d > 0 ? '+' : ''}${fmt(d)}</span>` : ''}</div></div>
+        ${v.pts.length > 1 ? `<canvas id="key_${g.id}_${v.idx}" class="str-chart"></canvas>`
+          : `<div class="tiny muted">One session so far. The chart draws once there are two to join.</div>`}
+        <div class="tiny muted str-sub">${v.pts.length} session${v.pts.length === 1 ? '' : 's'}${
+          last.r ? ' · last top set ' + last.r + ' reps' : ''}${v.pts.length > 1 ? ' · change since ' + first.date.slice(5) : ''}</div></div>`;
     }).join('');
-    const sessions = vs.reduce((n, v) => n + v.pts.length, 0);
-    return `<div class="card str-card"><div class="str-head"><div class="str-name">${g.name}</div></div>
-      ${lines}
-      ${axis.length > 1 ? `<canvas id="key_${g.id}" class="str-chart"></canvas>`
-        : `<div class="tiny muted">One session so far. The chart draws once there are two dates to join.</div>`}
-      <div class="tiny muted str-sub">${sessions} session${sessions === 1 ? '' : 's'} logged · change is since your first logged session of each variant</div></div>`;
+    return `<h3 class="key-lift-family">${g.name}</h3>${cards}`;
   }).join('');
-  return `<h2 class="section">Key lifts</h2>${cards}`;
+  return `<h2 class="section">Key lifts</h2>${groups}`;
 }
 function drawKeyLifts() {
-  /* the theme palette is four tones of one hue; take them lightest/darkest
-     first so neighbouring lines differ as much as possible */
-  const cp = chartPalette();
-  const pal = [cp[0], cp[2], cp[3], cp[1], cssVar('--text', '#ffffff'), '#ffd400', '#ff5e5e'];
-  KEY_LIFTS.forEach(g => {
-    const cv = document.getElementById('key_' + g.id);
+  const pal = chartPalette();
+  KEY_LIFTS.forEach(g => g.variants.forEach((v, i) => {
+    const cv = document.getElementById('key_' + g.id + '_' + i);
     if (!cv) return;
-    const { vs, axis } = keyLiftData(g);
-    if (axis.length < 2) return;
-    const series = vs.map((v, i) => {
-      const m = {}; v.pts.forEach(p => { m[p.date] = p.w; });
-      return { name: v.name + (v.hand ? ' (/hand)' : ''), color: pal[i % pal.length], data: axis.map(d => m[d] != null ? m[d] : null) };
-    });
-    lineChart(cv, series, axis.map(d => d.slice(5)), { zero: true });
-  });
+    const pts = keyLiftSeries(v);
+    if (pts.length < 2) return;
+    const series = [{ name: v.name + (v.hand ? ' (/hand)' : ''), color: pal[0], data: pts.map(p => p.w) }];
+    /* an estimated 1RM only means anything where every point has reps */
+    if (pts.every(p => p.r)) series.push({ name: 'Est. 1RM', color: pal[2], data: pts.map(p => Math.round(oneRM(p.w, p.r))) });
+    lineChart(cv, series, pts.map(p => p.date.slice(5)), { zero: true });
+  }));
 }
 
 function strengthChartsHTML() {
