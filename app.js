@@ -4693,7 +4693,11 @@ const HEALTH_MARKERS = [
   { id: 'knee', name: 'Knee pain after lower-body days', kind: 'manual', unit: () => '/10', better: 'down', int: true, max: 10,
     how: '0 = none, 10 = worst. Log it the evening after a lower-body session or the next morning, the same time each time.' },
   { id: 'rhr', name: 'Resting heart rate', kind: 'manual', unit: () => 'bpm', better: 'down', int: true,
-    how: 'On waking, before getting up, or your watch’s resting average. Same method each time.' },
+    how: 'On waking, before getting up, or your watch’s resting average. Same method each time. Samsung Health imports use the day’s lowest reading as an estimate.' },
+  { id: 'steps', name: 'Daily steps', kind: 'imp', unit: () => 'steps', better: 'up',
+    how: 'Imported from Samsung Health (Setup → Samsung Health). Last 120 days shown.' },
+  { id: 'sleep', name: 'Sleep time', kind: 'imp', unit: () => 'h', better: 'up',
+    how: 'Imported from Samsung Health: total time asleep per night, dated by the morning you woke.' },
   { id: 'cardio', name: '4×4 interval output', kind: 'manual', unit: () => 'avg', better: 'up',
     how: 'Average watts (bike) or speed (treadmill) across your four hard intervals. Same machine and unit every time, or the line means nothing.' },
   { id: 'whtr', name: 'Waist-to-height ratio', kind: 'whtr', unit: () => '', better: 'down',
@@ -4743,7 +4747,7 @@ function strengthMinutesByWeek() {
   return out;
 }
 function healthSeries(m) {
-  if (m.kind === 'manual') return healthLog(m.id).slice().sort((a, b) => a.d < b.d ? -1 : 1);
+  if (m.kind === 'manual' || m.kind === 'imp') return healthLog(m.id).slice().sort((a, b) => a.d < b.d ? -1 : 1).slice(-120);
   if (m.kind === 'fp') {
     const h = ((S.fpHist || {})[m.id] || []).slice();
     const cur = fpGet(m.id);
@@ -6162,6 +6166,8 @@ function renderSetup() {
       <div class="tiny muted" id="cloudStatus" style="margin-top:10px;min-height:18px"></div>
       <div class="hint">Sign in with Google to sync your profiles across your own devices. Each Google account is private — other people sign in with their own account on their own device and only see their own data.</div>
     </div>
+
+    ${shSectionHTML()}
 
     <h2 class="section">Data</h2>
     <div class="card">
@@ -9934,6 +9940,158 @@ document.addEventListener('click', e => {
     save(); render(); const c = document.querySelector('.fuel-card'); if (c) c.open = true; return;
   }
   if (ds.recapok) { S.settings.recapSeen = ds.recapok; save(); render(); }
+});
+
+/* =====================================================================
+   SAMSUNG HEALTH IMPORT (2026-09-29)
+
+   Samsung Health has no web API and Health Connect is native-Android
+   only, so a web app cannot read it live. What it CAN do is read the CSV
+   files Samsung Health writes with Settings > Download personal data.
+   Format per third-party parsers (not documented by Samsung): line 1 is a
+   metadata line, line 2 the header, rows may end in a trailing comma,
+   and column names may or may not carry the table prefix — so columns
+   are matched on the part after the last dot. Times are
+   "YYYY-MM-DD HH:MM:SS.sss" with a separate time_offset like UTC-0500;
+   some fields are epoch milliseconds. Imported values never overwrite
+   anything typed by hand.
+   ===================================================================== */
+function shSplit(line) {
+  const out = []; let cur = '', q = false;
+  for (let i = 0; i < line.length; i++) {
+    const c = line[i];
+    if (q) { if (c === '"') { if (line[i + 1] === '"') { cur += '"'; i++; } else q = false; } else cur += c; }
+    else if (c === '"') q = true;
+    else if (c === ',') { out.push(cur); cur = ''; }
+    else cur += c;
+  }
+  out.push(cur);
+  return out;
+}
+function shTable(text) {
+  const lines = text.replace(/^﻿/, '').split(/\r?\n/).filter(l => l.trim());
+  const hi = lines.findIndex(l => /(^|[,.])(start_time|day_time|create_time)(,|$)/.test(l));
+  if (hi < 0) return null;
+  const head = shSplit(lines[hi]).map(h => h.trim().split('.').pop());
+  const rows = lines.slice(hi + 1).map(l => { const c = shSplit(l), o = {}; head.forEach((h, i) => { if (h && !(h in o)) o[h] = c[i]; }); return o; });
+  return { head, rows };
+}
+/* local calendar date of a Samsung timestamp */
+function shDate(v, offset) {
+  if (v == null || v === '') return null;
+  let ms;
+  if (/^\d{11,}$/.test(String(v).trim())) ms = +v;
+  else {
+    const m = /^(\d{4})-(\d{2})-(\d{2})[ T](\d{2}):(\d{2})(?::(\d{2}))?/.exec(String(v).trim());
+    if (!m) return null;
+    ms = Date.UTC(+m[1], +m[2] - 1, +m[3], +m[4], +m[5], +(m[6] || 0));
+  }
+  const om = /UTC([+-])(\d{2}):?(\d{2})/.exec(offset || '');
+  if (om) {
+    const off = (om[1] === '-' ? -1 : 1) * (+om[2] * 60 + +om[3]) * 60000;
+    return new Date(ms + off).toISOString().slice(0, 10);
+  }
+  return isoDate(new Date(ms));
+}
+function shMs(v) {
+  if (/^\d{11,}$/.test(String(v || '').trim())) return +v;
+  const m = /^(\d{4})-(\d{2})-(\d{2})[ T](\d{2}):(\d{2})(?::(\d{2}))?/.exec(String(v || '').trim());
+  return m ? Date.UTC(+m[1], +m[2] - 1, +m[3], +m[4], +m[5], +(m[6] || 0)) : NaN;
+}
+function shKind(name) {
+  const n = name.toLowerCase();
+  if (/shealth\.tracker\.heart_rate\./.test(n)) return 'hr';
+  if (/pedometer_day_summary\./.test(n)) return 'steps';
+  if (/step_daily_trend\./.test(n)) return 'trend';
+  if (/shealth\.sleep\.\d/.test(n)) return 'sleep';
+  if (/com\.samsung\.health\.weight\.\d/.test(n)) return 'weight';
+  return null;
+}
+/* files: [{ name, text }] -> per-day maps */
+function shParse(files) {
+  const hr = {}, steps = {}, trend = {}, sleep = {}, weight = {}, used = [], skipped = [], seenSleep = {};
+  files.forEach(f => {
+    const k = shKind(f.name), t = k && shTable(f.text);
+    if (!k || !t) { skipped.push(f.name); return; }
+    used.push(f.name);
+    t.rows.forEach(r => {
+      if (k === 'hr') {
+        const v = +r.heart_rate, d = shDate(r.start_time, r.time_offset);
+        if (d && v >= 30 && v <= 220) hr[d] = Math.min(hr[d] || 999, v);
+      } else if (k === 'steps' || k === 'trend') {
+        const v = +(k === 'steps' ? r.step_count : r.count), d = shDate(r.day_time, 'UTC+0000');
+        const m = k === 'steps' ? steps : trend;
+        if (d && v >= 0) m[d] = Math.max(m[d] || 0, v);
+      } else if (k === 'sleep') {
+        const a = shMs(r.start_time), b = shMs(r.end_time), d = shDate(r.end_time, r.time_offset);
+        if (seenSleep[a + '|' + b]) return;          /* same night logged by phone and watch */
+        seenSleep[a + '|' + b] = 1;
+        const h = (b - a) / 36e5;
+        if (d && h > 0 && h < 16) sleep[d] = Math.round(((sleep[d] || 0) + h) * 10) / 10;
+      } else if (k === 'weight') {
+        const v = +r.weight, d = shDate(r.start_time || r.create_time, r.time_offset);
+        if (d && v > 20 && v < 400) weight[d] = v;
+      }
+    });
+  });
+  return { hr, steps: Object.keys(steps).length ? steps : trend, sleep, weight, used, skipped };
+}
+function shMerge(p) {
+  const put = (id, map) => {
+    const log = healthLog(id); let n = 0;
+    Object.keys(map).forEach(d => {
+      const e = log.find(x => x.d === d);
+      if (e && !e.src) return;                  /* typed by hand wins */
+      if (e) e.v = map[d]; else log.push({ d, v: map[d], src: 'samsung' });
+      n++;
+    });
+    return n;
+  };
+  const res = { rhr: put('rhr', p.hr), steps: put('steps', p.steps), sleep: put('sleep', p.sleep), weight: 0 };
+  const kgToUnit = kg => S.settings.units === 'kg' ? Math.round(kg * 10) / 10 : Math.round(kg * 2.20462 * 10) / 10;
+  Object.keys(p.weight).forEach(d => {
+    const log = measLog(); let e = log.find(x => x.d === d);
+    if (e && e.w != null && !e.wSrc) return;
+    if (!e) { e = { d }; log.push(e); }
+    e.w = kgToUnit(p.weight[d]); e.wSrc = 'samsung'; res.weight++;
+  });
+  measLog().sort((a, b) => a.d < b.d ? -1 : 1);
+  ['rhr', 'steps', 'sleep'].forEach(id => { if (res[id] && healthOn().indexOf(id) < 0) healthOn().push(id); });
+  S.settings.shImport = { at: isoDate(new Date()), res, files: p.used.length };
+  return res;
+}
+function shSectionHTML() {
+  const last = S.settings.shImport;
+  return `<h2 class="section">📲 Samsung Health</h2>
+    <div class="card">
+      <div class="tiny" style="line-height:1.5">Samsung Health can’t connect to a web app directly, but you can bring your data in from its export:
+        <ol class="sh-steps"><li>Samsung Health → <b>⋮</b> → <b>Settings</b> → <b>Download personal data</b> → <b>Download</b>, and sign in when asked.</li>
+        <li>Tap the button below, open <b>Downloads → Samsung Health</b> and the newest export folder, and select the CSV files. You can select them all — only these are read: heart rate, pedometer day summary (steps), sleep and weight.</li></ol></div>
+      <label class="btn primary sh-pick">Choose Samsung Health files<input type="file" id="shFiles" multiple accept=".csv,text/csv,text/plain,*/*" hidden></label>
+      <div class="tiny muted" id="shStatus" style="margin-top:8px">${last ? `Last import ${last.at}: ${last.res.steps} days of steps, ${last.res.sleep} nights of sleep, ${last.res.rhr} days of heart rate, ${last.res.weight} weights.` : 'Nothing imported yet.'}</div>
+      <div class="hint">Stays on this device (and your own cloud sync if you use it). Resting heart rate is estimated as the day’s lowest reading, which Samsung does not label as resting. Anything you typed yourself is never overwritten. Re-import any time to update.</div>
+    </div>`;
+}
+document.addEventListener('change', async e => {
+  if (e.target.id !== 'shFiles') return;
+  const list = [...(e.target.files || [])];
+  const st = document.getElementById('shStatus');
+  if (!list.length) return;
+  if (st) st.textContent = 'Reading ' + list.length + ' file' + (list.length > 1 ? 's' : '') + '…';
+  try {
+    const files = await Promise.all(list.map(f => f.text().then(text => ({ name: f.name, text }))));
+    const p = shParse(files);
+    if (!p.used.length) { if (st) st.textContent = 'None of those files were Samsung Health heart rate, steps, sleep or weight CSVs. Look for names starting com.samsung.shealth.tracker.pedometer_day_summary, …heart_rate, …sleep or com.samsung.health.weight.'; return; }
+    const r = shMerge(p);
+    save();
+    toast('Samsung Health imported');
+    render();
+    const s2 = document.getElementById('shStatus');
+    const pl = (n, one, many) => n + ' ' + (n === 1 ? one : many);
+    if (s2) s2.textContent = `Imported ${pl(r.steps, 'day', 'days')} of steps, ${pl(r.sleep, 'night', 'nights')} of sleep, ${pl(r.rhr, 'day', 'days')} of heart rate and ${pl(r.weight, 'weight', 'weights')} from ${pl(p.used.length, 'file', 'files')}. They show in Stats → Health markers${r.weight ? ' and Body measurements' : ''}.`;
+  } catch (err) {
+    if (st) st.textContent = 'Could not read those files: ' + (err && err.message ? err.message : err);
+  }
 });
 
 backfillHistory();
