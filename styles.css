@@ -1235,22 +1235,32 @@ h2.section::after { content: ''; flex: 1; height: 1px; background: var(--border)
     gap: 26px;
     justify-content: center; align-items: start;
   }
-  /* The rail used to be sticky with its own overflow, which gave it a second
-     scrollbar inside the page — and the Progress card, the one card worth
-     having in view for the whole session, scrolled away up it.
+  /* The whole rail stays put while the workout column scrolls (Kandy,
+     2026-10-05: "scroll down in the main workout section and not scroll the
+     side cards"). It is sticky under the header and capped at the viewport,
+     so when the rail itself is taller than the screen it scrolls on its own,
+     inside its box, and nothing in it is ever out of reach. Inside that box
+     the Progress card is pinned to the top as before, so the cards below it
+     scroll under it rather than taking it with them.
 
-     So the rail is a normal column in the page flow now, and only Progress
-     is pinned. It stays put while the cards below it scroll past, and there
-     is no inner scrollbar to hunt for.
-
-     This also settles the warning the old comment left from the other side:
-     an unclamped card can be taller than the viewport, and with no inner
-     scroll region nothing in the rail can end up unreachable, because the
-     page scroll reaches all of it. */
-  .session-rail { align-self: start; }
-  .session-rail .rail-card:first-child {
+     overscroll-behavior keeps a wheel that reaches the rail's end from
+     handing the scroll to the page mid-read. */
+  .session-rail {
+    align-self: start;
     position: sticky;
     top: calc(var(--sticky-h, 84px) + 10px);
+    max-height: calc(100vh - var(--sticky-h, 84px) - var(--tab-h, 70px) - 20px);
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    scrollbar-width: thin;
+    padding-right: 2px;   /* room for the thin scrollbar without clipping card borders */
+  }
+  .session-rail::-webkit-scrollbar { width: 6px; }
+  .session-rail::-webkit-scrollbar-thumb { background: var(--border); border-radius: 999px; }
+  .session-rail::-webkit-scrollbar-track { background: transparent; }
+  .session-rail .rail-card:first-child {
+    position: sticky;
+    top: 0;
     z-index: 2;   /* cards scroll UNDER it — .card is opaque, so this reads clean */
   }
 }
