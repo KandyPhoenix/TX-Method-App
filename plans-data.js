@@ -7830,13 +7830,17 @@ Object.assign(SYN_TIPS, {
 /* =====================================================================
    FULL VARIETY WEEK (Kandy, 2026-10-05)
 
-   A seven-day week where every day rolls from its own library:
+   A seven-slot week where every slot rolls from its own library:
      Day 1  Strength   Day 2  Mobility   Day 3  Cardio
      Day 4  Strength   Day 5  Mobility   Day 6  Cardio   Day 7  Mix
    Two strength, two balance/mobility/yoga/pilates/tai chi, two cardio,
-   one mix. Each day comes pre-rolled to a different session every week
-   (four weeks, nothing repeats), and the Roadmap's Roll button draws
-   another from the same library whenever today needs something else.
+   one mix. It is a MENU, not a mandate (Kandy): the week is filled so
+   that whatever combination she wants in a given week (strength + cardio,
+   strength + mobility, all seven, three days) there is a generator of the
+   right type waiting. Days she does not want are skipped with SKIP on the
+   Roadmap. Each slot comes pre-rolled to a different session every week
+   (four weeks, nothing repeats), and the Roll button draws another from
+   the same library whenever today needs something else.
 
    What a 45-year-old's week was missing from the four categories as
    asked, added here on purpose, all from programs already in the app:
@@ -8226,7 +8230,7 @@ const VW_PLAN = (function () {
     var s = SESSIONS[pool].filter(function (x) { return x.key === key; })[0];
     if (!s) throw new Error("variety-week: no session " + pool + "/" + key);
     return { title: LABEL[pool] + " · " + s.title, pool: pool, pick: key,
-      focus: "Week " + w + " of 4 · " + slot + " · " + s.focus + " · " + s.mins + " min · tap Roll on the Roadmap for a different " + LABEL[pool].toLowerCase() + " session",
+      focus: "Week " + w + " of 4 · " + slot + " · " + s.focus + " · " + s.mins + " min · Roll for a different " + LABEL[pool].toLowerCase() + " session, or SKIP if this is not a day you want",
       exercises: s.exercises };
   }
   var WEEK = [
@@ -8245,7 +8249,7 @@ const VW_PLAN = (function () {
       rolled("strength", wk.s[1], w, "strength 2 of 2"),
       rolled("mobility", wk.m[1], w, "mobility 2 of 2"),
       rolled("cardio",   wk.c[1], w, "cardio 2 of 2"),
-      rolled("mix",      wk.x,    w, "the mix day · or a rest day if you need one"));
+      rolled("mix",      wk.x,    w, "the mix slot"));
   });
 
   /* day cards: one per session title, so the Guide speaks to whatever was rolled */
@@ -8290,14 +8294,14 @@ const VW_PLAN = (function () {
   return {
     id: "variety-week",
     name: "Full Variety Week",
-    desc: "7 days a week, every day rolls: 2 strength, 2 mobility/yoga/pilates/tai chi, 2 cardio, 1 mix · ~30 min",
+    desc: "A menu week: 2 strength, 2 mobility/yoga/pilates/tai chi, 2 cardio, 1 mix slots, every one rolls · do the days you want, skip the rest · ~30 min",
     kneeSafe: false,
     sessions: SESSIONS,
     guide: {
-      blurb: "A seven-day week where every day is a generator. Day 1 and Day 4 are Strength, Day 2 and Day 5 are Mobility (balance, yoga, Pilates, tai chi, joints, pelvic floor), Day 3 and Day 6 are Cardio, Day 7 is the Mix. Each day comes pre-rolled to a different session every week, so four weeks never repeat, and the Roll button on the Roadmap draws another from the same library whenever today needs something else. Ten strength sessions, eighteen mobility sessions, eleven cardio sessions and seven mix sessions, all built from programs already in the app.",
+      blurb: "A menu, not a schedule. The week holds seven slots so that whatever you want to do in a given week, there is a generator of the right type waiting: Day 1 and Day 4 are Strength, Day 2 and Day 5 are Mobility (balance, yoga, Pilates, tai chi, joints, pelvic floor), Day 3 and Day 6 are Cardio, Day 7 is the Mix. Do the days you want and SKIP the rest; a strength-and-cardio week, a strength-and-mobility week, a three-day week and a seven-day week all work. Each slot comes pre-rolled to a different session every week, so four weeks never repeat, and the Roll button draws another from the same library whenever today needs something else. Ten strength sessions, eighteen mobility sessions, eleven cardio sessions and seven mix sessions, all built from programs already in the app.",
       rotate: [
-        { kicker: "The week", title: "Seven days, every one rolls",
-          body: "Strength · Mobility · Cardio · Strength · Mobility · Cardio · Mix. The mobility days are the recovery, so there is no rest day written in; take the Mix day off whenever you need a real one, nothing else changes." },
+        { kicker: "The week", title: "Seven slots, pick the ones you want",
+          body: "Strength · Mobility · Cardio · Strength · Mobility · Cardio · Mix. Nothing says you do all seven. Tap SKIP on the Roadmap to pass a slot you do not want this week; the next one is waiting. A week of strength and cardio only, or strength and mobility only, is the program working as intended." },
         { kicker: "Rolling", title: "Roll, or pick",
           body: "Open any day and tap Roll for a different session from that library, or pick one from the list. Sessions you have not done lately come up first. The pre-rolled month already changes every week, so rolling is for when today needs something else." },
         { kicker: "At 45", title: "What was added on purpose",
@@ -8331,8 +8335,8 @@ const VW_PLAN = (function () {
         { title: "The honest bits", tone: "warn", icon: "⚠️", items: [
           { title: "What the evidence says, and what it doesn't",
             body: "The weekly shape (strength on 2+ days, 150-300 minutes of aerobic work, balance training) follows the U.S. Physical Activity Guidelines for Americans, 2nd edition (2018). The additions for 45 (power and impact, grip, a heavy day, VO2max, pelvic floor, breathing) are the components the app's own programs are built around: Sims 4 Women, Strength & Speed 45+, Pelvic Floor Foundation, Norwegian 4×4, SuperAge and the Fingerprint markers. Their guides carry their sources; I am not citing studies for them here, and I cannot confirm this exact seven-day combination has been tested." },
-          { title: "Seven days is a lot",
-            body: "This is what was asked for. Two of the seven are light mobility days and the Mix day can be a rest day. If sleep, soreness or readiness drop, roll the lighter session or skip the Mix day; the program does not care which week you are in." },
+          { title: "The week strip counts what you do, not the slots",
+            body: "The week strip and the weekly recap count completed sessions against your Setup goal, so skipped slots do not count against you. If sleep, soreness or readiness drop, roll a lighter session or skip the slot; the program does not care which week you are in." },
           { title: "Minutes",
             body: "Session lengths are the app's estimates. The heavy Sims day, the 4×4 and the long walk are the only ones planned over 30 minutes." },
           { title: "Starting weights are estimates",
