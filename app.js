@@ -1140,12 +1140,15 @@ function synPlanDays(plan) {
   for (let i = 0; i < target; i++) {
     const d = src[i % src.length];
     const cycle = Math.floor(i / src.length) + 1;
-    out.push({
+    const day = {
       title: d.title,
       note: (d.focus ? d.focus + '. ' : '') + plan.name + ' — ' + (plan.desc || '') +
             (src.length > 1 ? ' Round ' + cycle + ' of this ' + src.length + '-day split.' : ''),
       exercises: d.exercises
-    });
+    };
+    /* a day that rolls from one of the plan's session libraries — see synRolled */
+    if (d.pool) { day.pool = d.pool; day.pick = d.pick; }
+    out.push(day);
   }
   return out;
 }
@@ -1156,6 +1159,107 @@ function synData(id) {
   if (!plan) return [];
   if (!synPlanCache[id]) synPlanCache[id] = synPlanDays(plan);
   return synPlanCache[id];
+}
+
+/* ---------------------------------------------------------------------
+   Rolling days (Kandy, 2026-10-05).
+
+   A plan may carry `sessions`: libraries of complete sessions keyed by
+   pool ('cardio', 'balance'), and a day may say `pool` + `pick` to mean
+   "this day is one session from that library, pre-rolled to `pick`". The
+   Roadmap then offers a Roll button on that day, like the Random
+   Generator's, and a picker. The chosen key is stored per day in the
+   program's own state (`rolls`), so the calendar, the day card and the
+   session all agree; `rolled` remembers when each session was last done so
+   a roll favours the ones you have not done lately.
+
+   The shipped days are the fallback: with nothing rolled, the plan is
+   exactly what the data file says.
+   --------------------------------------------------------------------- */
+const SYN_POOL_LABEL = { cardio: 'Cardio', balance: 'Balance' };
+let synRollCache = {};
+function synSessions(plan, pool) { return (plan && plan.sessions && plan.sessions[pool]) || []; }
+function synRolled(plan, days) {
+  if (!plan || !plan.sessions) return days;
+  const st = S[synCfgKey(plan.id)];
+  const rolls = (st && st.rolls) || {};
+  const sig = JSON.stringify(rolls);
+  const hit = synRollCache[plan.id];
+  if (hit && hit.sig === sig && hit.src === days) return hit.out;
+  const out = days.map((d, i) => {
+    const key = d.pool && rolls[i + 1];
+    if (!key || key === d.pick) return d;
+    const s = synSessions(plan, d.pool).find(x => x.key === key);
+    if (!s) return d;
+    const label = SYN_POOL_LABEL[d.pool] || d.pool;
+    return Object.assign({}, d, {
+      title: label + ' · ' + s.title,
+      pick: s.key,
+      note: (s.focus ? s.focus + '. ' : '') + 'Rolled from the ' + label.toLowerCase() + ' library · ' +
+            (s.mins ? s.mins + ' min · ' : '') + plan.name + ' — ' + (plan.desc || ''),
+      exercises: s.exercises
+    });
+  });
+  synRollCache[plan.id] = { sig, src: days, out };
+  return out;
+}
+function synCurrentPlan() {
+  const key = String(S.program || '');
+  if (key.indexOf('syn-') !== 0 || typeof SYN_PLANS === 'undefined') return null;
+  return SYN_PLANS.find(p => p.id === key.slice(4)) || null;
+}
+function rollBarHTML(d, dayNum) {
+  const plan = synCurrentPlan();
+  const list = synSessions(plan, d.pool);
+  if (!list.length) return '';
+  const label = SYN_POOL_LABEL[d.pool] || d.pool;
+  const st = pstate();
+  const done = (st.rolled || {});
+  const opts = list.map(s => `<option value="${s.key}" ${s.key === d.pick ? 'selected' : ''}>${s.title}${s.mins ? ' · ' + s.mins + ' min' : ''}${done[s.key] ? ' ✓' : ''}</option>`).join('');
+  return `<div class="gen-bar roll-bar">
+    <div class="gen-row">
+      <select id="rollSel" class="gen-sel" aria-label="${label} session">${opts}</select>
+      <button class="btn primary gen-roll" id="rollBtn">🎲 Roll a different ${label.toLowerCase()} session</button>
+    </div>
+    <div class="gen-muscles-hint">${list.length} ${label.toLowerCase()} sessions in the library, all from programs already in the app. Roll favours the ones you have not done lately (✓ = done before); pick one from the list to choose outright. Ticks on this day reset when it changes.</div>
+  </div>`;
+}
+function rollDay(dayNum, want) {
+  const plan = synCurrentPlan();
+  const d = pdata()[dayNum - 1];
+  if (!plan || !d || !d.pool) return;
+  const list = synSessions(plan, d.pool);
+  if (!list.length) return;
+  const st = pstate();
+  if (!st.rolls) st.rolls = {};
+  if (!st.rolled) st.rolled = {};
+  let key = want;
+  if (!key || !list.some(s => s.key === key)) {
+    /* never the current one; least recently done first, random among ties */
+    const cands = list.filter(s => s.key !== d.pick);
+    if (!cands.length) return;
+    const stamp = s => st.rolled[s.key] || 0;
+    const oldest = Math.min(...cands.map(stamp));
+    const pool = cands.filter(s => stamp(s) === oldest);
+    key = pool[Math.floor(Math.random() * pool.length)].key;
+  }
+  if (key === d.pick) return;
+  st.rolls[dayNum] = key;
+  /* the exercises changed, so the ticks and rep counts no longer mean anything */
+  const log = st.log[dayNum];
+  if (log) { log.checks = {}; log.reps = {}; }
+  save();
+  render();
+  const s = list.find(x => x.key === key);
+  toast('Rolled: ' + (s ? s.title : key) + ' 🎲');
+}
+/* finishing a rolled day is what makes the next roll prefer something else */
+function rollMarkUsed(dayNum) {
+  const d = pdata()[dayNum - 1];
+  if (!d || !d.pool || !d.pick) return;
+  const st = pstate();
+  if (!st.rolled) st.rolled = {};
+  st.rolled[d.pick] = Date.now();
 }
 
 function synRegisterTips() {
@@ -1172,7 +1276,8 @@ const SYN_ICO = {
   'dumbbell-49-supersets': '\u{1F517}', 'sims-lift-heavy-sprint-short': '\u{26A1}',
   'norwegian-4x4': '\u{1F6B4}', 'pelvic-floor-foundation-12w': '\u{1FAB7}',
   'strength-speed-45plus-12w': '\u{1F3C3}',
-  'superage-120-4x30': '\u{23F1}\u{FE0F}'
+  'superage-120-4x30': '\u{23F1}\u{FE0F}',
+  'glute-balance-month': '\u{1F351}'
 };
 const SYN_TAG = {
   'ppl': 'Strength', 'upper-lower': 'Strength', 'full-body': 'Strength',
@@ -1182,7 +1287,8 @@ const SYN_TAG = {
   'dumbbell-49-supersets': 'Strength', 'sims-lift-heavy-sprint-short': 'Strength',
   'norwegian-4x4': 'Conditioning', 'pelvic-floor-foundation-12w': 'Conditioning',
   'strength-speed-45plus-12w': 'Power',
-  'superage-120-4x30': 'Longevity'
+  'superage-120-4x30': 'Longevity',
+  'glute-balance-month': 'Strength'
 };
 const SYN_GRP = {
   'asian-pilates-3x': 'recovery', 'mobility-snacks-4x': 'recovery',
@@ -1208,7 +1314,7 @@ const DAY_PROGRAMS = {
 if (typeof SYN_PLANS !== 'undefined') {
   SYN_PLANS.forEach(p => {
     DAY_PROGRAMS['syn-' + p.id] = {
-      get data() { return synData(p.id); },
+      get data() { return synRolled(p, synData(p.id)); },
       stateKey: synCfgKey(p.id),
       label: p.name,
       sub: p.desc.length > 46 ? p.desc.slice(0, 44) + '\u2026' : p.desc,
@@ -2430,6 +2536,7 @@ function renderPrepToday() {
     html += fuelHTML();
     html += tierBarHTML();
     if (S.program === 'gen') html += genBarHTML();
+    if (d.pool) html += rollBarHTML(d, dayNum);
     html += dayMuscleHTML(d);
     html += matchedWarmupHTML(tierDay(d).exercises);
     html += `<div class="spacer"></div>`;
@@ -3137,6 +3244,25 @@ const SYN_LOAD = {
     sims_farmer_carry:                { src: 'deadlift', pct: 0.30, type: 'hand', prog: false },
     sims_suitcase_carry:              { src: 'deadlift', pct: 0.25, type: 'hand', prog: false },
   },
+  /* Glute & Balance Month. Same 8-12 rep, 2-3 in reserve rule as SuperAge
+     120, so the same ratios: barbell lifts at Epley inverted for 10 + 2.5
+     (0.68 of the estimated 1RM), dumbbell work on the app's existing hand
+     ratios. The glute bridge holds one dumbbell across the hips, so it is a
+     'db' entry like the goblet squat. Carries suggest a load but do not
+     progress (no rep target). Band walk, pulldown, push-ups, step-downs and
+     the planks carry no load and progress by reps. */
+  'syn-glute-balance-month': {
+    syn_barbell_hip_thrust:           { src: 'squat',    pct: 0.68, type: 'bar'  },
+    syn_romanian_deadlift:            { src: 'deadlift', pct: 0.50, type: 'bar'  },
+    syn_single_arm_dumbbell_row:      { src: 'bench',    pct: 0.35, type: 'hand' },
+    syn_dumbbell_bench_press:         { src: 'bench',    pct: 0.30, type: 'hand' },
+    stepup:                           { src: 'squat',    pct: 0.15, type: 'hand' },
+    wu_single_leg_rdl:                { src: 'deadlift', pct: 0.15, type: 'hand' },
+    sadbpress:                        { src: 'press',    pct: 0.30, type: 'hand' },
+    wu_db_glute_bridge:               { src: 'squat',    pct: 0.30, type: 'db'   },
+    sims_suitcase_carry:              { src: 'deadlift', pct: 0.25, type: 'hand', prog: false },
+    sims_farmer_carry:                { src: 'deadlift', pct: 0.30, type: 'hand', prog: false },
+  },
   'syn-dumbbell-49-supersets': {
     syn_dumbbell_bench_press:         { start: 10, type: 'hand' },   /* Flat DB Press */
     syn_incline_dumbbell_press:       { start: 10, type: 'hand' },   /* Incline DB Press */
@@ -3523,6 +3649,9 @@ function wirePrepToday() {
 
   const timer = document.getElementById('prepTimer');
   if (timer) timer.onclick = () => startRest();
+  const rb = document.getElementById('rollBtn'), rs = document.getElementById('rollSel');
+  if (rb) rb.onclick = () => rollDay(dayNum);
+  if (rs) rs.onchange = () => rollDay(dayNum, rs.value);
   const ss = document.getElementById('startSession');
   if (ss) ss.onclick = () => startSession();
 
@@ -3534,6 +3663,7 @@ function wirePrepToday() {
        have just done — without this, freshness never moves and every roll
        draws from the same favourites. */
     if (S.program === 'gen' && !d.rest) genMarkUsed(dayNum);
+    if (d.pool && !d.rest) rollMarkUsed(dayNum);
     save();
     if (dayNum >= ptotal()) { finishPrep(); return; }
     if (d.rest) { toast('Rested 😴'); }
@@ -4495,7 +4625,12 @@ const FORM_VIDEOS = {
    oEmbed-checked 2026-09-28. */
 const FORM_VIDEOS_ALT = {
   syn_pull_ups: { id: 'C4PnMRH57Pc', label: 'Band-assisted version (band under the knee)' },  // Assisted Pull-Up: Band Under Knee — BSU Masters Degree - Strength & Conditioning
-  mb_glute_bridge: { id: 'nCcjRAhPVIA', label: 'Longer walkthrough (about 3 min)' }  // Banded Glute Bridge Exercise For Lighting Up The Glutes — Back Muscle Solutions
+  mb_glute_bridge: { id: 'nCcjRAhPVIA', label: 'Longer walkthrough (about 3 min)' },  // Banded Glute Bridge Exercise For Lighting Up The Glutes — Back Muscle Solutions
+  /* NO BAR ON THE LAP swap (2026-10-05). oEmbed 200; title and channel from
+     oEmbed. The clip's exact band setup could not be read from here, so the
+     How-to text carries the under-the-feet setup. */
+  syn_barbell_hip_thrust: { id: 'ut-BEoIDiYQ', label: 'NO BAR ON THE LAP: resistance band hip thrust' },  // Resistance band hip thrusts for great glutes — Erin Stern
+  syn_hip_thrusts:        { id: 'ut-BEoIDiYQ', label: 'NO BAR ON THE LAP: resistance band hip thrust' }   // Resistance band hip thrusts for great glutes — Erin Stern
 };
 function videoFor(key) { return loadVideos()[key] || FORM_VIDEOS[key] || null; }
 function isPinned(key) { return !!loadVideos()[key]; }
@@ -9750,6 +9885,7 @@ const GLOSSARY = [
   ['Warm-up sets', 'Lighter sets of your first lift before the real ones, to rehearse the movement.', /warm-up sets?/i],
   ['Working sets', 'The sets at the prescribed weight and reps — the ones that count.', /working sets?/i],
   ['Hinge', 'Bending at the hips — pushing the hips back — with a long, braced back, rather than rounding over.', /\bhinge\b/i],
+  ['Band numbers (#1–#4)', 'The long 41-inch loop bands, numbered by thickness: #1 is the lightest the programs ask for (pull-aparts), #2 and #3 are for rows, pulldowns and the band hip thrust, #3 and #4 assist pull-ups. Serious Steel numbers its bands from #0 (lightest) upward; check the tag on yours. Mini bands (light, medium, heavy) are the small loops for warm-ups and band walks.', /#[1-4] (or #[1-4] )?(long )?bands?/],
   ['Brace', 'Tightening the trunk — like getting ready to be nudged — before and during a lift, to keep the spine steady.', /\bbrac(e|ing)\b/i],
   ['Neutral spine', 'The back in its natural, long position — not arched or rounded.', /neutral spine/i],
   ['Eccentric', 'The lowering half of a rep, when the muscle lengthens under load. Slowing it down makes an exercise harder.', /eccentric/i],
