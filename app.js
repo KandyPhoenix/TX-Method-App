@@ -4625,7 +4625,12 @@ const FORM_VIDEOS = {
    oEmbed-checked 2026-09-28. */
 const FORM_VIDEOS_ALT = {
   syn_pull_ups: { id: 'C4PnMRH57Pc', label: 'Band-assisted version (band under the knee)' },  // Assisted Pull-Up: Band Under Knee — BSU Masters Degree - Strength & Conditioning
-  mb_glute_bridge: { id: 'nCcjRAhPVIA', label: 'Longer walkthrough (about 3 min)' }  // Banded Glute Bridge Exercise For Lighting Up The Glutes — Back Muscle Solutions
+  mb_glute_bridge: { id: 'nCcjRAhPVIA', label: 'Longer walkthrough (about 3 min)' },  // Banded Glute Bridge Exercise For Lighting Up The Glutes — Back Muscle Solutions
+  /* NO BAR ON THE LAP swap (2026-10-05). oEmbed 200; title and channel from
+     oEmbed. The clip's exact band setup could not be read from here, so the
+     How-to text carries the under-the-feet setup. */
+  syn_barbell_hip_thrust: { id: 'ut-BEoIDiYQ', label: 'NO BAR ON THE LAP: resistance band hip thrust' },  // Resistance band hip thrusts for great glutes — Erin Stern
+  syn_hip_thrusts:        { id: 'ut-BEoIDiYQ', label: 'NO BAR ON THE LAP: resistance band hip thrust' }   // Resistance band hip thrusts for great glutes — Erin Stern
 };
 function videoFor(key) { return loadVideos()[key] || FORM_VIDEOS[key] || null; }
 function isPinned(key) { return !!loadVideos()[key]; }
