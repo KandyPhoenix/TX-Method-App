@@ -3345,6 +3345,11 @@ const SYN_LOAD = {
     pw_kb_swing:                      { start: 15, type: 'hand', prog: false },
     sims_suitcase_carry:              { src: 'deadlift', pct: 0.25, type: 'hand', prog: false },
     sims_farmer_carry:                { src: 'deadlift', pct: 0.30, type: 'hand', prog: false },
+    /* kettlebell session: the get-up and halo start light and stay there
+       until every step is clean; the clean & press follows the press */
+    tgu:                              { start: 10, type: 'hand' },
+    kb_halo:                          { start: 10, type: 'db', prog: false },
+    kb_clean_press:                   { src: 'press',    pct: 0.30, type: 'hand' },
   },
   'syn-dumbbell-49-supersets': {
     syn_dumbbell_bench_press:         { start: 10, type: 'hand' },   /* Flat DB Press */
@@ -4702,7 +4707,18 @@ const FORM_VIDEOS = {
   wuleg:                                          'difYoBtZi2s',   // How To Do Leg Swings — PureGym
   zone2:                                          'AyMUWBUt3WY',  // How To Turbo Charge Zone 2 Training — Global Cycling Network
   /* Long-Band Hip Thrust (2026-10-05) — Kandy's pick, oEmbed 200 */
-  lb_hip_thrust:                                  'GgvuSXnFGLM'   // Hip Thrusts | Large Loop Band — Allison Ethier
+  lb_hip_thrust:                                  'GgvuSXnFGLM',  // Hip Thrusts | Large Loop Band — Allison Ethier
+  /* Variety additions (2026-10-05). Every id oEmbed-checked (200, embeddable);
+     titles and channels recorded from oEmbed. The clips could not be watched
+     from here, so the How-to text carries the setup. */
+  tgu:                                            'ZutpEZ2B7Uc',  // How to do a Kettlebell Turkish Get Up - Nuffield Health — Nuffield Health
+  kb_halo:                                        'YGZWa5be1hk',  // How To: KETTLEBELL HALO — Zack Henderson
+  kb_clean_press:                                 'iCJs8g4ySLY',  // Single Arm Kettlebell Clean and Press - Kettlebell Training | HFE — HFE
+  nordic_curl_band:                               'AEC1-fN-754',  // Band Assisted Nordic Hamstring Curl — Steph Gaudreau - Fuel Your Strength
+  copenhagen_knee:                                'z4B2Z8ZwrIs',  // Adductor Plank from the Knee (Beginner Copenhagen Plank Alternative) — Peak Form Health Center
+  spanish_squat:                                  'ifBljLvfb3U',  // Spanish Squat Isometric Hold — Garrett McLaughlin
+  band_face_pull:                                 'PYj77in44ms',  // Band Face Pulls (Exercise Library) — Horton Barbell
+  ruck_walk:                                      'mq4rtoNw5ds'   // How To Start Rucking (Intro To Weighted Walking) — Dr. Marc Morris
 };
 /* a pinned video always beats the bundled one */
 /* A second demo for movements whose home version differs from the one the
