@@ -7150,7 +7150,7 @@ const SA120_PLAN = (function () {
     syn_plank_hold: "40s · ribs down, squeeze glutes, breathe",
     sideplank: "25s per side · hips high, one straight line",
     pushups: "8-12 reps · elevate the hands on a bench if 8 is out of reach",
-    syn_barbell_hip_thrust: R + " · NO BAR ON THE LAP: long-band hip thrust (#2 or #3 band pinned under both feet, loop over the hips) or a dumbbell hip thrust, same reps",
+    syn_barbell_hip_thrust: R + " · NO BAR ON THE LAP: tap ⇄ for the long-band hip thrust (#2 or #3 band pinned under both feet, loop over the hips), or do a dumbbell hip thrust, same reps",
     syn_goblet_squats: R + " · KNEE HURTING: squat to a knee-height box",
     sims_back_squat: R + " · KNEE HURTING: box squat to a knee-height box, lighter",
     splitsquatecc: R + " per side · 3s down · KNEE HURTING: shorter range, back knee stops higher",
@@ -7429,7 +7429,7 @@ const GB_PLAN = (function () {
     /* The bar-onto-the-lap problem (Kandy, 2026-10-05): the swap line names
        the two stand-ins and the How-to carries the full setup drill. */
     thrust:    { key: "syn_barbell_hip_thrust", name: "Barbell Hip Thrust", needs: "gym",
-      scheme: R + " · Glutes · upper back on the bench, chin tucked, squeeze 1s at the top · NO BAR ON THE LAP: long-band hip thrust (#2 or #3 band pinned under both feet, loop over the hips) or a dumbbell hip thrust, same reps · NO BARBELL: dumbbell on the hips, or a mini band above the knees and slow reps" },
+      scheme: R + " · Glutes · upper back on the bench, chin tucked, squeeze 1s at the top · NO BAR ON THE LAP: tap ⇄ for the long-band hip thrust (#2 or #3 band pinned under both feet, loop over the hips), or do a dumbbell hip thrust, same reps · NO BARBELL: dumbbell on the hips, or a mini band above the knees and slow reps" },
     saRow:     { key: "syn_single_arm_dumbbell_row", name: "Single-Arm Dumbbell Row", needs: "dumbbells", side: true,
       scheme: R + " per side · Back · hand on the bench, pull to the hip, no twisting" },
     rdl:       { key: "syn_romanian_deadlift", name: "Romanian Deadlift", needs: "gym",
@@ -7812,6 +7812,17 @@ SYN_PLANS.push(GB_PLAN);
 (function () {
   var extra = " GETTING THE BAR ONTO YOUR LAP: Use full-size 45 lb plates (or bumper plates) on the bar: they lift it high enough to roll over your shins, while 25s and 10s sit too low and jam against your legs. If you only have small plates, rest the bar on two 10 lb plates or low blocks laid flat on the floor so it sits higher. Put the bar pad or a folded mat on the bar first. Sit on the floor with your legs straight and your upper back against the bench, roll the bar up over your shins and knees until it sits in the crease of your hips, then bend your knees and plant your feet. Shuffle so your shoulder blades sit on the bench edge. NO BAR ON THE LAP: Long-band hip thrust. Sit the same way, pin a #2 or #3 long band flat under both feet, bring the loop up over your hips, and thrust against it. Go up a band when 12 reps feel easy. Or a dumbbell hip thrust: sit on the floor, lift a dumbbell onto your lap with both hands, hold it across your hips, and thrust. Same sets and reps either way; log the dumbbell version's reps as usual.";
   ["syn_barbell_hip_thrust", "syn_hip_thrusts"].forEach(function (k) {
-    if (SYN_TIPS[k] && SYN_TIPS[k].body.indexOf("GETTING THE BAR ONTO YOUR LAP") < 0) SYN_TIPS[k].body += extra;
+    if (SYN_TIPS[k] && SYN_TIPS[k].body.indexOf("GETTING THE BAR ONTO YOUR LAP") < 0) SYN_TIPS[k].body += extra + " SWAP IT IN: tap the ⇄ Use Long-Band Hip Thrust button on the exercise card and every barbell hip thrust in your programs becomes the band version until you tap it back.";
   });
 })();
+
+/* Long-Band Hip Thrust (Kandy, 2026-10-05): the stand-in for days the bar
+   will not go onto the lap. Its own key, so it has its own How-to, video,
+   muscle map and library entry; EX_ALTS in app.js offers it as a one-tap
+   swap wherever a barbell hip thrust is programmed. */
+Object.assign(SYN_TIPS, {
+  "lb_hip_thrust": {
+    "title": "Long-Band Hip Thrust",
+    "body": "PLAIN ENGLISH: The hip thrust with a long loop band instead of a barbell, for days the bar will not roll onto your lap, or for home. WHICH BAND: #2 or #3 from the long-band set to start. Go up a band when 12 reps feel easy with a hard squeeze at the top; a thicker band, or two bands, is the progression. HOW: Sit on the floor with your upper back against the bench, feet flat and hip-width. Pin the band flat under both feet (the whole sole on it, so it cannot slip) and bring the loop up over the crease of your hips. Shuffle so your shoulder blades sit on the bench edge, chin tucked. Drive through the heels and push the hips up against the band until knees, hips and shoulders form a line. Squeeze the glutes hard for 1-2 seconds at the top, where the band pulls hardest, then lower under control. Cues: Chin tucked, look at the wall, not the ceiling; Ribs down, do not arch the low back to get higher; Knees stay over the feet, not caving in; The band is tightest at the top, so the squeeze up there is the rep. Same sets and reps as the barbell version; progress by reps and band, not weight."
+  }
+});

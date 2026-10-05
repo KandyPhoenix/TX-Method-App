@@ -76,7 +76,10 @@ const DEFAULTS = {
      than being baked into one. Empty by default: with no cautions set the
      substitution pass hands back the very same array, so nothing changes for
      anyone who has not asked for it. See KNEE_SWAP and footprintDay(). */
-  footprint: { jointCautions: [], priorityMuscles: [] }   /* 'knees' · 'glutes' */
+  footprint: { jointCautions: [], priorityMuscles: [] },  /* 'knees' · 'glutes' */
+  /* Manual stand-ins that follow you between programs: { originalKey: altKey }.
+     Offered where EX_ALTS lists one; empty means every program is as written. */
+  altSwaps: {}
 };
 
 /* =====================================================================
@@ -1502,19 +1505,69 @@ function footprintDay(d) {
   return Object.assign({}, d, { exercises, note });
 }
 
+/* ---- manual stand-ins (Kandy, 2026-10-05) ----
+   A movement can name an alternative you choose by hand, as opposed to the
+   knee swaps the body check-in triggers. The first is the long-band hip
+   thrust, for days the bar will not roll onto the lap: one tap on the card
+   swaps every barbell hip thrust in every program for the band version
+   (same sets, reps and superset slot), one tap swaps it back. Sets/reps/ss
+   carry over untouched; the band has no load entry, so it progresses by
+   reps. Check-row ids follow the key, so ticks on a swapped movement start
+   fresh — the honest answer, since it is a different exercise. */
+const EX_ALTS = {
+  syn_barbell_hip_thrust: 'lb_hip_thrust',
+  syn_hip_thrusts:        'lb_hip_thrust'
+};
+const ALT_EX = {
+  lb_hip_thrust: { name: 'Long-Band Hip Thrust', needs: 'bodyweight', part: 'Glutes',
+                   how: '#2 or #3 band pinned under both feet, loop over the hips · squeeze hard at the top' }
+};
+function altSwaps() { return (S.settings && S.settings.altSwaps) || {}; }
+function altSig() { const a = altSwaps(); return Object.keys(a).sort().map(k => k + '>' + a[k]).join(','); }
+function altDay(d) {
+  const a = altSwaps();
+  if (!d || !d.exercises || !d.exercises.some(e => a[e.key] && ALT_EX[a[e.key]])) return d;
+  const exercises = d.exercises.map(ex => {
+    const to = a[ex.key], alt = to && ALT_EX[to];
+    if (!alt) return ex;
+    if (ex.key === to || d.exercises.some(o => o !== ex && o.key === to)) return ex;  /* never two of one key in a day */
+    const dose = ex.sec != null ? ex.sec + 's' : (ex.reps != null ? ex.reps + (ex.side ? ' each' : '') : '');
+    return Object.assign({}, ex, {
+      key: to, name: alt.name, needs: alt.needs,
+      scheme: [dose, alt.part, alt.how, 'swapped from ' + ex.name].filter(Boolean).join(' · '),
+      altFrom: ex.key, altFromName: ex.name
+    });
+  });
+  return Object.assign({}, d, { exercises });
+}
+function toggleAlt(origKey, toKey) {
+  if (!S.settings.altSwaps) S.settings.altSwaps = {};
+  if (toKey && ALT_EX[toKey]) S.settings.altSwaps[origKey] = toKey; else delete S.settings.altSwaps[origKey];
+  save(); render();
+  toast(toKey ? ALT_EX[toKey].name + ' swapped in everywhere ⇄' : 'Back to the original ⇄');
+}
+/* the ⇄ button for an exercise card: offered on the original and on its stand-in */
+function altBtnHTML(ex) {
+  if (ex.altFrom) return `<button class="link-btn alt-swap" data-altswap="${ex.altFrom}" data-to="">⇄ Back to ${ex.altFromName || 'the original'}</button>`;
+  const to = EX_ALTS[ex.key];
+  if (!to || !ALT_EX[to]) return '';
+  return `<button class="link-btn alt-swap" data-altswap="${ex.key}" data-to="${to}">⇄ Use ${ALT_EX[to].name}</button>`;
+}
+
 /* Keyed on the source array so the static plans map once. fpFocusPlan caches
    its own array; genPlan rebuilds one per call and simply re-maps, which is
    the cost it already pays. */
 const fpSwapCache = new WeakMap();
 function footprintPlan(days) {
-  const c = fpCautions(), p = fpPriority().join(',');
-  if ((!c && !p) || !Array.isArray(days)) return days;
-  const key = c + '|' + p;
+  const c = fpCautions(), p = fpPriority().join(','), a = altSig();
+  if ((!c && !p && !a) || !Array.isArray(days)) return days;
+  const key = c + '|' + p + '|' + a;
   const hit = fpSwapCache.get(days);
   if (hit && hit.k === key) return hit.v;
-  /* swap first, then reorder — a stand-in should be judged on where the
-     movement it replaced belongs, not where the original one did */
-  const out = days.map(d => priorityDay(footprintDay(d)));
+  /* manual stand-ins first, then the knee swaps, then reorder — a stand-in
+     should be judged on where the movement it replaced belongs, not where
+     the original one did */
+  const out = days.map(d => priorityDay(footprintDay(altDay(d))));
   fpSwapCache.set(days, { k: key, v: out });
   return out;
 }
@@ -2649,9 +2702,11 @@ function groupCard(g, log) {
     const seenSwap = new Set();
     const swaps = g.items.map(i => i.ex).filter(e => !seenSwap.has(e.key) && seenSwap.add(e.key))
       .flatMap(e => swapNotes(e.scheme).map(p => `<div class="scheme ss-swap"><b>${e.name}</b> — ${p}</div>`)).join('');
+    const seenAlt = new Set();
+    const alts = g.items.map(i => i.ex).filter(e => !seenAlt.has(e.key) && seenAlt.add(e.key)).map(altBtnHTML).join('');
     return `<div class="card lift">
       <div class="lift-head"><div><div class="name">${names.join(' + ')}</div>
-      <div class="scheme">Superset · ${rounds} rounds · alternate with no rest between partners</div>${swaps}</div>
+      <div class="scheme">Superset · ${rounds} rounds · alternate with no rest between partners</div>${swaps}${alts}</div>
       <div class="lift-side"><span class="mmap-mini">${muscleMapMerged([...new Set(g.items.map(i => i.ex))], 42)}</span><span class="badge vol">Superset</span></div></div>${g.items.map(i => itemRow(i, log, true)).join('')}</div>`;
   }
   const ex = g.ex, n = g.items.length;
@@ -2660,7 +2715,7 @@ function groupCard(g, log) {
   const hint = saHint(ex.key);
   return `<div class="card lift">
     <div class="lift-head"><div><div class="name">${ex.name} ${formBtn(ex.key)}</div>
-    <div class="scheme">${n > 1 ? n + ' sets · ' : ''}${base}${hint ? ' · ' + hint.txt : ''}</div></div>
+    <div class="scheme">${n > 1 ? n + ' sets · ' : ''}${base}${hint ? ' · ' + hint.txt : ''}</div>${altBtnHTML(ex)}</div>
     <div class="lift-side"><span class="mmap-mini">${muscleMapForEx(ex, 42)}</span><span class="badge vol">${timed ? (ex.sec >= 90 ? 'Timed' : 'Hold') : 'Sets'}</span></div></div>${g.items.map(i => itemRow(i, log, false)).join('')}</div>`;
 }
 
@@ -3649,6 +3704,7 @@ function wirePrepToday() {
 
   const timer = document.getElementById('prepTimer');
   if (timer) timer.onclick = () => startRest();
+  view.querySelectorAll('[data-altswap]').forEach(b => b.onclick = () => toggleAlt(b.dataset.altswap, b.dataset.to || null));
   const rb = document.getElementById('rollBtn'), rs = document.getElementById('rollSel');
   if (rb) rb.onclick = () => rollDay(dayNum);
   if (rs) rs.onchange = () => rollDay(dayNum, rs.value);
@@ -4616,7 +4672,9 @@ const FORM_VIDEOS = {
   wucardio:                                       'u3zgHI8QnqE',   // How To Jump Rope | The Right Way | Well+Good — Well+Good
   wuhip:                                          'D_kQzMB_HkY',   // How to do standing hip circles (Home training exercise) — Sporting Health Club
   wuleg:                                          'difYoBtZi2s',   // How To Do Leg Swings — PureGym
-  zone2:                                          'AyMUWBUt3WY'   // How To Turbo Charge Zone 2 Training — Global Cycling Network
+  zone2:                                          'AyMUWBUt3WY',  // How To Turbo Charge Zone 2 Training — Global Cycling Network
+  /* Long-Band Hip Thrust (2026-10-05) — Kandy's pick, oEmbed 200 */
+  lb_hip_thrust:                                  'GgvuSXnFGLM'   // Hip Thrusts | Large Loop Band — Allison Ethier
 };
 /* a pinned video always beats the bundled one */
 /* A second demo for movements whose home version differs from the one the
@@ -4629,8 +4687,8 @@ const FORM_VIDEOS_ALT = {
   /* NO BAR ON THE LAP swap (2026-10-05). oEmbed 200; title and channel from
      oEmbed. The clip's exact band setup could not be read from here, so the
      How-to text carries the under-the-feet setup. */
-  syn_barbell_hip_thrust: { id: 'ut-BEoIDiYQ', label: 'NO BAR ON THE LAP: resistance band hip thrust' },  // Resistance band hip thrusts for great glutes — Erin Stern
-  syn_hip_thrusts:        { id: 'ut-BEoIDiYQ', label: 'NO BAR ON THE LAP: resistance band hip thrust' }   // Resistance band hip thrusts for great glutes — Erin Stern
+  syn_barbell_hip_thrust: { id: 'GgvuSXnFGLM', label: 'NO BAR ON THE LAP: long-band hip thrust (tap ⇄ on the card to swap it in)' },  // Hip Thrusts | Large Loop Band — Allison Ethier
+  syn_hip_thrusts:        { id: 'GgvuSXnFGLM', label: 'NO BAR ON THE LAP: long-band hip thrust (tap ⇄ on the card to swap it in)' }   // Hip Thrusts | Large Loop Band — Allison Ethier
 };
 function videoFor(key) { return loadVideos()[key] || FORM_VIDEOS[key] || null; }
 function isPinned(key) { return !!loadVideos()[key]; }

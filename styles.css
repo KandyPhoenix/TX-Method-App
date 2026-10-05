@@ -2020,3 +2020,6 @@ table.prog td.w { color: var(--text); }
 .sh-steps { margin: 8px 0 12px; padding-left: 18px; }
 .sh-steps li { margin-bottom: 6px; }
 .sh-pick { display: block; text-align: center; cursor: pointer; }
+
+/* one-tap stand-in on an exercise card (EX_ALTS) */
+.alt-swap { display: inline-block; margin-top: 6px; font-size: 13px; }
