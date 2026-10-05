@@ -1172,7 +1172,8 @@ const SYN_ICO = {
   'dumbbell-49-supersets': '\u{1F517}', 'sims-lift-heavy-sprint-short': '\u{26A1}',
   'norwegian-4x4': '\u{1F6B4}', 'pelvic-floor-foundation-12w': '\u{1FAB7}',
   'strength-speed-45plus-12w': '\u{1F3C3}',
-  'superage-120-4x30': '\u{23F1}\u{FE0F}'
+  'superage-120-4x30': '\u{23F1}\u{FE0F}',
+  'glute-balance-month': '\u{1F351}'
 };
 const SYN_TAG = {
   'ppl': 'Strength', 'upper-lower': 'Strength', 'full-body': 'Strength',
@@ -1182,7 +1183,8 @@ const SYN_TAG = {
   'dumbbell-49-supersets': 'Strength', 'sims-lift-heavy-sprint-short': 'Strength',
   'norwegian-4x4': 'Conditioning', 'pelvic-floor-foundation-12w': 'Conditioning',
   'strength-speed-45plus-12w': 'Power',
-  'superage-120-4x30': 'Longevity'
+  'superage-120-4x30': 'Longevity',
+  'glute-balance-month': 'Strength'
 };
 const SYN_GRP = {
   'asian-pilates-3x': 'recovery', 'mobility-snacks-4x': 'recovery',
@@ -3136,6 +3138,25 @@ const SYN_LOAD = {
     wu_single_leg_rdl:                { src: 'deadlift', pct: 0.15, type: 'hand' },
     sims_farmer_carry:                { src: 'deadlift', pct: 0.30, type: 'hand', prog: false },
     sims_suitcase_carry:              { src: 'deadlift', pct: 0.25, type: 'hand', prog: false },
+  },
+  /* Glute & Balance Month. Same 8-12 rep, 2-3 in reserve rule as SuperAge
+     120, so the same ratios: barbell lifts at Epley inverted for 10 + 2.5
+     (0.68 of the estimated 1RM), dumbbell work on the app's existing hand
+     ratios. The glute bridge holds one dumbbell across the hips, so it is a
+     'db' entry like the goblet squat. Carries suggest a load but do not
+     progress (no rep target). Band walk, pulldown, push-ups, step-downs and
+     the planks carry no load and progress by reps. */
+  'syn-glute-balance-month': {
+    syn_barbell_hip_thrust:           { src: 'squat',    pct: 0.68, type: 'bar'  },
+    syn_romanian_deadlift:            { src: 'deadlift', pct: 0.50, type: 'bar'  },
+    syn_single_arm_dumbbell_row:      { src: 'bench',    pct: 0.35, type: 'hand' },
+    syn_dumbbell_bench_press:         { src: 'bench',    pct: 0.30, type: 'hand' },
+    stepup:                           { src: 'squat',    pct: 0.15, type: 'hand' },
+    wu_single_leg_rdl:                { src: 'deadlift', pct: 0.15, type: 'hand' },
+    sadbpress:                        { src: 'press',    pct: 0.30, type: 'hand' },
+    wu_db_glute_bridge:               { src: 'squat',    pct: 0.30, type: 'db'   },
+    sims_suitcase_carry:              { src: 'deadlift', pct: 0.25, type: 'hand', prog: false },
+    sims_farmer_carry:                { src: 'deadlift', pct: 0.30, type: 'hand', prog: false },
   },
   'syn-dumbbell-49-supersets': {
     syn_dumbbell_bench_press:         { start: 10, type: 'hand' },   /* Flat DB Press */

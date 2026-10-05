@@ -7336,3 +7336,326 @@ Object.assign(SYN_TIPS, {
     "body": "PLAIN ENGLISH: Picking dumbbells up off the floor with a flat back, like a barbell deadlift. HOW: Stand with feet hip-width, a dumbbell on the floor just outside each foot. Push your hips back and bend your knees to grip them, with your back flat and chest up. Push the floor away and stand tall, squeezing your glutes at the top. Lower by pushing your hips back again, keeping the dumbbells close to your legs. Cues: Flat back, never rounded; Weights stay close to your body; Stand up by driving through your whole foot. Unlike the Romanian deadlift, the knees bend more and the weights go all the way to the floor."
   }
 });
+
+/* =====================================================================
+   GLUTE & BALANCE MONTH (Kandy, 2026-10-05)
+
+   A 4-week program assembled from the routines already in this app, so
+   every movement keeps its How-to, video, muscle map and (where loaded)
+   its working weight. Nothing here is a new exercise.
+
+   The ask: two strength sessions a week with a strong glute focus, plus
+   balance and cardio variety through the month, 3 or 4 sessions a week,
+   about 30 minutes each and never over an hour.
+
+   The week (Day 1 = the day you start; a Monday start lands the strength
+   days on Monday and Thursday):
+     Day 1  Strength A · Hinge & Thrust      (required)   ~30-35 min
+     Day 2  Cardio, rotates weekly           (required)   ~30 min (4×4 week ~40)
+     Day 3  Rest
+     Day 4  Strength B · Single-Leg & Step   (required)   ~30-35 min
+     Day 5  Balance & mobility, rotates      (optional 4th) ~25 min
+     Day 6  Rest
+     Day 7  Rest
+
+   Where each piece comes from:
+     strength structure    SuperAge 120 · 4×30 (warm-up, explosive opener,
+                           supersets, 8-12 reps with 2-3 in reserve, 3 rounds
+                           in weeks 1-2 and 4 in weeks 3-4)
+     glute movements       Knee-Friendly 2x (hip thrust, RDL, glute step-down,
+                           lateral band walk), SuperAge 120 (step-up,
+                           single-leg RDL), Dumbbell 49 (DB glute bridge),
+                           the mini-band warm-up used on SuperAge lower days
+     cardio                Pelvic Floor Foundation (Zone 2 walk), Norwegian
+                           4×4 (your-pick session), Fingerprint Focus (incline
+                           treadmill walk), Sims 4 Women (30 s sprints) and
+                           the SuperAge ride warm-up / cool-down
+     balance               Fingerprint Focus balance pool, Asian Pilates day 2,
+                           MovesMethod posterior-chain day, Joint Mobility
+                           Mastery ankles + knees, Strength & Speed 45+
+                           balance and step drills
+   ===================================================================== */
+const GB_PLAN = (function () {
+  var R = "8-12 reps · stop with 2-3 in reserve";
+
+  /* same lower-day warm-up SuperAge 120 uses: 2 min to get warm, leg
+     swings, then the two mini-band glute wake-ups */
+  function warm() {
+    return [
+      { key: "jumprope", name: "Jump Rope or Brisk March", sets: 1, sec: 120, needs: "bodyweight",
+        scheme: "warm-up · 2 min easy · just get warm · KNEE HURTING: brisk march in place" },
+      { key: "wuleg", name: "Leg Swings", sets: 1, reps: 10, needs: "bodyweight", side: true,
+        scheme: "warm-up · 10 per side, front-to-back, hold something" },
+      { key: "mb_glute_bridge", name: "Mini-Band Glute Bridge", sets: 1, reps: 12, needs: "bodyweight",
+        scheme: "warm-up · 12 · LIGHT or MEDIUM mini band just above the knees · press the knees out, 2s squeeze at the top" },
+      { key: "mb_clamshell", name: "Mini-Band Clamshell", sets: 1, reps: 10, needs: "bodyweight", side: true,
+        scheme: "warm-up · 10 per side · LIGHT mini band above the knees · feet stay together, hips stacked" }
+    ];
+  }
+
+  /* one superset member. n = superset number, pos 1 = first move, 2 = partner */
+  function ss(n, ex, sets, pos) {
+    var L = String.fromCharCode(64 + n);
+    var o = { key: ex.key, name: ex.name, sets: sets, needs: ex.needs, ss: n };
+    if (ex.sec) o.sec = ex.sec; else o.reps = ex.reps || 10;
+    if (ex.side) o.side = true;
+    o.scheme = "Superset " + n + " · " + L + (pos === 1 ? "1" : "2") + " · " + ex.scheme +
+      (pos === 2 ? " · no rest, then back to " + L + "1" : "");
+    return o;
+  }
+  function pair(n, a, b, sets) { return [ss(n, a, sets, 1), ss(n, b, sets, 2)]; }
+
+  /* the movements, all keys that already exist in the app */
+  var E = {
+    squatJump: { key: "sims_squat_jump", name: "Squat Jumps", needs: "bodyweight",
+      scheme: "2 × 6 · explosive opener · land soft and stick it · KNEE HURTING: fast sit-to-stand from a bench" },
+    skater:    { key: "skaters", name: "Skater Hops", needs: "bodyweight", side: true,
+      scheme: "2 × 6 per side · explosive opener · side to side, land soft · KNEE HURTING: fast lateral step-outs, no hop" },
+
+    thrust:    { key: "syn_barbell_hip_thrust", name: "Barbell Hip Thrust", needs: "gym",
+      scheme: R + " · Glutes · upper back on the bench, chin tucked, squeeze 1s at the top · NO BARBELL: dumbbell on the hips, or a mini band above the knees and slow reps" },
+    saRow:     { key: "syn_single_arm_dumbbell_row", name: "Single-Arm Dumbbell Row", needs: "dumbbells", side: true,
+      scheme: R + " per side · Back · hand on the bench, pull to the hip, no twisting" },
+    rdl:       { key: "syn_romanian_deadlift", name: "Romanian Deadlift", needs: "gym",
+      scheme: R + " · Hamstrings/Glutes · hinge, flat back, bar brushes the thighs · NO BARBELL: dumbbell RDL, same hinge" },
+    dbBench:   { key: "syn_dumbbell_bench_press", name: "Dumbbell Chest Press", needs: "dumbbells",
+      scheme: R + " · Chest · floor press if the bench is busy" },
+    stepDown:  { key: "syn_controlled_glute_step_down", name: "Controlled Glute Step Down", needs: "bodyweight", side: true, reps: 8,
+      scheme: "8-10 per side · Glutes/Quads · stand on a low step, lower the free heel to the floor in 3s, knee tracks over the toes" },
+    bandWalk:  { key: "syn_lateral_band_walk", name: "Lateral Band Walk", needs: "dumbbells", side: true, reps: 15,
+      scheme: "15 steps each way · Glute Medius · mini band above the knees, stay low, toes forward" },
+    plank:     { key: "syn_plank_hold", name: "Plank", needs: "bodyweight", sec: 40,
+      scheme: "40s · ribs down, squeeze glutes, breathe" },
+    suitcase:  { key: "sims_suitcase_carry", name: "Suitcase Carry", needs: "dumbbells", side: true, reps: 30,
+      scheme: "30 steps per side · heavy in one hand, stay level · anti-lean core and hip work" },
+
+    stepup:    { key: "stepup", name: "Step-Up (glute-biased)", needs: "dumbbells", side: true,
+      scheme: R + " per side · Glutes · box about knee height, lean slightly forward, drive through the whole foot, no push off the back leg · KNEE HURTING: 6-8 inch step" },
+    pulldown:  { key: "sa_lat_pulldown", name: "Lat Pulldown", needs: "bodyweight",
+      scheme: "8-12 reps · Back · NO MACHINE: kneeling band pulldown from the pull-up bar, or 6-8 pull-up negatives (5s down)" },
+    slRdl:     { key: "wu_single_leg_rdl", name: "Single-Leg Romanian Deadlift", needs: "dumbbells", side: true, reps: 8,
+      scheme: "8-10 per side · Hamstrings/Glutes/Balance · light dumbbell, hips square, the wobble is the work · fingertips on a wall if needed" },
+    saOhp:     { key: "sadbpress", name: "Single-Arm Dumbbell Overhead Press", needs: "dumbbells", side: true,
+      scheme: R + " per side · Shoulders · ribs down, do not lean away from the weight" },
+    dbBridge:  { key: "wu_db_glute_bridge", name: "Dumbbell Glute Bridge", needs: "dumbbells", reps: 12,
+      scheme: "10-12 · Glutes · dumbbell across the hips, drive through the heels, 2s squeeze at the top" },
+    pullApart: { key: "pw_band_pull_apart", name: "Band Pull-Apart", needs: "bodyweight", reps: 15,
+      scheme: "12-15 · Rear Shoulders/Posture · #1 band, arms straight, squeeze the shoulder blades · NO BAND: prone Y-T raises" },
+    sidePlank: { key: "sideplank", name: "Side Plank", needs: "bodyweight", side: true, sec: 25,
+      scheme: "25s per side · hips high, one straight line" },
+    farmer:    { key: "sims_farmer_carry", name: "Farmer's Carry", needs: "dumbbells", reps: 40,
+      scheme: "40 steps · heavy, tall posture, no leaning" }
+  };
+
+  /* w = week 1..4. Rounds climb in weeks 3-4, as SuperAge 120 does. */
+  function strengthA(w) {
+    var rounds = w <= 2 ? 3 : 4, fin = w <= 2 ? 2 : 3;
+    var ex = warm();
+    ex.push({ key: E.squatJump.key, name: E.squatJump.name, sets: 2, reps: 6, needs: E.squatJump.needs, scheme: E.squatJump.scheme });
+    ex = ex.concat(pair(1, E.thrust, E.saRow, rounds), pair(2, E.rdl, E.dbBench, rounds),
+                   pair(3, E.stepDown, E.bandWalk, 3), pair(4, E.plank, E.suitcase, fin));
+    return { title: "Strength A · Hinge & Thrust",
+      focus: "Week " + w + " of 4 · required · glutes first: hip thrust and Romanian deadlift lead, step-downs and band walks finish · " + rounds + " rounds per superset",
+      exercises: ex };
+  }
+  function strengthB(w) {
+    var rounds = w <= 2 ? 3 : 4, fin = w <= 2 ? 2 : 3;
+    var ex = warm();
+    ex.push({ key: E.skater.key, name: E.skater.name, sets: 2, reps: 6, side: true, needs: E.skater.needs, scheme: E.skater.scheme });
+    ex = ex.concat(pair(1, E.stepup, E.pulldown, rounds), pair(2, E.slRdl, E.saOhp, rounds),
+                   pair(3, E.dbBridge, E.pullApart, 3), pair(4, E.sidePlank, E.farmer, fin));
+    return { title: "Strength B · Single-Leg & Step",
+      focus: "Week " + w + " of 4 · required · glutes one leg at a time: step-ups and single-leg RDLs lead, a loaded bridge finishes · " + rounds + " rounds per superset",
+      exercises: ex };
+  }
+
+  /* short balance block that closes the Zone 2 and incline days */
+  function balanceFinisher(extra) {
+    return [
+      { key: "slstance", name: "Single-Leg Stance", sets: 2, sec: 30, side: true, needs: "bodyweight",
+        scheme: "balance finisher · 30s per side · eyes closed if you can · near a counter, not holding it" },
+      { key: "tandem", name: "Tandem Walk", sets: 1, sec: 40, needs: "bodyweight",
+        scheme: "balance finisher · 40s · heel to toe along a line, arms folded" }
+    ].concat(extra || []);
+  }
+  var tib = { key: "tibraise", name: "Tibialis Raises", sets: 1, reps: 15, needs: "bodyweight",
+    scheme: "balance finisher · 15 · back to a wall, toes up slow · shins and ankles for the knees' sake" };
+
+  function cardio(w) {
+    switch (w) {
+      case 1: return { title: "Zone 2 Walk + Balance",
+        focus: "Week 1 of 4 · required · 25 easy talk-test minutes, then 5 minutes of balance",
+        exercises: [
+          { key: "pf_zone2_walk", name: "Zone 2 Walk", sets: 1, sec: 1500, needs: "bodyweight",
+            scheme: "25 min · talk-test pace: breathing harder, still able to chat · outdoors, treadmill or an easy road ride" }
+        ].concat(balanceFinisher([tib])) };
+      case 2: return { title: "Norwegian 4×4 · Your Pick",
+        focus: "Week 2 of 4 · required · the VO2max session from the Norwegian 4×4 program · bike, treadmill or hill walk · about 40 min",
+        exercises: [
+          { key: "n44_wu_pick", name: "Warm-Up", sets: 1, sec: 600, needs: "bodyweight", scheme: "10 min · easy · ~70% HRmax · your chosen mode, easy" },
+          { key: "n44_work_pick_1", name: "Interval 1 — Hard", sets: 1, sec: 240, needs: "bodyweight", scheme: "4 min · 90-95% HRmax · only a few words at a time" },
+          { key: "n44_rec_pick_1", name: "Recovery 1", sets: 1, sec: 180, needs: "bodyweight", scheme: "3 min · easy · ~70% HRmax · same mode, easy" },
+          { key: "n44_work_pick_2", name: "Interval 2 — Hard", sets: 1, sec: 240, needs: "bodyweight", scheme: "4 min · 90-95% HRmax · only a few words at a time" },
+          { key: "n44_rec_pick_2", name: "Recovery 2", sets: 1, sec: 180, needs: "bodyweight", scheme: "3 min · easy · ~70% HRmax · same mode, easy" },
+          { key: "n44_work_pick_3", name: "Interval 3 — Hard", sets: 1, sec: 240, needs: "bodyweight", scheme: "4 min · 90-95% HRmax · only a few words at a time" },
+          { key: "n44_rec_pick_3", name: "Recovery 3", sets: 1, sec: 180, needs: "bodyweight", scheme: "3 min · easy · ~70% HRmax · same mode, easy" },
+          { key: "n44_work_pick_4", name: "Interval 4 — Hard", sets: 1, sec: 240, needs: "bodyweight", scheme: "4 min · 90-95% HRmax · pace it so this one matches interval 1" },
+          { key: "n44_cd_pick", name: "Cool-Down", sets: 1, sec: 180, needs: "bodyweight", scheme: "3 min · very easy · ~70% HRmax" }
+        ] };
+      case 3: return { title: "Incline Walk + Balance",
+        focus: "Week 3 of 4 · required · 20 min uphill on the treadmill (or a hilly route), then balance and a single-leg hinge",
+        exercises: [
+          { key: "inclinewalk", name: "Incline Treadmill Walk", sets: 1, sec: 1200, needs: "bodyweight",
+            scheme: "20 min · raise the incline, not the speed · hands off the rails · conversation slightly effortful · NO TREADMILL: the hilliest 20-minute walk you have" }
+        ].concat(balanceFinisher([
+          { key: "slrdl", name: "Single-Leg RDL (bodyweight)", sets: 2, reps: 8, side: true, needs: "bodyweight",
+            scheme: "balance finisher · 8 per side · slow, hips square, no weight" }
+        ])) };
+      default: return { title: "Bike Sprints · Sims",
+        focus: "Week 4 of 4 · required · the Sims 4 Women sprint session on the bike: 10 min easy, 5 × 30 s all-out with full recovery, 5 min easy · about 30 min",
+        exercises: [
+          { key: "ridewarm", name: "Easy Ride Warm-Up", sets: 1, sec: 600, needs: "bodyweight", scheme: "10 min · easy gear, building to moderate by the end" },
+          { key: "sims_sprint30", name: "Sprint Intervals", sets: 5, sec: 30, needs: "bodyweight",
+            scheme: "5 × 30s ALL-OUT on the bike · 2-3 min full recovery between, easy spinning · the bike keeps it off the knees · NO BIKE: 30s fast incline march on the treadmill" },
+          { key: "zone2", name: "Zone 2 Cool-Down", sets: 1, sec: 300, needs: "bodyweight", scheme: "5 min easy · flush the legs" }
+        ] };
+    }
+  }
+
+  function balance(w) {
+    var opt = " · optional 4th session · skip it on a 3-day week, nothing else changes";
+    switch (w) {
+      case 1: return { title: "Balance & Control",
+        focus: "Week 1 of 4" + opt + " · the Fingerprint Focus balance pool: stance, tandem walk, single-leg hinge, slow squats, shins",
+        exercises: [
+          { key: "slstance", name: "Single-Leg Stance", sets: 2, sec: 30, side: true, needs: "bodyweight", scheme: "30s per side · eyes closed if you can · near a counter, not holding it" },
+          { key: "tandem", name: "Tandem Walk", sets: 1, sec: 40, needs: "bodyweight", scheme: "40s · heel to toe, arms folded, eyes forward" },
+          { key: "slrdl", name: "Single-Leg RDL (bodyweight)", sets: 2, reps: 8, side: true, needs: "bodyweight", scheme: "8 per side · slow, the wobble is the work" },
+          { key: "birddog", name: "Bird Dog", sets: 2, reps: 8, side: true, needs: "bodyweight", scheme: "8 per side · slow, hips stay square" },
+          { key: "airsquattempo", name: "Air Squat (3-2-1)", sets: 2, reps: 8, needs: "bodyweight", scheme: "8 · 3s down, 2s pause, 1s up · comfortable depth · KNEE HURTING: squat to a knee-height box" },
+          { key: "tibraise", name: "Tibialis Raises", sets: 2, reps: 15, needs: "bodyweight", scheme: "15 · back to a wall, toes up slow" },
+          { key: "deepsquat", name: "Deep Squat Hold", sets: 2, sec: 45, needs: "bodyweight", scheme: "45s · heels down, breathe · KNEE HURTING: hold a doorframe and stop at a comfortable depth" }
+        ] };
+      case 2: return { title: "Hip Stability & Lateral",
+        focus: "Week 2 of 4" + opt + " · from Asian Pilates day 2 plus the Strength & Speed single-leg balance: side-hip strength and rotational control",
+        exercises: [
+          { key: "syn_standing_figure_8_hips", name: "Standing Figure-8 Hips", sets: 1, sec: 60, needs: "bodyweight", scheme: "1 min · Hips/Low Back" },
+          { key: "syn_kneeling_hip_flexor_stretch", name: "Kneeling Hip Flexor Stretch", sets: 1, sec: 30, side: true, needs: "bodyweight", scheme: "30s/side · Hip Flexors · a cushion under the knee" },
+          { key: "syn_clam_shells", name: "Clam Shells", sets: 3, reps: 15, side: true, needs: "bodyweight", scheme: "15/side · Hip Rotators · add the light mini band once 15 feel easy" },
+          { key: "syn_single_leg_circle_small", name: "Single Leg Circle (Small)", sets: 2, reps: 8, side: true, needs: "bodyweight", scheme: "8/direction/leg · Hip/Core" },
+          { key: "syn_bird_dog_tai_chi_tempo", name: "Bird Dog (Tai Chi Tempo)", sets: 3, reps: 8, side: true, needs: "bodyweight", scheme: "8/side · Core/Posterior Chain" },
+          { key: "syn_supported_side_plank_knee_down", name: "Supported Side Plank (Knee Down)", sets: 3, sec: 15, side: true, needs: "bodyweight", scheme: "15-20s/side · Obliques" },
+          { key: "pw_single_leg_balance", name: "Single-Leg Balance", sets: 2, sec: 20, side: true, needs: "bodyweight", scheme: "20s per side · eyes open, fingertips near a counter · work toward no hands, then eyes closed" },
+          { key: "syn_supine_butterfly", name: "Supine Butterfly", sets: 1, sec: 120, needs: "bodyweight", scheme: "2 min · Hip Adductors · breathe" }
+        ] };
+      case 3: return { title: "Posterior Chain Mobility",
+        focus: "Week 3 of 4" + opt + " · the MovesMethod posterior-chain session, as written: spine, glutes, hamstrings, then a tandem walk",
+        exercises: [
+          { key: "syn_cat_cow_hip_rocks", name: "Cat-Cow + Hip Rocks", sets: 2, reps: 8, side: true, needs: "bodyweight", scheme: "8 reps each · Spine/Hips" },
+          { key: "syn_glute_bridge_isometric", name: "Glute Bridge Isometric", sets: 3, sec: 30, needs: "bodyweight", scheme: "30 second holds · Glutes" },
+          { key: "syn_quadruped_hip_extension", name: "Quadruped Hip Extension", sets: 2, reps: 10, side: true, needs: "bodyweight", scheme: "10 each side · Glutes" },
+          { key: "syn_single_leg_rdl_assisted", name: "Single-Leg RDL (Assisted)", sets: 2, reps: 8, side: true, needs: "bodyweight", scheme: "8 each side · Hamstrings/Glutes" },
+          { key: "syn_cobra_to_child_s_pose_flow", name: "Cobra to Child's Pose Flow", sets: 2, reps: 8, needs: "bodyweight", scheme: "8 · Spine" },
+          { key: "syn_active_pancake_stretch", name: "Active Pancake Stretch", sets: 1, reps: 5, needs: "bodyweight", scheme: "5 contractions · Adductors/Hamstrings" },
+          { key: "syn_deep_squat_to_stand_assisted", name: "Deep Squat to Stand (Assisted)", sets: 1, reps: 8, needs: "bodyweight", scheme: "8 · Full Body · hold a doorframe · KNEE HURTING: stop at a comfortable depth" },
+          { key: "tandem", name: "Tandem Walk", sets: 1, sec: 40, needs: "bodyweight", scheme: "40s · heel to toe, arms folded, eyes forward" }
+        ] };
+      default: return { title: "Ankles, Knees & Reactions",
+        focus: "Week 4 of 4" + opt + " · Joint Mobility Mastery ankle and knee days back to back, then the Strength & Speed step drill",
+        exercises: [
+          { key: "syn_ankle_cars", name: "Ankle CARs", sets: 1, reps: 3, side: true, needs: "bodyweight", scheme: "3 circles each direction, each foot · Ankle Joint" },
+          { key: "syn_wall_knee_drive_ankle_dorsiflexion", name: "Wall Knee Drive (Ankle Dorsiflexion)", sets: 1, reps: 10, side: true, needs: "bodyweight", scheme: "10 each side · Ankle/Calf" },
+          { key: "syn_tibialis_raises", name: "Tibialis Raises", sets: 2, reps: 15, needs: "bodyweight", scheme: "15 · Tibialis Anterior (Shin)" },
+          { key: "syn_single_leg_balance_eyes_closed", name: "Single-Leg Balance (Eyes Closed)", sets: 1, sec: 30, side: true, needs: "bodyweight", scheme: "30 seconds each side · Ankle/Balance" },
+          { key: "syn_wall_sit_isometric", name: "Wall Sit Isometric", sets: 3, sec: 30, needs: "bodyweight", scheme: "30-60 seconds · Quads · KNEE HURTING: higher seat, shorter hold" },
+          { key: "syn_reverse_nordic_modified", name: "Reverse Nordic (Modified)", sets: 2, reps: 5, needs: "bodyweight", scheme: "5 · Quads/Knees · small range, slow" },
+          { key: "syn_terminal_knee_extension", name: "Terminal Knee Extension", sets: 2, reps: 15, side: true, needs: "bodyweight", scheme: "15 each side · VMO (inner quad) · light band" },
+          { key: "syn_slow_step_down", name: "Slow Step Down", sets: 2, reps: 10, side: true, needs: "bodyweight", scheme: "10 each side · Glutes/Quads" },
+          { key: "pw_step_drill", name: "Reactive Lean-and-Step", sets: 2, reps: 6, side: true, needs: "bodyweight", scheme: "6 each direction · lean until you must step, catch yourself with one quick step · near a counter" }
+        ] };
+    }
+  }
+
+  var rest = { title: "Rest",
+    focus: "Nothing · this is prescribed. A 10-minute easy walk at most",
+    exercises: [{ key: "n44_rest", name: "Rest Day", sets: 1, sec: 600, needs: "bodyweight",
+      scheme: "10 min easy walk at most · or a genuine day off" }] };
+
+  var days = [];
+  for (var w = 1; w <= 4; w++) days.push(strengthA(w), cardio(w), rest, strengthB(w), balance(w), rest, rest);
+
+  var dayCard = {
+    "Strength A · Hinge & Thrust":    { kicker: "Today", title: "Hip thrust first, while you are fresh", body: "Warm up, 2 sets of squat jumps, then four supersets with no rest inside a pair: hip thrust to row, Romanian deadlift to chest press, glute step-down to band walk, plank to suitcase carry. Weights come from your Setup lifts (marked ≈) and go up when every set hits its target." },
+    "Strength B · Single-Leg & Step": { kicker: "Today", title: "One leg at a time", body: "Step-ups, single-leg RDLs and a loaded bridge are the glute work; the pulldown, overhead press and band pull-aparts keep the upper body honest. Single-leg work is also balance work, which is why it lives on a strength day. Use the weaker side's weight for both legs." },
+    "Zone 2 Walk + Balance":          { kicker: "Today", title: "Easy means easy", body: "25 minutes where you can talk in full sentences. If you finish breathing hard it was the wrong pace. Then five minutes of balance: stance, tandem walk, tibialis raises." },
+    "Norwegian 4×4 · Your Pick":      { kicker: "Today", title: "The hard one", body: "Ten easy minutes, then 4 × 4 minutes hard with 3 easy between, then cool down. Pace interval 1 so interval 4 can match it. This is the month's only session over 30 minutes: 38 minutes of work, about 40 with transitions." },
+    "Incline Walk + Balance":         { kicker: "Today", title: "Uphill, hands off the rails", body: "Raise the incline, not the speed. Holding the rails removes most of the work. Then the balance block, with a bodyweight single-leg RDL instead of tibialis raises." },
+    "Bike Sprints · Sims":            { kicker: "Today", title: "Thirty seconds, then really recover", body: "Five all-out 30-second efforts on the bike with 2-3 minutes of easy spinning between. The recovery is the point: a sprint you start tired is not a sprint. Skip this one if the knee is complaining and do the Zone 2 walk instead." },
+    "Balance & Control":              { kicker: "Today", title: "The optional fourth", body: "Short and low-effort on purpose. If this is a 3-day week, skip it: the balance finishers on cardio day and the single-leg strength work still cover you." },
+    "Hip Stability & Lateral":        { kicker: "Today", title: "Side-hip strength", body: "Clamshells, small leg circles and side planks train the glute medius, the muscle that keeps the knee lined up over the foot. Slow and controlled beats fast." },
+    "Posterior Chain Mobility":       { kicker: "Today", title: "Strength through range, not stretching", body: "MovesMethod's rule: every stretch is loaded by the muscles that own it. The glute bridge holds and quadruped hip extensions are glute work in disguise." },
+    "Ankles, Knees & Reactions":      { kicker: "Today", title: "From the ground up", body: "Ankles first, then knees, then the step drill: lean until you have to step and catch yourself. That reactive step is what balance is for." },
+    "Rest":                           { kicker: "Today", title: "Take it", body: "Adaptation happens here. A 10-minute easy walk at most." }
+  };
+
+  return {
+    id: "glute-balance-month",
+    name: "Glute & Balance Month",
+    desc: "4 weeks · 2 glute-led strength days + rotating cardio and balance · 3-4×/week · ~30 min",
+    kneeSafe: false,
+    guide: {
+      blurb: "Four weeks built from the routines already in this app. Two strength sessions a week lead with glutes (hip thrust, Romanian deadlift, step-ups, single-leg RDLs, loaded bridges, step-downs and band walks), a cardio session that changes every week, and an optional fourth session of balance and mobility that rotates too. Sessions are about 30 minutes; only the Norwegian 4×4 week runs longer, at about 40.",
+      rotate: [
+        { kicker: "The week", title: "Three required, one optional",
+          body: "Day 1 and Day 4 are strength, Day 2 is cardio, Day 5 is the optional balance session. Start on a Monday and the strength days land on Monday and Thursday. On a 3-day week, skip Day 5 and change nothing else." },
+        { kicker: "Every set", title: "8-12 reps, 2-3 in reserve",
+          body: "Pick a weight you can lift 8-12 times and stop when you could do 2 or 3 more. Weeks 1-2 are 3 rounds per superset, weeks 3-4 are 4. Same rule SuperAge 120 uses." },
+        { kicker: "Supersets", title: "The partner exercise is your rest",
+          body: "Do A1, go straight to A2, then back to A1. The timed core work alternates the same way." },
+        { kicker: "Glutes", title: "Why they lead",
+          body: "The hip thrust, step-up and single-leg RDL come first in their sessions, while you are freshest. The warm-up's mini-band bridge and clamshell wake the glutes up before any of it. Switch on Glutes under Footprint in Setup and the app keeps that order even if you move things." },
+        { kicker: "Knees", title: "Use the KNEE HURTING line",
+          body: "Jumps, squats, step-ups and the sprint day each list a gentler swap. Knees marked Hurts in the body check-in also swap the risky movements automatically." },
+        { kicker: "Cardio", title: "One mode a week",
+          body: "Zone 2 walk, Norwegian 4×4, incline walk, bike sprints. Easy weeks are easy on purpose; the two hard weeks only work if the easy ones were." }
+      ],
+      after: [
+        { kicker: "Next session", title: "Check what moved",
+          body: "Any lift where you hit every set shows a heavier suggested weight next time. Miss a set and it holds." }
+      ],
+      days: dayCard,
+      groups: [
+        { title: "How it's built", tone: "cycle", icon: "\u{1F9F1}", items: [
+          { title: "Strength A · Hinge & Thrust (Day 1)",
+            body: "Warm-up (jump rope or march, leg swings, mini-band bridge, mini-band clamshell), 2 × 6 squat jumps, then: barbell hip thrust with single-arm row · Romanian deadlift with dumbbell chest press · glute step-down with lateral band walk · plank with suitcase carry. About 28 minutes in weeks 1-2, 33 in weeks 3-4." },
+          { title: "Strength B · Single-Leg & Step (Day 4)",
+            body: "Same warm-up, 2 × 6 skater hops, then: glute-biased step-up with lat pulldown · single-leg RDL with single-arm overhead press · dumbbell glute bridge with band pull-apart · side plank with farmer's carry. Same length as A." },
+          { title: "Cardio (Day 2), one per week",
+            body: "Week 1 Zone 2 walk 25 min + balance. Week 2 Norwegian 4×4, your pick of mode (~40 min). Week 3 incline treadmill walk 20 min + balance. Week 4 Sims bike sprints: 10 easy, 5 × 30 s all-out, 5 easy." },
+          { title: "Balance & mobility (Day 5), optional, one per week",
+            body: "Week 1 the Fingerprint balance pool. Week 2 Asian Pilates hip stability. Week 3 MovesMethod posterior chain. Week 4 Joint Mobility ankles + knees with the reactive step drill. Each about 20-25 minutes." },
+          { title: "Glute sets per week",
+            body: "Counting hip thrust, RDL, step-down, band walk, step-up, single-leg RDL and the loaded bridge: 21 sets in weeks 1-2 and 25 in weeks 3-4, plus the warm-up bridges and clamshells. Upper body gets one push and one pull per session so it is a full-body program with a glute bias, not legs only." }
+        ]},
+        { title: "Where it comes from", tone: "fuel", icon: "\u{1F4DA}", items: [
+          { title: "Structure", body: "The warm-up, explosive opener, superset format and 3-then-4 rounds are SuperAge 120 · 4×30's. The glute step-down, band walk, hip thrust and RDL are Knee-Friendly 2x's lower day. Step-up and single-leg RDL are SuperAge 120's Lower B. The dumbbell glute bridge is from Dumbbell 49." },
+          { title: "Cardio", body: "Zone 2 walk from Pelvic Floor Foundation, the 4×4 from Norwegian 4×4, the incline walk from Fingerprint Focus, the 30-second sprints from Sims 4 Women (moved to the bike), ride warm-up and cool-down from SuperAge." },
+          { title: "Balance", body: "Fingerprint Focus balance pool, Asian Pilates day 2, MovesMethod Posterior Chain Mobility, Joint Mobility Mastery Ankles and Knees, and the single-leg balance and step drill from Strength & Speed 45+." }
+        ]},
+        { title: "The honest bits", tone: "warn", icon: "⚠️", items: [
+          { title: "What the evidence says, and what it doesn't",
+            body: "The weekly shape matches the U.S. Physical Activity Guidelines for Americans, 2nd edition (2018): muscle-strengthening on 2 or more days a week, 150-300 minutes of moderate aerobic activity, and balance training as part of the mix. Which specific glute exercises, how many sets, and the 30-minute cap are this app's programming choices, pulled from the programs named above, not from a study of this exact plan. I cannot confirm this particular combination has been tested." },
+          { title: "Minutes",
+            body: "Session lengths are the app's estimates (about 110 s per straight set, 45 s per superset set). Real time depends on how long you rest and set up. The 4×4 week is the only one planned over 30 minutes." },
+          { title: "Starting weights are estimates",
+            body: "They come from your Setup lifts using the same ratios SuperAge 120 uses. Treat week 1 as calibration." },
+          { title: "Not medical advice",
+            body: "Check with your provider or a physical therapist if anything here conflicts with your knees or other conditions. Stop a sprint or interval for chest pain, dizziness or unusual breathlessness." }
+        ]}
+      ],
+      sources: "U.S. Department of Health and Human Services, Physical Activity Guidelines for Americans, 2nd edition (2018), health.gov/paguidelines: adults should do muscle-strengthening activity on 2 or more days a week and 150-300 minutes of moderate-intensity aerobic activity, and older adults should include balance training as part of multicomponent activity. Everything else is drawn from the programs already in this app (SuperAge 120 · 4×30, Knee-Friendly 2x, Dumbbell 49, Norwegian 4×4, Sims 4 Women, Pelvic Floor Foundation, Fingerprint Focus, Asian Pilates 3x, MovesMethod Workouts, Joint Mobility Mastery, Strength & Speed 45+), whose own guides carry their sources. The combination, set counts and time budget are this app's programming."
+    },
+    days: days
+  };
+})();
+SYN_PLANS.push(GB_PLAN);
