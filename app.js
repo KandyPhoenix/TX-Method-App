@@ -8740,6 +8740,10 @@ function updateSessionUI() {
   renderEquipBtn();
   const head = document.querySelector('.stickytop');
   if (head) document.documentElement.style.setProperty('--sticky-h', head.offsetHeight + 'px');
+  /* the tab bar is fixed at the bottom, so the sticky rail's height cap needs
+     to know it too — measured, since the safe-area inset changes it */
+  const tabs = document.querySelector('.tabbar');
+  if (tabs) document.documentElement.style.setProperty('--tab-h', tabs.offsetHeight + 'px');
   const onRoadmap = TAB === 'today';
   const { done, total } = onRoadmap ? sessionCounts() : { done: 0, total: 0 };
   bar.classList.toggle('hidden', !onRoadmap || !total);
