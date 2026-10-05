@@ -1140,12 +1140,15 @@ function synPlanDays(plan) {
   for (let i = 0; i < target; i++) {
     const d = src[i % src.length];
     const cycle = Math.floor(i / src.length) + 1;
-    out.push({
+    const day = {
       title: d.title,
       note: (d.focus ? d.focus + '. ' : '') + plan.name + ' — ' + (plan.desc || '') +
             (src.length > 1 ? ' Round ' + cycle + ' of this ' + src.length + '-day split.' : ''),
       exercises: d.exercises
-    });
+    };
+    /* a day that rolls from one of the plan's session libraries — see synRolled */
+    if (d.pool) { day.pool = d.pool; day.pick = d.pick; }
+    out.push(day);
   }
   return out;
 }
@@ -1156,6 +1159,107 @@ function synData(id) {
   if (!plan) return [];
   if (!synPlanCache[id]) synPlanCache[id] = synPlanDays(plan);
   return synPlanCache[id];
+}
+
+/* ---------------------------------------------------------------------
+   Rolling days (Kandy, 2026-10-05).
+
+   A plan may carry `sessions`: libraries of complete sessions keyed by
+   pool ('cardio', 'balance'), and a day may say `pool` + `pick` to mean
+   "this day is one session from that library, pre-rolled to `pick`". The
+   Roadmap then offers a Roll button on that day, like the Random
+   Generator's, and a picker. The chosen key is stored per day in the
+   program's own state (`rolls`), so the calendar, the day card and the
+   session all agree; `rolled` remembers when each session was last done so
+   a roll favours the ones you have not done lately.
+
+   The shipped days are the fallback: with nothing rolled, the plan is
+   exactly what the data file says.
+   --------------------------------------------------------------------- */
+const SYN_POOL_LABEL = { cardio: 'Cardio', balance: 'Balance' };
+let synRollCache = {};
+function synSessions(plan, pool) { return (plan && plan.sessions && plan.sessions[pool]) || []; }
+function synRolled(plan, days) {
+  if (!plan || !plan.sessions) return days;
+  const st = S[synCfgKey(plan.id)];
+  const rolls = (st && st.rolls) || {};
+  const sig = JSON.stringify(rolls);
+  const hit = synRollCache[plan.id];
+  if (hit && hit.sig === sig && hit.src === days) return hit.out;
+  const out = days.map((d, i) => {
+    const key = d.pool && rolls[i + 1];
+    if (!key || key === d.pick) return d;
+    const s = synSessions(plan, d.pool).find(x => x.key === key);
+    if (!s) return d;
+    const label = SYN_POOL_LABEL[d.pool] || d.pool;
+    return Object.assign({}, d, {
+      title: label + ' · ' + s.title,
+      pick: s.key,
+      note: (s.focus ? s.focus + '. ' : '') + 'Rolled from the ' + label.toLowerCase() + ' library · ' +
+            (s.mins ? s.mins + ' min · ' : '') + plan.name + ' — ' + (plan.desc || ''),
+      exercises: s.exercises
+    });
+  });
+  synRollCache[plan.id] = { sig, src: days, out };
+  return out;
+}
+function synCurrentPlan() {
+  const key = String(S.program || '');
+  if (key.indexOf('syn-') !== 0 || typeof SYN_PLANS === 'undefined') return null;
+  return SYN_PLANS.find(p => p.id === key.slice(4)) || null;
+}
+function rollBarHTML(d, dayNum) {
+  const plan = synCurrentPlan();
+  const list = synSessions(plan, d.pool);
+  if (!list.length) return '';
+  const label = SYN_POOL_LABEL[d.pool] || d.pool;
+  const st = pstate();
+  const done = (st.rolled || {});
+  const opts = list.map(s => `<option value="${s.key}" ${s.key === d.pick ? 'selected' : ''}>${s.title}${s.mins ? ' · ' + s.mins + ' min' : ''}${done[s.key] ? ' ✓' : ''}</option>`).join('');
+  return `<div class="gen-bar roll-bar">
+    <div class="gen-row">
+      <select id="rollSel" class="gen-sel" aria-label="${label} session">${opts}</select>
+      <button class="btn primary gen-roll" id="rollBtn">🎲 Roll a different ${label.toLowerCase()} session</button>
+    </div>
+    <div class="gen-muscles-hint">${list.length} ${label.toLowerCase()} sessions in the library, all from programs already in the app. Roll favours the ones you have not done lately (✓ = done before); pick one from the list to choose outright. Ticks on this day reset when it changes.</div>
+  </div>`;
+}
+function rollDay(dayNum, want) {
+  const plan = synCurrentPlan();
+  const d = pdata()[dayNum - 1];
+  if (!plan || !d || !d.pool) return;
+  const list = synSessions(plan, d.pool);
+  if (!list.length) return;
+  const st = pstate();
+  if (!st.rolls) st.rolls = {};
+  if (!st.rolled) st.rolled = {};
+  let key = want;
+  if (!key || !list.some(s => s.key === key)) {
+    /* never the current one; least recently done first, random among ties */
+    const cands = list.filter(s => s.key !== d.pick);
+    if (!cands.length) return;
+    const stamp = s => st.rolled[s.key] || 0;
+    const oldest = Math.min(...cands.map(stamp));
+    const pool = cands.filter(s => stamp(s) === oldest);
+    key = pool[Math.floor(Math.random() * pool.length)].key;
+  }
+  if (key === d.pick) return;
+  st.rolls[dayNum] = key;
+  /* the exercises changed, so the ticks and rep counts no longer mean anything */
+  const log = st.log[dayNum];
+  if (log) { log.checks = {}; log.reps = {}; }
+  save();
+  render();
+  const s = list.find(x => x.key === key);
+  toast('Rolled: ' + (s ? s.title : key) + ' 🎲');
+}
+/* finishing a rolled day is what makes the next roll prefer something else */
+function rollMarkUsed(dayNum) {
+  const d = pdata()[dayNum - 1];
+  if (!d || !d.pool || !d.pick) return;
+  const st = pstate();
+  if (!st.rolled) st.rolled = {};
+  st.rolled[d.pick] = Date.now();
 }
 
 function synRegisterTips() {
@@ -1210,7 +1314,7 @@ const DAY_PROGRAMS = {
 if (typeof SYN_PLANS !== 'undefined') {
   SYN_PLANS.forEach(p => {
     DAY_PROGRAMS['syn-' + p.id] = {
-      get data() { return synData(p.id); },
+      get data() { return synRolled(p, synData(p.id)); },
       stateKey: synCfgKey(p.id),
       label: p.name,
       sub: p.desc.length > 46 ? p.desc.slice(0, 44) + '\u2026' : p.desc,
@@ -2432,6 +2536,7 @@ function renderPrepToday() {
     html += fuelHTML();
     html += tierBarHTML();
     if (S.program === 'gen') html += genBarHTML();
+    if (d.pool) html += rollBarHTML(d, dayNum);
     html += dayMuscleHTML(d);
     html += matchedWarmupHTML(tierDay(d).exercises);
     html += `<div class="spacer"></div>`;
@@ -3544,6 +3649,9 @@ function wirePrepToday() {
 
   const timer = document.getElementById('prepTimer');
   if (timer) timer.onclick = () => startRest();
+  const rb = document.getElementById('rollBtn'), rs = document.getElementById('rollSel');
+  if (rb) rb.onclick = () => rollDay(dayNum);
+  if (rs) rs.onchange = () => rollDay(dayNum, rs.value);
   const ss = document.getElementById('startSession');
   if (ss) ss.onclick = () => startSession();
 
@@ -3555,6 +3663,7 @@ function wirePrepToday() {
        have just done — without this, freshness never moves and every roll
        draws from the same favourites. */
     if (S.program === 'gen' && !d.rest) genMarkUsed(dayNum);
+    if (d.pool && !d.rest) rollMarkUsed(dayNum);
     save();
     if (dayNum >= ptotal()) { finishPrep(); return; }
     if (d.rest) { toast('Rested 😴'); }
@@ -9771,6 +9880,7 @@ const GLOSSARY = [
   ['Warm-up sets', 'Lighter sets of your first lift before the real ones, to rehearse the movement.', /warm-up sets?/i],
   ['Working sets', 'The sets at the prescribed weight and reps — the ones that count.', /working sets?/i],
   ['Hinge', 'Bending at the hips — pushing the hips back — with a long, braced back, rather than rounding over.', /\bhinge\b/i],
+  ['Band numbers (#1–#4)', 'The long 41-inch loop bands, numbered by thickness: #1 is the lightest the programs ask for (pull-aparts), #2 and #3 are for rows, pulldowns and the band hip thrust, #3 and #4 assist pull-ups. Serious Steel numbers its bands from #0 (lightest) upward; check the tag on yours. Mini bands (light, medium, heavy) are the small loops for warm-ups and band walks.', /#[1-4] (or #[1-4] )?(long )?bands?/],
   ['Brace', 'Tightening the trunk — like getting ready to be nudged — before and during a lift, to keep the spine steady.', /\bbrac(e|ing)\b/i],
   ['Neutral spine', 'The back in its natural, long position — not arched or rounded.', /neutral spine/i],
   ['Eccentric', 'The lowering half of a rep, when the muscle lengthens under load. Slowing it down makes an exercise harder.', /eccentric/i],
