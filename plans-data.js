@@ -8351,3 +8351,175 @@ const VW_PLAN = (function () {
   };
 })();
 SYN_PLANS.push(VW_PLAN);
+
+/* =====================================================================
+   VARIETY ADDITIONS (Kandy, 2026-10-05): what the app did not have yet
+   that a 45-year-old's strength, mobility and longevity training wants.
+   Eight new movements, each with a How-to and a video, then six new
+   sessions in Full Variety Week's libraries.
+     tgu                Turkish get-up: loaded floor-to-standing, shoulder
+                        stability, the kettlebell skill with the most carry-over
+     kb_halo            kettlebell halo: shoulder mobility under light load
+     kb_clean_press     single-arm clean and press: hinge, pull, press in one
+     nordic_curl_band   band-assisted Nordic curl: eccentric hamstrings,
+                        the hamstring-strain insurance policy
+     copenhagen_knee    short-lever Copenhagen plank: adductors and hip
+                        stability, the groin-strain insurance policy
+     spanish_squat      banded isometric squat: quad and patellar-tendon
+                        strength with very little knee stress
+     band_face_pull     rear shoulders and rotator cuff, the desk antidote
+     ruck_walk          loaded walking: Zone 2 with the bones and posture
+                        working, no running
+   Band numbers follow the long-band set (#1-#4). Every How-to carries a
+   NO BAND / NO ANCHOR / KNEE HURTING line where one applies.
+   ===================================================================== */
+Object.assign(SYN_TIPS, {
+  "tgu": { "title": "Turkish Get-Up",
+    "body": "PLAIN ENGLISH: Getting up off the floor to standing, and back down, while holding a weight straight up overhead the whole time. It trains the shoulder, the core, the hips and the skill of getting off the floor, which is a longevity test in its own right. LEARN IT EMPTY FIRST: Do it with no weight, then a shoe balanced on your fist (if it falls, you lost the vertical arm), then a light kettlebell or dumbbell. HOW (right side): Lie on your back, right knee bent and foot flat, right arm straight up holding the bell, left arm and leg out at 45 degrees. 1. Roll up onto the left elbow, then the left hand, chest tall. 2. Push through the right foot and lift the hips so you can sweep the left leg back to a kneeling position, left knee under the hip. 3. Straighten the torso so you are tall in a half-kneel, eyes on the bell. 4. Stand up. Then reverse every step back down to lying. That is one rep. Cues: Eyes on the bell until you are standing; The arm stays locked and vertical the whole way; Slow, no rushing a step; Breathe out on each push. KNEE HURTING: put a folded towel under the kneeling knee, or stop at the half-kneel and reverse from there. Start with 2-3 per side, light. Progress by adding weight only when every step is clean." },
+  "kb_halo": { "title": "Kettlebell Halo",
+    "body": "PLAIN ENGLISH: Circling a kettlebell around your head, close to the skull, to take the shoulders through their full range under a little load. HOW: Hold the bell upside down by the horns at chest height, elbows in. Circle it around your head: past one ear, behind the neck, past the other ear, back to the front. Keep it close to the head, elbows bent, ribs down and core braced so the low back does not arch. Go the other direction next rep. Cues: Slow and smooth, the bell hugs the head; Ribs down, do not lean back; Light bell, this is mobility not strength; Equal reps each direction. NO KETTLEBELL: a dumbbell held vertically by one end, or a weight plate. Warm-up or shoulder-care dose: 2 × 8 each direction." },
+  "kb_clean_press": { "title": "Single-Arm Kettlebell Clean & Press",
+    "body": "PLAIN ENGLISH: Swing the bell from between your legs up to your shoulder (the clean), then press it overhead. Hinge, pull and press in one movement, one side at a time. HOW: Bell on the floor between the feet, slightly in front. Hinge, grip it with one hand, hike it back between the legs like a swing, then snap the hips forward and pull the elbow in close so the bell lands softly in the rack: resting on the forearm, elbow tucked, wrist straight, bell against the outside of the forearm. From the rack, brace and press straight up until the arm is locked, bicep by the ear. Lower to the rack, then drop the bell back into the next swing. Cues: The clean is a hip snap, not an arm curl; Keep the bell close so it does not flip and bang the wrist; Wrist straight in the rack; Ribs down on the press, no leaning back. NO KETTLEBELL: a dumbbell, cleaned the same way. Use the weaker side's weight for both sides. Start light: the rack takes a few sessions to feel right." },
+  "nordic_curl_band": { "title": "Nordic Hamstring Curl (Band-Assisted)",
+    "body": "PLAIN ENGLISH: Kneeling with your feet anchored, lowering your body forward as slowly as you can with the hamstrings holding you back, with a long band taking some of your weight. The slow lowering is the whole exercise, and it is the best-known protection against hamstring strains. HOW: Kneel on a folded mat with the tops of the feet hooked under something immovable (the bar of a loaded barbell on the floor, a heavy bench, a couch). Loop a #3 or #4 long band over the pull-up bar or a high anchor and hold the other end at your chest, or run it under your armpits, so it pulls you up. Body straight from knee to head, hips open. Lower forward as slowly as you can, 3-5 seconds, hands ready to catch yourself on the floor. Push back up with the hands as much as you need, then do the next slow lowering. Cues: Hips stay open, do not fold at the waist; Slow is the point, fast reps are wasted; Expect to be sore the first week, 3-5 reps is plenty. NO ANCHOR FOR THE BAND: do the lowering without a band and push up with the hands from the floor. KNEE HURTING: more padding under the knees, and skip it if kneeling itself hurts." },
+  "copenhagen_knee": { "title": "Copenhagen Plank (Short Lever, from the Knee)",
+    "body": "PLAIN ENGLISH: A side plank with the top leg resting on a bench and the bottom knee on the floor, so the inner thigh of the top leg holds you up. It strengthens the adductors (inner thighs), which steady the hip and the knee and are the muscles behind most groin strains. HOW: Lie on your side next to a bench, forearm on the floor under the shoulder. Bend the top leg and rest its knee and shin on the bench. Bottom knee bent on the floor. Lift the hips so the body is a straight line from the shoulder to the top knee, squeezing the top knee into the bench. Hold. Cues: Hips forward, do not sag or pike; The top knee presses down, that is the adductor working; Breathe. PROGRESSION: once 30 seconds is easy, lift the bottom knee off the floor (still short lever), then put the top foot instead of the knee on the bench (long lever). NO BENCH: a sturdy chair or the second stair. Start with 3 × 15-20 seconds per side." },
+  "spanish_squat": { "title": "Spanish Squat (Band Isometric)",
+    "body": "PLAIN ENGLISH: A squat hold with a thick band behind the knees pulling you forward, so you can sit back with the shins vertical and the quads working hard, with much less load through the kneecap than a normal squat. It is a staple for sore knees and patellar tendons. HOW: Loop a #3 or #4 long band around a solid post at knee height (the upright of a squat rack, a railing, a heavy table leg) and step inside it so it sits behind both knees, just below the crease. Walk back until it is tight. Feet hip-width, shins vertical. Sit back and down until the thighs are at or just above parallel, lean the torso forward slightly, and hold, quads on. Breathe. Stand up. Cues: Shins stay vertical, the band holds you; Weight through the whole foot; Hold a depth that is strong, not the deepest one. DOSE: 4-5 holds of 30-45 seconds. NO ANCHOR: a wall sit, which is the same idea with the wall doing the band's job. KNEE HURTING: a higher position, shorter holds, and stop if the pain climbs above a mild 3 out of 10 during the hold." },
+  "band_face_pull": { "title": "Band Face Pull",
+    "body": "PLAIN ENGLISH: Pulling a band toward your face with the elbows high and wide, to train the rear shoulders, upper back and rotator cuff, the muscles a desk and a phone switch off. HOW: Loop a #1 or #2 long band around a post or the pull-up bar at about eye height, hold the band with both hands, palms down, and step back until it is tight with the arms straight. Pull the band toward your forehead, elbows high and out to the sides, finishing with the hands beside the ears and the shoulder blades squeezed together. Pause, then control it back out. Cues: Elbows high, not tucked; Lead with the back of the shoulders, not the biceps; Ribs down, no leaning back; Light band, 12-20 reps. NO ANCHOR: stand on the middle of the band, hinge forward and do band pull-aparts instead." },
+  "ruck_walk": { "title": "Loaded Walk (Ruck)",
+    "body": "PLAIN ENGLISH: Walking with weight in a backpack. It turns a Zone 2 walk into bone loading and posture work without any running or jumping. HOW: Use any sturdy backpack. Start with 10-15 lb (a few books, bottles of water, or a weight plate wrapped in a towel), packed high and close to your back, straps snug so it does not swing. Walk tall, shoulders back, normal stride, at a pace where you can talk in sentences. Flat route first; add hills before adding weight. Cues: Pack high and tight; Walk tall, do not lean into the straps; Talk-test pace the whole way. PROGRESSION: add 5 lb when the current weight feels like nothing for 30 minutes, up to about 10-20% of bodyweight. KNEE HURTING: lighter pack, flat route, poles if you have them." }
+});
+
+(function () {
+  var VW = VW_PLAN, SESS = VW.sessions, DAYS = VW.guide.days;
+  function ex(key, name, needs, o) { return Object.assign({ key: key, name: name, needs: needs || "bodyweight" }, o || {}); }
+  var S = { key: "slstance", name: "Single-Leg Stance", sets: 2, sec: 30, side: true, needs: "bodyweight",
+    scheme: "30s per side · eyes closed if you can · near a counter, not holding it" };
+  var T = { key: "tandem", name: "Tandem Walk", sets: 1, sec: 40, needs: "bodyweight",
+    scheme: "40s · heel to toe along a line, arms folded, eyes forward" };
+  var WARM = [
+    ex("wucardio", "Jump Rope / Brisk Walk", "bodyweight", { sets: 1, sec: 120, scheme: "warm-up · 2 min easy · KNEE HURTING: brisk march in place" }),
+    ex("wuleg", "Leg Swings", "bodyweight", { sets: 1, reps: 10, side: true, scheme: "warm-up · 10 per side, front-to-back, hold something" })
+  ];
+  var add = {
+    strength: [
+      { key: "kettlebell_flow", title: "Kettlebell Flow & Get-Ups", mins: "~30",
+        focus: "the kettlebell session the app lacked: halos, swings, goblet squats, single-arm clean and press, Turkish get-ups and a racked carry · the get-up is the floor-to-standing skill under load",
+        exercises: WARM.concat([
+          ex("kb_halo", "Kettlebell Halo", "dumbbells", { sets: 2, reps: 8, side: true, scheme: "8 each direction · light bell · hugs the head, ribs down" }),
+          ex("kbswing", "Kettlebell Swing", "dumbbells", { sets: 3, reps: 12, scheme: "12 · hinge and snap, arms are ropes · the bell floats to chest height" }),
+          ex("gobletsquat", "Goblet Squat", "dumbbells", { sets: 3, reps: 10, scheme: "10 · chest tall, elbows inside the knees · KNEE HURTING: squat to a knee-height box" }),
+          ex("kb_clean_press", "Single-Arm Kettlebell Clean & Press", "dumbbells", { sets: 3, reps: 6, side: true, scheme: "6 per side · hip snap into the rack, then press · weaker side's weight for both" }),
+          ex("tgu", "Turkish Get-Up", "dumbbells", { sets: 3, reps: 2, side: true, scheme: "2 per side · light bell, or a shoe on the fist while learning · every step slow, eyes on the bell · KNEE HURTING: towel under the knee, or stop at the half-kneel" }),
+          ex("frontrackcarry", "Front Rack Carry", "dumbbells", { sets: 2, sec: 40, scheme: "40s · bell in the rack, elbow tucked, ribs down · switch sides halfway" })
+        ]) },
+      { key: "tendons_hamstrings", title: "Knees, Tendons & Hamstrings", mins: "~35",
+        focus: "injury-proofing the lower body: Spanish squat isometrics for the knee tendons, band-assisted Nordic curls for the hamstrings, Copenhagen planks for the adductors, then shins and calves",
+        exercises: WARM.concat([
+          ex("spanish_squat", "Spanish Squat (Band Isometric)", "bodyweight", { sets: 4, sec: 30, scheme: "30-45s holds · #3 or #4 band behind the knees, shins vertical · NO ANCHOR: wall sit · KNEE HURTING: higher position, shorter holds" }),
+          ex("nordic_curl_band", "Nordic Hamstring Curl (Band-Assisted)", "bodyweight", { sets: 3, reps: 5, scheme: "3-5 slow lowerings · 3-5s down, hands catch, push back up · #3 or #4 band from the pull-up bar · NO ANCHOR FOR THE BAND: lower without it, push up with the hands" }),
+          ex("copenhagen_knee", "Copenhagen Plank (Short Lever)", "bodyweight", { sets: 3, sec: 20, side: true, scheme: "15-20s per side · top knee on the bench, bottom knee down · hips forward · NO BENCH: a sturdy chair" }),
+          ex("syn_terminal_knee_extension", "Terminal Knee Extension", "bodyweight", { sets: 2, reps: 15, side: true, scheme: "15 each side · VMO (inner quad) · light band" }),
+          ex("syn_reverse_nordic_modified", "Reverse Nordic (Modified)", "bodyweight", { sets: 2, reps: 5, scheme: "5 · Quads/Knees · small range, slow" }),
+          ex("tibraise", "Tibialis Raises", "bodyweight", { sets: 2, reps: 15, scheme: "15 · back to a wall, toes up slow" }),
+          ex("calfraise", "Eccentric Calf Raises", "bodyweight", { sets: 2, reps: 10, side: true, scheme: "10 per side · up on two feet, 3s down on one" })
+        ]) }
+    ],
+    mobility: [
+      { key: "shoulder_health", title: "Shoulder Health & Posture", mins: "~25",
+        focus: "the desk-and-phone antidote: face pulls, pull-aparts, wall angels, Y-T-Ws, shoulder circles, a doorway opener, a hang and light halos",
+        exercises: [
+          ex("band_face_pull", "Band Face Pull", "bodyweight", { sets: 3, reps: 15, scheme: "12-20 · #1 or #2 band at eye height · elbows high, squeeze the blades · NO ANCHOR: band pull-aparts" }),
+          ex("pw_band_pull_apart", "Band Pull-Apart", "bodyweight", { sets: 2, reps: 15, scheme: "15 · #1 band · arms straight, squeeze the shoulder blades" }),
+          ex("syn_wall_angels", "Wall Angels", "bodyweight", { sets: 2, reps: 10, scheme: "10 · low back, head and wrists on the wall" }),
+          ex("syn_prone_y_t_w", "Prone Y-T-W", "bodyweight", { sets: 1, reps: 5, side: true, scheme: "5 each letter · Rear Delts/Mid Back · thumbs up" }),
+          ex("syn_shoulder_cars", "Shoulder CARs", "bodyweight", { sets: 1, reps: 3, side: true, scheme: "3 full circles each side · slow, the biggest circle you own" }),
+          ex("syn_doorway_chest_opener_rotation", "Doorway Chest Opener + Rotation", "bodyweight", { sets: 1, reps: 8, scheme: "8 · Chest/Thoracic" }),
+          ex("kb_halo", "Kettlebell Halo", "dumbbells", { sets: 2, reps: 8, side: true, scheme: "8 each direction · light · NO KETTLEBELL: a dumbbell held by one end" }),
+          ex("syn_active_hang", "Active Hang", "bodyweight", { sets: 2, sec: 20, scheme: "20-30s · shoulders pulled down away from the ears" }),
+          ex("syn_thread_the_needle", "Thread the Needle", "bodyweight", { sets: 1, reps: 8, side: true, scheme: "8 each side · Thoracic Spine/Shoulders" }),
+          ex("syn_neck_cars", "Neck CARs", "bodyweight", { sets: 1, reps: 3, side: true, scheme: "3 circles each direction · slow" })
+        ] },
+      { key: "yin_stretch", title: "Yin Stretch & Recovery", mins: "~30",
+        focus: "the long holds from Asian Pilates and Joint Mobility strung into one slow session: hips, hamstrings, spine, then legs up the wall and a body scan · the recovery day",
+        exercises: [
+          ex("syn_cat_cow_breath_led", "Cat-Cow (Breath-Led)", "bodyweight", { sets: 1, reps: 8, scheme: "8 cycles · Spine · move with the breath" }),
+          ex("syn_kneeling_hip_flexor_stretch", "Kneeling Hip Flexor Stretch", "bodyweight", { sets: 1, sec: 60, side: true, scheme: "1 min/side · Hip Flexors · cushion under the knee, tuck the tailbone" }),
+          ex("syn_couch_stretch_with_active_extension", "Couch Stretch with Active Extension", "bodyweight", { sets: 1, reps: 5, side: true, scheme: "5 contractions each side · Hip Flexors/Quads" }),
+          ex("syn_seated_forward_fold_yin_style", "Seated Forward Fold (Yin Style)", "bodyweight", { sets: 1, sec: 120, scheme: "2 min · Posterior Chain · soft knees, let gravity do it" }),
+          ex("syn_supine_butterfly", "Supine Butterfly", "bodyweight", { sets: 1, sec: 120, scheme: "2 min · Hip Adductors · breathe" }),
+          ex("syn_figure_4_stretch_supine", "Figure-4 Stretch (Supine)", "bodyweight", { sets: 1, sec: 60, side: true, scheme: "1 min/side · Glutes/Hip Rotators" }),
+          ex("syn_reclined_spinal_twist", "Reclined Spinal Twist", "bodyweight", { sets: 1, sec: 60, side: true, scheme: "1 min/side · Spine/Hip" }),
+          ex("syn_meridian_side_stretch", "Meridian Side Stretch", "bodyweight", { sets: 1, sec: 45, side: true, scheme: "45s/side · Lateral Chain" }),
+          ex("syn_child_s_pose_wide_knee", "Child's Pose (Wide Knee)", "bodyweight", { sets: 1, sec: 120, scheme: "2 min · Back/Hips" }),
+          ex("syn_legs_up_the_wall", "Legs Up the Wall", "bodyweight", { sets: 1, sec: 180, scheme: "3 min · Recovery/Circulation" }),
+          ex("syn_shavasana_with_body_scan", "Shavasana with Body Scan", "bodyweight", { sets: 1, sec: 180, scheme: "3 min · Recovery" })
+        ] }
+    ],
+    cardio: [
+      { key: "ruck_walk", title: "Loaded Walk (Ruck)", mins: "~35",
+        focus: "a Zone 2 walk with a weighted backpack: bone loading and posture without running · start at 10-15 lb · then two balance moves",
+        exercises: [
+          ex("ruck_walk", "Loaded Walk (Ruck)", "bodyweight", { sets: 1, sec: 1800, scheme: "30 min · 10-15 lb in a backpack to start, packed high and tight · talk-test pace · flat route first, hills before more weight · KNEE HURTING: lighter pack, flat route" }),
+          S, T
+        ] },
+      { key: "low_impact_aerobics", title: "Low-Impact Aerobics", mins: "~25",
+        focus: "an aerobics-class block with no jumping: step-jacks, marching high knees, butt kicks, step-skaters, shadow boxing, then a brisk march · the knee-friendly way to get sweaty",
+        exercises: [
+          ex("wucardio", "Jump Rope / Brisk Walk", "bodyweight", { sets: 1, sec: 120, scheme: "warm-up · 2 min easy march" }),
+          ex("jacks", "Step-Out Jacks", "bodyweight", { sets: 2, sec: 45, scheme: "45s on / 20s off · step out, arms overhead, no hop" }),
+          ex("highknees", "Marching High Knees", "bodyweight", { sets: 2, sec: 45, scheme: "45s on / 20s off · march, knees to hip height, pump the arms" }),
+          ex("buttkick", "Butt Kicks", "bodyweight", { sets: 2, sec: 45, scheme: "45s on / 20s off · quick heels, light feet · KNEE HURTING: standing hamstring curls, slow" }),
+          ex("skaters", "Step Skaters", "bodyweight", { sets: 2, sec: 45, scheme: "45s on / 20s off · lateral step-outs with a reach, no hop" }),
+          ex("shadowbox", "Shadow Boxing", "bodyweight", { sets: 2, sec: 60, scheme: "60s on / 20s off · light feet, relaxed hands, keep moving" }),
+          ex("briskmarch", "Brisk March", "bodyweight", { sets: 1, sec: 300, scheme: "5 min · talking should be effortful · cool down the last minute" })
+        ] }
+    ],
+    mix: [
+      { key: "agility_footwork", title: "Footwork & Agility", mins: "~30",
+        focus: "the Fingerprint agility pool as a session: shuffles, carioca, banded side-steps, quick feet, plank drags, the reactive step drill, a tightrope and a stance · the quickness that keeps a trip from becoming a fall",
+        exercises: [
+          ex("wucardio", "Jump Rope / Brisk Walk", "bodyweight", { sets: 1, sec: 120, scheme: "warm-up · 2 min easy" }),
+          ex("shuffle", "Lateral Shuffle", "bodyweight", { sets: 3, reps: 10, scheme: "10 · 5 m out and back, stay low · KNEE HURTING: walk it" }),
+          ex("carioca", "Carioca", "bodyweight", { sets: 3, sec: 30, scheme: "30s · grapevine, both directions" }),
+          ex("sidestep", "Banded Side-Steps", "bodyweight", { sets: 2, reps: 12, scheme: "12 steps each way · mini band above the knees, knees out" }),
+          ex("highknees", "High Knees", "bodyweight", { sets: 2, sec: 30, scheme: "30s · quick feet, tall posture · KNEE HURTING: fast march" }),
+          ex("plankdrag", "Plank Drag", "bodyweight", { sets: 2, sec: 30, scheme: "30s · drag a dumbbell or towel under you, feet wide, hips locked" }),
+          ex("pw_step_drill", "Reactive Lean-and-Step", "bodyweight", { sets: 2, reps: 6, side: true, scheme: "6 each direction · lean until you must step, catch yourself with one quick step · near a counter" }),
+          ex("syn_tightrope_walk", "Tightrope Walk", "bodyweight", { sets: 1, reps: 20, side: true, scheme: "20 steps each way · Balance/Ankles" }),
+          S
+        ] }
+    ]
+  };
+  var LABEL = { strength: "Strength", mobility: "Mobility", cardio: "Cardio", mix: "Mix" };
+  var card = {
+    kettlebell_flow: "Learn the get-up empty, then with a shoe on your fist, then with a light bell. Eyes on the bell until you are standing. The clean is a hip snap, not an arm curl.",
+    tendons_hamstrings: "Slow is the whole exercise here: the Spanish squat is a hold, the Nordic is a 3-5 second lowering, the Copenhagen is a hold. Expect hamstring soreness the first week, so 3-5 Nordic reps is plenty.",
+    shoulder_health: "Light band, high elbows, squeeze the blades. Nothing here should feel like a workout; it should feel like your shoulders sitting back where they belong afterward.",
+    yin_stretch: "Long holds, soft breathing, nothing forced. This is the recovery day. Legs up the wall and the body scan are part of it, not the bit you skip.",
+    ruck_walk: "Ten to fifteen pounds to start, high and tight in the pack, talk-test pace. Add hills before adding weight. Walk tall, do not lean into the straps.",
+    low_impact_aerobics: "Every move is the step version. Forty-five seconds on, twenty off. If you want it harder, move bigger and faster, not higher.",
+    agility_footwork: "Quick feet, stay low, both directions. The reactive step drill at the end is the point: lean until you have to step and catch yourself."
+  };
+  Object.keys(add).forEach(function (pool) {
+    add[pool].forEach(function (s) {
+      SESS[pool].push(s);
+      DAYS[LABEL[pool] + " · " + s.title] = { kicker: "Today", title: s.title, body: card[s.key] };
+    });
+  });
+  /* the guide's library counts and the "added for 45" card */
+  var g0 = VW.guide.groups[0].items;
+  g0[0].title = "Strength (12)";
+  g0[0].body = g0[0].body.replace("Carries & Grip, Military Core & Glutes.", "Carries & Grip, Military Core & Glutes, Kettlebell Flow & Get-Ups, Knees, Tendons & Hamstrings.");
+  g0[1].title = "Mobility (20)";
+  g0[1].body = g0[1].body.replace("Pelvic Floor & Deep Core, Full Body Movement Flow.", "Pelvic Floor & Deep Core, Full Body Movement Flow, Shoulder Health & Posture, Yin Stretch & Recovery.");
+  g0[2].title = "Cardio (13)";
+  g0[2].body = g0[2].body.replace("Rope & Shadow Boxing 30/30, Recovery Spin + Balance.", "Rope & Shadow Boxing 30/30, Recovery Spin + Balance, Loaded Walk (Ruck), Low-Impact Aerobics.");
+  g0[3].title = "Mix (8)";
+  g0[3].body = g0[3].body.replace("Walk + Strength Snack; Fingerprint Sampler.", "Walk + Strength Snack; Fingerprint Sampler; Footwork & Agility.");
+  VW.guide.rotate.push({ kicker: "Added", title: "What the app did not have before",
+    body: "Turkish get-ups and kettlebell clean-and-press, Spanish squat isometrics for the knee tendons, band-assisted Nordic curls for the hamstrings, Copenhagen planks for the adductors, band face pulls for the shoulders, rucking, a no-jump aerobics block, an agility session and a long-hold stretch session. Each new movement has its own How-to and video." });
+  VW.guide.blurb = VW.guide.blurb.replace("Ten strength sessions, eighteen mobility sessions, eleven cardio sessions and seven mix sessions", "Twelve strength sessions, twenty mobility sessions, thirteen cardio sessions and eight mix sessions");
+})();
