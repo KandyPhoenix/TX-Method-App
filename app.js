@@ -1179,7 +1179,7 @@ function synData(id) {
    The shipped days are the fallback: with nothing rolled, the plan is
    exactly what the data file says.
    --------------------------------------------------------------------- */
-const SYN_POOL_LABEL = { cardio: 'Cardio', balance: 'Balance' };
+const SYN_POOL_LABEL = { cardio: 'Cardio', balance: 'Balance', strength: 'Strength', mobility: 'Mobility', mix: 'Mix' };
 let synRollCache = {};
 function synSessions(plan, pool) { return (plan && plan.sessions && plan.sessions[pool]) || []; }
 function synRolled(plan, days) {
@@ -1280,7 +1280,8 @@ const SYN_ICO = {
   'norwegian-4x4': '\u{1F6B4}', 'pelvic-floor-foundation-12w': '\u{1FAB7}',
   'strength-speed-45plus-12w': '\u{1F3C3}',
   'superage-120-4x30': '\u{23F1}\u{FE0F}',
-  'glute-balance-month': '\u{1F351}'
+  'glute-balance-month': '\u{1F351}',
+  'variety-week': '\u{1F3B2}'
 };
 const SYN_TAG = {
   'ppl': 'Strength', 'upper-lower': 'Strength', 'full-body': 'Strength',
@@ -1291,7 +1292,8 @@ const SYN_TAG = {
   'norwegian-4x4': 'Conditioning', 'pelvic-floor-foundation-12w': 'Conditioning',
   'strength-speed-45plus-12w': 'Power',
   'superage-120-4x30': 'Longevity',
-  'glute-balance-month': 'Strength'
+  'glute-balance-month': 'Strength',
+  'variety-week': 'Adaptive'
 };
 const SYN_GRP = {
   'asian-pilates-3x': 'recovery', 'mobility-snacks-4x': 'recovery',
@@ -3315,6 +3317,32 @@ const SYN_LOAD = {
     wu_single_leg_rdl:                { src: 'deadlift', pct: 0.15, type: 'hand' },
     sadbpress:                        { src: 'press',    pct: 0.30, type: 'hand' },
     wu_db_glute_bridge:               { src: 'squat',    pct: 0.30, type: 'db'   },
+    sims_suitcase_carry:              { src: 'deadlift', pct: 0.25, type: 'hand', prog: false },
+    sims_farmer_carry:                { src: 'deadlift', pct: 0.30, type: 'hand', prog: false },
+  },
+  /* Full Variety Week: the union of the strength libraries it rolls from.
+     Same rules as Glute & Balance Month and SuperAge 120 for the 8-12 rep
+     work; the Sims heavy day's back squat at 5 reps + 2.5 in reserve is
+     Epley inverted (0.79). Strength & Speed movements start light and are
+     found by the reps-hit rule, as in that program; carries and the speed
+     deadlift suggest a load but do not progress. Dumbbell A/B keys fall
+     back to SA_WEIGHT's shipped ratios. */
+  'syn-variety-week': {
+    syn_barbell_hip_thrust:           { src: 'squat',    pct: 0.68, type: 'bar'  },
+    syn_romanian_deadlift:            { src: 'deadlift', pct: 0.50, type: 'bar'  },
+    sims_back_squat:                  { src: 'squat',    pct: 0.79, type: 'bar'  },
+    syn_single_arm_dumbbell_row:      { src: 'bench',    pct: 0.35, type: 'hand' },
+    syn_dumbbell_bench_press:         { src: 'bench',    pct: 0.30, type: 'hand' },
+    sadbpress:                        { src: 'press',    pct: 0.30, type: 'hand' },
+    stepup:                           { src: 'squat',    pct: 0.15, type: 'hand' },
+    wu_single_leg_rdl:                { src: 'deadlift', pct: 0.15, type: 'hand' },
+    wu_db_glute_bridge:               { src: 'squat',    pct: 0.30, type: 'db'   },
+    syn_bulgarian_split_squats:       { src: 'squat',    pct: 0.15, type: 'hand' },
+    syn_split_squat_shallow:          { src: 'squat',    pct: 0.10, type: 'hand' },
+    syn_b_stance_rdl:                 { src: 'deadlift', pct: 0.15, type: 'hand' },
+    pw_goblet_squat:                  { start: 10, type: 'hand' },
+    pw_db_rdl:                        { start: 10, type: 'hand' },
+    pw_kb_swing:                      { start: 15, type: 'hand', prog: false },
     sims_suitcase_carry:              { src: 'deadlift', pct: 0.25, type: 'hand', prog: false },
     sims_farmer_carry:                { src: 'deadlift', pct: 0.30, type: 'hand', prog: false },
   },

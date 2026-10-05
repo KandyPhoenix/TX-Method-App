@@ -7826,3 +7826,524 @@ Object.assign(SYN_TIPS, {
     "body": "PLAIN ENGLISH: The hip thrust with a long loop band instead of a barbell, for days the bar will not roll onto your lap, or for home. WHICH BAND: #2 or #3 from the long-band set to start. Go up a band when 12 reps feel easy with a hard squeeze at the top; a thicker band, or two bands, is the progression. HOW: Sit on the floor with your upper back against the bench, feet flat and hip-width. Pin the band flat under both feet (the whole sole on it, so it cannot slip) and bring the loop up over the crease of your hips. Shuffle so your shoulder blades sit on the bench edge, chin tucked. Drive through the heels and push the hips up against the band until knees, hips and shoulders form a line. Squeeze the glutes hard for 1-2 seconds at the top, where the band pulls hardest, then lower under control. Cues: Chin tucked, look at the wall, not the ceiling; Ribs down, do not arch the low back to get higher; Knees stay over the feet, not caving in; The band is tightest at the top, so the squeeze up there is the rep. Same sets and reps as the barbell version; progress by reps and band, not weight."
   }
 });
+
+/* =====================================================================
+   FULL VARIETY WEEK (Kandy, 2026-10-05)
+
+   A seven-day week where every day rolls from its own library:
+     Day 1  Strength   Day 2  Mobility   Day 3  Cardio
+     Day 4  Strength   Day 5  Mobility   Day 6  Cardio   Day 7  Mix
+   Two strength, two balance/mobility/yoga/pilates/tai chi, two cardio,
+   one mix. Each day comes pre-rolled to a different session every week
+   (four weeks, nothing repeats), and the Roadmap's Roll button draws
+   another from the same library whenever today needs something else.
+
+   What a 45-year-old's week was missing from the four categories as
+   asked, added here on purpose, all from programs already in the app:
+     power and impact   jumps, snap-downs, fast step-ups (Sims 4 Women,
+                        Strength & Speed 45+): bone and speed
+     grip and carries   farmer's, suitcase, front-rack, dead hangs
+                        (Fingerprint Loaded Power, Sims): grip strength
+     heavy, low reps    a Sims heavy lower day: strength, not just endurance
+     VO2max + Zone 2    both ends of the cardio range (Norwegian 4×4,
+                        Sims sprints, Zone 2 walks and rides)
+     pelvic floor       the Pelvic Floor Foundation core session
+     breath and nervous-system down-regulation
+                        tai chi, qigong and 360° breathing
+     reactive balance   stance, tandem, the step drill (Strength & Speed)
+   The library keys are shared with Glute & Balance Month where the
+   session is the same, so a session done in one program still counts as
+   done when the other rolls.
+   ===================================================================== */
+const VW_PLAN = (function () {
+  var GB = GB_PLAN.sessions;
+  var R = "8-12 reps · stop with 2-3 in reserve";
+  var S = { key: "slstance", name: "Single-Leg Stance", sets: 2, sec: 30, side: true, needs: "bodyweight",
+    scheme: "30s per side · eyes closed if you can · near a counter, not holding it" };
+  var T = { key: "tandem", name: "Tandem Walk", sets: 1, sec: 40, needs: "bodyweight",
+    scheme: "40s · heel to toe along a line, arms folded, eyes forward" };
+  var STEP = { key: "pw_step_drill", name: "Reactive Lean-and-Step", sets: 2, reps: 6, side: true, needs: "bodyweight",
+    scheme: "6 each direction · lean until you must step, catch yourself with one quick step · near a counter" };
+  var BREATH = { key: "pf_360_breathing", name: "360° Breathing", sets: 1, sec: 120, needs: "bodyweight",
+    scheme: "8-10 slow breaths · wide ribs, soft belly, long exhales · lying down" };
+  function warmLower() {
+    return [
+      { key: "jumprope", name: "Jump Rope or Brisk March", sets: 1, sec: 120, needs: "bodyweight", scheme: "warm-up · 2 min easy · KNEE HURTING: brisk march in place" },
+      { key: "wuleg", name: "Leg Swings", sets: 1, reps: 10, needs: "bodyweight", side: true, scheme: "warm-up · 10 per side, front-to-back, hold something" },
+      { key: "mb_glute_bridge", name: "Mini-Band Glute Bridge", sets: 1, reps: 12, needs: "bodyweight", scheme: "warm-up · 12 · LIGHT or MEDIUM mini band above the knees" },
+      { key: "mb_clamshell", name: "Mini-Band Clamshell", sets: 1, reps: 10, needs: "bodyweight", side: true, scheme: "warm-up · 10 per side · LIGHT mini band above the knees" }
+    ];
+  }
+  function warmUpper() {
+    return [
+      { key: "jumprope", name: "Jump Rope or Brisk March", sets: 1, sec: 120, needs: "bodyweight", scheme: "warm-up · 2 min easy · KNEE HURTING: brisk march in place" },
+      { key: "wuarm", name: "Arm Circles", sets: 1, reps: 10, needs: "bodyweight", scheme: "warm-up · 10 each direction, big and slow" },
+      { key: "pw_band_pull_apart", name: "Band Pull-Apart", sets: 1, reps: 15, needs: "bodyweight", scheme: "warm-up · 15 · #1 band · NO BAND: squeeze the shoulder blades together" }
+    ];
+  }
+  function ss(n, o, sets, pos) {
+    var L = String.fromCharCode(64 + n);
+    var e = Object.assign({}, o, { sets: sets, ss: n });
+    e.scheme = "Superset " + n + " · " + L + (pos === 1 ? "1" : "2") + " · " + (o.scheme || R) + (pos === 2 ? " · no rest, then back to " + L + "1" : "");
+    return e;
+  }
+  function pair(n, a, b, sets) { return [ss(n, a, sets, 1), ss(n, b, sets, 2)]; }
+  function ex(key, name, needs, o) { return Object.assign({ key: key, name: name, needs: needs || "bodyweight" }, o || {}); }
+  function fromGB(title) { return GB_PLAN.days.filter(function (d) { return d.title === title; })[0].exercises; }
+
+  var STRENGTH = [
+    { key: "glutes_hinge", title: "Glutes · Hinge & Thrust", mins: "~30",
+      focus: "Glute & Balance Month's Strength A: hip thrust, Romanian deadlift, step-downs and band walks, each paired with a push or pull",
+      exercises: fromGB("Strength A · Hinge & Thrust") },
+    { key: "glutes_single", title: "Glutes · Single-Leg & Step", mins: "~30",
+      focus: "Glute & Balance Month's Strength B: step-ups, single-leg RDLs and a loaded bridge, one leg at a time",
+      exercises: fromGB("Strength B · Single-Leg & Step") },
+    { key: "db_full_a", title: "Dumbbell Full-Body A", mins: "~30",
+      focus: "the Dumbbell A/B program's A day as three supersets: squat with press, row with hinge, shoulders with arms",
+      exercises: warmLower().concat(
+        pair(1, ex("gobletsquat", "Goblet Squat", "dumbbells", { reps: 12, scheme: "10-12 · Quads/Glutes · chest tall, elbows inside the knees · KNEE HURTING: squat to a knee-height box" }),
+                ex("dbpress", "DB Floor Press", "dumbbells", { reps: 12, scheme: "10-12 · Chest · elbows about 45° from the body" }), 3),
+        pair(2, ex("dbrow", "DB Bent-Over Row", "dumbbells", { reps: 12, scheme: "10-12 · Back · flat back, pull to the hips" }),
+                ex("dbrdl", "DB Romanian Deadlift", "dumbbells", { reps: 12, scheme: "10-12 · Hamstrings/Glutes · hinge, weights brush the thighs" }), 3),
+        pair(3, ex("dbohp", "DB Shoulder Press", "dumbbells", { reps: 10, scheme: "8-10 · Shoulders · ribs down" }),
+                ex("dbcurl", "DB Biceps Curl", "dumbbells", { reps: 12, scheme: "10-12 · Arms · no swinging" }), 3)) },
+    { key: "db_full_b", title: "Dumbbell Full-Body B", mins: "~30",
+      focus: "the Dumbbell A/B program's B day as supersets: lunge with push-up, deadlift with renegade row, then shoulders, arms and a windmill",
+      exercises: warmLower().concat(
+        pair(1, ex("dblunge", "DB Reverse Lunge", "dumbbells", { reps: 10, side: true, scheme: "8-10 per side · Glutes/Quads · long step back · KNEE HURTING: split squat with a shorter range" }),
+                ex("dbpushup", "Push-up", "bodyweight", { reps: 12, scheme: "8-12 · Chest · hands on a bench if 8 is out of reach" }), 3),
+        pair(2, ex("dbhinge", "DB Deadlift", "dumbbells", { reps: 12, scheme: "10-12 · Posterior Chain · flat back, weights close to the legs" }),
+                ex("dbrenrow", "DB Renegade Row", "dumbbells", { reps: 8, side: true, scheme: "8 per side · Back/Core · feet wide, hips dead still" }), 3),
+        pair(3, ex("dblatraise", "DB Lateral Raise", "dumbbells", { reps: 12, scheme: "10-12 · Shoulders · light, slow down" }),
+                ex("dbhammer", "DB Hammer Curl", "dumbbells", { reps: 12, scheme: "10-12 · Arms" }), 3),
+        [ex("dbwindmill", "DB Windmill", "dumbbells", { reps: 8, side: true, sets: 2, scheme: "8 per side · Core/Hips · light weight overhead, eyes on it the whole way" })]) },
+    { key: "upper_push_pull", title: "Upper · Push & Pull", mins: "~30",
+      focus: "SuperAge 120's Upper A: explosive opener, then press with row, overhead press with pull-up, carry with plank",
+      exercises: warmUpper().concat(
+        [ex("sa_mb_slam", "Medicine Ball Slam", "bodyweight", { sets: 2, reps: 6, scheme: "2 × 6 · explosive, full effort · NO MED BALL: explosive incline push-up, hands on a bench" })],
+        pair(1, ex("syn_dumbbell_bench_press", "Dumbbell Chest Press", "dumbbells", { reps: 10, scheme: R + " · Chest" }),
+                ex("syn_single_arm_dumbbell_row", "Single-Arm Dumbbell Row", "dumbbells", { reps: 10, side: true, scheme: R + " per side · Back" }), 3),
+        pair(2, ex("sadbpress", "Single-Arm Dumbbell Overhead Press", "dumbbells", { reps: 10, side: true, scheme: R + " per side · Shoulders · do not lean away" }),
+                ex("syn_pull_ups", "Pull-Ups", "bodyweight", { reps: 5, scheme: "as many clean reps as you can, 2 in reserve · NO PULL-UP YET: band-assisted, knee in the #3 or #4 band, or 3-5 slow negatives" }), 3),
+        pair(3, ex("sims_farmer_carry", "Farmer's Carry", "dumbbells", { reps: 40, scheme: "40 steps · heavy, tall posture" }),
+                ex("syn_plank_hold", "Plank", "bodyweight", { sec: 40, scheme: "40s · ribs down, squeeze glutes" }), 2)) },
+    { key: "lower_power", title: "Lower Power · Speed", mins: "~30",
+      focus: "Strength & Speed 45+'s lower day in its speed phase: jump, squat and hinge fast, step up fast, then the quick step drill · power is the thing that goes first after 40",
+      exercises: [
+        { key: "mb_glute_bridge", name: "Mini-Band Glute Bridge", sets: 1, reps: 12, needs: "bodyweight", scheme: "warm-up · 12 · LIGHT or MEDIUM mini band above the knees" },
+        { key: "mb_clamshell", name: "Mini-Band Clamshell", sets: 1, reps: 10, needs: "bodyweight", side: true, scheme: "warm-up · 10 per side · LIGHT mini band above the knees" },
+        ex("pw_jump", "Squat Jump", "bodyweight", { sets: 2, reps: 5, scheme: "2×5 · quarter-squat dip, jump straight up, land softly and stick it · reset between reps · KNEE HURTING: snap-downs, no jump" }),
+        ex("pw_goblet_squat", "Goblet Squat (Fast Up)", "dumbbells", { sets: 2, reps: 8, scheme: "2×8 · 3s down, stand up fast · KNEE HURTING: box squat to a knee-height bench, still fast up" }),
+        ex("pw_db_rdl", "Dumbbell Romanian Deadlift", "dumbbells", { sets: 2, reps: 8, scheme: "2×8 · 3s down, snap the hips forward to stand" }),
+        ex("pw_kb_swing", "Kettlebell Speed Deadlift", "dumbbells", { sets: 2, reps: 6, scheme: "2×6 · stand up fast, lower under control · the bell never leaves the line of the legs" }),
+        ex("pw_fast_step_up", "Fast Step-Up", "bodyweight", { sets: 2, reps: 6, side: true, scheme: "2×6 per side · 12-inch box · drive up fast, 3s step down · KNEE HURTING: 6-8 inch step" }),
+        ex("pw_band_lateral_walk", "Band Lateral Walk", "bodyweight", { sets: 2, reps: 10, side: true, scheme: "2×10 steps each way · band above the knees, quicker steps" }),
+        ex("pw_fast_calf_raise", "Fast Calf Raise", "bodyweight", { sets: 2, reps: 10, scheme: "2×10 · rise fast, 3s lower · fingertips on a counter" }),
+        ex("pw_step_drill", "Quick Step Drill", "bodyweight", { sets: 2, sec: 30, side: true, scheme: "2 × 30s per side · clock-face steps, as quickly as you can while staying tidy" })
+      ] },
+    { key: "heavy_lower", title: "Heavy Lower · Sims", mins: "~45",
+      focus: "Sims 4 Women's heavy lower day: jumps, then low-rep squats and hinges with FULL rests · no supersets here, the rest is the mechanism · the one strength session that runs toward 45 minutes",
+      exercises: warmLower().concat([
+        ex("sims_squat_jump", "Squat Jump", "bodyweight", { sets: 2, reps: 8, scheme: "8-10 · Plyometric/Bone · land soft · KNEE HURTING: fast sit-to-stand from a bench" }),
+        ex("sims_back_squat", "Back Squat", "gym", { sets: 4, reps: 5, scheme: "5 reps · Quads/Glutes · heavy, 2-3 in reserve · 3 min rest · KNEE HURTING: box squat to a knee-height box, lighter · NO BARBELL: heavy goblet squat" }),
+        ex("syn_romanian_deadlift", "Romanian Deadlift", "gym", { sets: 4, reps: 5, scheme: "5 reps · Hamstrings/Glutes · heavy · 3 min rest · NO BARBELL: dumbbell RDL" }),
+        ex("syn_bulgarian_split_squats", "Bulgarian Split Squat", "dumbbells", { sets: 3, reps: 6, side: true, scheme: "6 each · Quads/Glutes · 2 min rest · KNEE HURTING: flat-floor split squat, shorter range" }),
+        ex("syn_barbell_hip_thrust", "Barbell Hip Thrust", "gym", { sets: 3, reps: 6, scheme: "6 reps · Glutes · 2 min rest · NO BAR ON THE LAP: tap ⇄ for the long-band hip thrust" }),
+        ex("sims_suitcase_carry", "Suitcase Carry", "dumbbells", { sets: 3, reps: 30, side: true, scheme: "30 steps each side · Core/Grip · stay level" })
+      ]) },
+    { key: "knee_friendly_lower", title: "Knee-Friendly Lower", mins: "~35",
+      focus: "Knee-Friendly 2x's lower day, trimmed to six moves: glutes and hamstrings without deep knee flexion",
+      exercises: warmLower().concat([
+        ex("syn_controlled_glute_step_down", "Controlled Glute Step Down", "bodyweight", { sets: 3, reps: 8, side: true, scheme: "8-10 each leg · Glutes/Quads · 3s down" }),
+        ex("syn_barbell_hip_thrust", "Barbell Hip Thrust", "gym", { sets: 3, reps: 8, scheme: "8-10 · Glutes · NO BAR ON THE LAP: tap ⇄ for the long-band hip thrust" }),
+        ex("syn_romanian_deadlift", "Romanian Deadlift", "gym", { sets: 3, reps: 8, scheme: "8-10 · Hamstrings/Glutes · NO BARBELL: dumbbell RDL" }),
+        ex("syn_b_stance_rdl", "B-Stance RDL", "bodyweight", { sets: 3, reps: 10, side: true, scheme: "10-12 each · Hamstrings/Glutes · the back foot is a kickstand" }),
+        ex("syn_split_squat_shallow", "Split Squat (Shallow)", "bodyweight", { sets: 3, reps: 10, side: true, scheme: "10-12 each · Quads/Glutes · short range" }),
+        ex("syn_lateral_band_walk", "Lateral Band Walk", "dumbbells", { sets: 3, reps: 15, side: true, scheme: "15 each way · Glute Medius · mini band above the knees" })
+      ]) },
+    { key: "carries_grip", title: "Carries & Grip", mins: "~30",
+      focus: "the Fingerprint Loaded Power protocol plus push-ups: grip strength is one of the longevity markers, and carries train it with the core and the posture",
+      exercises: warmUpper().concat([
+        ex("deadhang", "Dead Hang", "bodyweight", { sets: 3, sec: 30, scheme: "30s · shoulders active, no straps · work toward 60s" }),
+        ex("sims_farmer_carry", "Farmer's Carry", "dumbbells", { sets: 3, reps: 40, scheme: "40 steps · heavy, tall, no shrugging" }),
+        ex("frontrackcarry", "Front Rack Carry", "dumbbells", { sets: 2, sec: 40, scheme: "40s · elbows up, ribs down" }),
+        ex("sims_suitcase_carry", "Suitcase Carry", "dumbbells", { sets: 2, reps: 30, side: true, scheme: "30 steps per side · one hand loaded, stay level" }),
+        ex("kbswing", "Light KB Swing", "dumbbells", { sets: 3, reps: 12, scheme: "12 · hinge and snap, arms are ropes" }),
+        ex("towelhang", "Towel Hang", "bodyweight", { sets: 2, sec: 20, scheme: "20s · towel over the bar · brutal on the grip" }),
+        ex("pushups", "Pushups", "bodyweight", { sets: 3, reps: 10, scheme: "8-12 · one straight line · hands on a bench if needed" })
+      ]) },
+    { key: "military_core_glute", title: "Military Core & Glutes", mins: "~30",
+      focus: "Military Calisthenics' core-and-glute day, trimmed to eight moves: planks and dead bugs, then banded glute work",
+      exercises: [
+        ex("syn_plank_hold", "Plank Hold", "bodyweight", { sets: 3, sec: 45, scheme: "45s · Core" }),
+        ex("syn_dead_bug_progression_slow_tempo", "Dead Bug Progression (slow tempo)", "bodyweight", { sets: 2, reps: 12, side: true, scheme: "12 each side · Deep Core" }),
+        ex("syn_side_plank_thread_the_needle", "Side Plank Thread the Needle", "bodyweight", { sets: 2, reps: 8, side: true, scheme: "8 each side · Obliques" }),
+        ex("syn_bear_hold", "Bear Hold", "bodyweight", { sets: 2, sec: 20, scheme: "20s · Core/Shoulders" }),
+        ex("syn_banded_hip_thrust", "Banded Hip Thrust", "gym", { sets: 3, reps: 15, scheme: "15 · Glutes · mini band above the knees, push the knees out · back on a bench or couch" }),
+        ex("syn_banded_clamshell_with_lift", "Banded Clamshell with Lift", "dumbbells", { sets: 2, reps: 15, side: true, scheme: "15 each side · Hip Rotators" }),
+        ex("syn_donkey_kicks_with_band", "Donkey Kicks with Band", "dumbbells", { sets: 2, reps: 15, side: true, scheme: "15 each leg · Glutes" }),
+        ex("syn_single_leg_rdl_no_weight_wall_support", "Single Leg RDL (wall support)", "bodyweight", { sets: 2, reps: 10, side: true, scheme: "10 each leg · Hamstrings/Glutes/Balance" })
+      ] }
+  ];
+
+  var MOBILITY = GB.balance.concat([
+    { key: "pilates_mat", title: "Pilates Mat · Classical", mins: "~20",
+      focus: "the classical Joseph Pilates mat sequence from the Pilates Mat program, week-1 doses",
+      exercises: [
+        ex("hundred", "The Hundred", "bodyweight", { sets: 1, sec: 40, scheme: "40s · pump the arms, breathe in 5, out 5" }),
+        ex("rollup", "Roll-Up", "bodyweight", { reps: 5, scheme: "5 · one vertebra at a time" }),
+        ex("legcircle", "Single Leg Circles", "bodyweight", { reps: 5, side: true, scheme: "5 each direction, each leg · hips still" }),
+        ex("rollball", "Rolling Like a Ball", "bodyweight", { reps: 6, scheme: "6 · stay in the ball shape" }),
+        ex("singlestretch", "Single Leg Stretch", "bodyweight", { reps: 8, scheme: "8 each · head stays up" }),
+        ex("doublestretch", "Double Leg Stretch", "bodyweight", { reps: 8, scheme: "8 · low back stays down" }),
+        ex("spinestretch", "Spine Stretch Forward", "bodyweight", { reps: 5, scheme: "5 · reach over an imaginary ball" }),
+        ex("saw", "The Saw", "bodyweight", { reps: 5, side: true, scheme: "5 each side · hips square" }),
+        ex("swan", "Swan", "bodyweight", { reps: 6, scheme: "6 · long neck, light hands" }),
+        ex("sidekick", "Side Kicks", "bodyweight", { reps: 8, side: true, scheme: "8 each side · torso still" }),
+        ex("teaser", "Teaser", "bodyweight", { reps: 4, scheme: "4 · bent knees to start" })
+      ] },
+    { key: "mobility_method", title: "Mobility Method · Joints", mins: "~15",
+      focus: "the Mobility Method's daily joint routine: hips, knees, ankles and shoulders, with the ATG split squat",
+      exercises: [
+        ex("hipcars", "Hip CARs", "bodyweight", { reps: 4, side: true, scheme: "4 each side · slow full circles" }),
+        ex("n9090", "90/90 Hip Switches", "bodyweight", { reps: 6, scheme: "6 · hands off the floor if you can" }),
+        ex("deepsquat", "Deep Squat Hold", "bodyweight", { sets: 1, sec: 30, scheme: "30s · heels down · KNEE HURTING: hold a doorframe, comfortable depth" }),
+        ex("tibraise", "Tibialis Raises", "bodyweight", { reps: 12, scheme: "12 · back to a wall" }),
+        ex("calfraise", "Eccentric Calf Raises", "bodyweight", { reps: 8, side: true, scheme: "8 each side · 3s down" }),
+        ex("anklerock", "Knee-to-Wall Ankle Rocks", "bodyweight", { reps: 8, side: true, scheme: "8 each side · heel stays down" }),
+        ex("shouldercars", "Shoulder CARs", "bodyweight", { reps: 4, side: true, scheme: "4 each side · slow full circles" }),
+        ex("wallangel", "Wall Angels", "bodyweight", { reps: 8, scheme: "8 · low back on the wall" }),
+        ex("atgsplit", "ATG Split Squat", "bodyweight", { reps: 6, side: true, scheme: "6 each side · knee travels forward over the toes, controlled · KNEE HURTING: shorter range, hold a counter" })
+      ] },
+    { key: "core_awakening", title: "Core Awakening · Asian Pilates", mins: "~35",
+      focus: "Asian Pilates day 1 as written: tai chi and qigong to open, breath-led spine work, deep core, then a long close",
+      exercises: [
+        ex("syn_tai_chi_cloud_hands", "Tai Chi Cloud Hands", "bodyweight", { sets: 1, sec: 120, scheme: "2 min · Full Body" }),
+        ex("syn_qigong_shaking", "Qigong Shaking", "bodyweight", { sets: 1, sec: 60, scheme: "1 min · Full Body" }),
+        ex("syn_cat_cow_breath_led", "Cat-Cow (Breath-Led)", "bodyweight", { sets: 1, reps: 8, scheme: "8 cycles · Spine" }),
+        ex("syn_standing_spinal_roll_down", "Standing Spinal Roll-Down", "bodyweight", { sets: 1, reps: 4, scheme: "4 reps · Spine/Hamstrings" }),
+        ex("syn_modified_hundred_feet_down", "Modified Hundred (Feet Down)", "bodyweight", { sets: 2, reps: 50, scheme: "50 pumps · Core" }),
+        ex("syn_supine_leg_slides", "Supine Leg Slides", "bodyweight", { sets: 2, reps: 10, side: true, scheme: "10/side · Deep Core" }),
+        ex("syn_pelvic_curls_bridge_flow", "Pelvic Curls (Bridge Flow)", "dumbbells", { sets: 2, reps: 8, scheme: "8 · Glutes/Core" }),
+        ex("syn_side_lying_leg_lift_tai_chi_pace", "Side-Lying Leg Lift (Tai Chi Pace)", "bodyweight", { sets: 2, reps: 12, side: true, scheme: "12/side · Hip Abductors" }),
+        ex("syn_spine_twist_seated", "Spine Twist Seated", "bodyweight", { sets: 2, reps: 6, side: true, scheme: "6/side · Obliques/Spine" }),
+        ex("syn_wall_sit_qigong_breath", "Wall Sit (Qigong Breath)", "bodyweight", { sets: 2, sec: 20, scheme: "20-30s hold · Quads/Core · KNEE HURTING: higher seat" }),
+        ex("syn_meridian_side_stretch", "Meridian Side Stretch", "bodyweight", { sets: 1, sec: 45, side: true, scheme: "45s/side · Lateral Chain" }),
+        ex("syn_reclined_spinal_twist", "Reclined Spinal Twist", "bodyweight", { sets: 1, sec: 60, side: true, scheme: "1 min/side · Spine/Hip" }),
+        ex("syn_shavasana_with_body_scan", "Shavasana with Body Scan", "bodyweight", { sets: 1, sec: 180, scheme: "3 min · Recovery" })
+      ] },
+    { key: "yoga_flow", title: "Yoga Flow", mins: "~30",
+      focus: "the generator's yoga sequences strung into one session: sun salutations, warrior flow, a core flow, hip openers, then a long rest",
+      exercises: [
+        ex("gen_sun-salutation-a", "Sun Salutation A Flow", "bodyweight", { sets: 3, sec: 90, scheme: "3 rounds · about 90s each · move with the breath · step back instead of jumping · KNEE HURTING: skip the chaturanga, lower to the knees" }),
+        ex("gen_warrior-flow", "Warrior Flow Sequence", "bodyweight", { sets: 2, sec: 120, scheme: "2 rounds · each side · 5 breaths per pose · KNEE HURTING: shorter stance, front knee over the ankle" }),
+        ex("gen_yoga-core-flow", "Yoga Core Flow", "bodyweight", { sets: 1, sec: 300, scheme: "5 min continuous · planks, side planks, knee-to-nose" }),
+        ex("gen_hip-opener-flow", "Hip Opener Yoga Flow", "bodyweight", { sets: 1, sec: 420, scheme: "6-8 min · low lunge, half split, pigeon, each side · breathe into it · KNEE HURTING: figure-4 on your back instead of pigeon" }),
+        ex("syn_child_s_pose_wide_knee", "Child's Pose (Wide Knee)", "bodyweight", { sets: 1, sec: 120, scheme: "2 min · Back/Hips" }),
+        ex("syn_legs_up_the_wall", "Legs Up the Wall", "bodyweight", { sets: 1, sec: 180, scheme: "3 min · Recovery" })
+      ] },
+    { key: "taichi_breath", title: "Tai Chi, Qigong & Breath", mins: "~25",
+      focus: "the tai chi and qigong pieces from Asian Pilates, with the Pelvic Floor Foundation's 360° breathing: slow weight shifts, balance, and nervous-system down-regulation",
+      exercises: [
+        ex("syn_tai_chi_cloud_hands", "Tai Chi Cloud Hands", "bodyweight", { sets: 1, sec: 120, scheme: "2 min · weight shifts side to side, knees soft" }),
+        ex("syn_qigong_shaking", "Qigong Shaking", "bodyweight", { sets: 1, sec: 60, scheme: "1 min · loose, everything jiggles" }),
+        ex("syn_tai_chi_waving_hands", "Tai Chi Waving Hands", "bodyweight", { sets: 1, sec: 120, scheme: "2 min · Full Body" }),
+        ex("syn_qigong_arm_circles", "Qigong Arm Circles", "bodyweight", { sets: 1, sec: 120, scheme: "2 min · Shoulders/Chest" }),
+        ex("syn_standing_figure_8_hips", "Standing Figure-8 Hips", "bodyweight", { sets: 1, sec: 60, scheme: "1 min · Hips/Low Back" }),
+        ex("syn_wall_sit_qigong_breath", "Wall Sit (Qigong Breath)", "bodyweight", { sets: 3, sec: 20, scheme: "20-30s · slow breathing · KNEE HURTING: higher seat" }),
+        ex("syn_bird_dog_tai_chi_tempo", "Bird Dog (Tai Chi Tempo)", "bodyweight", { sets: 2, reps: 8, side: true, scheme: "8/side · as slowly as you can" }),
+        S,
+        ex("syn_meridian_side_stretch", "Meridian Side Stretch", "bodyweight", { sets: 1, sec: 45, side: true, scheme: "45s/side · Lateral Chain" }),
+        BREATH,
+        ex("syn_3_part_breath_qigong_close", "3-Part Breath (Qigong Close)", "bodyweight", { sets: 1, sec: 120, scheme: "2 min · belly, ribs, chest" }),
+        ex("syn_closing_meditation", "Closing Meditation", "bodyweight", { sets: 1, sec: 120, scheme: "2 min · sit or lie, eyes closed" })
+      ] },
+    { key: "spine_shoulders", title: "Spine & Shoulders Snack", mins: "~20",
+      focus: "Mobility Snacks' spine day and shoulder day back to back: the desk-body antidote",
+      exercises: [
+        ex("syn_cat_cow_lateral_bow", "Cat-Cow + Lateral Bow", "bodyweight", { sets: 1, reps: 5, side: true, scheme: "5 each direction · Spine/Thoracic" }),
+        ex("syn_thread_the_needle", "Thread the Needle", "bodyweight", { sets: 1, reps: 8, side: true, scheme: "8 each side · Thoracic Spine/Shoulders" }),
+        ex("syn_standing_thoracic_rotation", "Standing Thoracic Rotation", "bodyweight", { sets: 1, reps: 10, side: true, scheme: "10 each side · Thoracic Spine" }),
+        ex("syn_side_lying_book_opens", "Side-Lying Book Opens", "bodyweight", { sets: 1, reps: 8, side: true, scheme: "8 each side · Thoracic Spine/Shoulders" }),
+        ex("syn_spine_flexion_extension_in_squat", "Spine Flexion/Extension in Squat", "bodyweight", { sets: 1, reps: 8, scheme: "8 · Spine/Hips · KNEE HURTING: comfortable depth" }),
+        ex("syn_standing_lateral_reach", "Standing Lateral Reach", "bodyweight", { sets: 1, reps: 6, side: true, scheme: "6 each side · Lateral Chain" }),
+        ex("syn_shoulder_dislocates", "Shoulder Dislocates", "bodyweight", { sets: 1, reps: 10, scheme: "10 · Shoulders · wide grip on a band or towel" }),
+        ex("syn_shoulder_cars", "Shoulder CARs", "bodyweight", { sets: 1, reps: 3, side: true, scheme: "3 full circles each side · Shoulders" }),
+        ex("syn_wall_slide_protraction", "Wall Slide + Protraction", "bodyweight", { sets: 1, reps: 10, scheme: "10 · Shoulders/Serratus" }),
+        ex("syn_bear_plank_hold_shoulder_tap", "Bear Plank Hold + Shoulder Tap", "bodyweight", { sets: 1, reps: 6, side: true, scheme: "6 each side · Core/Shoulders" }),
+        ex("syn_doorway_chest_opener_rotation", "Doorway Chest Opener + Rotation", "bodyweight", { sets: 1, reps: 8, scheme: "8 · Chest/Thoracic" }),
+        ex("syn_neck_cars", "Neck CARs", "bodyweight", { sets: 1, reps: 3, side: true, scheme: "3 circles each direction · Cervical Spine" })
+      ] },
+    { key: "hips_spine_shoulders", title: "Joint Mobility · Hips, Spine, Shoulders", mins: "~30",
+      focus: "Joint Mobility Mastery's hip, spine and shoulder days in one: end-range strength at every joint that stiffens at a desk",
+      exercises: [
+        ex("syn_hip_cars_standing", "Hip CARs (Standing)", "bodyweight", { sets: 1, reps: 3, side: true, scheme: "3 circles each direction, each side · Hip Joint" }),
+        ex("syn_90_90_hip_lift_off", "90/90 Hip Lift-Off", "bodyweight", { sets: 1, reps: 5, side: true, scheme: "5 each side · Hip External Rotators" }),
+        ex("syn_cossack_squat_assisted", "Cossack Squat (Assisted)", "bodyweight", { sets: 2, reps: 5, side: true, scheme: "5 each side · Hips/Inner Thighs · hold a doorframe · KNEE HURTING: shallower" }),
+        ex("syn_couch_stretch_with_active_extension", "Couch Stretch with Active Extension", "bodyweight", { sets: 1, reps: 5, side: true, scheme: "5 contractions each side · Hip Flexors" }),
+        ex("syn_segmental_cat_cow", "Segmental Cat-Cow", "bodyweight", { sets: 1, reps: 5, scheme: "5 very slow · Full Spine" }),
+        ex("syn_jefferson_curl_bodyweight", "Jefferson Curl (Bodyweight)", "dumbbells", { sets: 2, reps: 5, scheme: "5 very slow · Spinal Erectors/Hamstrings · bodyweight or a very light dumbbell" }),
+        ex("syn_cobra_press_up_no_load", "Cobra Press-Up (No Load)", "bodyweight", { sets: 2, reps: 8, scheme: "8 · Spinal Extensors" }),
+        ex("syn_side_lying_thoracic_windmill", "Side-Lying Thoracic Windmill", "bodyweight", { sets: 1, reps: 8, side: true, scheme: "8 each side · Thoracic Spine" }),
+        ex("syn_shoulder_cars", "Shoulder CARs", "bodyweight", { sets: 1, reps: 3, side: true, scheme: "3 circles each direction, each side · Shoulder Joint" }),
+        ex("syn_wall_angels", "Wall Angels", "bodyweight", { sets: 2, reps: 10, scheme: "10 · Shoulders/Upper Back" }),
+        ex("syn_prone_y_t_w", "Prone Y-T-W", "bodyweight", { sets: 1, reps: 5, side: true, scheme: "5 each letter · Rear Delts/Mid Back" }),
+        ex("syn_active_hang", "Active Hang", "bodyweight", { sets: 2, sec: 20, scheme: "20-30 seconds · Shoulders/Lats" })
+      ] },
+    { key: "pelvic_floor_core", title: "Pelvic Floor & Deep Core", mins: "~30",
+      focus: "the Pelvic Floor Foundation core session, phase 1: breathing, long holds and quick flicks, the Knack, then deep-core control · the piece most programs for women over 40 leave out",
+      exercises: [
+        BREATH,
+        ex("pf_long_holds", "Pelvic Floor Long Holds", "bodyweight", { sets: 1, reps: 10, scheme: "10 × 3s squeeze-and-lift / 3s FULL release · lying down" }),
+        ex("pf_quick_flicks", "Pelvic Floor Quick Flicks", "bodyweight", { sets: 1, reps: 10, scheme: "10 × 1-2s fast squeeze, instant full release · lying down" }),
+        ex("pf_knack", "The Knack", "bodyweight", { sets: 1, reps: 3, scheme: "3 × contract-and-hold through one deliberate medium cough" }),
+        ex("pf_tva_activation", "TVA Activation (Hook-Lying)", "bodyweight", { sets: 2, reps: 10, scheme: "2×10 · exhale: lower belly draws in + pelvic floor lifts · 5s holds, keep breathing" }),
+        ex("pf_heel_slides", "Heel Slides", "bodyweight", { sets: 2, reps: 8, scheme: "2×8 per side · exhale-engage, slide one heel out · pelvis dead still" }),
+        ex("syn_glute_bridge_isometric", "Glute Bridge (3s Top Hold)", "bodyweight", { sets: 2, reps: 10, scheme: "2×10 · exhale up, 3s hold · ribs down" }),
+        ex("pf_bent_knee_fallouts", "Bent-Knee Fallouts", "bodyweight", { sets: 2, reps: 8, scheme: "2×8 per side · knee opens only as far as the pelvis stays level" }),
+        ex("syn_clam_shells", "Side-Lying Clamshell", "bodyweight", { sets: 2, reps: 12, scheme: "2×12 per side · hips stacked, no rolling back" }),
+        ex("pf_bird_dog_arms", "Bird Dog — Arms Only", "bodyweight", { sets: 2, reps: 8, scheme: "2×8 per side · pad the knees · a cup of water on your low back" })
+      ] },
+    { key: "movesmethod_full_flow", title: "Full Body Movement Flow", mins: "~20",
+      focus: "MovesMethod's head-to-toe session as written: spine, hips, shoulders, a hang and a deep squat",
+      exercises: [
+        ex("syn_cat_cow_flow", "Cat-Cow Flow", "bodyweight", { sets: 2, reps: 8, scheme: "8 reps · Spine" }),
+        ex("syn_standing_roll_down", "Standing Roll-Down", "bodyweight", { sets: 1, reps: 5, scheme: "5 very slow · Full Spine/Hamstrings" }),
+        ex("syn_world_s_greatest_stretch_flow", "World's Greatest Stretch Flow", "bodyweight", { sets: 1, reps: 5, side: true, scheme: "5 each side · Full Body" }),
+        ex("syn_standing_hip_cars", "Standing Hip CARs", "bodyweight", { sets: 1, reps: 3, side: true, scheme: "3 circles each direction, each side · Hip Joint" }),
+        ex("syn_cossack_squat_flow_assisted", "Cossack Squat Flow (Assisted)", "bodyweight", { sets: 1, reps: 5, side: true, scheme: "5 each side · Hips/Inner Thighs · KNEE HURTING: shallower" }),
+        ex("syn_shoulder_cars", "Shoulder CARs", "bodyweight", { sets: 1, reps: 3, side: true, scheme: "3 circles each direction, each side · Shoulder Joint" }),
+        ex("syn_standing_spinal_twists", "Standing Spinal Twists", "bodyweight", { sets: 1, reps: 10, side: true, scheme: "10 each side · Thoracic Spine" }),
+        ex("syn_active_hang", "Active Hang", "bodyweight", { sets: 2, sec: 20, scheme: "20-30 seconds · Shoulders/Lats" }),
+        ex("syn_deep_squat_hold", "Deep Squat Hold", "bodyweight", { sets: 1, sec: 30, scheme: "30-60 seconds · Hips/Ankles · KNEE HURTING: hold a doorframe, comfortable depth" })
+      ] }
+  ]);
+
+  var CARDIO = GB.cardio.concat([
+    { key: "rope_shadowbox", title: "Rope & Shadow Boxing 30/30", mins: "~25",
+      focus: "the Fingerprint 30/30 idea: three rounds of rope, three of shadow boxing, a minute off between · light feet, relaxed hands",
+      exercises: [
+        ex("jumprope", "Jump Rope", "bodyweight", { sets: 3, sec: 180, scheme: "3 min on, 1 min off · small relaxed hops · KNEE HURTING: high-knee march" }),
+        ex("shadowbox", "Shadow Boxing", "bodyweight", { sets: 3, sec: 180, scheme: "3 min on, 1 min off · light feet, relaxed hands, keep moving" })
+      ] },
+    { key: "easy_spin", title: "Recovery Spin + Balance", mins: "~30",
+      focus: "the Norwegian 4×4 program's easy day: 25 conversational minutes on the bike or on foot, then two balance moves · the easy day is what lets the hard days work",
+      exercises: [
+        ex("n44_easy_spin", "Easy Spin or Walk", "bodyweight", { sets: 1, sec: 1500, scheme: "25 min · conversational · the talk test the whole way" }),
+        S, T
+      ] }
+  ]);
+
+  var MIX = [
+    { key: "power_balance_breath", title: "Power, Balance & Breath", mins: "~25",
+      focus: "three things a 45-year-old's week needs that a split forgets: a bone-loading jump, a reactive step, and five minutes of slow breathing",
+      exercises: warmLower().concat([
+        ex("sims_squat_jump", "Squat Jumps", "bodyweight", { sets: 2, reps: 6, scheme: "2 × 6 · land soft and stick it · KNEE HURTING: fast sit-to-stand from a bench" }),
+        ex("skaters", "Skater Hops", "bodyweight", { sets: 2, reps: 6, side: true, scheme: "2 × 6 per side · side to side, land soft · KNEE HURTING: lateral step-outs" }),
+        ex("pw_jump", "Snap-Down (Landing Practice)", "bodyweight", { sets: 2, reps: 5, scheme: "2×5 · rise onto the toes, drop fast into a quarter squat and stick it silently" }),
+        S, T, STEP, BREATH,
+        ex("syn_3_part_breath_qigong_close", "3-Part Breath (Qigong Close)", "bodyweight", { sets: 1, sec: 120, scheme: "2 min · belly, ribs, chest" })
+      ]) },
+    { key: "carry_crawl_climb", title: "Carry, Crawl & Climb", mins: "~25",
+      focus: "the moves a gym split never programs: carries, crawls, hanging and pulling, a tightrope, a deep squat",
+      exercises: warmUpper().concat([
+        ex("sims_farmer_carry", "Farmer's Carry", "dumbbells", { sets: 3, reps: 40, scheme: "40 steps · heavy, tall" }),
+        ex("syn_bear_crawl", "Bear Crawl", "bodyweight", { sets: 2, reps: 4, scheme: "4 forward + 4 back · knees an inch off the floor" }),
+        ex("sa_lat_pulldown", "Lat Pulldown", "bodyweight", { sets: 3, reps: 10, scheme: "8-12 · NO MACHINE: kneeling band pulldown from the pull-up bar, #2 or #3 band, or 6-8 pull-up negatives" }),
+        ex("pushups", "Pushups", "bodyweight", { sets: 3, reps: 10, scheme: "8-12 · one straight line" }),
+        ex("deadhang", "Dead Hang", "bodyweight", { sets: 2, sec: 30, scheme: "30s · shoulders active" }),
+        ex("syn_tightrope_walk", "Tightrope Walk", "bodyweight", { sets: 1, reps: 20, side: true, scheme: "20 steps each way · Balance/Ankles" }),
+        ex("syn_deep_squat_hold", "Deep Squat Hold", "bodyweight", { sets: 1, sec: 45, scheme: "45s · Hips/Ankles · KNEE HURTING: hold a doorframe, comfortable depth" })
+      ]) },
+    { key: "bjj_drills", title: "BJJ Solo Drills", mins: "~30",
+      focus: "the BJJ Solo Drills program's day, two rounds: ground movement, getting up off the floor, breakfalls · agility and the floor-to-standing skill that matters most after 40",
+      exercises: [
+        ex("shrimp", "Hip Escape (Shrimp)", "bodyweight", { sets: 2, reps: 8, side: true, scheme: "8 per side · push off the foot, hips back" }),
+        ex("revshrimp", "Reverse Shrimp", "bodyweight", { sets: 2, reps: 8, side: true, scheme: "8 per side" }),
+        ex("bridge", "Bridge / Upa", "bodyweight", { sets: 2, reps: 8, side: true, scheme: "8 per side · drive over the shoulder" }),
+        ex("techstand", "Technical Stand-up", "bodyweight", { sets: 2, reps: 6, side: true, scheme: "6 per side · the floor-to-standing skill · KNEE HURTING: hand on a chair" }),
+        ex("granby", "Granby Roll", "bodyweight", { sets: 2, reps: 5, side: true, scheme: "5 per side · slow, over the shoulder, never the neck · skip if the neck says so" }),
+        ex("sprawl", "Sprawls", "bodyweight", { sets: 2, reps: 10, scheme: "10 · hips to the floor, back up · KNEE HURTING: step back instead of jumping" }),
+        ex("sitout", "Sit-outs", "bodyweight", { sets: 2, reps: 8, side: true, scheme: "8 per side" }),
+        ex("breakfall", "Back Breakfalls", "bodyweight", { sets: 2, reps: 6, scheme: "6 · chin tucked, slap the mat" }),
+        ex("hipheist", "Hip Heist", "bodyweight", { sets: 2, reps: 8, side: true, scheme: "8 per side" }),
+        ex("invhold", "Inversion Hold", "bodyweight", { sets: 1, sec: 20, scheme: "20s · weight on the shoulders, never the neck · skip freely" })
+      ] },
+    { key: "hiit_core", title: "HIIT + Core", mins: "~25",
+      focus: "half the Full-Body HIIT circuit, then the Core & Abs day: short, sweaty, and every jump has a step-version",
+      exercises: [
+        ex("wucardio", "Jump Rope / Brisk Walk", "bodyweight", { sets: 1, sec: 120, scheme: "warm-up · 2 min easy" }),
+        ex("jacks", "Jumping Jacks", "bodyweight", { sets: 2, sec: 30, scheme: "30s on / 30s off · KNEE HURTING: step-out jacks" }),
+        ex("highknees", "High Knees", "bodyweight", { sets: 2, sec: 30, scheme: "30s on / 30s off · KNEE HURTING: fast march" }),
+        ex("mtnclimb", "Mountain Climbers", "bodyweight", { sets: 2, sec: 30, scheme: "30s on / 30s off · KNEE HURTING: hands on a bench, slow" }),
+        ex("skaters", "Skaters", "bodyweight", { sets: 2, sec: 30, scheme: "30s on / 30s off · KNEE HURTING: lateral step-outs" }),
+        ex("burpees", "Burpees", "bodyweight", { sets: 2, sec: 30, scheme: "30s on / 30s off · KNEE HURTING: step-out burpees, no jump" }),
+        ex("crunches", "Crunches", "bodyweight", { sets: 2, reps: 15, scheme: "15 · chin off the chest" }),
+        ex("bicycle", "Bicycle Crunches", "bodyweight", { sets: 2, reps: 20, scheme: "20 · slow, opposite elbow to knee" }),
+        ex("legraises", "Leg Raises", "bodyweight", { sets: 2, reps: 12, scheme: "12 · low back stays down · bend the knees if needed" }),
+        ex("rtwist", "Russian Twists", "bodyweight", { sets: 2, reps: 20, scheme: "20 · heels down is fine" }),
+        ex("plank", "Plank", "bodyweight", { sets: 1, sec: 30, scheme: "30s · ribs down" }),
+        ex("hollow", "Hollow Body Hold", "bodyweight", { sets: 1, sec: 20, scheme: "20s · low back pressed down" })
+      ] },
+    { key: "military_power_flow", title: "Military Full Body + Power Flow", mins: "~30",
+      focus: "Military Calisthenics' integration day, trimmed to eight moves: push-up to side plank, banded and explosive hip thrusts, commando planks, swimmers, then spine flows to close",
+      exercises: [
+        ex("syn_push_up_to_side_plank", "Push-Up to Side Plank", "bodyweight", { sets: 2, reps: 5, side: true, scheme: "5 each side · Chest/Core/Obliques" }),
+        ex("syn_hip_thrust_with_band", "Hip Thrust with Band", "gym", { sets: 3, reps: 15, scheme: "15 · Glutes · mini band above the knees · back on a bench or couch" }),
+        ex("syn_reverse_lunge_to_knee_drive_step_back_only", "Reverse Lunge to Knee Drive", "bodyweight", { sets: 2, reps: 8, side: true, scheme: "8 each leg · Glutes/Quads · step back only · KNEE HURTING: shorter range, hold a counter" }),
+        ex("syn_commando_plank", "Commando Plank", "bodyweight", { sets: 2, reps: 10, scheme: "10 total · Core/Shoulders" }),
+        ex("syn_swimmers_prone", "Swimmers (prone)", "bodyweight", { sets: 2, reps: 20, scheme: "20 total · Posterior Chain" }),
+        ex("syn_explosive_hip_thrust", "Explosive Hip Thrust", "gym", { sets: 2, reps: 12, scheme: "12 · Glutes · bodyweight or a mini band, drive up fast, lower slow" }),
+        ex("syn_sphinx_to_seal_flow", "Sphinx to Seal Flow", "bodyweight", { sets: 2, reps: 10, scheme: "10 · Spine/Core" }),
+        ex("syn_child_s_pose_to_cobra_flow", "Child's Pose to Cobra Flow", "bodyweight", { sets: 2, reps: 10, scheme: "10 slow · Full Body/Recovery" })
+      ] },
+    { key: "walk_strength_snack", title: "Walk + Strength Snack", mins: "~30",
+      focus: "ten brisk minutes, then the five moves that keep: push-up, tempo squat, bird dog, carry, stance · the day there is no time for a proper session",
+      exercises: [
+        ex("brisk", "Brisk Walk", "bodyweight", { sets: 1, sec: 600, scheme: "10 min · fast enough to be slightly breathless" }),
+        ex("pushups", "Pushups", "bodyweight", { sets: 2, reps: 10, scheme: "8-12 · hands on a bench if needed" }),
+        ex("airsquattempo", "Air Squat (3-2-1)", "bodyweight", { sets: 2, reps: 8, scheme: "8 · 3s down, 2s pause, 1s up · KNEE HURTING: squat to a knee-height box" }),
+        ex("birddog", "Bird Dog", "bodyweight", { sets: 2, reps: 8, side: true, scheme: "8 per side · slow, hips square" }),
+        ex("sims_farmer_carry", "Farmer's Carry", "dumbbells", { sets: 2, reps: 40, scheme: "40 steps · heavy, tall" }),
+        S
+      ] },
+    { key: "fingerprint_sampler", title: "Fingerprint Sampler", mins: "~25",
+      focus: "one move for each physical longevity marker the Fingerprint tracks: a jump, a hang, a shuffle, a stance, a carry, and ten minutes of brisk walking",
+      exercises: [
+        ex("wucardio", "Jump Rope / Brisk Walk", "bodyweight", { sets: 1, sec: 120, scheme: "warm-up · 2 min easy" }),
+        ex("broadjump", "Standing Broad Jump", "bodyweight", { sets: 3, reps: 5, scheme: "5 · max distance, land soft, reset every rep · functional strength · KNEE HURTING: snap-downs, no jump" }),
+        ex("deadhang", "Dead Hang", "bodyweight", { sets: 2, sec: 30, scheme: "30s · grip strength" }),
+        ex("carioca", "Carioca", "bodyweight", { sets: 2, sec: 30, scheme: "30s · grapevine, both directions · agility" }),
+        S,
+        ex("marchcarry", "March Carry", "dumbbells", { sets: 2, sec: 40, scheme: "40s · knees to hip height, weights still · endurance under load" }),
+        ex("brisk", "Brisk Walk", "bodyweight", { sets: 1, sec: 600, scheme: "10 min · slightly breathless · aerobic capacity" })
+      ] }
+  ];
+
+  var SESSIONS = { strength: STRENGTH, mobility: MOBILITY, cardio: CARDIO, mix: MIX };
+  var LABEL = { strength: "Strength", mobility: "Mobility", cardio: "Cardio", mix: "Mix" };
+  function rolled(pool, key, w, slot) {
+    var s = SESSIONS[pool].filter(function (x) { return x.key === key; })[0];
+    if (!s) throw new Error("variety-week: no session " + pool + "/" + key);
+    return { title: LABEL[pool] + " · " + s.title, pool: pool, pick: key,
+      focus: "Week " + w + " of 4 · " + slot + " · " + s.focus + " · " + s.mins + " min · tap Roll on the Roadmap for a different " + LABEL[pool].toLowerCase() + " session",
+      exercises: s.exercises };
+  }
+  var WEEK = [
+    { s: ["glutes_hinge", "glutes_single"],     m: ["balance_control", "pilates_mat"],       c: ["zone2_walk", "rope_intervals"],  x: "power_balance_breath" },
+    { s: ["db_full_a", "upper_push_pull"],      m: ["yoga_flow", "hip_lateral"],             c: ["n44_pick", "zone2_ride"],        x: "bjj_drills" },
+    { s: ["lower_power", "knee_friendly_lower"],m: ["taichi_breath", "posterior_chain"],     c: ["incline_walk", "hiit_circuit"],  x: "carry_crawl_climb" },
+    { s: ["heavy_lower", "carries_grip"],       m: ["pelvic_floor_core", "ankles_knees"],    c: ["bike_sprints", "long_walk"],     x: "walk_strength_snack" }
+  ];
+  var days = [];
+  WEEK.forEach(function (wk, i) {
+    var w = i + 1;
+    days.push(
+      rolled("strength", wk.s[0], w, "strength 1 of 2"),
+      rolled("mobility", wk.m[0], w, "mobility 1 of 2"),
+      rolled("cardio",   wk.c[0], w, "cardio 1 of 2"),
+      rolled("strength", wk.s[1], w, "strength 2 of 2"),
+      rolled("mobility", wk.m[1], w, "mobility 2 of 2"),
+      rolled("cardio",   wk.c[1], w, "cardio 2 of 2"),
+      rolled("mix",      wk.x,    w, "the mix day · or a rest day if you need one"));
+  });
+
+  /* day cards: one per session title, so the Guide speaks to whatever was rolled */
+  var card = {
+    glutes_hinge: "Hip thrust first, while you are fresh. Weights come from your Setup lifts and go up when every set hits its target.",
+    glutes_single: "Step-ups, single-leg RDLs and a loaded bridge. Single-leg work is balance work too.",
+    db_full_a: "Three supersets, dumbbells only. No rest inside a pair; the partner exercise is the rest.",
+    db_full_b: "Lunges and push-ups, deadlifts and renegade rows, then shoulders, arms and a windmill. Keep the windmill light.",
+    upper_push_pull: "Slam, then press with row, overhead press with pull-up, carry with plank. The NO MED BALL and NO PULL-UP YET lines give the swaps.",
+    lower_power: "Fast is the point: 3 seconds down, then up as quickly as you can. Light enough to be fast. Power is the quality that goes first after 40.",
+    heavy_lower: "The one session with full rests. Three minutes between heavy sets is the mechanism, not laziness. Expect 45 minutes.",
+    knee_friendly_lower: "Glutes and hamstrings without deep knee bend. If the knee is talking, this is the strength day to roll.",
+    carries_grip: "Grip is a longevity marker and carries train it with the core and posture. Heavy, tall, no leaning.",
+    military_core_glute: "Planks and dead bugs first, then banded glute work. Slow beats fast on every one of these.",
+    pilates_mat: "The classical sequence. Breathe, move slowly, stop at the rep where form goes.",
+    mobility_method: "Fifteen minutes of joints. The ATG split squat is the one to be careful with: short range, hold a counter.",
+    core_awakening: "Asian Pilates day 1 as written. The close is part of it: do not skip the shavasana.",
+    yoga_flow: "Sun salutations, warriors, a core flow, hip openers, then legs up the wall. Step back instead of jumping back.",
+    taichi_breath: "Slow weight shifts, balance, then ten minutes of breathing. This is the down-regulation day.",
+    spine_shoulders: "The desk antidote: thoracic rotation, book opens, shoulder circles, neck circles. Twenty minutes.",
+    hips_spine_shoulders: "End-range strength at the three joints a desk stiffens. The Jefferson curl is bodyweight or a very light dumbbell, very slow.",
+    pelvic_floor_core: "Breathe first. Full release matters as much as the squeeze. The piece most programs for women over 40 leave out.",
+    movesmethod_full_flow: "Head to toe in twenty minutes. The hang and the deep squat at the end are the two that matter most.",
+    rope_shadowbox: "Three minutes on, one off, six rounds. Light feet. If the rope bothers the knee, march with high knees instead.",
+    easy_spin: "Easy means easy. Twenty-five conversational minutes, then two balance moves. The easy day is what lets the hard days work.",
+    power_balance_breath: "A jump for the bones, a step for the reflexes, breathing for the nervous system. Short on purpose.",
+    carry_crawl_climb: "Carry, crawl, pull, hang, tightrope, deep squat. Nothing here needs a bar on your lap.",
+    bjj_drills: "Two rounds of ground movement. The technical stand-up is the skill: getting off the floor without hands is a longevity test in its own right.",
+    hiit_core: "Thirty on, thirty off, then the core day. Every jump has a step version on the KNEE HURTING line.",
+    military_power_flow: "Push-up to side plank, banded and explosive hip thrusts, commando planks, swimmers, then slow spine flows to close.",
+    walk_strength_snack: "Ten brisk minutes and five moves. For the day there is no time for anything else.",
+    fingerprint_sampler: "One move per marker: jump, hang, shuffle, stance, carry, walk. A reminder of what the Fingerprint measures."
+  };
+  var dayCard = {};
+  Object.keys(SESSIONS).forEach(function (pool) {
+    SESSIONS[pool].forEach(function (s) {
+      var body = card[s.key] || (s.focus.charAt(0).toUpperCase() + s.focus.slice(1) + ".");
+      dayCard[LABEL[pool] + " · " + s.title] = { kicker: "Today", title: s.title, body: body };
+    });
+  });
+
+  return {
+    id: "variety-week",
+    name: "Full Variety Week",
+    desc: "7 days a week, every day rolls: 2 strength, 2 mobility/yoga/pilates/tai chi, 2 cardio, 1 mix · ~30 min",
+    kneeSafe: false,
+    sessions: SESSIONS,
+    guide: {
+      blurb: "A seven-day week where every day is a generator. Day 1 and Day 4 are Strength, Day 2 and Day 5 are Mobility (balance, yoga, Pilates, tai chi, joints, pelvic floor), Day 3 and Day 6 are Cardio, Day 7 is the Mix. Each day comes pre-rolled to a different session every week, so four weeks never repeat, and the Roll button on the Roadmap draws another from the same library whenever today needs something else. Ten strength sessions, eighteen mobility sessions, eleven cardio sessions and seven mix sessions, all built from programs already in the app.",
+      rotate: [
+        { kicker: "The week", title: "Seven days, every one rolls",
+          body: "Strength · Mobility · Cardio · Strength · Mobility · Cardio · Mix. The mobility days are the recovery, so there is no rest day written in; take the Mix day off whenever you need a real one, nothing else changes." },
+        { kicker: "Rolling", title: "Roll, or pick",
+          body: "Open any day and tap Roll for a different session from that library, or pick one from the list. Sessions you have not done lately come up first. The pre-rolled month already changes every week, so rolling is for when today needs something else." },
+        { kicker: "At 45", title: "What was added on purpose",
+          body: "Power and impact (jumps, snap-downs, fast step-ups) for bone and speed. Grip and carries. One heavy, low-rep day with full rests. Both ends of cardio: Zone 2 and VO2max intervals. The pelvic floor. Breathing and tai chi for the nervous system. Reactive balance. Each lives in one of the four libraries." },
+        { kicker: "Every set", title: "8-12 reps, 2-3 in reserve",
+          body: "On the strength days, pick a weight you can lift 8-12 times and stop with 2 or 3 left. The heavy Sims day is the exception: 4-6 reps, full rests. Weights come from your Setup lifts and go up when every set hits its target." },
+        { kicker: "Knees", title: "Use the KNEE HURTING line",
+          body: "Every jump, squat, lunge and step-up lists a gentler swap. Knees marked Hurts in the body check-in swap the risky movements automatically. Knee-Friendly Lower is the strength session to roll on a bad knee day." },
+        { kicker: "Hip thrust", title: "If the bar won't go onto your lap",
+          body: "Tap ⇄ on the card for the long-band hip thrust. It swaps in everywhere until you tap it back." }
+      ],
+      after: [
+        { kicker: "Next session", title: "Check what moved",
+          body: "Any lift where you hit every set shows a heavier suggested weight next time. Finishing a day also tells the Roll button what you have done, so the next roll prefers something else." }
+      ],
+      days: dayCard,
+      groups: [
+        { title: "The four libraries", tone: "cycle", icon: "\u{1F9F1}", items: [
+          { title: "Strength (10)", body: "Glutes · Hinge & Thrust, Glutes · Single-Leg & Step, Dumbbell Full-Body A and B, Upper · Push & Pull, Lower Power · Speed, Heavy Lower · Sims, Knee-Friendly Lower, Carries & Grip, Military Core & Glutes. All about 30 minutes except the heavy day (~45)." },
+          { title: "Mobility (18)", body: "The nine Glute & Balance Month balance sessions (Balance & Control, Hip Stability & Lateral, Posterior Chain Mobility, Ankles, Knees & Reactions, Full-Body Flow & Balance, Locomotion & Reactions, Loaded Aerobic Flow, Ground-Up: Foot Health, Hips & Pelvis Snack) plus Pilates Mat · Classical, Mobility Method · Joints, Core Awakening · Asian Pilates, Yoga Flow, Tai Chi, Qigong & Breath, Spine & Shoulders Snack, Joint Mobility · Hips, Spine, Shoulders, Pelvic Floor & Deep Core, Full Body Movement Flow. 15-35 minutes." },
+          { title: "Cardio (11)", body: "Zone 2 Walk + Balance, Norwegian 4×4 (your pick, and on the bike), Incline Walk + Balance, Bike Sprints · Sims, Zone 2 Ride + Balance, Rope & Brisk Walk, Full-Body HIIT Circuit, Long Walk or Hike, Rope & Shadow Boxing 30/30, Recovery Spin + Balance. 25-40 minutes; the long walk 45-60." },
+          { title: "Mix (7)", body: "Power, Balance & Breath; Carry, Crawl & Climb; BJJ Solo Drills; HIIT + Core; Military Full Body + Power Flow; Walk + Strength Snack; Fingerprint Sampler. 25-30 minutes." },
+          { title: "Pre-rolled month", body: "Week 1: Glutes A, Balance & Control, Zone 2 walk, Glutes B, Pilates Mat, Rope & Brisk Walk, Power, Balance & Breath. Week 2: Dumbbell A, Yoga Flow, 4×4, Upper Push & Pull, Hip Stability, Zone 2 ride, BJJ. Week 3: Lower Power, Tai Chi & Breath, Incline walk, Knee-Friendly Lower, Posterior Chain, HIIT circuit, Carry Crawl & Climb. Week 4: Heavy Lower, Pelvic Floor, Bike sprints, Carries & Grip, Ankles & Knees, Long walk, Walk + Strength Snack." }
+        ]},
+        { title: "Where it comes from", tone: "fuel", icon: "\u{1F4DA}", items: [
+          { title: "Strength", body: "Glute & Balance Month, Dumbbell A/B, SuperAge 120 · 4×30, Strength & Speed 45+, Sims 4 Women, Knee-Friendly 2x, the Fingerprint Loaded Power protocol, Military Calisthenics & Pelvic Pilates." },
+          { title: "Mobility", body: "Fingerprint Focus balance, loaded-flow and foot-health pools; Asian Pilates 3x; MovesMethod Workouts; Joint Mobility Mastery; Mobility Snacks; Mobility Method; Pilates Mat; Pelvic Floor Foundation; the generator's yoga flows; Strength & Speed 45+ balance drills." },
+          { title: "Cardio", body: "Pelvic Floor Foundation (Zone 2 walk), Norwegian 4×4, Fingerprint Focus (incline walk, rope, brisk walk, shadow boxing), Sims 4 Women (sprints, long walk), SuperAge (Zone 2 ride), Full-Body HIIT." },
+          { title: "Mix", body: "Sims and Strength & Speed jumps, Fingerprint balance and agility pools, Pelvic Floor breathing, MovesMethod crawls, BJJ Solo Drills, Full-Body HIIT, Core & Abs, Military Calisthenics." }
+        ]},
+        { title: "The honest bits", tone: "warn", icon: "⚠️", items: [
+          { title: "What the evidence says, and what it doesn't",
+            body: "The weekly shape (strength on 2+ days, 150-300 minutes of aerobic work, balance training) follows the U.S. Physical Activity Guidelines for Americans, 2nd edition (2018). The additions for 45 (power and impact, grip, a heavy day, VO2max, pelvic floor, breathing) are the components the app's own programs are built around: Sims 4 Women, Strength & Speed 45+, Pelvic Floor Foundation, Norwegian 4×4, SuperAge and the Fingerprint markers. Their guides carry their sources; I am not citing studies for them here, and I cannot confirm this exact seven-day combination has been tested." },
+          { title: "Seven days is a lot",
+            body: "This is what was asked for. Two of the seven are light mobility days and the Mix day can be a rest day. If sleep, soreness or readiness drop, roll the lighter session or skip the Mix day; the program does not care which week you are in." },
+          { title: "Minutes",
+            body: "Session lengths are the app's estimates. The heavy Sims day, the 4×4 and the long walk are the only ones planned over 30 minutes." },
+          { title: "Starting weights are estimates",
+            body: "They come from your Setup lifts using the app's usual ratios. Treat the first week as calibration." },
+          { title: "Not medical advice",
+            body: "Check with your provider or a physical therapist if anything here conflicts with your knees or other conditions. Stop any sprint or interval for chest pain, dizziness or unusual breathlessness. Skip the inversion hold and Granby roll if your neck says so." }
+        ]}
+      ],
+      sources: "U.S. Department of Health and Human Services, Physical Activity Guidelines for Americans, 2nd edition (2018), health.gov/paguidelines. Everything else is drawn from the programs already in this app, whose own guides carry their sources. The libraries, the pre-rolled month, set counts and time budget are this app's programming."
+    },
+    days: days
+  };
+})();
+SYN_PLANS.push(VW_PLAN);
