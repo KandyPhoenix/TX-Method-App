@@ -4711,7 +4711,7 @@ const FORM_VIDEOS = {
   /* Variety additions (2026-10-05). Every id oEmbed-checked (200, embeddable);
      titles and channels recorded from oEmbed. The clips could not be watched
      from here, so the How-to text carries the setup. */
-  tgu:                                            'ZutpEZ2B7Uc',  // How to do a Kettlebell Turkish Get Up - Nuffield Health — Nuffield Health
+  tgu:                                            'jFK8FOiLa_M',  // Master the Turkish Get-Up (Avoid These 3 Mistakes!) — Squat University (replaced the Nuffield Health clip 2026-10-05: Kandy could not see it; both verified to load inside the app's How-to iframe)
   kb_halo:                                        'YGZWa5be1hk',  // How To: KETTLEBELL HALO — Zack Henderson
   kb_clean_press:                                 'iCJs8g4ySLY',  // Single Arm Kettlebell Clean and Press - Kettlebell Training | HFE — HFE
   nordic_curl_band:                               'AEC1-fN-754',  // Band Assisted Nordic Hamstring Curl — Steph Gaudreau - Fuel Your Strength
@@ -4732,7 +4732,8 @@ const FORM_VIDEOS_ALT = {
      oEmbed. The clip's exact band setup could not be read from here, so the
      How-to text carries the under-the-feet setup. */
   syn_barbell_hip_thrust: { id: 'GgvuSXnFGLM', label: 'NO BAR ON THE LAP: long-band hip thrust (tap ⇄ on the card to swap it in)' },  // Hip Thrusts | Large Loop Band — Allison Ethier
-  syn_hip_thrusts:        { id: 'GgvuSXnFGLM', label: 'NO BAR ON THE LAP: long-band hip thrust (tap ⇄ on the card to swap it in)' }   // Hip Thrusts | Large Loop Band — Allison Ethier
+  syn_hip_thrusts:        { id: 'GgvuSXnFGLM', label: 'NO BAR ON THE LAP: long-band hip thrust (tap ⇄ on the card to swap it in)' },  // Hip Thrusts | Large Loop Band — Allison Ethier
+  tgu:                    { id: '4IObymW_V-U', label: 'Step-by-step breakdown (second angle)' }   // How to: Turkish Get Up - Step By Step Breakdown! — Pat Flynn
 };
 function videoFor(key) { return loadVideos()[key] || FORM_VIDEOS[key] || null; }
 function isPinned(key) { return !!loadVideos()[key]; }
