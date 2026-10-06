@@ -3795,34 +3795,48 @@ function renderPrepProgram() {
   titleEl.textContent = 'Protocols';
   subEl.textContent   = `${pLabel()} · ${prepDaysComplete()} of ${pWorkDays()} done`;
 
-  let cells = '';
+  /* A real calendar (Kandy, 2026-10-06): seven columns Monday to Sunday,
+     one row per week, Day 1 placed under the weekday it actually falls on
+     (program days are anchored to the start date), so a Monday start reads
+     Mon · Tue · Wed … and a mid-week start pads the first row. */
+  const DOW = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
+  const first = prepDateFor(1);
+  const offset = first ? (first.getDay() + 6) % 7 : 0;
+  const today = isoDate(new Date());
+
+  let cells = DOW.map(d => `<div class="prep-dow">${d}</div>`).join('');
+  for (let i = 0; i < offset; i++) cells += `<div class="prep-pad"></div>`;
   for (let n = 1; n <= ptotal(); n++) {
     const d = pdata()[n - 1];
     const cur  = n === pstate().day ? 'cur' : '';
     const rest = d.rest ? 'rest' : '';
     const done = prepDayDone(n) ? 'done' : '';
+    const when = prepDateFor(n);
+    const isToday = when && isoDate(when) === today ? 'today' : '';
     let inner;
     if (d.rest) {
       inner = `<div class="prep-rest">REST</div>`;
     } else {
-      inner = d.exercises.map(ex =>
+      const list = d.exercises.map(ex =>
         `<div class="prep-ex">${ex.sec != null ? `${ex.name} ${ex.sets > 1 ? ex.sets + '×' : ''}${holdTxt(ex.sec).replace(' sec', 's')}` : `${ex.name} ${ex.sets > 1 ? ex.sets + '×' : ''}${ex.reps}`}</div>`
       ).join('');
+      inner = `${d.title ? `<div class="prep-title">${d.title}</div>` : ''}
+        <div class="prep-meta">≈${estDayMin(d)} min · ${d.exercises.length} moves</div>
+        <div class="prep-exlist">${list}</div>`;
     }
-    const when = prepDateFor(n);
-    const meta = [when ? fmtPrepDate(when) : '', d.rest ? '' : `≈${estDayMin(d)} min`].filter(Boolean).join(' · ');
-    cells += `<div class="prep-cell ${cur} ${rest} ${done}" data-prepday="${n}">
-      <div class="prep-num">${n}${done ? ' <span class="prep-tick">✓</span>' : ''}</div>
-      ${meta ? `<div class="tiny muted" style="font-size:9px;margin:1px 0 3px;">${meta}</div>` : ''}
+    cells += `<div class="prep-cell ${cur} ${rest} ${done} ${isToday}" data-prepday="${n}">
+      <div class="prep-num"><span>${n}</span>${done ? ' <span class="prep-tick">✓</span>' : ''}${when ? `<span class="prep-date">${when.toLocaleDateString(undefined, { month: 'short', day: 'numeric' })}</span>` : ''}</div>
       ${inner}</div>`;
   }
+  const tail = (offset + ptotal()) % 7;
+  if (tail) for (let i = tail; i < 7; i++) cells += `<div class="prep-pad"></div>`;
 
   view.innerHTML = `<div class="screen">
     <div class="card" style="padding:14px 16px;">
       <div style="font-weight:800;font-size:18px;">${pLabel()}</div>
-      <div class="tiny muted" style="margin-top:4px;">Tap any day to jump to it.${S.program === 'prep30' ? ' Finish Day 30 to unlock Texas Method.' : ''}</div>
+      <div class="tiny muted" style="margin-top:4px;">One row per week, Monday to Sunday. Tap any day to jump to it.${S.program === 'prep30' ? ' Finish Day 30 to unlock Texas Method.' : ''}</div>
     </div>
-    <div class="prep-grid">${cells}</div>
+    <div class="prep-grid prep-cal">${cells}</div>
   </div>`;
 
   view.querySelectorAll('[data-prepday]').forEach(c => c.onclick = () => {
