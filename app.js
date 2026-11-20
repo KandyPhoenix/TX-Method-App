@@ -1121,6 +1121,260 @@ function genRegisterTips() {
 }
 
 /* =====================================================================
+   6-Pattern Generator — a second generator, built on the first.
+
+   Source: Wellnesse Steps' two-day full-body plan (Instagram carousel,
+   slides 7-13 of 15; Kandy's screenshots, 2026-11-19). The plan is six
+   movement patterns in every session, one exercise per pattern, two days
+   a week.
+
+   Theirs: the six patterns and what each one trains; the dose for squat
+   (3x6), bend (3x10), single leg (3x8 each side) and core (2-3 sets, to
+   failure); the example movements for each pattern.
+   NOT theirs: a dose for push and pull. The slides seen give none, so 3x8
+   is this app's default and the day note says so rather than passing it
+   off as the source's.
+
+   Their rule is to write down one exercise per pattern and keep it for a
+   month. Kandy asked for a generator instead: every day draws one movement
+   per pattern, from everything in the library that fits that pattern and
+   the equipment in the room. "Use last session's picks" gives the
+   keep-it-the-same behaviour back when it is wanted, and each pattern can
+   be chosen outright or re-rolled on its own.
+
+   Everything else is the Random Generator's machinery — the same exercise
+   records, equipment filter and freshness weighting, and the same rule
+   that a workout is generated once, written to state and read back, so it
+   cannot reshuffle under your hands while you tick sets.
+
+   Leg press, lat pulldown and weighted crunch are named on the slides and
+   left out: there is no machine for the first two (see DEFAULTS.kit) and
+   no how-to written for the third. The lat pulldown comes back as the
+   kneeling long-band version.
+
+   Long bands (2026-11-20): every pattern also draws from the long-band
+   movements in LONG BANDS (plans-data.js), so a day can land on the big
+   bands in any of the six slots: front squat; RDL, good morning, hip
+   thrust; chest and overhead press; row, kneeling pulldown, band-assisted
+   pull-up; split squat; dead bug and woodchop. They pass the same kit
+   filter (bands, plus the pull-up bar where anchored).
+   ===================================================================== */
+const PAT_PATTERNS = [
+  { id: 'squat',  name: 'Squat',      icon: '🦵', hits: 'hamstrings, quads and glutes', sets: 3, reps: 6,
+    pool: ['x-back-squat', 'box-squat', 'goblet-squat', 'tempo-goblet-squat', 'kb-sumo-squat', 'wall-sit',
+           'lb-front-squat'] },
+  { id: 'bend',   name: 'Bend',       icon: '🍑', hits: 'hamstrings and glutes', sets: 3, reps: 10,
+    pool: ['deadlift', 'sumo-deadlift', 'romanian-deadlift', 'db-rdl', 'good-mornings', 'kb-swing',
+           'hip-thrust', 'banded-hip-thrust', 'glute-bridge', 'frog-pumps',
+           'lb-rdl', 'lb-good-morning', 'lb-hip-thrust'] },
+  { id: 'push',   name: 'Push',       icon: '🙌', hits: 'chest, shoulders and triceps', sets: 3, reps: 8, ours: true,
+    pool: ['bench-press', 'db-bench-press', 'incline-db-press', 'close-grip-bench', 'db-floor-fly-press',
+           'overhead-press', 'db-shoulder-press', 'kb-bottoms-up-press',
+           'pushups', 'tempo-pushups', 'archer-pushups', 'band-pushup-plus',
+           'lb-chest-press', 'lb-overhead-press'] },
+  { id: 'pull',   name: 'Pull',       icon: '💪', hits: 'back, lats and biceps', sets: 3, reps: 8, ours: true,
+    pool: ['barbell-row', 'db-row', 'kb-gorilla-row', 'renegade-rows', 'inverted-rows', 'kb-high-pull',
+           'pull-ups', 'chin-ups', 'tempo-pull-ups',
+           'lb-bent-row', 'lb-lat-pulldown', 'lb-assisted-pull-up'] },
+  { id: 'single', name: 'Single leg', icon: '🦿', hits: 'hamstrings, quads and glutes', sets: 3, reps: 8,
+    pool: ['x-reverse-lunge', 'step-ups', 'glute-step-downs', 'split-squat', 'barbell-lunge',
+           'single-leg-rdl', 'single-leg-hip-thrust',
+           'lb-split-squat'] },
+  { id: 'core',   name: 'Core',       icon: '🧘', hits: 'abs and obliques', sets: 3, fail: true,
+    pool: ['dead-bug', 'farmer-carry', 'plank', 'hollow-body-hold', 'bird-dog', 'pallof-press',
+           'side-plank-dips', 'plank-shoulder-tap', 'russian-twist', 'bicycle-crunches', 'scissors',
+           'hanging-leg-raise', 'ab-wheel-substitute', 'yoga-ball-stir-pot', 'kb-windmill',
+           'lb-dead-bug', 'lb-woodchop'] }
+];
+/* Two movements the slides name that the generator's library does not hold.
+   Both already exist in the imported programs, so they keep those keys —
+   which is what makes the how-to, the video and Key Lifts line up. */
+const PAT_EXTRA = [
+  { id: 'x-back-squat',    key: 'syn_squats',         name: 'Back Squat',     equip: ['barbell'], diff: 'medium', kind: 'basic' },
+  { id: 'x-reverse-lunge', key: 'syn_reverse_lunges', name: 'Reverse Lunges', equip: [],          diff: 'easy',   kind: 'basic', side: true }
+];
+const PAT_TITLE = '6 Patterns · Full Body';
+const PAT_NOTE = 'Six movement patterns, one exercise each: squat, bend, push, pull, single leg, core. ' +
+  'From the Wellnesse Steps two-day full-body plan — run it on any 2 days of your week. ' +
+  'Sets and reps are theirs for squat (3 × 6), bend (3 × 10), single leg (3 × 8 each side) and core (2–3 sets, until you cannot do another rep). ' +
+  'The slides give no numbers for push and pull, so 3 × 8 there is this app’s default. ' +
+  'Their plan keeps the same exercises for a month; this draws a fresh one per pattern each day. ' +
+  'Change any single pattern from its list or its 🎲, or tap Use last session’s picks to repeat.';
+
+function patState() {
+  if (!S.pat6) S.pat6 = { day: 1, log: {}, made: {}, used: {}, diff: 'medium' };
+  const g = S.pat6;
+  if (g.day == null) g.day = 1;
+  if (!g.log) g.log = {};
+  if (!g.made) g.made = {};
+  if (!g.used) g.used = {};
+  if (!g.diff) g.diff = 'medium';
+  return g;
+}
+function patById(id) { return PAT_PATTERNS.find(p => p.id === id); }
+function patRec(id) {
+  return PAT_EXTRA.find(e => e.id === id) ||
+         (typeof GEN_EX !== 'undefined' ? GEN_EX.find(e => e.id === id) : null) || null;
+}
+/* Every movement that fits the pattern, narrowed by what is in the room and,
+   when asked, by difficulty. */
+function patPool(p, o) {
+  o = o || {};
+  let pool = p.pool.map(patRec).filter(Boolean);
+  if (o.kit !== false) pool = pool.filter(genCanRun);
+  if (o.diff === 'easy')      pool = pool.filter(e => e.diff === 'easy' || e.diff === 'medium');
+  else if (o.diff === 'hard') pool = pool.filter(e => e.diff === 'medium' || e.diff === 'hard');
+  return pool;
+}
+/* A pattern must never come back empty — a five-pattern day is not this
+   workout. Widen by difficulty first, then by equipment, where the card's
+   own equipment swap takes over. */
+function patCandidates(p, diff) {
+  let pool = patPool(p, { diff: diff });
+  if (!pool.length) pool = patPool(p);
+  if (!pool.length) pool = patPool(p, { kit: false });
+  return pool;
+}
+function patDraw(p, g, notId) {
+  let pool = patCandidates(p, g.diff);
+  if (notId && pool.length > 1) pool = pool.filter(e => e.id !== notId);
+  if (!pool.length) return null;
+  const now = Date.now();
+  const w = pool.map(e => genFreshness(e, g.used, now));
+  let r = Math.random() * w.reduce((a, b) => a + b, 0);
+  for (let i = 0; i < pool.length; i++) { r -= w[i]; if (r <= 0) return pool[i]; }
+  return pool[pool.length - 1];
+}
+/* The pattern sets the dose, not the movement: a goblet squat is 3 x 6 here
+   because it is today's squat, whatever it is prescribed at elsewhere. Holds
+   keep their own clock, since "6 reps" of a wall sit means nothing. */
+function patEx(p, e) {
+  const out = { key: e.key || 'gen_' + e.id, name: e.name, icon: p.icon, sets: p.sets, needs: genNeeds(e), pat: p.id };
+  const tag = ' · ' + p.name + ' pattern';
+  /* pull-ups and chin-ups: counted, not timed, and 8 is a ceiling rather than
+     a target — three sets of eight strict pull-ups is not a fair ask */
+  /* a pulldown only uses the bar as a band anchor, so it is ordinary reps */
+  const maxed = e.scheme === 'max' || (e.equip || []).indexOf('pull-up-bar') !== -1 && p.id === 'pull' && !/pulldown/i.test(e.name);
+  if (e.side) out.side = true;
+  if (e.sec != null && !maxed) {
+    out.sec = e.sec;
+    out.scheme = (p.fail ? 'hold until your form breaks' : (e.scheme || holdTxt(e.sec))) + tag;
+  } else if (p.fail) {
+    out.reps = e.reps != null ? e.reps : 10;
+    out.scheme = 'until you cannot do another clean rep' + tag;
+  } else {
+    out.reps = p.reps;
+    out.scheme = (maxed ? 'up to ' + p.reps + ', as many clean reps as you have' : p.reps + (e.side ? ' each side' : ' reps')) + tag;
+  }
+  return out;
+}
+function patWarmRecs(names, db) {
+  const all = [];
+  Object.keys(db || {}).forEach(k => db[k].forEach(w => all.push(w)));
+  return (names || []).map(n => all.find(w => w.name === n)).filter(Boolean);
+}
+/* Rebuild the stored day from its picks — called on build and on every swap,
+   so the exercise list can never drift from what the bar shows. */
+function patFinish(w) {
+  const mid = PAT_PATTERNS.map(p => { const e = patRec(w.picks[p.id]); return e ? patEx(p, e) : null; }).filter(Boolean);
+  w.title = PAT_TITLE;
+  w.note = PAT_NOTE;
+  w.ids = PAT_PATTERNS.map(p => w.picks[p.id]).filter(Boolean);
+  w.exercises = genWarmCool(patWarmRecs(w.wu, typeof GEN_WARMUP !== 'undefined' ? GEN_WARMUP : {}), 'gw_')
+    .concat(mid)
+    .concat(genWarmCool(patWarmRecs(w.cd, typeof GEN_COOLDOWN !== 'undefined' ? GEN_COOLDOWN : {}), 'gc_'));
+  return w;
+}
+function patBuild() {
+  const g = patState();
+  const picks = {};
+  PAT_PATTERNS.forEach(p => { const e = patDraw(p, g, null); if (e) picks[p.id] = e.id; });
+  const one = l => (l && l.length ? [genPickOne(l).name] : []);
+  return patFinish({ picks: picks, wu: one(GEN_WARMUP.general), cd: one(GEN_COOLDOWN.general) });
+}
+function patDay(n) {
+  const g = patState();
+  if (!g.made[n]) { g.made[n] = patBuild(); save(); }
+  return g.made[n];
+}
+function patRegenerate() {
+  const g = patState();
+  delete g.made[g.day];
+  patDay(g.day);
+  save();
+  render();
+  toast('New six-pattern day generated 🎲');
+}
+/* Change one pattern and leave the other five alone. With an id it is a
+   choice; without one it is a roll that cannot land on the same movement. */
+function patSwap(patId, id) {
+  const g = patState(), p = patById(patId), w = g.made[g.day];
+  if (!p || !w) return;
+  const e = id ? patRec(id) : patDraw(p, g, w.picks[patId]);
+  if (!e || p.pool.indexOf(e.id) === -1 || e.id === w.picks[patId]) return;
+  w.picks[patId] = e.id;
+  patFinish(w);
+  save();
+  render();
+  toast(p.name + ': ' + e.name);
+}
+/* The source's own rule — both days use the same plan — on request. */
+function patSame() {
+  const g = patState();
+  let prev = null;
+  for (let n = g.day - 1; n >= 1 && !prev; n--) if (g.made[n] && g.made[n].picks) prev = g.made[n];
+  if (!prev) { toast('No earlier session to copy yet'); return; }
+  const w = patDay(g.day);
+  w.picks = Object.assign({}, prev.picks);
+  patFinish(w);
+  save();
+  render();
+  toast('Same six as last session');
+}
+function patMarkUsed(n) {
+  const g = patState(), w = g.made[n];
+  if (!w) return;
+  const now = Date.now();
+  (w.ids || []).forEach(id => { g.used[id] = now; });
+  save();
+}
+function patPlan() {
+  const g = patState();
+  const out = [];
+  for (let i = 1; i <= GEN_SLOTS; i++) out.push(i === g.day ? patDay(i) : (g.made[i] || genPlaceholder()));
+  return out;
+}
+function patBarHTML() {
+  const g = patState(), w = g.made[g.day];
+  if (!w) return '';
+  const rows = PAT_PATTERNS.map(p => {
+    const cur = w.picks[p.id];
+    const list = patPool(p);
+    const curRec = patRec(cur);
+    if (curRec && list.indexOf(curRec) === -1) list.unshift(curRec);
+    const opts = list.map(e => `<option value="${e.id}" ${e.id === cur ? 'selected' : ''}>${e.name}</option>`).join('');
+    return `<div class="pat-row">
+      <div class="pat-lbl"><b>${p.icon} ${p.name}</b><span>${p.hits}</span></div>
+      <select class="gen-sel pat-sel" data-pat="${p.id}" aria-label="${p.name} exercise">${opts}</select>
+      <button class="pat-dice" data-patroll="${p.id}" aria-label="Roll a different ${p.name.toLowerCase()} exercise" title="Roll a different one">🎲</button>
+    </div>`;
+  }).join('');
+  return `<div class="gen-bar pat-bar">
+    <div class="gen-row">
+      <select id="patDiff" class="gen-sel" aria-label="Difficulty">
+        ${GEN_DIFFS.map(d => `<option value="${d.key}" ${d.key === g.diff ? 'selected' : ''}>${d.name}</option>`).join('')}
+      </select>
+      <button class="btn primary gen-roll" id="patRoll">🎲 Generate a different day</button>
+    </div>
+    <div class="pat-rows">${rows}</div>
+    <div class="pat-foot">
+      <button class="gm-clear" id="patSame">↩ Use last session’s picks</button>
+    </div>
+    <div class="gen-muscles-hint">One movement per pattern, drawn from everything in the library that fits it and the equipment you have set. Movements you have not done lately are favoured. Pick from a list to choose outright, or tap a 🎲 to re-roll just that pattern.</div>
+  </div>`;
+}
+
+/* =====================================================================
    The nine complete programs from Synthesis's fitness tracker.
 
    These are fixed splits, not generated: Push Pull Legs, Upper/Lower, Full
@@ -1313,7 +1567,8 @@ const DAY_PROGRAMS = {
   sa4:      { data: SUPERAGE4, stateKey: 'sa4', label: 'SuperAge Full Week', sub: 'all week: 4 lifts + 3 rides', holdLabel: 'Timed work' },
   sahyb:    { data: SUPERAGEH, stateKey: 'sahyb', label: 'SuperAge Hybrid',   sub: 'week style rotates weekly', holdLabel: 'Timed work' },
   fpfocus:  { get data() { return fpFocusPlan(); }, stateKey: 'fpfocus', label: 'Fingerprint Focus', sub: 'targets your weakest markers', holdLabel: 'Timed work' },
-  gen:      { get data() { return genPlan(); }, stateKey: 'gen', label: 'Random Generator', sub: 'a fresh workout on demand', holdLabel: 'Timed work' }
+  gen:      { get data() { return genPlan(); }, stateKey: 'gen', label: 'Random Generator', sub: 'a fresh workout on demand', holdLabel: 'Timed work' },
+  pat6:     { get data() { return patPlan(); }, stateKey: 'pat6', label: '6-Pattern Generator', sub: 'one pick per movement pattern', holdLabel: 'Timed work' }
 };
 /* Registered from the data file rather than written out one by one, so
    adding a program there is enough to make it appear everywhere. */
@@ -2592,6 +2847,7 @@ function renderPrepToday() {
     html += fuelHTML();
     html += tierBarHTML();
     if (S.program === 'gen') html += genBarHTML();
+    if (S.program === 'pat6') html += patBarHTML();
     if (d.pool) html += rollBarHTML(d, dayNum);
     html += dayMuscleHTML(d);
     html += matchedWarmupHTML(tierDay(d).exercises);
@@ -3753,6 +4009,7 @@ function wirePrepToday() {
        have just done — without this, freshness never moves and every roll
        draws from the same favourites. */
     if (S.program === 'gen' && !d.rest) genMarkUsed(dayNum);
+    if (S.program === 'pat6' && !d.rest) patMarkUsed(dayNum);
     if (d.pool && !d.rest) rollMarkUsed(dayNum);
     save();
     if (dayNum >= ptotal()) { finishPrep(); return; }
@@ -6218,7 +6475,7 @@ function renderSetup() {
      only, which silently omitted every imported program. Protocols is the one
      complete library, so Setup now just shows where you are and points there. */
   const proto = (typeof PROTOCOLS !== 'undefined' && PROTOCOLS.find(p => p.key === S.program)) ||
-                { ico: '💪', name: S.program, sub: '' };
+                { ico: '💪', name: (isDayProgram() && pcfg().label) || S.program, sub: '' };
   let progWhere = '', progPct = 0;
   if (S.program === 'texas') {
     const wk = Math.min((S.cursor.week || 0) + 1, 24);
@@ -8768,6 +9025,13 @@ function updateSessionUI() {
   view.querySelectorAll('.gen-muscles .mm-pick .mm-r').forEach(r => r.onclick = () => genToggleMuscle(r.dataset.b));
   const gmc = document.getElementById('gmClear');
   if (gmc) gmc.onclick = () => { genState().muscles = []; save(); genRegenerate(); };
+  const pd = document.getElementById('patDiff'), pr = document.getElementById('patRoll'),
+        ps = document.getElementById('patSame');
+  if (pd) pd.onchange = () => { patState().diff = pd.value; save(); patRegenerate(); };
+  if (pr) pr.onclick = patRegenerate;
+  if (ps) ps.onclick = patSame;
+  view.querySelectorAll('.pat-sel').forEach(s => s.onchange = () => patSwap(s.dataset.pat, s.value));
+  view.querySelectorAll('[data-patroll]').forEach(b => b.onclick = () => patSwap(b.dataset.patroll, null));
   const eb = document.getElementById('equipBtn');
   if (eb && !eb.dataset.wired) { eb.dataset.wired = '1'; eb.onclick = equipMenu; }
   renderEquipBtn();
@@ -8941,15 +9205,19 @@ function equipSwapFor(key) {
   return sw[have] || '';
 }
 
+/* SuperAge Hybrid (sahyb) was taken off this list on 2026-11-20 at Kandy's
+   request, with the 6-Pattern Generator added. Its program data, state and
+   logs are untouched (DAY_PROGRAMS.sahyb), so anyone still on it keeps
+   their history; it just is no longer offered here. */
 const PROTOCOLS = [
   { key: 'fpfocus',  ico: '\u{1F9EC}', name: 'Fingerprint Focus', tag: 'Adaptive', grp: 'workout', needs: 'bodyweight', sub: 'Built from your markers' },
   { key: 'gen', needs: 'bodyweight', ico: '\u{1F3B2}', name: 'Random Generator', tag: 'Adaptive', grp: 'workout', sub: (typeof GEN_EX === 'undefined' ? 110 : GEN_EX.length) + ' exercises, never the same twice' },
+  { key: 'pat6', needs: 'bodyweight', ico: '\u{1F9E9}', name: '6-Pattern Generator', tag: 'Adaptive', grp: 'workout', sub: 'Squat · bend · push · pull · single leg · core, 2 days a week' },
   { key: 'texas', needs: 'gym',     ico: '🏋️', name: 'Texas Method',      tag: 'Strength',     grp: 'workout', sub: 'Barbell' },
   { key: 'dumbbell', needs: 'dumbbells',  ico: '💪',         name: 'Dumbbell A/B',      tag: 'Strength',     grp: 'workout', sub: 'Dumbbells only' },
   { key: 'prep30', needs: 'bodyweight',    ico: '🗓️', name: '30-Day Prep',       tag: 'Strength',     grp: 'workout', sub: 'Bodyweight ramp-up' },
   { key: 'sa2', needs: 'gym',       ico: '🫀',         name: 'SuperAge 2-Day',    tag: 'Longevity',    grp: 'workout', sub: '2 lifts + 1 long ride' },
   { key: 'sa4', needs: 'gym',       ico: '❤️‍🔥', name: 'SuperAge Full Week', tag: 'Longevity', grp: 'workout', sub: '4 lifts + 3 rides' },
-  { key: 'sahyb', needs: 'gym',     ico: '🔀',         name: 'SuperAge Hybrid',   tag: 'Longevity',    grp: 'workout', sub: 'Week style rotates' },
   { key: 'hiit', needs: 'bodyweight',      ico: '⚡',          name: 'Full-Body HIIT',    tag: 'Conditioning', grp: 'workout', sub: 'Timed circuit' },
   { key: 'bjj', needs: 'bodyweight',       ico: '🥋',         name: 'BJJ Drills',        tag: 'Conditioning', grp: 'workout', sub: 'Jiu-jitsu movement' },
   { key: 'core', needs: 'bodyweight',      ico: '🔥',         name: 'Core & Abs',        tag: 'Conditioning', grp: 'workout', sub: 'Core builder' },
@@ -8976,7 +9244,7 @@ function protoLen(key) {
   if (key === 'texas') return PROGRAM_RULES.totalWeeks + ' weeks';
   /* Reading .data on the generator would build a workout as a side effect
      of drawing a library card. It has no fixed length anyway. */
-  if (key === 'gen') return 'on demand';
+  if (key === 'gen' || key === 'pat6') return 'on demand';
   const cfg = DAY_PROGRAMS[key];
   return cfg ? cfg.data.length + ' days' : '';
 }
