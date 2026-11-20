@@ -1236,7 +1236,7 @@ const PAT_GUIDE = (function () {
       { kicker: 'Core', title: 'To failure means form failure',
         body: 'Core runs each set until you cannot do another clean rep. The set ends when the form goes: the low back lifts off the floor, the hips sag, or you start holding your breath. That is the end of the set, not a cue to grind out more.' },
       { kicker: 'Weights', title: 'Start basic, then earn the next 5 lb',
-        body: 'Every loaded pick shows a starting weight worked out from your Setup lifts, set a little light on purpose; with Wave loading on in Setup the three sets ramp up to a top set and back down. Log the reps you actually hit on each set. Hit the target on all three and that exercise goes up 5 lb next time; miss and it holds. Three misses in a row and it drops back about 10% to build up again (if auto-deload is on in Setup).' }
+        body: 'Every loaded pick shows a starting weight worked out from your Setup lifts, set a little light on purpose; with Wave loading on in Setup the three sets ramp up to a top set and back down. Log the reps you actually hit on each set. The weight moves up after two sessions in a row with every set at least one rep over the target. Where 5 lb would be more than a 10% jump (small dumbbells), the target reps rise first, up to 2 over, then the weight goes up and the reps drop back. Miss the target and it holds; three misses in a row and it drops back about 10% (if auto-deload is on in Setup).' }
     ],
     after: [
       { kicker: 'Next session', title: 'Repeat or roll',
@@ -1262,13 +1262,14 @@ const PAT_GUIDE = (function () {
         { title: 'A fresh draw each day is a change from their plan',
           body: 'Their plan writes down one exercise per pattern and keeps it for a month. The daily draw was asked for on purpose; Use last session’s picks brings the month-long version back.' },
         { title: 'The weights are this app’s',
-          body: 'The slides give sets and reps, not weights. Starting weights come from your Setup lifts using the same formula as the app’s other strength programs, with an extra rep in reserve so they start light, and they move by the app’s usual rule: +5 lb when every set hits its target, hold on a miss, back off after three misses. Each exercise keeps its own weight, so it picks up where it left off whenever it comes round again. Band and bodyweight moves progress by reps (and band number). The core sets run to failure, so a weighted core move (Russian twist, windmill) shows a starting weight but does not move it for you, and for the farmer carry you pick the weight yourself. If a starting weight feels wrong, update your lifts in Setup before the first session with that exercise.' },
+          body: 'The slides give sets and reps, not weights. Starting weights come from your Setup lifts using the same formula as the app’s other strength programs, with an extra rep in reserve so they start light, and they move by the two-sessions-in-a-row rule in the Weights card, which follows the American College of Sports Medicine’s 2009 guidance (a 2-10% increase once you can do 1-2 reps over the target on two consecutive sessions). It is slower than the app’s other programs on purpose. Each exercise keeps its own weight, so it picks up where it left off whenever it comes round again. Band and bodyweight moves progress by reps (and band number). The core sets run to failure, so a weighted core move (Russian twist, windmill) shows a starting weight but does not move it for you, and for the farmer carry you pick the weight yourself. If a starting weight feels wrong, update your lifts in Setup before the first session with that exercise.' },
         { title: 'Not medical advice',
           body: 'Check with your provider or a physical therapist if anything here conflicts with your knees or any other condition, and stop any movement that causes sharp or joint pain.' }
       ] }
     ],
     sources: 'Wellnesse Steps, two-day full-body plan (Instagram carousel, slides 7-13 of 15, from Kandy’s screenshots, 2026-11-19): the six patterns, what each trains, and the sets and reps for squat, bend, single leg and core. ' +
       'U.S. Department of Health and Human Services, Physical Activity Guidelines for Americans, 2nd edition (2018), health.gov/paguidelines: adults should do muscle-strengthening activities that involve all major muscle groups on 2 or more days a week. ' +
+      'American College of Sports Medicine, Progression Models in Resistance Training for Healthy Adults (position stand), Med Sci Sports Exerc 2009;41(3):687-708: a 2-10% increase in load when you can do 1-2 reps over the target on two consecutive sessions. ' +
       'The push and pull doses, the daily draw, the band options, the knee notes, the starting weights and the progression rule are this app’s.'
   };
 })();
@@ -3002,7 +3003,7 @@ function itemRow(item, log, showName) {
 
   if (((hasLoadProgression() && loadProgresses(ex.key)) || repTracked(ex.key)) && many) {
     const rid = ex.key + '_' + item.setIndex;
-    const cur = (log.reps && log.reps[rid] != null) ? log.reps[rid] : (repTracked(ex.key) ? lastSetReps(ex.key, item.setIndex, ex.reps) : ex.reps);
+    const cur = (log.reps && log.reps[rid] != null) ? log.reps[rid] : (repTracked(ex.key) ? lastSetReps(ex.key, item.setIndex, ex.reps) : repTarget(ex));
     row += `<div class="log-row">
       <label>${repTracked(ex.key) ? 'Reps done' : 'Reps hit'}</label>
       <div class="stepper">
@@ -3010,7 +3011,7 @@ function itemRow(item, log, showName) {
         <div class="val" id="sarep_${rid}">${cur}</div>
         <button data-sarep="${rid}" data-d="1">+</button>
       </div>
-      <span class="tiny muted">${repTracked(ex.key) ? 'set it to what you did, then tick · charts in Stats' : `all sets ${repTarget(ex)}+ → ${repBonus(ex.key) ? 'reps up again' : 'weight up'}`}</span>
+      <span class="tiny muted">${repTracked(ex.key) ? 'set it to what you did, then tick · charts in Stats' : repHintText(ex)}</span>
     </div>`;
   }
   return row;
@@ -3088,7 +3089,7 @@ function prepExerciseCard(ex, setIndex, total, log) {
         <div class="set-end"><button class="check ${on}" data-pcheck="${id}">✓</button></div></div>`;
   if (((hasLoadProgression() && loadProgresses(ex.key)) || repTracked(ex.key)) && many) {
     const rid = `${ex.key}_${setIndex}`;
-    const cur = (log.reps && log.reps[rid] != null) ? log.reps[rid] : (repTracked(ex.key) ? lastSetReps(ex.key, setIndex, ex.reps) : ex.reps);
+    const cur = (log.reps && log.reps[rid] != null) ? log.reps[rid] : (repTracked(ex.key) ? lastSetReps(ex.key, setIndex, ex.reps) : repTarget(ex));
     rows += `<div class="log-row">
       <label>${repTracked(ex.key) ? 'Reps done' : 'Reps hit'}</label>
       <div class="stepper">
@@ -3096,7 +3097,7 @@ function prepExerciseCard(ex, setIndex, total, log) {
         <div class="val" id="sarep_${rid}">${cur}</div>
         <button data-sarep="${rid}" data-d="1">+</button>
       </div>
-      <span class="tiny muted">${repTracked(ex.key) ? 'set it to what you did, then tick · charts in Stats' : `all sets ${repTarget(ex)}+ → ${repBonus(ex.key) ? 'reps up again' : 'weight up'}`}</span>
+      <span class="tiny muted">${repTracked(ex.key) ? 'set it to what you did, then tick · charts in Stats' : repHintText(ex)}</span>
     </div>`;
   }
   return `<div class="card lift">
@@ -3735,7 +3736,7 @@ const SYN_LOAD = {
          squat 6 · push and pull 8 · single leg 8 each side · bend 10
      Barbell: ratio to its Setup lift x (37 - (reps + 3)) / 36, the same
      inverted formula as Push Pull Legs but with 3 reps in reserve instead of
-     2, so every start is a little lighter ("basic") and the reps-hit rule
+     2, so every start is a little lighter ("basic"), and patProgStep()
      climbs from there:  6 reps .778 · 8 reps .722 · 10 reps .667.
      Ratios as used elsewhere in this file: RDL .70 of deadlift, good
      morning .45, barbell row .90 of bench, hip thrust 1.00 of squat. Box
@@ -3826,6 +3827,75 @@ function saEstimate(m) {
    with. Say so where the reps are shown, or the card and the progression would
    disagree about what counts as a good set. */
 function repTarget(ex) { return (ex.reps || 0) + repBonus(ex.key); }
+/* the line under the reps-hit counter: what it takes to move up */
+function repHintText(ex) {
+  const t = repTarget(ex);
+  if (S.program === 'pat6') {
+    const h = saHint(ex.key);
+    if (h && patSmallJump(h.w)) return `all sets ${t}+, two sessions in a row → ${repBonus(ex.key) < PAT_REP_CEIL ? 'reps up' : 'weight up'}`;
+    return `all sets ${t + 1}+, two sessions in a row → weight up`;
+  }
+  return `all sets ${t}+ → ${repBonus(ex.key) ? 'reps up again' : 'weight up'}`;
+}
+
+/* ---------------------------------------------------------------------
+   6-Pattern Generator progression (Kandy, 2026-11-20).
+
+   Slower than the app's one-good-session rule, after the ACSM 2009
+   position stand (Progression Models in Resistance Training for Healthy
+   Adults, Med Sci Sports Exerc 41(3):687-708): "a 2-10% increase in load
+   be applied when the individual can perform the current workload for 1-2
+   repetitions over the desired number on two consecutive training
+   sessions." Two paths, chosen by how big the next jump would be:
+     5 lb is 10% or less of the current weight: every set must beat the
+       target by a rep (target + 1) on two sessions in a row, then +5 lb.
+     5 lb would be more than 10% (small dumbbells, an empty bar): reps go up
+       first. Hitting the target on every set, two sessions in a row, raises
+       it by a rep, up to 2 over; two in a row at 2 over adds the weight and
+       the target drops back. Dumbbells come in 5 lb steps, so reps are the
+       only smaller step there is.
+   A session that misses the target falls through to the shared stall rule
+   (hold, then back off after three). One that hits the target but not the
+   bar for moving up just holds and resets the run. Runs are kept per
+   exercise in this program's own state. */
+const PAT_STREAK = 2, PAT_REP_CEIL = 2;
+function patSmallJump(cur) { const inc = S.settings.units === 'lb' ? 5 : 2.5; return !(cur > 0) || inc / cur > 0.10; }
+function patProgStep(ex, m, cur, log) {
+  const g = patState();
+  if (!g.streak) g.streak = {};
+  const inc = S.settings.units === 'lb' ? 5 : 2.5;
+  const target = repTarget(ex);
+  let low = Infinity;
+  for (let i = 0; i < ex.sets; i++) {
+    const v = log.reps && log.reps[`${ex.key}_${i}`];
+    low = Math.min(low, v != null ? v : (log.reps && log.reps[ex.key] != null ? log.reps[ex.key] : target));
+  }
+  stallBump(ex.key, 0);
+  const small = patSmallJump(cur);
+  const need = small ? target : target + 1;
+  if (low < need) {
+    delete g.streak[ex.key];
+    return { next: cur, msg: `${ex.name} holds at ${fmt(cur)} ${unit()} — ${need}+ on every set, two sessions in a row, to move up` };
+  }
+  const run = (g.streak[ex.key] || 0) + 1;
+  if (run < PAT_STREAK) {
+    g.streak[ex.key] = run;
+    return { next: cur, msg: `${ex.name}: 1 of 2 — do ${need}+ on every set again next time and it moves up` };
+  }
+  delete g.streak[ex.key];
+  if (small && repBonus(ex.key) < PAT_REP_CEIL) {
+    repBonusAdd(ex.key, 1);
+    return { next: cur, msg: `${ex.name} stays at ${fmt(cur)} ${unit()} — target rises to ${repTarget(ex)} reps first (+${fmt(inc)} ${unit()} would be a ${Math.round(inc / cur * 100)}% jump)` };
+  }
+  let next = m.type === 'bar' ? snapWeight(cur + inc, bar(), getPlates()) : capHand(cur + inc, m.type);
+  if (next <= cur && m.type === 'bar') next = cur + inc;
+  if (next > cur) {
+    repBonusClear(ex.key);
+    return { next, msg: `${ex.name} +${fmt(next - cur)} ${unit()} next time — back to ${ex.reps} reps 💪` };
+  }
+  repBonusAdd(ex.key, 1);
+  return { next: cur, msg: `${ex.name} stays at ${fmt(cur)} ${unit()} — heaviest you own, so the target rises to ${repTarget(ex)} reps 🎯` };
+}
 
 /* ---------------------------------------------------------------------
    Wave loading across the sets of one exercise.
@@ -3924,18 +3994,23 @@ const SA_PROGRESS = [
    --------------------------------------------------------------------- */
 const STALL_LIMIT = 3;
 
-function stallCount(key) { return (S.stalls && S.stalls[key]) || 0; }
+/* The 6-Pattern Generator shares its exercise keys (gen_*) with the Random
+   Generator, so its earned reps and stall counts are kept under their own
+   names; every other program keeps the bare key it always used. */
+function progKey(key) { return S.program === 'pat6' ? 'pat6|' + key : key; }
+function stallCount(key) { return (S.stalls && S.stalls[progKey(key)]) || 0; }
 function stallBump(key, n) {
   if (!S.stalls) S.stalls = {};
-  if (n === 0) delete S.stalls[key]; else S.stalls[key] = n;
+  if (n === 0) delete S.stalls[progKey(key)]; else S.stalls[progKey(key)] = n;
 }
 /* Extra reps earned by holding a capped weight. Read by the renderer so the
    target you see is the target you are held to. */
-function repBonus(key) { return (S.repBonus && S.repBonus[key]) || 0; }
+function repBonus(key) { return (S.repBonus && S.repBonus[progKey(key)]) || 0; }
 function repBonusAdd(key, n) {
   if (!S.repBonus) S.repBonus = {};
-  S.repBonus[key] = repBonus(key) + n;
+  S.repBonus[progKey(key)] = repBonus(key) + n;
 }
+function repBonusClear(key) { if (S.repBonus) delete S.repBonus[progKey(key)]; }
 function atCeiling(key, w) {
   const m = loadEntry(key);
   if (!m || (m.type !== 'db' && m.type !== 'hand')) return false;
@@ -3956,8 +4031,8 @@ function saApplyProgression(d, log) {
     let met = true;
     for (let i = 0; i < ex.sets; i++) {
       const v = log.reps && log.reps[`${ex.key}_${i}`];
-      const hit = v != null ? v : (log.reps && log.reps[ex.key] != null ? log.reps[ex.key] : ex.reps);
-      if (hit < ex.reps + repBonus(ex.key)) { met = false; break; }
+      const hit = v != null ? v : (log.reps && log.reps[ex.key] != null ? log.reps[ex.key] : repTarget(ex));
+      if (hit < repTarget(ex)) { met = false; break; }
     }
     /* Record what was actually lifted. Nothing has ever stored this: the day
        log holds reps and ticks, and saWeights holds only the CURRENT weight,
@@ -3989,6 +4064,14 @@ function saApplyProgression(d, log) {
     /* and when. Day logs are keyed by day NUMBER, which orders a single
        program but cannot order points gathered from several. */
     if (!log.date) log.date = isoDate(new Date());
+    /* a missed session also breaks a run of two */
+    if (S.program === 'pat6' && !met) { const pg = patState(); if (pg.streak) delete pg.streak[ex.key]; }
+    if (S.program === 'pat6' && met) {
+      const r = patProgStep(ex, m, cur, log);
+      if (r.msg) msgs.push(r.msg);
+      S.saWeights[slot] = r.next;
+      return;
+    }
     const inc = S.settings.units === 'lb' ? 5 : 2.5;
     let next = cur;
     if (met) {
@@ -4006,7 +4089,7 @@ function saApplyProgression(d, log) {
       stallBump(ex.key, 0);
       /* a weight increase resets the earned reps — the new load starts from
          the written target again */
-      if (next > cur && S.repBonus) delete S.repBonus[ex.key];
+      if (next > cur) repBonusClear(ex.key);
       if (next > cur) msgs.push(`${ex.name} +${fmt(next - cur)} ${unit()} next time 💪`);
       else {
         /* At the rack ceiling the weight cannot be the progression, so the
@@ -4027,7 +4110,7 @@ function saApplyProgression(d, log) {
         stallBump(ex.key, 0);
         const had = repBonus(ex.key);
         if (had > 0) {
-          S.repBonus[ex.key] = had - 1;
+          repBonusClear(ex.key); if (had - 1 > 0) repBonusAdd(ex.key, had - 1);
           msgs.push(`${ex.name} stalled three times at your heaviest weight — target eases back to ${ex.reps + repBonus(ex.key)} reps 📉`);
         } else {
           msgs.push(`${ex.name} is stuck at ${fmt(cur)} ${unit()} for ${STALL_LIMIT} sessions and there is nothing lighter to drop to. Slow the lowering, or rest longer between sets.`);
@@ -4087,7 +4170,7 @@ function wirePrepToday() {
       const rid = btn.dataset.sarep, d = +btn.dataset.d;
       const k = rid.slice(0, rid.lastIndexOf('_'));
       const ex = pdata()[dayNum - 1].exercises.find(e => e.key === k);
-      let v = (log.reps[rid] != null ? log.reps[rid] : (ex ? ex.reps : 10)) + d;
+      let v = (log.reps[rid] != null ? log.reps[rid] : (ex ? repTarget(ex) : 10)) + d;
       v = Math.max(0, Math.min(30, v));
       log.reps[rid] = v;
       const el = document.getElementById('sarep_' + rid);
