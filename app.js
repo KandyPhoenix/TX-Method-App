@@ -1201,6 +1201,78 @@ const PAT_NOTE = 'Six movement patterns, one exercise each: squat, bend, push, p
   'Their plan keeps the same exercises for a month; this draws a fresh one per pattern each day. ' +
   'Change any single pattern from its list or its 🎲, or tap Use last session’s picks to repeat.';
 
+/* The 6-Pattern Generator's Guide tab (Kandy, 2026-11-20), in the same shape
+   as the imported programs' guides (see programGuide). The six-pattern
+   section is built from PAT_PATTERNS itself, so the doses and the lists of
+   movements it shows cannot drift from what the generator actually draws.
+   What is credited to the source comes from the slides as recorded when the
+   generator was built (slides 7-13 of 15); everything else is labelled as
+   this app's. */
+const PAT_GUIDE = (function () {
+  const dose = p => p.fail ? '2–3 sets to failure'
+    : p.sets + ' × ' + p.reps + (p.id === 'single' ? ' each side' : '') + (p.ours ? ' (app default)' : '');
+  const names = p => p.pool.map(id => { const e = patRec(id); return e ? e.name : null; }).filter(Boolean);
+  const patternItems = PAT_PATTERNS.map(p => ({
+    title: p.icon + ' ' + p.name + ' · ' + dose(p),
+    body: 'Trains the ' + p.hits + '. ' +
+      (p.ours ? 'The slides give no sets or reps for this pattern, so 3 × 8 is this app’s default. '
+              : p.fail ? 'Their dose: 2–3 sets, each until you cannot do another clean rep. '
+              : 'Sets and reps are from the slides. ') +
+      'The day draws one of: ' + names(p).join(', ') + '.'
+  }));
+  return {
+    blurb: 'Six movement patterns, one exercise each, on any two days of your week: squat, bend, push, pull, single leg and core. ' +
+      'Each day the app draws one exercise per pattern from everything in its library that fits that pattern and your equipment, the big bands included. ' +
+      'Change any one from its list or its dice, or repeat last session’s six.',
+    rotate: [
+      { kicker: 'The whole idea', title: 'Six patterns, two days a week',
+        body: 'Every session covers squat, bend, push, pull, single leg and core, so one session works every major muscle group. Two of these a week is the plan; the other days are yours for cardio, mobility or rest.' },
+      { kicker: 'Choosing', title: 'Pick, don’t just roll',
+        body: 'The draw is a starting point. If a pick does not suit your knees, your kit or your energy today, choose another from that pattern’s list. The 🎲 beside a pattern re-rolls only that one and leaves the other five alone.' },
+      { kicker: 'Their rule', title: 'Same six for a month, if you want it',
+        body: 'The plan this comes from keeps one exercise per pattern for a month, so you get better at the same movements and can add weight to them. Tap Use last session’s picks to do exactly that; roll when you want variety.' },
+      { kicker: 'Big bands', title: 'Every pattern has a band option',
+        body: 'Squat: front squat. Bend: Romanian deadlift, good morning, hip thrust. Push: chest press, overhead press. Pull: row, kneeling pulldown, band-assisted pull-up. Single leg: split squat. Core: dead bug, woodchop. Check the band for nicks first, choke it around the rack or the pull-up bar when it is anchored, and finish every rep, because the band is heaviest at the top.' },
+      { kicker: 'Core', title: 'To failure means form failure',
+        body: 'Core runs each set until you cannot do another clean rep. The set ends when the form goes: the low back lifts off the floor, the hips sag, or you start holding your breath. That is the end of the set, not a cue to grind out more.' },
+      { kicker: 'Weights', title: 'Write down what you lifted',
+        body: 'Like the Random Generator, this one does not suggest weights or raise them for you. Note the weight as you go. This app’s rule of thumb: when all three sets reach the target reps with a rep or two to spare, go up a little next time.' }
+    ],
+    after: [
+      { kicker: 'Next session', title: 'Repeat or roll',
+        body: 'If today’s six felt right, open the next session and tap Use last session’s picks. If one movement bothered a joint, swap just that pattern and keep the rest.' }
+    ],
+    days: {
+      [PAT_TITLE]: { kicker: 'Today', title: 'One of each, in order',
+        body: 'Warm-up first, then squat, bend, push, pull, single leg and core, then the cool-down. Rest long enough between sets to do the next one well; the core sets are the only ones meant to end at failure.' }
+    },
+    groups: [
+      { title: 'The six patterns', icon: '🧩', tone: 'cycle', items: patternItems },
+      { title: 'Watch for', icon: '⚠️', tone: 'warn', items: [
+        { title: 'Your knees: choose the squat and single-leg picks yourself',
+          body: 'The knee setting in Setup only swaps the barbell back squat here. It does not swap goblet squats, step-ups, lunges or split squats when the generator picks them. On a sore-knee day, choose from the lists: box squat, wall sit or the long-band front squat (to a knee-height box) for squat; glute step-downs, single-leg Romanian deadlift or single-leg hip thrust for single leg.' },
+        { title: 'Some picks are hard ones',
+          body: 'Archer push-ups, tempo pull-ups, hanging leg raises and the barbell lifts can come up on Medium. Set the difficulty to Easy, or pick something else from the list, if a pick is beyond today.' }
+      ] },
+      { title: 'The honest bits', icon: '📌', tone: 'fuel', items: [
+        { title: 'Push and pull numbers are this app’s',
+          body: 'The slides seen give sets and reps for squat, bend, single leg and core only. 3 × 8 for push and pull is this app’s default, and the day note says so.' },
+        { title: 'Not every slide was seen',
+          body: 'Slides 1-6 and 14-15 of the carousel were not part of what this was built from. If one of them gives push and pull numbers or another rule, those should replace the defaults here.' },
+        { title: 'A fresh draw each day is a change from their plan',
+          body: 'Their plan writes down one exercise per pattern and keeps it for a month. The daily draw was asked for on purpose; Use last session’s picks brings the month-long version back.' },
+        { title: 'The weight rule is this app’s',
+          body: 'The rule of thumb for adding weight is a common way to progress, not something from the slides, and the app does not track it for you here.' },
+        { title: 'Not medical advice',
+          body: 'Check with your provider or a physical therapist if anything here conflicts with your knees or any other condition, and stop any movement that causes sharp or joint pain.' }
+      ] }
+    ],
+    sources: 'Wellnesse Steps, two-day full-body plan (Instagram carousel, slides 7-13 of 15, from Kandy’s screenshots, 2026-11-19): the six patterns, what each trains, and the sets and reps for squat, bend, single leg and core. ' +
+      'U.S. Department of Health and Human Services, Physical Activity Guidelines for Americans, 2nd edition (2018), health.gov/paguidelines: adults should do muscle-strengthening activities that involve all major muscle groups on 2 or more days a week. ' +
+      'The push and pull doses, the daily draw, the band options, the knee notes and the weight rule are this app’s.'
+  };
+})();
+
 function patState() {
   if (!S.pat6) S.pat6 = { day: 1, log: {}, made: {}, used: {}, diff: 'medium' };
   const g = S.pat6;
@@ -1845,6 +1917,7 @@ function programGuide() {
   if (typeof SYN_PLANS === 'undefined') return null;
   const key = String(S.program || '');
   if (key === 'texas') return (typeof TEXAS_GUIDE !== 'undefined') ? TEXAS_GUIDE : null;
+  if (key === 'pat6') return (typeof PAT_GUIDE !== 'undefined') ? PAT_GUIDE : null;
   if (key.indexOf('syn-') !== 0) return null;
   const p = SYN_PLANS.find(x => x.id === key.slice(4));
   return (p && p.guide) || null;
