@@ -1235,8 +1235,8 @@ const PAT_GUIDE = (function () {
         body: 'Squat: front squat. Bend: Romanian deadlift, good morning, hip thrust. Push: chest press, overhead press. Pull: row, kneeling pulldown, band-assisted pull-up. Single leg: split squat. Core: dead bug, woodchop. Check the band for nicks first, choke it around the rack or the pull-up bar when it is anchored, and finish every rep, because the band is heaviest at the top.' },
       { kicker: 'Core', title: 'To failure means form failure',
         body: 'Core runs each set until you cannot do another clean rep. The set ends when the form goes: the low back lifts off the floor, the hips sag, or you start holding your breath. That is the end of the set, not a cue to grind out more.' },
-      { kicker: 'Weights', title: 'Write down what you lifted',
-        body: 'Like the Random Generator, this one does not suggest weights or raise them for you. Note the weight as you go. This app’s rule of thumb: when all three sets reach the target reps with a rep or two to spare, go up a little next time.' }
+      { kicker: 'Weights', title: 'Start basic, then earn the next 5 lb',
+        body: 'Every loaded pick shows a starting weight worked out from your Setup lifts, set a little light on purpose; with Wave loading on in Setup the three sets ramp up to a top set and back down. Log the reps you actually hit on each set. Hit the target on all three and that exercise goes up 5 lb next time; miss and it holds. Three misses in a row and it drops back about 10% to build up again (if auto-deload is on in Setup).' }
     ],
     after: [
       { kicker: 'Next session', title: 'Repeat or roll',
@@ -1261,15 +1261,15 @@ const PAT_GUIDE = (function () {
           body: 'Slides 1-6 and 14-15 of the carousel were not part of what this was built from. If one of them gives push and pull numbers or another rule, those should replace the defaults here.' },
         { title: 'A fresh draw each day is a change from their plan',
           body: 'Their plan writes down one exercise per pattern and keeps it for a month. The daily draw was asked for on purpose; Use last session’s picks brings the month-long version back.' },
-        { title: 'The weight rule is this app’s',
-          body: 'The rule of thumb for adding weight is a common way to progress, not something from the slides, and the app does not track it for you here.' },
+        { title: 'The weights are this app’s',
+          body: 'The slides give sets and reps, not weights. Starting weights come from your Setup lifts using the same formula as the app’s other strength programs, with an extra rep in reserve so they start light, and they move by the app’s usual rule: +5 lb when every set hits its target, hold on a miss, back off after three misses. Each exercise keeps its own weight, so it picks up where it left off whenever it comes round again. Band and bodyweight moves progress by reps (and band number). The core sets run to failure, so a weighted core move (Russian twist, windmill) shows a starting weight but does not move it for you, and for the farmer carry you pick the weight yourself. If a starting weight feels wrong, update your lifts in Setup before the first session with that exercise.' },
         { title: 'Not medical advice',
           body: 'Check with your provider or a physical therapist if anything here conflicts with your knees or any other condition, and stop any movement that causes sharp or joint pain.' }
       ] }
     ],
     sources: 'Wellnesse Steps, two-day full-body plan (Instagram carousel, slides 7-13 of 15, from Kandy’s screenshots, 2026-11-19): the six patterns, what each trains, and the sets and reps for squat, bend, single leg and core. ' +
       'U.S. Department of Health and Human Services, Physical Activity Guidelines for Americans, 2nd edition (2018), health.gov/paguidelines: adults should do muscle-strengthening activities that involve all major muscle groups on 2 or more days a week. ' +
-      'The push and pull doses, the daily draw, the band options, the knee notes and the weight rule are this app’s.'
+      'The push and pull doses, the daily draw, the band options, the knee notes, the starting weights and the progression rule are this app’s.'
   };
 })();
 
@@ -3727,6 +3727,74 @@ const SYN_LOAD = {
     wu_db_shrug:                      { start: 10, type: 'hand' },   /* DB Shrugs */
     syn_seated_dumbbell_calf_raises:  { start: 10, type: 'hand' },   /* Seated DB Calf Raises */
     wu_db_russian_twist:              { start: 10, type: 'hand' },   /* DB Russian Twists */
+  },
+  /* 6-Pattern Generator (Kandy, 2026-11-20): progressive load from basic
+     starting weights. Keys are what patEx() emits: 'gen_' + id, or the
+     PAT_EXTRA key. The dose comes from the PATTERN, not the movement, so a
+     movement's percentage is set at its pattern's rep target:
+         squat 6 · push and pull 8 · single leg 8 each side · bend 10
+     Barbell: ratio to its Setup lift x (37 - (reps + 3)) / 36, the same
+     inverted formula as Push Pull Legs but with 3 reps in reserve instead of
+     2, so every start is a little lighter ("basic") and the reps-hit rule
+     climbs from there:  6 reps .778 · 8 reps .722 · 10 reps .667.
+     Ratios as used elsewhere in this file: RDL .70 of deadlift, good
+     morning .45, barbell row .90 of bench, hip thrust 1.00 of squat. Box
+     squat .90, close-grip bench .85 and barbell lunge .45 have no
+     precedent here and are deliberately low.
+     Dumbbells: SA_WEIGHT's shipped dumbbell weights are not scaled to the
+     barbell ones (its DB RDL pair outweighs the barbell RDL), so for a basic
+     start each hand here is about 40% of the barbell version at the same
+     reps, and a pair is never heavier than the bar: bench and press .29,
+     incline .25, RDL .19. Rows sit a little higher (a braced single-arm row
+     is strong), renegade rows much lower (they are held in a plank).
+     Single bells and one-leg work keep the app's usual ratios, trimmed.
+     Everything is capped by the heaviest dumbbell in Setup; anything with
+     no sensible ratio starts at 10 lb.
+     Core is "until you cannot do another clean rep", which has no target
+     for the reps-hit rule to compare against, so its loaded moves get a
+     suggestion with prog:false. The farmer carry is absent: in this
+     generator it is a timed hold, and timed rows show no weight anywhere in
+     the app. Bodyweight and long-band movements are absent too: they
+     progress by reps and band number. */
+  'pat6': {
+    /* squat · 3 x 6 */
+    syn_squats:                       { src: 'squat',    pct: 0.778, type: 'bar'  },   /* Back Squat · 1.00 x 6+3 */
+    'gen_box-squat':                  { src: 'squat',    pct: 0.700, type: 'bar'  },   /* .90 x 6+3 */
+    'gen_goblet-squat':               { src: 'squat',    pct: 0.25,  type: 'db'   },   /* gobletsquat .30, trimmed */
+    'gen_tempo-goblet-squat':         { src: 'squat',    pct: 0.20,  type: 'db'   },   /* slower tempo, lighter */
+    'gen_kb-sumo-squat':              { src: 'squat',    pct: 0.25,  type: 'db'   },
+    /* bend · 3 x 10 */
+    'gen_deadlift':                   { src: 'deadlift', pct: 0.667, type: 'bar'  },   /* 1.00 x 10+3 */
+    'gen_sumo-deadlift':              { src: 'deadlift', pct: 0.667, type: 'bar'  },
+    'gen_romanian-deadlift':          { src: 'deadlift', pct: 0.467, type: 'bar'  },   /* .70 x 10+3 */
+    'gen_good-mornings':              { src: 'deadlift', pct: 0.300, type: 'bar'  },   /* .45 x 10+3 */
+    'gen_hip-thrust':                 { src: 'squat',    pct: 0.667, type: 'bar'  },   /* 1.00 x 10+3 */
+    'gen_db-rdl':                     { src: 'deadlift', pct: 0.19,  type: 'hand' },   /* .40 x barbell RDL */
+    'gen_kb-swing':                   { src: 'deadlift', pct: 0.15,  type: 'db'   },   /* kbswing .25, trimmed */
+    /* push · 3 x 8 */
+    'gen_bench-press':                { src: 'bench',    pct: 0.722, type: 'bar'  },   /* 1.00 x 8+3 */
+    'gen_close-grip-bench':           { src: 'bench',    pct: 0.614, type: 'bar'  },   /* .85 x 8+3 */
+    'gen_overhead-press':             { src: 'press',    pct: 0.722, type: 'bar'  },   /* 1.00 x 8+3 */
+    'gen_db-bench-press':             { src: 'bench',    pct: 0.29,  type: 'hand' },   /* .40 x barbell bench */
+    'gen_incline-db-press':           { src: 'bench',    pct: 0.25,  type: 'hand' },   /* incline below flat */
+    'gen_db-shoulder-press':          { src: 'press',    pct: 0.29,  type: 'hand' },   /* .40 x barbell press */
+    'gen_db-floor-fly-press':         { start: 10, type: 'hand' },
+    'gen_kb-bottoms-up-press':        { start: 10, type: 'hand' },   /* balance-limited: start very light */
+    /* pull · 3 x 8 */
+    'gen_barbell-row':                { src: 'bench',    pct: 0.650, type: 'bar'  },   /* .90 x 8+3 */
+    'gen_db-row':                     { src: 'bench',    pct: 0.30,  type: 'hand' },   /* dbrow .35, trimmed */
+    'gen_renegade-rows':              { src: 'bench',    pct: 0.20,  type: 'hand' },   /* held in a plank */
+    'gen_kb-gorilla-row':             { src: 'bench',    pct: 0.25,  type: 'hand' },
+    'gen_kb-high-pull':               { start: 10, type: 'db' },
+    /* single leg · 3 x 8 each side */
+    syn_reverse_lunges:               { src: 'squat',    pct: 0.15,  type: 'hand' },   /* = dblunge */
+    'gen_step-ups':                   { src: 'squat',    pct: 0.15,  type: 'hand' },   /* = stepup */
+    'gen_split-squat':                { src: 'squat',    pct: 0.15,  type: 'hand' },   /* = splitsquatecc */
+    'gen_single-leg-rdl':             { src: 'deadlift', pct: 0.12,  type: 'hand' },   /* wu_single_leg_rdl .15, trimmed */
+    'gen_barbell-lunge':              { src: 'squat',    pct: 0.325, type: 'bar'  },   /* .45 x 8+3, low on purpose */
+    /* core · to failure: a suggestion, no automatic progression */
+    'gen_russian-twist':              { start: 10, type: 'db', prog: false },
+    'gen_kb-windmill':                { src: 'press',    pct: 0.15,  type: 'hand', prog: false },   /* = dbwindmill */
   }
 };
 /* the plan's own entry wins; SA_WEIGHT stays the fallback for everything else */
@@ -8333,7 +8401,9 @@ function afterStep() {
   if (sess.i >= sess.steps.length - 1) { finishSession(); return; }
   /* supersets provide the rest: SuperAge moves straight to the partner
      exercise while the last muscle group recovers */
-  if (hasLoadProgression()) { nextStep(); return; }
+  /* the 6-Pattern Generator is straight sets with no superset partner, so it
+     keeps its rest timer even though it now has load progression */
+  if (hasLoadProgression() && S.program !== 'pat6') { nextStep(); return; }
   startSessRest();
 }
 function nextStep() {
