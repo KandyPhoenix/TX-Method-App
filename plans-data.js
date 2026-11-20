@@ -8523,3 +8523,252 @@ Object.assign(SYN_TIPS, {
     body: "Turkish get-ups and kettlebell clean-and-press, Spanish squat isometrics for the knee tendons, band-assisted Nordic curls for the hamstrings, Copenhagen planks for the adductors, band face pulls for the shoulders, rucking, a no-jump aerobics block, an agility session and a long-hold stretch session. Each new movement has its own How-to and video." });
   VW.guide.blurb = VW.guide.blurb.replace("Ten strength sessions, eighteen mobility sessions, eleven cardio sessions and seven mix sessions", "Twelve strength sessions, twenty mobility sessions, thirteen cardio sessions and eight mix sessions");
 })();
+
+/* =====================================================================
+   LONG BANDS (Kandy, 2026-11-20): every movement pattern in both
+   generators gets a long-loop-band option.
+
+   Kandy bought a set of long (about 41-inch) loop bands. Before this the
+   Random Generator had seven band movements, mostly shoulder care, with
+   nothing for full body or cardio, and Full Variety Week only used the
+   long bands in a pull-apart, a face pull, two fallback lines and the
+   knee-tendon session. This block is the single source for the long-band
+   movements: each How-to is written once here, registered under its lb_
+   key for Full Variety Week, and pushed into GEN_EX for the Random
+   Generator (whose own 110 Synthesis exercises stay untouched in
+   generator-data.js).
+
+   Pattern            Generator category   Long-band movement
+   squat              legs                 Long-Band Front Squat
+   hinge              legs                 Long-Band Romanian Deadlift, Good Morning
+   single leg         legs                 Long-Band Split Squat
+   glute thrust       legs                 Long-Band Hip Thrust (existing How-to)
+   horizontal push    push                 Long-Band Chest Press, Push-Up*
+   vertical push      push                 Long-Band Overhead Press
+   arms               push / pull          Triceps Pushdown, Biceps Curl
+   horizontal pull    pull                 Long-Band Bent-Over Row
+   vertical pull      pull                 Kneeling Lat Pulldown, Band-Assisted Pull-Up
+   anti-rotation      core                 Long-Band Pallof Press* (the generator
+                                           already had a band Pallof press)
+   anti-extension     core                 Long-Band Dead Bug (generator only)
+   rotation           core                 Long-Band Woodchop
+   full body          full-body            Long-Band Thruster, RDL to Row
+   conditioning       cardio               Long-Band Thruster Intervals
+   mobility           (Variety Week only)  Long-Band Leg Stretch Series*
+   (* Full Variety Week only, so the generator does not get a second copy
+   of a movement it already has. The dead bug is generator only, because
+   both long-band strength days already carry a core move.)
+
+   Band numbers follow the app's glossary (#1 lightest, #4 heaviest).
+   Brands number and colour their sets differently, so the How-tos say
+   which job each band does rather than a pound figure. Anchors are the
+   rack upright and the pull-up bar, both in the kit; every anchored
+   movement carries a NO ANCHOR line. No videos are pinned for these yet:
+   the How-to panel shows its "Find a demo" search link instead.
+   ===================================================================== */
+var LB_MOVES = (function () {
+  var CHECK = " BEFORE YOU START: Look the band over for nicks, splits or thin spots and retire it if you find one. When it is anchored, choke it (loop it around the anchor and pull one end through the other) so it cannot slide, and keep your face out of the line it would travel if it slipped.";
+  var ASC = " The band is lightest at the bottom of a rep and heaviest at the top, so finish every rep all the way and lower slowly; a slow lowering is where most of the work is.";
+  return [
+    { key: "lb_front_squat", name: "Long-Band Front Squat",
+      gen: { cat: "legs", kind: "basic", diff: "medium", sets: 3, scheme: "10-12", reps: 10, mins: 5, muscles: ["quads", "glutes", "core"], equip: ["bands"] },
+      body: "PLAIN ENGLISH: A squat with a long band running from under your feet to the front of your shoulders, so the band is the weight. WHICH BAND: #3 or #4. A thicker band, or two bands together, is the progression. HOW: Stand on the middle of the band with your feet hip- to shoulder-width, the whole sole of each foot on it. Pull the top of the loop up in front of you and rest it across the front of your shoulders, hands holding it at the collarbones, elbows pointing forward. Sit down and back between your heels, chest tall, until your thighs are about parallel or as deep as you own with a flat back. Drive through the whole foot to stand all the way up and squeeze the glutes at the top. Cues: Chest tall, elbows up; Knees track over the toes, not caving in; 2 seconds down; Stand all the way up, the top is where the band works hardest." + ASC + " KNEE HURTING: squat to a knee-height box or bench and stand from it, same band." + CHECK },
+    { key: "lb_rdl", name: "Long-Band Romanian Deadlift",
+      gen: { cat: "legs", kind: "basic", diff: "medium", sets: 3, scheme: "10-12", reps: 10, mins: 5, muscles: ["hamstrings", "glutes", "lower-back"], equip: ["bands"] },
+      body: "PLAIN ENGLISH: A hip hinge with the band under your feet: push the hips back, then drive them forward to stand. It trains the hamstrings and glutes and grooves the movement that protects the back when you lift anything off the floor. WHICH BAND: #3 or #4. For more tension, stand wider on the band or hold it lower. HOW: Stand on the middle of the band, feet hip-width, and hold the top of the loop in both hands in front of your thighs, arms straight. Soften the knees a little and keep that bend. Push the hips straight back, letting your hands slide down the front of your legs, back flat, until you feel a strong hamstring stretch, usually around the knees or just below. Drive the hips forward to stand tall and squeeze the glutes. Cues: Hips back, not down; Flat back, neck in line, eyes a few feet ahead on the floor; Hands stay close to the legs; Stand tall at the top without leaning back." + ASC + CHECK },
+    { key: "lb_good_morning", name: "Long-Band Good Morning",
+      gen: { cat: "legs", kind: "creative", diff: "medium", sets: 3, scheme: "10-12", reps: 10, mins: 4, muscles: ["hamstrings", "glutes", "lower-back"], equip: ["bands"] },
+      body: "PLAIN ENGLISH: A hip hinge with the band across your upper back instead of in your hands, so the hamstrings and glutes do the work and the grip does not give out first. WHICH BAND: #2 or #3. HOW: Stand on the middle of the band, feet hip-width. Bring the top of the loop over your head and settle it across the meaty part of the upper back, below the bony bump at the base of the neck, with a folded towel under it if it digs in. Hold the band at the front of each shoulder. Soft knees. Push the hips back and tip the chest forward with a flat back until your torso is close to parallel to the floor or your hamstrings stop you, whichever comes first. Drive the hips forward to stand. Cues: The band sits on muscle, never on the neck bone; Flat back the whole way, stop where it would round; Hips back, not knees forward; Squeeze the glutes to finish." + ASC + " NECK COMPLAINS: do the Long-Band Romanian Deadlift instead." + CHECK },
+    { key: "lb_split_squat", name: "Long-Band Split Squat",
+      gen: { cat: "legs", kind: "basic", diff: "medium", sets: 3, scheme: "8-10 each leg", reps: 8, side: true, mins: 5, muscles: ["quads", "glutes"], equip: ["bands"] },
+      body: "PLAIN ENGLISH: A split squat (one foot forward, one back, lower straight down) with the front foot pinning the band, one leg at a time. WHICH BAND: #2 or #3. HOW: Put your front foot on the middle of the band. Step the other foot back two to three feet onto the ball of the foot. Bring the top of the loop up to the front of your shoulders and hold it there, as in the front squat. Lower straight down until the back knee is just above the floor, front shin close to vertical, torso tall or leaning slightly forward. Push through the front heel to stand back up. Finish all the reps, then switch legs. Cues: Straight down, not forward; Front knee tracks over the toes; Most of the weight on the front leg; Stay tall at the top." + ASC + " KNEE HURTING: shorter range, only as low as stays pain-free, with one hand on the rack for balance." + CHECK },
+    { key: "lb_hip_thrust", name: "Long-Band Hip Thrust", tipExists: true,
+      gen: { cat: "legs", kind: "basic", diff: "medium", sets: 3, scheme: "12-15", reps: 12, mins: 5, muscles: ["glutes", "hamstrings"], equip: ["bands", "bench"] } },
+    { key: "lb_chest_press", name: "Long-Band Chest Press",
+      gen: { cat: "push", kind: "basic", diff: "medium", sets: 3, scheme: "10-12", reps: 10, mins: 4, muscles: ["chest", "shoulders", "triceps"], equip: ["bands"] },
+      body: "PLAIN ENGLISH: A standing chest press with the band wrapped around your back: the band pulls your hands back and you press them forward. WHICH BAND: #2 or #3. HOW: Hold the band in front of you and pass it behind your back so it runs across the upper back just under the armpits, one end of the loop in each hand with the thumbs through. Stand in a split stance with one foot ahead. Start with the hands beside the chest, elbows about 45 degrees from the body. Press both hands straight forward at chest height until the arms are straight, then let them come back under control. Swap the front foot each set. Cues: Ribs down, do not let the band arch you; Elbows about 45 degrees, not flared to the sides; Press straight ahead, not up; Slow on the way back. ANCHORED VERSION: choke the band around a rack upright at chest height and face away from it." + ASC + CHECK },
+    { key: "lb_push_up", name: "Long-Band Push-Up",
+      body: "PLAIN ENGLISH: A push-up with a band across your back that gets harder as you push away from the floor. WHICH BAND: #1 or #2. HOW: Hold the ends of the loop, pass the band behind your back across the shoulder blades, and pin each end flat to the floor under your palms. Set up in a push-up with hands a little wider than the shoulders and the body in one straight line. Lower the chest to just above the floor, elbows about 45 degrees from the body, then press back up to straight arms. Cues: One straight line from head to heels; Elbows about 45 degrees; Hands pin the band flat so it cannot slip; Full lockout at the top. EASIER: hands on a bench or the rack's J-hooks set low. If 8 reps are out of reach with the band, do the push-ups without it until 12 are easy." + CHECK },
+    { key: "lb_overhead_press", name: "Long-Band Overhead Press",
+      gen: { cat: "push", kind: "basic", diff: "medium", sets: 3, scheme: "8-12", reps: 8, mins: 4, muscles: ["shoulders", "triceps", "core"], equip: ["bands"] },
+      body: "PLAIN ENGLISH: Pressing the band from your shoulders to straight overhead while standing on it. WHICH BAND: #1 or #2; the shoulders are the weakest of the pressing muscles, so this is usually the lightest band of the session. Stand wider on the band to make it harder, on one foot's width to make it easier. HOW: Stand on the middle of the band, feet hip-width. Hold the top of the loop at shoulder height, palms facing forward, hands just outside the shoulders. Brace the stomach and squeeze the glutes. Press straight up until the arms are locked and the biceps are beside the ears, then lower back to the shoulders under control. Cues: Ribs down, no leaning back; Press straight up, not forward; Head through at the top; Slow on the way down." + ASC + CHECK },
+    { key: "lb_triceps_pushdown", name: "Long-Band Triceps Pushdown",
+      gen: { cat: "push", kind: "basic", diff: "easy", sets: 3, scheme: "12-15", reps: 12, mins: 3, muscles: ["triceps"], equip: ["bands", "pull-up-bar"] },
+      body: "PLAIN ENGLISH: Pushing a band down from a high anchor by straightening the elbows: the back of the upper arm. WHICH BAND: #1 or #2. HOW: Choke the band around the pull-up bar or the top of the rack. Stand facing it, close enough that the band is tight with your elbows bent to about 90 degrees and pinned to your sides. Holding the band with both hands, palms down, push down until the arms are straight, squeeze the backs of the arms, then let the hands rise back to elbow height under control. Cues: Elbows stay pinned to your sides, only the forearms move; Shoulders down, not hunched; Stand tall, do not lean over the band; Slow on the way up. NO ANCHOR: overhead triceps extension, standing on one end of the band and pressing the other end up from behind the head." + CHECK },
+    { key: "lb_bent_row", name: "Long-Band Bent-Over Row",
+      gen: { cat: "pull", kind: "basic", diff: "medium", sets: 3, scheme: "10-12", reps: 10, mins: 4, muscles: ["back", "lats", "biceps"], equip: ["bands"] },
+      body: "PLAIN ENGLISH: A row with no anchor needed: stand on the band, hinge forward and pull your hands to your ribs. WHICH BAND: #2 or #3. HOW: Stand on the middle of the band, feet hip-width, and hold the top of the loop in both hands. Soft knees, push the hips back and hinge until your torso is at about 45 degrees, back flat, arms hanging straight. Pull the hands to the lower ribs, elbows close to the body, and squeeze the shoulder blades together. Pause, then straighten the arms under control. Cues: Flat back, hold the hinge the whole set; Lead with the elbows, not the hands; Squeeze the shoulder blades at the top; Do not shrug toward the ears." + ASC + CHECK },
+    { key: "lb_lat_pulldown", name: "Kneeling Long-Band Lat Pulldown",
+      gen: { cat: "pull", kind: "basic", diff: "easy", sets: 3, scheme: "10-12", reps: 10, mins: 4, muscles: ["lats", "back", "biceps"], equip: ["bands", "pull-up-bar"] },
+      body: "PLAIN ENGLISH: The lat pulldown machine, done with a band from the pull-up bar: pull your elbows down to your sides. It builds the back for pull-ups. WHICH BAND: #2 or #3. HOW: Choke the band around the pull-up bar so it hangs down. Kneel under it, or a small step behind it, on a folded mat. Reach up and take the band with both hands about shoulder-width or a little wider, arms straight, band already tight. Pull your elbows down and back toward your ribs so the hands finish around the top of the chest, chest up, then let the arms rise back to straight under control. Cues: Elbows down to the ribs; Chest up, slight lean back is fine; Shoulders down away from the ears; Slow on the way up." + CHECK },
+    { key: "lb_assisted_pull_up", name: "Band-Assisted Pull-Up",
+      gen: { cat: "pull", kind: "basic", diff: "medium", sets: 3, scheme: "5-8", reps: 5, mins: 5, muscles: ["lats", "back", "biceps", "grip"], equip: ["bands", "pull-up-bar"] },
+      body: "PLAIN ENGLISH: A pull-up with a long band taking part of your weight, so you can do real reps while you build to an unassisted one. WHICH BAND: #3 or #4; the thicker band helps more. Progress by moving to a thinner band. HOW: Choke the band around the pull-up bar. Stand on a box or bench, pull the low end of the band down and put one knee in it (or one foot, which gives more help). Take the bar overhand, hands a little wider than the shoulders, and lower to a hang with the shoulders pulled down away from the ears. Pull until your chin clears the bar, then lower for a slow 3 seconds to straight arms. Cues: Start each rep with the shoulders pulled down; Chest toward the bar; 3 seconds down; Stop with 1-2 clean reps in reserve. Step back onto the box to get out of the band rather than letting it snap up. NO PULL-UP BAR AVAILABLE: Kneeling Long-Band Lat Pulldown." + CHECK },
+    { key: "lb_biceps_curl", name: "Long-Band Biceps Curl",
+      gen: { cat: "pull", kind: "basic", diff: "easy", sets: 3, scheme: "12-15", reps: 12, mins: 3, muscles: ["biceps", "forearms"], equip: ["bands"] },
+      body: "PLAIN ENGLISH: A curl with the band under your feet. WHICH BAND: #1 or #2. Stand wider on the band to make it harder. HOW: Stand on the middle of the band, feet hip-width, holding the top of the loop with palms facing forward, arms straight. Keep the elbows pinned to your sides and curl the hands up toward the shoulders. Squeeze, then lower slowly to straight arms. Cues: Elbows stay at your sides; No swinging or leaning back; Full straighten at the bottom; 2-3 seconds down." + ASC + CHECK },
+    { key: "lb_pallof_press", name: "Long-Band Pallof Press",
+      body: "PLAIN ENGLISH: Standing side-on to a band and pressing it straight out in front of you while refusing to let it twist you. It trains the core to resist rotation, which is what it does all day. WHICH BAND: #1 or #2. HOW: Choke the band around a rack upright at chest height. Stand side-on to it, hold the band with both hands at the middle of your chest, and step sideways away from the anchor until the band pulls hard. Feet shoulder-width, knees soft. Press both hands straight out from the chest until the arms are straight, hold for 2 seconds while the band tries to turn you toward the rack, then bring the hands back. Finish the reps, then turn around for the other side. Cues: Hips and shoulders stay square to the front; Press straight out, not toward the anchor; Breathe out as you press; Further from the anchor is harder. NO ANCHOR: press the palms hard together with the arms out in front for 20 seconds." + CHECK },
+    { key: "lb_dead_bug", name: "Long-Band Dead Bug",
+      gen: { cat: "core", kind: "basic", diff: "medium", sets: 3, scheme: "8-10 each side", reps: 8, side: true, mins: 4, muscles: ["core", "obliques"], equip: ["bands"] },
+      body: "PLAIN ENGLISH: The dead bug with a band pulling your arms back over your head, so the deep core has to work harder to keep the low back down while the legs move. WHICH BAND: #1. HOW: Choke the band low on a rack upright, at floor level. Lie on your back with the top of your head toward the rack and hold the band in both hands with straight arms pointing at the ceiling; shuffle away until it pulls. Lift the knees above the hips with the shins level. Press the low back gently into the floor. Keeping the arms still against the pull, slowly reach one leg out until the heel is just above the floor, then bring it back. Alternate legs. Cues: Low back stays down, so stop the leg higher if it starts to lift; Arms stay straight up, do not let the band pull them back; Breathe out as the leg goes out; Slow, about 3 seconds out. NO ANCHOR: the ordinary dead bug, reaching the opposite arm overhead as each leg goes out." + CHECK },
+    { key: "lb_woodchop", name: "Long-Band Woodchop (High to Low)",
+      gen: { cat: "core", kind: "creative", diff: "medium", sets: 3, scheme: "10 each side", reps: 10, side: true, mins: 4, muscles: ["obliques", "core", "shoulders"], equip: ["bands", "pull-up-bar"] },
+      body: "PLAIN ENGLISH: Pulling a band from high on one side down and across to the opposite hip, turning through the hips and the upper back together. It trains rotation with control. WHICH BAND: #1 or #2. HOW: Choke the band high on the rack or the pull-up bar. Stand side-on to it, feet wider than the shoulders, and take the band in both hands above the shoulder nearest the anchor, arms long. Pull it down and across your body to just outside the far hip, turning the hips and chest together and letting the back heel pivot so the knee never twists over a planted foot. Control it back up to the start. Finish the reps, then turn around. Cues: Turn the hips and ribs together, not just the arms; Arms stay long; Pivot the back foot; Slow on the way back up." + CHECK },
+    { key: "lb_thruster", name: "Long-Band Thruster",
+      gen: { cat: "full-body", kind: "creative", diff: "medium", sets: 3, scheme: "10-12", reps: 10, mins: 5, muscles: ["quads", "shoulders", "glutes", "triceps", "core"], equip: ["bands"] },
+      body: "PLAIN ENGLISH: A squat that drives straight into an overhead press, in one movement: legs, hips, shoulders and lungs at once. WHICH BAND: #1 or #2; the press decides the band, not the squat. HOW: Stand on the middle of the band, feet hip- to shoulder-width, holding the top of the loop at the shoulders, palms forward, as for the overhead press. Squat down with the chest tall. Drive up out of the squat and use that drive to press the hands straight overhead to locked arms. Lower the hands back to the shoulders as you sit into the next squat. Cues: Chest tall in the squat; The legs start the press; Lock out overhead, ribs down; Smooth and steady, not rushed. KNEE HURTING: a shallow squat, only as deep as stays pain-free." + CHECK },
+    { key: "lb_rdl_row", name: "Long-Band RDL to Row",
+      gen: { cat: "full-body", kind: "creative", diff: "medium", sets: 3, scheme: "8-10", reps: 8, mins: 5, muscles: ["hamstrings", "back", "glutes", "lats"], equip: ["bands"] },
+      body: "PLAIN ENGLISH: A Romanian deadlift and a bent-over row joined into one rep: hinge down, row once, stand up. The back of the body from heels to shoulders. WHICH BAND: #2 or #3. HOW: Stand on the middle of the band, feet hip-width, holding the top of the loop in both hands. Soft knees, push the hips back and hinge until your torso is at about 45 degrees, back flat, arms hanging. Hold that hinge and row the hands to the lower ribs, squeeze the shoulder blades, then straighten the arms. Drive the hips forward to stand tall. That is one rep. Cues: Flat back throughout; Hinge first, row second, stand third; Elbows close on the row; Squeeze the glutes to stand." + CHECK },
+    { key: "lb_thruster_intervals", name: "Long-Band Thruster Intervals",
+      gen: { cat: "cardio", kind: "creative", diff: "medium", sets: 6, scheme: "6 rounds · 30 sec on / 30 sec rest", sec: 30, mins: 6, muscles: ["cardio", "quads", "shoulders"], equip: ["bands"] },
+      body: "PLAIN ENGLISH: Long-band thrusters done for time instead of reps, to get the heart rate up with no jumping and no impact. WHICH BAND: #1, light enough to keep moving for 30 seconds with good form. HOW: Set up as for the Long-Band Thruster: stand on the band, loop at the shoulders, palms forward. Do smooth thrusters (squat, drive up, press overhead, lower to the shoulders as you sit back down) for 30 seconds, then rest 30 seconds. Six rounds. Cues: A pace you can hold for all six rounds; Breathing hard but in control; Form first, the clock second. KNEE HURTING: a shallow squat, or just the press with a small dip of the knees. Stop for chest pain, dizziness or unusual breathlessness." + CHECK },
+    { key: "lb_leg_stretch", name: "Long-Band Leg Stretch Series",
+      body: "PLAIN ENGLISH: Using the long band as a strap to stretch the hamstrings, the inner thigh and the outer hip, lying on your back so nothing has to balance. WHICH BAND: any; the lightest is easiest to handle. Here the band is only a strap. HOW: Lie on your back with both legs straight. Loop the band around the arch of one foot and hold both sides of it. 1. HAMSTRING: lift that leg straight up and use the band to ease it toward you until you feel a stretch behind the thigh. 2. INNER THIGH: hold the band in the same-side hand and let the leg lower out to the side, keeping the opposite hip down. 3. OUTER HIP: bring the band into the opposite hand and draw the leg across the body until you feel it on the outside of the hip. Hold each position 30-45 seconds, breathing slowly, then switch legs. Cues: The other leg stays long on the floor; Ease into the stretch, never bounce; Mild stretch, not pain; Long, slow exhales." }
+  ];
+})();
+
+/* How-tos under each lb_ key, and the generator's records. A record keeps
+   GEN_EX's shape exactly; its key in a workout is 'gen_' + id as usual. */
+(function () {
+  if (typeof GEN_EX === "undefined") return;
+  var tips = {};
+  LB_MOVES.forEach(function (m) {
+    if (!m.tipExists) tips[m.key] = { title: m.name, body: m.body };
+  });
+  Object.assign(SYN_TIPS, tips);
+  LB_MOVES.forEach(function (m) {
+    if (!m.gen) return;
+    var g = m.gen, rec = {
+      id: m.key.replace(/_/g, "-"), name: m.name, equip: g.equip.slice(), muscles: g.muscles.slice(),
+      kind: g.kind, cat: g.cat, diff: g.diff, sets: g.sets, scheme: g.scheme, mins: g.mins,
+      body: (SYN_TIPS[m.key] || {}).body || ""
+    };
+    if (g.reps != null) rec.reps = g.reps;
+    if (g.sec != null) rec.sec = g.sec;
+    if (g.side) rec.side = true;
+    if (!GEN_EX.some(function (e) { return e.id === rec.id; })) GEN_EX.push(rec);
+  });
+})();
+
+/* Five Full Variety Week sessions, one per library and two for strength,
+   so whichever slot you roll there is a long-band session in it. Pushed
+   onto the libraries like the Variety additions; the pre-rolled month is
+   left exactly as it was, because changing a shipped day's session would
+   reset the ticks on it. Roll favours sessions never done, so these come
+   up on the first rolls. */
+(function () {
+  var VW = VW_PLAN, SESS = VW.sessions, DAYS = VW.guide.days;
+  function ex(key, name, o) { return Object.assign({ key: key, name: name, needs: "bodyweight" }, o || {}); }
+  function ss(n, o, sets, pos) {
+    var L = String.fromCharCode(64 + n);
+    var e = Object.assign({}, o, { sets: sets, ss: n });
+    e.scheme = "Superset " + n + " · " + L + (pos === 1 ? "1" : "2") + " · " + o.scheme + (pos === 2 ? " · no rest, then back to " + L + "1" : "");
+    return e;
+  }
+  function pair(n, a, b, sets) { return [ss(n, a, sets, 1), ss(n, b, sets, 2)]; }
+  var WARM = [
+    ex("wucardio", "Jump Rope / Brisk Walk", { sets: 1, sec: 120, scheme: "warm-up · 2 min easy · KNEE HURTING: brisk march in place" }),
+    ex("wuleg", "Leg Swings", { sets: 1, reps: 10, side: true, scheme: "warm-up · 10 per side, front-to-back, hold something" }),
+    ex("pw_band_pull_apart", "Band Pull-Apart", { sets: 1, reps: 15, scheme: "warm-up · 15 · #1 band · arms straight, squeeze the shoulder blades" })
+  ];
+  var S = { key: "slstance", name: "Single-Leg Stance", sets: 2, sec: 30, side: true, needs: "bodyweight",
+    scheme: "30s per side · eyes closed if you can · near a counter, not holding it" };
+  var add = {
+    strength: [
+      { key: "lb_strength_a", title: "Long Bands · Squat, Push & Pull", mins: "~20",
+        focus: "every big pattern with the long bands and nothing else: front squat with chest press, row with Romanian deadlift, overhead press with a Pallof press",
+        exercises: WARM.concat(
+          pair(1, ex("lb_front_squat", "Long-Band Front Squat", { reps: 12, scheme: "10-12 · Quads/Glutes · #3 or #4 band across the front of the shoulders · 2s down, stand all the way up · KNEE HURTING: squat to a knee-height box" }),
+                  ex("lb_chest_press", "Long-Band Chest Press", { reps: 12, scheme: "10-12 · Chest · #2 or #3 band around the upper back, split stance" }), 3),
+          pair(2, ex("lb_bent_row", "Long-Band Bent-Over Row", { reps: 12, scheme: "10-12 · Back · #2 or #3 band under both feet · flat back, pull to the lower ribs" }),
+                  ex("lb_rdl", "Long-Band Romanian Deadlift", { reps: 12, scheme: "10-12 · Hamstrings/Glutes · #3 or #4 band under both feet · hips back, flat back" }), 3),
+          pair(3, ex("lb_overhead_press", "Long-Band Overhead Press", { reps: 10, scheme: "8-12 · Shoulders · #1 or #2 band under both feet · ribs down" }),
+                  ex("lb_pallof_press", "Long-Band Pallof Press", { reps: 10, side: true, scheme: "10 per side · Obliques/Core · #1 or #2 band choked on a rack upright at chest height · NO ANCHOR: palms pressed hard together, arms out, 20s" }), 3)) },
+      { key: "lb_strength_b", title: "Long Bands · Hinge, Lunge & Pulldown", mins: "~25",
+        focus: "the other half of the patterns: split squat with a kneeling pulldown, good morning with a band push-up, hip thrust with a woodchop, then arms",
+        exercises: WARM.concat(
+          pair(1, ex("lb_split_squat", "Long-Band Split Squat", { reps: 10, side: true, scheme: "8-10 per side · Quads/Glutes · #2 or #3 band under the front foot, loop at the shoulders · KNEE HURTING: shorter range, a hand on the rack" }),
+                  ex("lb_lat_pulldown", "Kneeling Long-Band Lat Pulldown", { reps: 12, scheme: "10-12 · Back · #2 or #3 band choked on the pull-up bar · STRONGER DAY: band-assisted pull-ups, knee in the #3 or #4 band" }), 3),
+          pair(2, ex("lb_good_morning", "Long-Band Good Morning", { reps: 12, scheme: "10-12 · Hamstrings/Glutes · #2 or #3 band across the upper back, towel under it · NECK COMPLAINS: Long-Band Romanian Deadlift" }),
+                  ex("lb_push_up", "Long-Band Push-Up", { reps: 10, scheme: "8-12 · Chest · #1 or #2 band across the back, ends under the palms · hands on a bench if 8 is out of reach" }), 3),
+          pair(3, ex("lb_hip_thrust", "Long-Band Hip Thrust", { reps: 12, scheme: "12-15 · Glutes · #2 or #3 band pinned under both feet, loop over the hips · squeeze hard at the top" }),
+                  ex("lb_woodchop", "Long-Band Woodchop (High to Low)", { reps: 10, side: true, scheme: "10 per side · Obliques/Core · #1 or #2 band choked high on the rack · pivot the back foot" }), 3),
+          pair(4, ex("lb_biceps_curl", "Long-Band Biceps Curl", { reps: 12, scheme: "12-15 · Biceps · #1 or #2 band under both feet · elbows pinned" }),
+                  ex("lb_triceps_pushdown", "Long-Band Triceps Pushdown", { reps: 12, scheme: "12-15 · Triceps · #1 or #2 band choked on the pull-up bar · elbows pinned" }), 2)) }
+    ],
+    mobility: [
+      { key: "lb_band_mobility", title: "Long-Band Stretch & Shoulders", mins: "~20",
+        focus: "the long band as a strap and a light resistance: shoulder pass-throughs, pull-aparts and face pulls for the desk posture, then the lying leg stretch series for hamstrings, inner thighs and outer hips",
+        exercises: [
+          ex("syn_cat_cow_breath_led", "Cat-Cow (Breath-Led)", { sets: 1, reps: 8, scheme: "8 cycles · Spine · move with the breath" }),
+          ex("syn_shoulder_dislocates", "Shoulder Dislocates", { sets: 2, reps: 10, scheme: "10 · Shoulders · #1 band held wide, arms straight, over and back · widen the grip if it pinches" }),
+          ex("pw_band_pull_apart", "Band Pull-Apart", { sets: 2, reps: 15, scheme: "15 · #1 band · arms straight, squeeze the shoulder blades" }),
+          ex("band_face_pull", "Band Face Pull", { sets: 2, reps: 15, scheme: "12-20 · #1 or #2 band at eye height · elbows high, squeeze the blades · NO ANCHOR: band pull-aparts" }),
+          ex("lb_leg_stretch", "Long-Band Leg Stretch Series", { sets: 3, sec: 40, side: true, scheme: "40s each position, each leg · set 1 hamstring, set 2 inner thigh, set 3 outer hip · lying down, band round the foot" }),
+          ex("syn_child_s_pose_wide_knee", "Child's Pose (Wide Knee)", { sets: 1, sec: 90, scheme: "90s · Back/Hips · breathe into the low back" })
+        ] }
+    ],
+    cardio: [
+      { key: "lb_band_intervals", title: "Long-Band Intervals", mins: "~20",
+        focus: "a no-jump interval block built on the long bands: band thrusters and RDL-to-rows between marching and step-out moves, 30 seconds on, 30 seconds off · harder than Zone 2, so it is not the easy day",
+        exercises: [
+          ex("wucardio", "Jump Rope / Brisk Walk", { sets: 1, sec: 120, scheme: "warm-up · 2 min easy march" }),
+          ex("lb_thruster", "Long-Band Thruster", { sets: 3, sec: 30, scheme: "30s on / 30s off · Quads/Shoulders · #1 band · smooth, steady pace · KNEE HURTING: shallow squat" }),
+          ex("highknees", "Marching High Knees", { sets: 3, sec: 30, scheme: "30s on / 30s off · march, knees to hip height, pump the arms" }),
+          ex("lb_rdl_row", "Long-Band RDL to Row", { sets: 3, sec: 30, scheme: "30s on / 30s off · Hamstrings/Back · #2 band · hinge, row, stand" }),
+          ex("skaters", "Step Skaters", { sets: 3, sec: 30, scheme: "30s on / 30s off · lateral step-outs with a reach, no hop" }),
+          ex("briskmarch", "Brisk March", { sets: 1, sec: 180, scheme: "3 min · cool down, let the breathing settle" })
+        ] }
+    ],
+    mix: [
+      { key: "lb_full_body_balance", title: "Long Bands · Full Body + Balance", mins: "~30",
+        focus: "the long-band compound moves as one session with balance between them: thrusters, RDL-to-rows, Pallof presses, woodchops and face pulls, then a single-leg stance",
+        exercises: [
+          ex("wucardio", "Jump Rope / Brisk Walk", { sets: 1, sec: 120, scheme: "warm-up · 2 min easy · KNEE HURTING: brisk march in place" }),
+          ex("wuleg", "Leg Swings", { sets: 1, reps: 10, side: true, scheme: "warm-up · 10 per side, front-to-back, hold something" }),
+          ex("lb_thruster", "Long-Band Thruster", { sets: 3, reps: 10, scheme: "10 · Quads/Shoulders · #1 or #2 band · KNEE HURTING: shallow squat" }),
+          ex("lb_rdl_row", "Long-Band RDL to Row", { sets: 3, reps: 8, scheme: "8 · Hamstrings/Back · #2 or #3 band · hinge, row, stand" }),
+          ex("lb_pallof_press", "Long-Band Pallof Press", { sets: 2, reps: 10, side: true, scheme: "10 per side · Obliques/Core · #1 or #2 band on a rack upright at chest height · NO ANCHOR: palms pressed together, 20s" }),
+          ex("lb_woodchop", "Long-Band Woodchop (High to Low)", { sets: 2, reps: 10, side: true, scheme: "10 per side · Obliques/Core · #1 or #2 band choked high on the rack" }),
+          ex("band_face_pull", "Band Face Pull", { sets: 2, reps: 15, scheme: "12-20 · #1 or #2 band at eye height · elbows high" }),
+          S
+        ] }
+    ]
+  };
+  var LABEL = { strength: "Strength", mobility: "Mobility", cardio: "Cardio", mix: "Mix" };
+  var card = {
+    lb_strength_a: "Bands only today. Stand on the band, check it for nicks first, and finish every rep all the way: the band is heaviest at the top. Go up a band number when the top of the range feels easy.",
+    lb_strength_b: "Choke the band on the pull-up bar or the rack so it cannot slide. Towel under the band for the good mornings. Slow on the way down every rep.",
+    lb_band_mobility: "Light band, nothing forced. The leg stretch series uses the band as a strap: ease in, breathe out, no bouncing.",
+    lb_band_intervals: "Thirty seconds on, thirty off. Pick a pace you can hold for every round with good form. This one is harder than Zone 2, so it is not the easy day.",
+    lb_full_body_balance: "Compound band moves first, then the core and shoulders, then balance. Smooth and steady beats fast."
+  };
+  Object.keys(add).forEach(function (pool) {
+    add[pool].forEach(function (s) {
+      if (SESS[pool].some(function (x) { return x.key === s.key; })) return;
+      SESS[pool].push(s);
+      DAYS[LABEL[pool] + " · " + s.title] = { kicker: "Today", title: s.title, body: card[s.key] };
+    });
+  });
+  /* the guide's library counts and lists */
+  var g0 = VW.guide.groups[0].items;
+  g0[0].title = "Strength (" + SESS.strength.length + ")";
+  g0[0].body = g0[0].body.replace("Knees, Tendons & Hamstrings.", "Knees, Tendons & Hamstrings, Long Bands · Squat, Push & Pull, Long Bands · Hinge, Lunge & Pulldown.")
+                         .replace("except the heavy day (~45).", "except the heavy day (~45) and the two long-band days (~20 and ~25).");
+  g0[1].title = "Mobility (" + SESS.mobility.length + ")";
+  g0[1].body = g0[1].body.replace("Yin Stretch & Recovery.", "Yin Stretch & Recovery, Long-Band Stretch & Shoulders.");
+  g0[2].title = "Cardio (" + SESS.cardio.length + ")";
+  g0[2].body = g0[2].body.replace("Low-Impact Aerobics.", "Low-Impact Aerobics, Long-Band Intervals.")
+                         .replace("25-40 minutes;", "20-40 minutes;");
+  g0[3].title = "Mix (" + SESS.mix.length + ")";
+  g0[3].body = g0[3].body.replace("Footwork & Agility.", "Footwork & Agility; Long Bands · Full Body + Balance.");
+  var g1 = VW.guide.groups[1].items;
+  g1.forEach(function (it) { it.body = it.body.replace(/\.$/, it.title === "Strength" ? "; the two long-band sessions are this app's own programming." : "; the long-band session is this app's own programming."); });
+  VW.guide.rotate.push({ kicker: "Long bands", title: "A band session in every library",
+    body: "Each library now has a long-band session: two strength days that cover squat, hinge, lunge, push, press, row, pulldown and core between them, a stretch-and-shoulders session, a no-jump interval block and a full-body mix. Look each band over for nicks before you use it, choke it around the rack or the pull-up bar so it cannot slide, and finish every rep all the way, because the band is heaviest at the top." });
+  VW.guide.blurb = VW.guide.blurb
+    .replace("Twelve strength sessions, twenty mobility sessions, thirteen cardio sessions and eight mix sessions, all built from programs already in the app.",
+             "Fourteen strength sessions, twenty-one mobility sessions, fourteen cardio sessions and nine mix sessions, built from programs already in the app plus the app's own additions, including a long-band session in every library.");
+})();

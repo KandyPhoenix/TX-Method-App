@@ -116,6 +116,8 @@ const MM_NAME_RULES = [
   /* Specific names first: several of these contain a word a broader rule
      below would grab ("Leg Curl" is not a biceps curl, "Pallof Press" is
      not a shoulder press, "Rotational Throw" contains "row"). */
+  [/thruster|squat[- ]to[- ]press/i,                                  { p: ['quads', 'shoulders'], s: ['glutes', 'triceps'] }],
+  [/rdl to row|deadlift to row/i,                                     { p: ['hamstrings', 'back'], s: ['glutes', 'biceps'] }],
   [/get[- ]?up\b/i,                                                  { p: ['shoulders', 'core'], s: ['glutes', 'obliques'] }],
   [/\bhalo\b/i,                                                     { p: ['shoulders'], s: ['core'] }],
   [/copenhagen|adductor plank/i,                                     { p: ['hips'], s: ['obliques', 'core'] }],

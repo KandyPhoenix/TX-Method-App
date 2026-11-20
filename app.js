@@ -1107,8 +1107,9 @@ function genPlaceholder() {
 }
 
 /* Instructions for every generated movement, warm-up and cool-down, folded
-   into the same table the How-to panel already reads. 110 exercises plus
-   warm-ups and cool-downs arrive with their text written. */
+   into the same table the How-to panel already reads. The 110 Synthesis
+   exercises, the long-band movements added in plans-data.js, and the
+   warm-ups and cool-downs all arrive with their text written. */
 function genRegisterTips() {
   if (typeof GEN_EX === 'undefined') return;
   GEN_EX.forEach(e => { if (e.body) FORM_TIPS['gen_' + e.id] = { title: e.name, body: e.body }; });
@@ -1224,7 +1225,7 @@ function rollBarHTML(d, dayNum) {
       <select id="rollSel" class="gen-sel" aria-label="${label} session">${opts}</select>
       <button class="btn primary gen-roll" id="rollBtn">🎲 Roll a different ${label.toLowerCase()} session</button>
     </div>
-    <div class="gen-muscles-hint">${list.length} ${label.toLowerCase()} sessions in the library, all from programs already in the app. Roll favours the ones you have not done lately (✓ = done before); pick one from the list to choose outright. Ticks on this day reset when it changes.</div>
+    <div class="gen-muscles-hint">${list.length} ${label.toLowerCase()} sessions in the library. Roll favours the ones you have not done lately (✓ = done before); pick one from the list to choose outright. Ticks on this day reset when it changes.</div>
   </div>`;
 }
 function rollDay(dayNum, want) {
@@ -4722,6 +4723,7 @@ const FORM_VIDEOS = {
   zone2:                                          'AyMUWBUt3WY',  // How To Turbo Charge Zone 2 Training — Global Cycling Network
   /* Long-Band Hip Thrust (2026-10-05) — Kandy's pick, oEmbed 200 */
   lb_hip_thrust:                                  'GgvuSXnFGLM',  // Hip Thrusts | Large Loop Band — Allison Ethier
+  'gen_lb-hip-thrust':                            'GgvuSXnFGLM',  // the same movement as the Random Generator serves it (LONG BANDS, plans-data.js)
   /* Variety additions (2026-10-05). Every id oEmbed-checked (200, embeddable);
      titles and channels recorded from oEmbed. The clips could not be watched
      from here, so the How-to text carries the setup. */
@@ -8941,7 +8943,7 @@ function equipSwapFor(key) {
 
 const PROTOCOLS = [
   { key: 'fpfocus',  ico: '\u{1F9EC}', name: 'Fingerprint Focus', tag: 'Adaptive', grp: 'workout', needs: 'bodyweight', sub: 'Built from your markers' },
-  { key: 'gen', needs: 'bodyweight', ico: '\u{1F3B2}', name: 'Random Generator', tag: 'Adaptive', grp: 'workout', sub: '110 exercises, never the same twice' },
+  { key: 'gen', needs: 'bodyweight', ico: '\u{1F3B2}', name: 'Random Generator', tag: 'Adaptive', grp: 'workout', sub: (typeof GEN_EX === 'undefined' ? 110 : GEN_EX.length) + ' exercises, never the same twice' },
   { key: 'texas', needs: 'gym',     ico: '🏋️', name: 'Texas Method',      tag: 'Strength',     grp: 'workout', sub: 'Barbell' },
   { key: 'dumbbell', needs: 'dumbbells',  ico: '💪',         name: 'Dumbbell A/B',      tag: 'Strength',     grp: 'workout', sub: 'Dumbbells only' },
   { key: 'prep30', needs: 'bodyweight',    ico: '🗓️', name: '30-Day Prep',       tag: 'Strength',     grp: 'workout', sub: 'Bodyweight ramp-up' },
